@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.IO;
 
-namespace PaperArena
+namespace FoodIsekaiZ.Configuration
 {
     public abstract class BaseConfigManager<TManager, TConfig> : MonoBehaviour
         where TManager : BaseConfigManager<TManager, TConfig>

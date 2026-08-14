@@ -1,14 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using UnityEngine;
 
 namespace Fortal.UWB
 {
+    public enum UWBTransportMode
+    {
+        Serial,
+        Udp
+    }
+
     /// <summary>
-    /// Reads the NoopLoop LinkTrack UWB binary protocol directly from the local anchor's
-    /// USB serial link, trilaterates each registered <see cref="UWBTracker"/>'s position from
-    /// the configured anchor Transforms, and pushes smoothed/predicted positions to it every frame.
+    /// Reads the NoopLoop LinkTrack UWB binary protocol from serial or UDP, trilaterates each
+    /// registered tag from the configured anchor Transforms, and exposes calibrated positions.
     /// </summary>
     [DefaultExecutionOrder(-100)]
     public sealed class UWBManager : MonoBehaviour
@@ -19,6 +26,7 @@ namespace Fortal.UWB
         private sealed class TrackedTag
         {
             public UWBTracker tracker;
+            public int externalConsumers;
             public bool hasPose;
             public bool hasUwbPosition;
             public Vector3 latestPositionMeters;
@@ -38,10 +46,17 @@ namespace Fortal.UWB
             public float lastPositionFrameHistoryTime = -999f;
         }
 
+        [Header("Connection")]
+        [SerializeField] private UWBTransportMode transportMode = UWBTransportMode.Serial;
+        [SerializeField] private bool connectOnStart = true;
+
         [Header("Serial")]
         [SerializeField] private string portName = "COM3";
         [SerializeField] private int baudRate = 921600;
-        [SerializeField] private bool connectOnStart = true;
+
+        [Header("UDP (NoopLoop binary datagram)")]
+        [SerializeField] private string udpListenAddress = "0.0.0.0";
+        [SerializeField] private int udpListenPort = 9000;
 
         [Header("Scene Anchors")]
         [Tooltip("Physical anchor positions placed in the Unity scene, matched by index to Anchor Device Ids. If UWBConfig.json has UWBAnchorPositions set, those override these Transforms' positions at Start.")]
@@ -54,10 +69,20 @@ namespace Fortal.UWB
 
         [Header("Axis Conversion")]
         [Tooltip("How the tag's raw onboard position (NoopLoop protocol X/Y/Z) maps onto Unity X/Y/Z. Overridden by UWBConfig.json's axisConversion if a UWBConfigManager is present. Only applies to the device-reported position, not to scene-anchor trilateration (that's already in Unity space).")]
-        [SerializeField] private PaperArena.UWBAxisConversion axisConversion = new PaperArena.UWBAxisConversion();
+        [SerializeField] private FoodIsekaiZ.Configuration.UWBAxisConversion axisConversion = new FoodIsekaiZ.Configuration.UWBAxisConversion();
 
         [Tooltip("Meters added to the device position after axis conversion. Used to shift the tracker origin into the play area - e.g. with rawYTo=\"-z\", set Z to the field depth so a flipped axis mirrors back into 0..depth instead of going negative. Overridden by UWBConfig.json's UWBInputOffset.")]
         [SerializeField] private Vector3 inputOffset = Vector3.zero;
+
+        [Header("Arena Mapping (UWB X/Z -> Floor X/Z)")]
+        [SerializeField] private bool useArenaMapping = true;
+        [SerializeField] private bool clampToArena = true;
+        [SerializeField] private Vector2 physicalMinMeters = Vector2.zero;
+        [SerializeField] private Vector2 physicalMaxMeters = new Vector2(6f, 4f);
+        [SerializeField] private Vector2 arenaMin = new Vector2(-6f, -4f);
+        [SerializeField] private Vector2 arenaMax = new Vector2(6f, 4f);
+        [Tooltip("ให้ Arena Layout ใน Scene เป็นผู้กำหนดขอบเขตปลายทาง เพื่อให้ภาพกับ UWB mapping ตรงกัน")]
+        [SerializeField] private bool useSceneArenaBounds = true;
 
         [Header("Tracking")]
         [SerializeField] private float maxPoseAgeSeconds = 1f;
@@ -95,14 +120,13 @@ namespace Fortal.UWB
         private readonly Dictionary<int, TrackedTag> tags = new Dictionary<int, TrackedTag>();
         private readonly object poseLock = new object();
         private readonly NoopLoopFrameParser parser = new NoopLoopFrameParser();
+        private readonly Queue<NoopLoopPose> pendingPoses = new Queue<NoopLoopPose>();
+        private readonly List<NoopLoopPose> posesForMainThread = new List<NoopLoopPose>(32);
 
         private NoopLoopSerialPort serialPort;
+        private UdpClient udpClient;
         private Thread readThread;
         private volatile bool keepReading;
-        private NoopLoopPose latestPose;
-        private bool hasReceiverPose;
-        private long latestPoseSequence;
-        private long appliedPoseSequence = -1;
         private string threadStatus = "Idle";
 
         public bool IsConnected => isConnected;
@@ -110,9 +134,10 @@ namespace Fortal.UWB
 
         private void Start()
         {
-            PaperArena.UWBConfigData config = PaperArena.UWBConfigManager.GetConfig();
+            FoodIsekaiZ.Configuration.UWBConfigData config = FoodIsekaiZ.Configuration.UWBConfigManager.GetConfig();
             if (config != null)
             {
+                transportMode = config.transportMode;
                 portName = config.UWBSerialPort;
                 if (config.UWBBaudRate > 0)
                 {
@@ -125,7 +150,25 @@ namespace Fortal.UWB
                 }
 
                 inputOffset = config.UWBInputOffset;
+                udpListenAddress = config.udpListenAddress;
+                udpListenPort = config.udpListenPort;
+                useArenaMapping = config.useArenaMapping;
+                clampToArena = config.clampToArena;
+                physicalMinMeters = config.physicalMinMeters;
+                physicalMaxMeters = config.physicalMaxMeters;
+                arenaMin = config.arenaMin;
+                arenaMax = config.arenaMax;
                 ApplyAnchorPositionsFromConfig(config);
+            }
+
+            if (useSceneArenaBounds)
+            {
+                FoodIsekaiZ.Gameplay.FoodIsekaiZArenaLayout layout =
+                    FindAnyObjectByType<FoodIsekaiZ.Gameplay.FoodIsekaiZArenaLayout>();
+                if (layout != null)
+                {
+                    SetArenaBounds2D(layout.ArenaBounds);
+                }
             }
 
             axisConversion.Validate();
@@ -140,7 +183,7 @@ namespace Fortal.UWB
         /// Repositions the configured anchor Transforms from UWBConfig.json so a physical
         /// anchor re-measurement only requires editing the JSON, not the scene.
         /// </summary>
-        private void ApplyAnchorPositionsFromConfig(PaperArena.UWBConfigData config)
+        private void ApplyAnchorPositionsFromConfig(FoodIsekaiZ.Configuration.UWBConfigData config)
         {
             if (config.UWBAnchorPositions == null || anchorSceneObjects == null)
             {
@@ -172,12 +215,23 @@ namespace Fortal.UWB
 
             try
             {
-                serialPort = new NoopLoopSerialPort(portName, baudRate);
-                serialPort.Open();
-
                 keepReading = true;
-                threadStatus = $"Open {portName} @ {baudRate}";
-                Debug.Log($"[UWBManager] Serial opened: {portName} @ {baudRate}", this);
+                if (transportMode == UWBTransportMode.Serial)
+                {
+                    serialPort = new NoopLoopSerialPort(portName, baudRate);
+                    serialPort.Open();
+                    threadStatus = $"Open {portName} @ {baudRate}";
+                    Debug.Log($"[UWBManager] Serial opened: {portName} @ {baudRate}", this);
+                }
+                else
+                {
+                    IPAddress listenIp = IPAddress.Parse(udpListenAddress);
+                    udpClient = new UdpClient(new IPEndPoint(listenIp, udpListenPort));
+                    udpClient.Client.ReceiveTimeout = 100;
+                    threadStatus = $"UDP {udpListenAddress}:{udpListenPort}";
+                    Debug.Log($"[UWBManager] UDP listening: {udpListenAddress}:{udpListenPort}", this);
+                }
+
                 readThread = new Thread(ReadLoop)
                 {
                     IsBackground = true,
@@ -188,7 +242,7 @@ namespace Fortal.UWB
             catch (Exception ex)
             {
                 threadStatus = $"Open failed: {ex.Message}";
-                Debug.LogError($"[UWBManager] Serial open failed on {portName}: {ex.Message}", this);
+                Debug.LogError($"[UWBManager] Connection failed: {ex.Message}", this);
                 Disconnect();
             }
         }
@@ -197,6 +251,13 @@ namespace Fortal.UWB
         public void Disconnect()
         {
             keepReading = false;
+
+            // Close UDP ก่อน Join เพื่อปลุก Receive() ที่กำลัง block อยู่
+            if (udpClient != null)
+            {
+                udpClient.Close();
+                udpClient = null;
+            }
 
             if (readThread != null)
             {
@@ -230,29 +291,34 @@ namespace Fortal.UWB
             {
                 try
                 {
-                    int value = serialPort.ReadByte();
-                    if (value < 0)
+                    if (transportMode == UWBTransportMode.Serial)
                     {
-                        continue;
-                    }
-
-                    if (parser.Push((byte)value, out NoopLoopPose pose))
-                    {
-                        bool usable = pose.FrameType != "AnchorFrame0-NoTag";
-                        lock (poseLock)
+                        int value = serialPort.ReadByte();
+                        if (value >= 0)
                         {
-                            latestPose = pose;
-                            hasReceiverPose = usable;
-                            if (usable)
-                            {
-                                latestPoseSequence++;
-                            }
-
-                            threadStatus = usable ? $"{pose.FrameType} OK: T{pose.Id}" : "AnchorFrame0 OK, waiting for Tag";
+                            PushProtocolByte((byte)value);
+                        }
+                    }
+                    else
+                    {
+                        IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
+                        byte[] datagram = udpClient.Receive(ref sender);
+                        for (int i = 0; i < datagram.Length; i++)
+                        {
+                            PushProtocolByte(datagram[i]);
                         }
                     }
                 }
                 catch (TimeoutException)
+                {
+                }
+                catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TimedOut)
+                {
+                }
+                catch (SocketException) when (!keepReading)
+                {
+                }
+                catch (ObjectDisposedException) when (!keepReading)
                 {
                 }
                 catch (Exception ex)
@@ -260,6 +326,32 @@ namespace Fortal.UWB
                     threadStatus = $"Read stopped: {ex.Message}";
                     keepReading = false;
                 }
+            }
+        }
+
+        private void PushProtocolByte(byte value)
+        {
+            if (!parser.Push(value, out NoopLoopPose pose))
+            {
+                return;
+            }
+
+            bool usable = pose.FrameType != "AnchorFrame0-NoTag";
+            lock (poseLock)
+            {
+                if (usable)
+                {
+                    // เก็บทุก frame เพื่อไม่ให้ Tag คนหนึ่งทับอีกคนก่อนถึง Unity Update
+                    // จำกัด queue เพื่อป้องกัน memory โตไม่สิ้นสุดหาก main thread ค้าง
+                    if (pendingPoses.Count >= 256)
+                    {
+                        pendingPoses.Dequeue();
+                    }
+
+                    pendingPoses.Enqueue(pose);
+                }
+
+                threadStatus = usable ? $"{pose.FrameType} OK: T{pose.Id}" : "AnchorFrame0 OK, waiting for Tag";
             }
         }
 
@@ -281,6 +373,35 @@ namespace Fortal.UWB
             entry.tracker = tracker;
         }
 
+        /// <summary>
+        /// ลงทะเบียน Tag ที่ consumer ภายนอก (เช่น UWBPlayerController) ต้องการอ่าน
+        /// โดยไม่บังคับให้ใช้ UWBTracker component ตัวเดิมของโปรเจกต์ต้นแบบ
+        /// </summary>
+        public void RegisterTag(int tagId)
+        {
+            if (!tags.TryGetValue(tagId, out TrackedTag entry))
+            {
+                entry = new TrackedTag();
+                tags[tagId] = entry;
+            }
+
+            entry.externalConsumers++;
+        }
+
+        public void UnregisterTag(int tagId)
+        {
+            if (!tags.TryGetValue(tagId, out TrackedTag entry))
+            {
+                return;
+            }
+
+            entry.externalConsumers = Mathf.Max(0, entry.externalConsumers - 1);
+            if (entry.externalConsumers == 0 && entry.tracker == null)
+            {
+                tags.Remove(tagId);
+            }
+        }
+
         public void RemoveTag(UWBTracker tracker)
         {
             if (tracker == null)
@@ -291,6 +412,10 @@ namespace Fortal.UWB
             if (tags.TryGetValue(tracker.tagId, out TrackedTag entry) && entry.tracker == tracker)
             {
                 entry.tracker = null;
+                if (entry.externalConsumers == 0)
+                {
+                    tags.Remove(tracker.tagId);
+                }
             }
         }
 
@@ -309,26 +434,75 @@ namespace Fortal.UWB
             return ageSeconds <= maxPoseAgeSeconds;
         }
 
+        /// <summary>
+        /// แปลงพิกัดจริง UWB ไปยังสนาม X/Z (คืนค่า X/Z ผ่าน Vector2.x/y)
+        /// ตาม calibration rectangle เพื่อให้ขนาดจอ/ขนาดสนามเปลี่ยนได้โดยไม่แก้ controller
+        /// </summary>
+        public bool TryGetArenaPosition2D(int tagId, out Vector2 arenaPosition, out float ageSeconds)
+        {
+            arenaPosition = default;
+            if (!TryGetTagPosition(tagId, out Vector3 positionMeters, out ageSeconds))
+            {
+                return false;
+            }
+
+            Vector2 physical = new Vector2(positionMeters.x, positionMeters.z);
+            if (!useArenaMapping)
+            {
+                arenaPosition = physical;
+                return true;
+            }
+
+            float width = physicalMaxMeters.x - physicalMinMeters.x;
+            float height = physicalMaxMeters.y - physicalMinMeters.y;
+            if (Mathf.Abs(width) < 0.0001f || Mathf.Abs(height) < 0.0001f)
+            {
+                Debug.LogError("[UWBManager] Physical arena bounds must have non-zero width and height.", this);
+                return false;
+            }
+
+            float normalizedX = (physical.x - physicalMinMeters.x) / width;
+            float normalizedY = (physical.y - physicalMinMeters.y) / height;
+            if (clampToArena)
+            {
+                normalizedX = Mathf.Clamp01(normalizedX);
+                normalizedY = Mathf.Clamp01(normalizedY);
+            }
+
+            arenaPosition = new Vector2(
+                Mathf.LerpUnclamped(arenaMin.x, arenaMax.x, normalizedX),
+                Mathf.LerpUnclamped(arenaMin.y, arenaMax.y, normalizedY));
+            return true;
+        }
+
+        /// <summary>ทำให้ขอบเขต UWB mapping ตรงกับสนามที่ procedural layout สร้าง</summary>
+        public void SetArenaBounds2D(Rect bounds)
+        {
+            arenaMin = bounds.min;
+            arenaMax = bounds.max;
+        }
+
         // ── Main-thread update ───────────────────────────────────────────────────
 
         private void Update()
         {
-            bool hasPoseThisFrame;
-            NoopLoopPose pose;
-            long poseSequence;
+            posesForMainThread.Clear();
             lock (poseLock)
             {
-                hasPoseThisFrame = hasReceiverPose;
-                pose = latestPose;
-                poseSequence = latestPoseSequence;
-                isConnected = serialPort != null && serialPort.IsOpen && keepReading;
+                while (pendingPoses.Count > 0)
+                {
+                    posesForMainThread.Add(pendingPoses.Dequeue());
+                }
+
+                isConnected = keepReading &&
+                    ((transportMode == UWBTransportMode.Serial && serialPort != null && serialPort.IsOpen) ||
+                     (transportMode == UWBTransportMode.Udp && udpClient != null));
                 status = threadStatus;
             }
 
-            if (hasPoseThisFrame && poseSequence != appliedPoseSequence)
+            for (int i = 0; i < posesForMainThread.Count; i++)
             {
-                appliedPoseSequence = poseSequence;
-                ApplyPoseToRegisteredTags(pose);
+                ApplyPoseToRegisteredTags(posesForMainThread[i]);
             }
 
             PredictTagsDuringSignalGap();

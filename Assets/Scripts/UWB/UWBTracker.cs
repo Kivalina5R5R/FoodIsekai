@@ -46,7 +46,7 @@ namespace Fortal.UWB
                 manager = FindAnyObjectByType<UWBManager>();
             }
 
-            PaperArena.UWBConfigData config = PaperArena.UWBConfigManager.GetConfig();
+            FoodIsekaiZ.Configuration.UWBConfigData config = FoodIsekaiZ.Configuration.UWBConfigManager.GetConfig();
             if (config != null)
             {
                 metersToWorldScale = config.metersToWorldScale;

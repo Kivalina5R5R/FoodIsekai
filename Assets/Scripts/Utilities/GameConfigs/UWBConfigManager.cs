@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace PaperArena
+namespace FoodIsekaiZ.Configuration
 {
     public class UWBConfigManager : BaseConfigManager<UWBConfigManager, UWBConfigData>
     {

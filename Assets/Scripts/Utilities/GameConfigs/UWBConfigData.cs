@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace PaperArena
+namespace FoodIsekaiZ.Configuration
 {
     /// <summary>
     /// Free-form remap of the tracker's raw X/Y/Z onto Unity's X/Y/Z. Each field names where one
@@ -125,6 +125,11 @@ namespace PaperArena
         public string UWBSerialPort = "COM5";
         public int UWBBaudRate = 921600;
 
+        [Tooltip("รับข้อมูลจาก Serial หรือ UDP datagram ที่บรรจุ NoopLoop binary frame")]
+        public Fortal.UWB.UWBTransportMode transportMode = Fortal.UWB.UWBTransportMode.Serial;
+        public string udpListenAddress = "0.0.0.0";
+        public int udpListenPort = 9000;
+
         [Tooltip("Per-axis remap of the raw tracker position onto Unity space. Default sends raw X -> Unity X and raw Y -> Unity Z (raw Z dropped), matching the old YtoZ mode.")]
         public UWBAxisConversion axisConversion = new UWBAxisConversion();
 
@@ -133,6 +138,16 @@ namespace PaperArena
 
         [Tooltip("Multiplier applied to raw UWB positions (real-world meters) to convert them into game-world units. 1 = 1 real meter maps to 1 Unity unit.")]
         public float metersToWorldScale = 1f;
+
+        [Header("Arena Mapping (UWB X/Z -> Floor X/Z)")]
+        [Tooltip("เปิดการ map พิกัดจริงเป็นพิกัด 2D ของฉาก Floor")]
+        public bool useArenaMapping = true;
+        public bool clampToArena = true;
+        public Vector2 physicalMinMeters = Vector2.zero;
+        public Vector2 physicalMaxMeters = new Vector2(6f, 4f);
+        [Tooltip("ขอบเขตสนาม X/Z โดยเก็บ X ใน Vector2.x และ Z ใน Vector2.y")]
+        public Vector2 arenaMin = new Vector2(-6f, -4f);
+        public Vector2 arenaMax = new Vector2(6f, 4f);
 
         [Header("UWB Anchors")]
         [Tooltip("World-space meters position of each NoopLoop anchor. Matched by index to UWBManager's Scene Anchors / Anchor Device Ids.")]
