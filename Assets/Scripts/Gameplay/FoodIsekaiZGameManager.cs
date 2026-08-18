@@ -1,12 +1,26 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace FoodIsekaiZ.Gameplay
 {
 
     public sealed class FoodIsekaiZGameManager : MonoBehaviour
     {
+        [Serializable]
+        private sealed class PlayerScoreRecord
+        {
+            [Min(1)] public int playerId;
+            public int score;
+
+            public PlayerScoreRecord(int playerId, int score)
+            {
+                this.playerId = playerId;
+                this.score = score;
+            }
+        }
+
         [Serializable]
         public sealed class CustomerProfile
         {
@@ -64,6 +78,11 @@ namespace FoodIsekaiZ.Gameplay
         [Tooltip("Inclusive random money reward for one completed order.")]
         [SerializeField] private Vector2Int moneyRewardRange = new Vector2Int(10, 20);
 
+        [Header("Scoring")]
+        [SerializeField, Min(0)] private int correctServeScore = 10;
+        [SerializeField, Min(0)] private int bankDepositScore = 5;
+        [SerializeField, Min(0)] private int escapedCustomerPenalty = 5;
+
         [Header("Random Customers")]
         [SerializeField] private CustomerProfile[] customerProfiles =
         {
@@ -86,20 +105,23 @@ namespace FoodIsekaiZ.Gameplay
         };
 
         [Header("Runtime (Read Only)")]
-        [SerializeField, Min(0)] private int teamBankedMoney;
+        [FormerlySerializedAs("teamBankedMoney")]
+        [SerializeField] private int teamScore;
         [SerializeField, Min(0)] private int completedOrderCount;
         [SerializeField, Min(0)] private int expiredOrderCount;
+        [SerializeField] private List<PlayerScoreRecord> playerScores = new List<PlayerScoreRecord>();
 
-        private readonly Dictionary<int, int> bankedMoneyByPlayer = new Dictionary<int, int>();
         private float[] nextCustomerSpawnTimes = Array.Empty<float>();
         private bool customerFlowStarted;
 
-        public int TeamBankedMoney => teamBankedMoney;
+        public int TeamScore => teamScore;
         public int CompletedOrderCount => completedOrderCount;
         public int ExpiredOrderCount => expiredOrderCount;
         public IReadOnlyList<ArenaSlot2D> CustomerSlots => customerSlots;
 
         public event Action<int, int> PlayerMoneyDeposited;
+        public event Action<int, int> PlayerScoreChanged;
+        public event Action<int> TeamScoreChanged;
         public event Action<ArenaSlot2D, FoodType> CustomerRequestedFood;
         public event Action<ArenaSlot2D, int> CustomerMoneySpawned;
         public event Action<ArenaSlot2D> CustomerOrderExpired;
@@ -228,9 +250,42 @@ namespace FoodIsekaiZ.Gameplay
             return option != null ? option.color : Color.white;
         }
 
-        public int GetPlayerBankedMoney(int playerId)
+        public int GetPlayerScore(int playerId)
         {
-            return bankedMoneyByPlayer.TryGetValue(playerId, out int amount) ? amount : 0;
+            PlayerScoreRecord record = FindPlayerScoreRecord(playerId);
+            return record != null ? record.score : 0;
+        }
+
+        public bool TryGetMvp(out int playerId, out int score)
+        {
+            playerId = 0;
+            score = 0;
+            bool found = false;
+            if (playerScores == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < playerScores.Count; i++)
+            {
+                PlayerScoreRecord entry = playerScores[i];
+                if (entry == null)
+                {
+                    continue;
+                }
+
+                if (found && entry.score < score ||
+                    (found && entry.score == score && entry.playerId >= playerId))
+                {
+                    continue;
+                }
+
+                playerId = entry.playerId;
+                score = entry.score;
+                found = true;
+            }
+
+            return found;
         }
 
         public void ConfigureSlots(
@@ -260,6 +315,7 @@ namespace FoodIsekaiZ.Gameplay
                 if (slot.CustomerState == CustomerSlotState.WaitingForFood)
                 {
                     expiredOrderCount++;
+                    AddTeamScore(-escapedCustomerPenalty);
                     CustomerOrderExpired?.Invoke(slot);
                     slot.ClearCustomer();
                     ScheduleCustomer(i);
@@ -294,6 +350,7 @@ namespace FoodIsekaiZ.Gameplay
                     return false;
                 }
 
+                AddPlayerAndTeamScore(player.PlayerId, correctServeScore);
                 return true;
             }
 
@@ -321,10 +378,67 @@ namespace FoodIsekaiZ.Gameplay
                 return false;
             }
 
-            teamBankedMoney += deposited;
-            bankedMoneyByPlayer[player.PlayerId] = GetPlayerBankedMoney(player.PlayerId) + deposited;
+            AddPlayerAndTeamScore(player.PlayerId, bankDepositScore);
             PlayerMoneyDeposited?.Invoke(player.PlayerId, deposited);
             return true;
+        }
+
+        private void AddPlayerAndTeamScore(int playerId, int amount)
+        {
+            if (amount == 0)
+            {
+                return;
+            }
+
+            int updatedPlayerScore = GetPlayerScore(playerId) + amount;
+            PlayerScoreRecord record = FindPlayerScoreRecord(playerId);
+            if (record == null)
+            {
+                record = new PlayerScoreRecord(playerId, updatedPlayerScore);
+                if (playerScores == null)
+                {
+                    playerScores = new List<PlayerScoreRecord>();
+                }
+
+                playerScores.Add(record);
+            }
+            else
+            {
+                record.score = updatedPlayerScore;
+            }
+
+            PlayerScoreChanged?.Invoke(playerId, updatedPlayerScore);
+            AddTeamScore(amount);
+        }
+
+        private PlayerScoreRecord FindPlayerScoreRecord(int playerId)
+        {
+            if (playerScores == null)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < playerScores.Count; i++)
+            {
+                PlayerScoreRecord record = playerScores[i];
+                if (record != null && record.playerId == playerId)
+                {
+                    return record;
+                }
+            }
+
+            return null;
+        }
+
+        private void AddTeamScore(int amount)
+        {
+            if (amount == 0)
+            {
+                return;
+            }
+
+            teamScore = Mathf.Max(0, teamScore + amount);
+            TeamScoreChanged?.Invoke(teamScore);
         }
 
         private void SpawnReadyCustomers()
@@ -669,6 +783,9 @@ namespace FoodIsekaiZ.Gameplay
             eatingDurationSeconds = Mathf.Max(0.1f, eatingDurationSeconds);
             moneyRewardRange.x = Mathf.Max(0, moneyRewardRange.x);
             moneyRewardRange.y = Mathf.Max(0, moneyRewardRange.y);
+            correctServeScore = Mathf.Max(0, correctServeScore);
+            bankDepositScore = Mathf.Max(0, bankDepositScore);
+            escapedCustomerPenalty = Mathf.Max(0, escapedCustomerPenalty);
         }
 #endif
     }
