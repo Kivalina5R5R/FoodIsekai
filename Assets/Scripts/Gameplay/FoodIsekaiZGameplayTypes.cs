@@ -24,4 +24,12 @@ namespace FoodIsekaiZ.Gameplay
         Eating,
         MoneyAvailable
     }
+
+    public enum MealWavePhase
+    {
+        NotStarted,
+        Active,
+        Intermission,
+        Completed
+    }
 }
