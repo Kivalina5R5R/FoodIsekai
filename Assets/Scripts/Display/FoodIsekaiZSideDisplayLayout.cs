@@ -40,6 +40,7 @@ namespace FoodIsekaiZ.Display
 
         private Canvas sideCanvas;
         private Text scoreText;
+        private Text mvpText;
         private Text uwbStatusText;
         private readonly Text[] customerStatusTexts = new Text[4];
         private readonly Image[] customerPanelImages = new Image[4];
@@ -156,16 +157,28 @@ namespace FoodIsekaiZ.Display
             title.fontStyle = FontStyle.Bold;
 
             scoreText = CreateText(
-                "TeamMoney",
+                "TeamScore",
                 canvasObject.transform,
                 new Vector2(0.30f, 0.55f),
                 new Vector2(0.71f, 0.93f),
-                "TEAM MONEY  0000",
+                "TEAM SCORE  0000",
                 54,
                 TextAnchor.MiddleCenter,
                 moneyColor,
                 font);
             scoreText.fontStyle = FontStyle.Bold;
+
+            mvpText = CreateText(
+                "MVPScore",
+                canvasObject.transform,
+                new Vector2(0.02f, 0.49f),
+                new Vector2(0.29f, 0.67f),
+                "MVP  --  0000",
+                28,
+                TextAnchor.MiddleLeft,
+                moneyColor,
+                font);
+            mvpText.fontStyle = FontStyle.Bold;
 
             uwbStatusText = CreateText(
                 "UWBStatus",
@@ -273,8 +286,20 @@ namespace FoodIsekaiZ.Display
         {
             if (scoreText != null)
             {
-                int score = gameManager != null ? gameManager.TeamBankedMoney : 0;
-                scoreText.text = $"TEAM MONEY  {score:0000}";
+                int score = gameManager != null ? gameManager.TeamScore : 0;
+                scoreText.text = $"TEAM SCORE  {FormatScore(score)}";
+            }
+
+            if (mvpText != null)
+            {
+                if (gameManager != null && gameManager.TryGetMvp(out int playerId, out int playerScore))
+                {
+                    mvpText.text = $"MVP  P{playerId}  {FormatScore(playerScore)}";
+                }
+                else
+                {
+                    mvpText.text = "MVP  --  0000";
+                }
             }
 
             if (uwbStatusText != null)
@@ -382,12 +407,44 @@ namespace FoodIsekaiZ.Display
             return value.Length <= maxLength ? value : value.Substring(0, maxLength - 3) + "...";
         }
 
+        private static string FormatScore(int score)
+        {
+            return score < 0
+                ? $"-{Mathf.Abs(score):0000}"
+                : $"{score:0000}";
+        }
+
         private void CacheGeneratedDisplay(Transform root)
         {
             sideCanvas = root.GetComponent<Canvas>();
-            scoreText = GetGeneratedComponent<Text>(root, "TeamMoney");
+            Transform scoreTransform = root.Find("TeamScore");
+            if (scoreTransform == null)
+            {
+                scoreTransform = root.Find("TeamMoney");
+                if (scoreTransform != null)
+                {
+                    scoreTransform.name = "TeamScore";
+                }
+            }
+
+            scoreText = scoreTransform != null ? scoreTransform.GetComponent<Text>() : null;
             uwbStatusText = GetGeneratedComponent<Text>(root, "UWBStatus");
             Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            mvpText = GetGeneratedComponent<Text>(root, "MVPScore");
+            if (mvpText == null)
+            {
+                mvpText = CreateText(
+                    "MVPScore",
+                    root,
+                    new Vector2(0.02f, 0.49f),
+                    new Vector2(0.29f, 0.67f),
+                    "MVP  --  0000",
+                    28,
+                    TextAnchor.MiddleLeft,
+                    moneyColor,
+                    font);
+                mvpText.fontStyle = FontStyle.Bold;
+            }
 
             for (int i = 0; i < customerStatusTexts.Length; i++)
             {
@@ -705,6 +762,7 @@ namespace FoodIsekaiZ.Display
 
             sideCanvas = null;
             scoreText = null;
+            mvpText = null;
             uwbStatusText = null;
             for (int i = 0; i < customerStatusTexts.Length; i++)
             {
