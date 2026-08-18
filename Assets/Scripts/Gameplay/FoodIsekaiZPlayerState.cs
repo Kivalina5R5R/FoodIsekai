@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace FoodIsekaiZ.Gameplay
 {
-    /// <summary>Inventory/เงินของผู้เล่น แยกจากระบบ tracking เพื่อให้ทดสอบด้วย keyboard player ได้</summary>
     public sealed class FoodIsekaiZPlayerState : MonoBehaviour
     {
         [SerializeField] private UWBPlayerController trackedPlayer;
@@ -39,6 +38,17 @@ namespace FoodIsekaiZ.Gameplay
         public bool TryConsumeFood(FoodType requiredFood)
         {
             if (heldFood != requiredFood || requiredFood == FoodType.None)
+            {
+                return false;
+            }
+
+            heldFood = FoodType.None;
+            return true;
+        }
+
+        public bool TryDiscardHeldFood()
+        {
+            if (heldFood == FoodType.None)
             {
                 return false;
             }

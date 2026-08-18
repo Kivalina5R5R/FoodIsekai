@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace FoodIsekaiZ.Gameplay
 {
@@ -21,8 +22,11 @@ namespace FoodIsekaiZ.Gameplay
         [Header("Floor Text Warning")]
         [SerializeField, Range(0f, 1f)] private float warningTimeNormalized = 0.25f;
         [SerializeField, Min(0.1f)] private float warningBlinkCyclesPerSecond = 3f;
-        [SerializeField] private Color warningTextColor = new Color(1f, 0.2f, 0.15f, 1f);
-        [SerializeField, Range(0f, 1f)] private float warningDimAlpha = 0.12f;
+        [SerializeField] private Color normalBlockColor = new Color(1f, 0.5f, 0.16f, 1f);
+        [FormerlySerializedAs("warningTextColor")]
+        [SerializeField] private Color warningBlockColor = new Color(1f, 0.08f, 0.04f, 1f);
+        [SerializeField] private Color normalLabelColor = Color.white;
+        [SerializeField] private Color warningLabelColor = new Color(1f, 0.9f, 0.15f, 1f);
 
         [Header("Customer Runtime (Read Only)")]
         [SerializeField] private CustomerSlotState customerState = CustomerSlotState.Empty;
@@ -36,6 +40,8 @@ namespace FoodIsekaiZ.Gameplay
         [SerializeField, Min(0)] private int availableMoney;
 
         private MaterialPropertyBlock customerVisualProperties;
+        private MaterialPropertyBlock slotVisualProperties;
+        private Renderer slotRenderer;
 
         public string SlotId => slotId;
         public ArenaSlotType SlotType => slotType;
@@ -108,13 +114,15 @@ namespace FoodIsekaiZ.Gameplay
         public void ConfigureFloorTextWarning(
             float normalizedThreshold,
             float blinkCyclesPerSecond,
-            Color blinkColor,
-            float dimAlpha)
+            Color baseBlockColor,
+            Color alertBlockColor,
+            Color alertLabelColor)
         {
             warningTimeNormalized = Mathf.Clamp01(normalizedThreshold);
             warningBlinkCyclesPerSecond = Mathf.Max(0.1f, blinkCyclesPerSecond);
-            warningTextColor = blinkColor;
-            warningDimAlpha = Mathf.Clamp01(dimAlpha);
+            normalBlockColor = baseBlockColor;
+            warningBlockColor = alertBlockColor;
+            warningLabelColor = alertLabelColor;
             RefreshVisuals();
         }
 
@@ -232,51 +240,50 @@ namespace FoodIsekaiZ.Gameplay
 
             if (statusLabel != null && slotType == ArenaSlotType.Customer)
             {
-                string shortId = GetShortSlotId();
-                switch (customerState)
-                {
-                    case CustomerSlotState.WaitingForFood:
-                        statusLabel.text = $"{shortId}  {customerDisplayName}\nF{(int)requestedFood}  {Mathf.CeilToInt(stateRemainingSeconds)}s";
-                        break;
-
-                    case CustomerSlotState.Eating:
-                        statusLabel.text = $"{shortId}  {customerDisplayName}\nEATING  {Mathf.CeilToInt(stateRemainingSeconds)}s";
-                        break;
-
-                    case CustomerSlotState.MoneyAvailable:
-                        statusLabel.text = $"{shortId}\n$ {availableMoney}";
-                        break;
-
-                    default:
-                        statusLabel.text = $"{shortId}\nEMPTY";
-                        break;
-                }
-
-                RefreshStatusLabelAppearance();
+                statusLabel.text = GetShortSlotId();
             }
+
+            RefreshFloorWarningAppearance();
         }
 
-        private void RefreshStatusLabelAppearance()
+        private void RefreshFloorWarningAppearance()
         {
-            if (statusLabel == null)
+            if (slotType != ArenaSlotType.Customer)
             {
                 return;
             }
 
             bool nearTimeout = customerState == CustomerSlotState.WaitingForFood &&
                 OrderTimeNormalized > 0f && OrderTimeNormalized <= warningTimeNormalized;
-            if (!nearTimeout)
+            bool alertPhase = nearTimeout && Mathf.Repeat(
+                Time.unscaledTime * warningBlinkCyclesPerSecond,
+                1f) < 0.5f;
+
+            if (statusLabel != null)
             {
-                statusLabel.color = Color.white;
+                statusLabel.color = alertPhase ? warningLabelColor : normalLabelColor;
+            }
+
+            if (slotRenderer == null)
+            {
+                slotRenderer = GetComponent<Renderer>();
+            }
+
+            if (slotRenderer == null)
+            {
                 return;
             }
 
-            Color blinkColor = warningTextColor;
-            bool brightPhase = Mathf.Repeat(
-                Time.unscaledTime * warningBlinkCyclesPerSecond,
-                1f) < 0.5f;
-            blinkColor.a = brightPhase ? 1f : warningDimAlpha;
-            statusLabel.color = blinkColor;
+            if (slotVisualProperties == null)
+            {
+                slotVisualProperties = new MaterialPropertyBlock();
+            }
+
+            Color blockColor = alertPhase ? warningBlockColor : normalBlockColor;
+            slotRenderer.GetPropertyBlock(slotVisualProperties);
+            slotVisualProperties.SetColor("_BaseColor", blockColor);
+            slotVisualProperties.SetColor("_Color", blockColor);
+            slotRenderer.SetPropertyBlock(slotVisualProperties);
         }
 
         private string GetShortSlotId()
@@ -306,7 +313,6 @@ namespace FoodIsekaiZ.Gameplay
 
             warningTimeNormalized = Mathf.Clamp01(warningTimeNormalized);
             warningBlinkCyclesPerSecond = Mathf.Max(0.1f, warningBlinkCyclesPerSecond);
-            warningDimAlpha = Mathf.Clamp01(warningDimAlpha);
         }
 #endif
     }
