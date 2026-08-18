@@ -12,7 +12,6 @@ namespace FoodIsekaiZ.Gameplay
         private const int CurrentLayoutConfigVersion = 2;
 
         [Header("Arena Size")]
-        // GameConfig 10x10 คือ logical grid แต่พื้นจริงต้องใช้ aspect 2816:1280 = 11:5
         [SerializeField] private Vector2 arenaSize = new Vector2(11f, 5f);
         [SerializeField] private bool matchFloorDisplayAspect = true;
         [SerializeField] private Vector2Int floorDisplayResolution = new Vector2Int(2816, 1280);
@@ -300,7 +299,7 @@ namespace FoodIsekaiZ.Gameplay
                         0.03f,
                         depositColor);
                 TextMesh label = customerTransform.Find("Label")?.GetComponent<TextMesh>();
-                customers[i].ConfigureVisuals(null, moneyVisual, null, label);
+                customers[i].ConfigureVisuals(moneyVisual, label);
                 customers[i].ConfigureFloorTextWarning(
                     warningTimeNormalized,
                     warningBlinkCyclesPerSecond,
@@ -589,7 +588,7 @@ namespace FoodIsekaiZ.Gameplay
                     size * 0.48f,
                     0.03f,
                     depositColor);
-                slot.ConfigureVisuals(null, moneyVisual, null, statusLabel);
+                slot.ConfigureVisuals(moneyVisual, statusLabel);
             }
 
             return slot;

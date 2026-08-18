@@ -1,9 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace FoodIsekaiZ.Gameplay
 {
-    /// <summary>Trigger zone 3D บนพื้น XZ ทั้ง Customer, Food Station และ Deposit ใช้ component เดียวกัน</summary>
     [RequireComponent(typeof(BoxCollider))]
     public sealed class ArenaSlot2D : MonoBehaviour
     {
@@ -14,9 +14,7 @@ namespace FoodIsekaiZ.Gameplay
         [SerializeField] private FoodIsekaiZGameManager gameManager;
 
         [Header("Optional Visuals")]
-        [SerializeField] private GameObject customerVisual;
         [SerializeField] private GameObject moneyVisual;
-        [SerializeField] private Renderer customerVisualRenderer;
         [SerializeField] private TextMesh statusLabel;
 
         [Header("Floor Text Warning")]
@@ -30,8 +28,6 @@ namespace FoodIsekaiZ.Gameplay
 
         [Header("Customer Runtime (Read Only)")]
         [SerializeField] private CustomerSlotState customerState = CustomerSlotState.Empty;
-        [SerializeField] private string customerDisplayName = string.Empty;
-        [SerializeField] private Color customerColor = Color.white;
         [SerializeField] private FoodType requestedFood = FoodType.None;
         [SerializeField, Min(0f)] private float stateRemainingSeconds;
         [SerializeField, Min(0f)] private float stateDurationSeconds;
@@ -39,17 +35,16 @@ namespace FoodIsekaiZ.Gameplay
         [SerializeField, Min(0)] private int orderReward;
         [SerializeField, Min(0)] private int availableMoney;
 
-        private MaterialPropertyBlock customerVisualProperties;
         private MaterialPropertyBlock slotVisualProperties;
         private Renderer slotRenderer;
+        private BoxCollider slotTrigger;
+        private readonly HashSet<int> playersTouchingWithCenter = new HashSet<int>();
 
         public string SlotId => slotId;
         public ArenaSlotType SlotType => slotType;
         public FoodType StationFood => stationFood;
         public CustomerSlotState CustomerState => customerState;
         public bool HasCustomer => customerState == CustomerSlotState.WaitingForFood || customerState == CustomerSlotState.Eating;
-        public string CustomerDisplayName => customerDisplayName;
-        public Color CustomerColor => customerColor;
         public FoodType RequestedFood => requestedFood;
         public float StateRemainingSeconds => stateRemainingSeconds;
         public float StateTimeNormalized => stateDurationSeconds > 0f
@@ -64,7 +59,8 @@ namespace FoodIsekaiZ.Gameplay
 
         private void Awake()
         {
-            GetComponent<Collider>().isTrigger = true;
+            slotTrigger = GetComponent<BoxCollider>();
+            slotTrigger.isTrigger = true;
             if (gameManager == null)
             {
                 gameManager = FindAnyObjectByType<FoodIsekaiZGameManager>();
@@ -75,14 +71,69 @@ namespace FoodIsekaiZ.Gameplay
 
         private void OnTriggerEnter(Collider other)
         {
+            TryInteractWhenPlayerCenterEnters(other);
+        }
+
+        private void OnTriggerStay(Collider other)
+        {
+            TryInteractWhenPlayerCenterEnters(other);
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
             FoodIsekaiZPlayerState player = other.GetComponentInParent<FoodIsekaiZPlayerState>();
             if (player != null)
             {
-                gameManager?.TryInteract(player, this);
+                playersTouchingWithCenter.Remove(player.GetInstanceID());
             }
         }
 
-        /// <summary>ใช้โดย Arena Layout เพื่อสร้างและกำหนด Slot จากโครงสนามอัตโนมัติ</summary>
+        private void OnDisable()
+        {
+            playersTouchingWithCenter.Clear();
+        }
+
+        private void TryInteractWhenPlayerCenterEnters(Collider other)
+        {
+            FoodIsekaiZPlayerState player = other.GetComponentInParent<FoodIsekaiZPlayerState>();
+            if (player == null)
+            {
+                return;
+            }
+
+            int playerInstanceId = player.GetInstanceID();
+            if (!ContainsPlayerCenter(player.transform.position))
+            {
+                playersTouchingWithCenter.Remove(playerInstanceId);
+                return;
+            }
+
+            if (!playersTouchingWithCenter.Add(playerInstanceId))
+            {
+                return;
+            }
+
+            gameManager?.TryInteract(player, this);
+        }
+
+        private bool ContainsPlayerCenter(Vector3 playerCenter)
+        {
+            if (slotTrigger == null)
+            {
+                slotTrigger = GetComponent<BoxCollider>();
+            }
+
+            if (slotTrigger == null)
+            {
+                return false;
+            }
+
+            Vector3 localPoint = slotTrigger.transform.InverseTransformPoint(playerCenter) - slotTrigger.center;
+            Vector3 halfSize = slotTrigger.size * 0.5f;
+            return Mathf.Abs(localPoint.x) < halfSize.x &&
+                Mathf.Abs(localPoint.z) < halfSize.z;
+        }
+
         public void Configure(
             string newSlotId,
             ArenaSlotType newSlotType,
@@ -98,15 +149,9 @@ namespace FoodIsekaiZ.Gameplay
             RefreshVisuals();
         }
 
-        public void ConfigureVisuals(
-            GameObject newCustomerVisual,
-            GameObject newMoneyVisual,
-            Renderer newCustomerVisualRenderer,
-            TextMesh newStatusLabel)
+        public void ConfigureVisuals(GameObject newMoneyVisual, TextMesh newStatusLabel)
         {
-            customerVisual = newCustomerVisual;
             moneyVisual = newMoneyVisual;
-            customerVisualRenderer = newCustomerVisualRenderer;
             statusLabel = newStatusLabel;
             RefreshVisuals();
         }
@@ -126,15 +171,8 @@ namespace FoodIsekaiZ.Gameplay
             RefreshVisuals();
         }
 
-        public void ConfigureCustomer(
-            string displayName,
-            Color displayColor,
-            FoodType food,
-            float orderTimeSeconds,
-            int reward)
+        public void ConfigureCustomer(FoodType food, float orderTimeSeconds, int reward)
         {
-            customerDisplayName = string.IsNullOrWhiteSpace(displayName) ? "CUSTOMER" : displayName;
-            customerColor = displayColor;
             requestedFood = food;
             customerState = CustomerSlotState.WaitingForFood;
             orderDurationSeconds = Mathf.Max(0.1f, orderTimeSeconds);
@@ -200,8 +238,6 @@ namespace FoodIsekaiZ.Gameplay
         public void ClearCustomer()
         {
             customerState = CustomerSlotState.Empty;
-            customerDisplayName = string.Empty;
-            customerColor = Color.white;
             requestedFood = FoodType.None;
             stateRemainingSeconds = 0f;
             stateDurationSeconds = 0f;
@@ -213,26 +249,6 @@ namespace FoodIsekaiZ.Gameplay
 
         private void RefreshVisuals()
         {
-            bool showCustomer = customerState == CustomerSlotState.WaitingForFood ||
-                customerState == CustomerSlotState.Eating;
-            if (customerVisual != null)
-            {
-                customerVisual.SetActive(showCustomer);
-            }
-
-            if (showCustomer && customerVisualRenderer != null)
-            {
-                if (customerVisualProperties == null)
-                {
-                    customerVisualProperties = new MaterialPropertyBlock();
-                }
-
-                customerVisualRenderer.GetPropertyBlock(customerVisualProperties);
-                customerVisualProperties.SetColor("_BaseColor", customerColor);
-                customerVisualProperties.SetColor("_Color", customerColor);
-                customerVisualRenderer.SetPropertyBlock(customerVisualProperties);
-            }
-
             if (moneyVisual != null)
             {
                 moneyVisual.SetActive(customerState == CustomerSlotState.MoneyAvailable && availableMoney > 0);

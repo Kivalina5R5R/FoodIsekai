@@ -22,23 +22,6 @@ namespace FoodIsekaiZ.Gameplay
         }
 
         [Serializable]
-        public sealed class CustomerProfile
-        {
-            public string displayName = "CUSTOMER";
-            public Color color = Color.cyan;
-
-            public CustomerProfile()
-            {
-            }
-
-            public CustomerProfile(string displayName, Color color)
-            {
-                this.displayName = displayName;
-                this.color = color;
-            }
-        }
-
-        [Serializable]
         public sealed class FoodOption
         {
             public FoodType food = FoodType.Food1;
@@ -68,13 +51,19 @@ namespace FoodIsekaiZ.Gameplay
         [SerializeField] private bool startCustomersOnPlay = true;
         [SerializeField, Range(0, 4)] private int initialActiveCustomers = 4;
         [SerializeField, Range(1, 4)] private int maximumActiveCustomers = 4;
-        [Tooltip("Random delay before a new customer uses an empty C slot.")]
-        [SerializeField] private Vector2 customerRespawnDelaySeconds = new Vector2(2f, 5f);
 
-        [Header("Order Rules")]
-        [Tooltip("Time available to deliver the requested food to the customer.")]
+        [Header("Customer Timing")]
+        [Tooltip("เวลาที่ลูกค้ารอรับอาหารก่อนหนี")]
+        [InspectorName("Wait For Food (Seconds)")]
         [SerializeField, Min(1f)] private float orderTimeLimitSeconds = 20f;
+        [Tooltip("ช่วงเวลาสุ่ม Min/Max ก่อนลูกค้าคนใหม่เข้าช่อง C ที่ว่าง ใส่ค่าเท่ากันถ้าต้องการเวลาคงที่")]
+        [InspectorName("New Customer Delay (Min / Max Seconds)")]
+        [SerializeField] private Vector2 customerRespawnDelaySeconds = new Vector2(2f, 5f);
+        [Tooltip("เวลาที่ลูกค้าใช้กินอาหารก่อนวางเงิน")]
+        [InspectorName("Eating Time (Seconds)")]
         [SerializeField, Min(0.1f)] private float eatingDurationSeconds = 3f;
+
+        [Header("Order Rewards")]
         [Tooltip("Inclusive random money reward for one completed order.")]
         [SerializeField] private Vector2Int moneyRewardRange = new Vector2Int(10, 20);
 
@@ -82,17 +71,6 @@ namespace FoodIsekaiZ.Gameplay
         [SerializeField, Min(0)] private int correctServeScore = 10;
         [SerializeField, Min(0)] private int bankDepositScore = 5;
         [SerializeField, Min(0)] private int escapedCustomerPenalty = 5;
-
-        [Header("Random Customers")]
-        [SerializeField] private CustomerProfile[] customerProfiles =
-        {
-            new CustomerProfile("MIMI", new Color(1f, 0.45f, 0.55f, 1f)),
-            new CustomerProfile("KAI", new Color(0.2f, 0.8f, 1f, 1f)),
-            new CustomerProfile("LUNA", new Color(0.72f, 0.45f, 1f, 1f)),
-            new CustomerProfile("TORO", new Color(1f, 0.7f, 0.2f, 1f)),
-            new CustomerProfile("PICO", new Color(0.3f, 1f, 0.55f, 1f)),
-            new CustomerProfile("NOVA", new Color(1f, 0.35f, 0.9f, 1f))
-        };
 
         [Header("Food Order Pool")]
         [SerializeField] private FoodOption[] foodOptions =
@@ -471,18 +449,12 @@ namespace FoodIsekaiZ.Gameplay
                 return;
             }
 
-            CustomerProfile profile = PickRandomCustomerProfile();
             FoodType food = PickRandomFood();
             int reward = UnityEngine.Random.Range(
                 Mathf.Min(moneyRewardRange.x, moneyRewardRange.y),
                 Mathf.Max(moneyRewardRange.x, moneyRewardRange.y) + 1);
 
-            slot.ConfigureCustomer(
-                profile != null ? profile.displayName : "CUSTOMER",
-                profile != null ? profile.color : Color.white,
-                food,
-                orderTimeLimitSeconds,
-                reward);
+            slot.ConfigureCustomer(food, orderTimeLimitSeconds, reward);
             CustomerRequestedFood?.Invoke(slot, food);
         }
 
@@ -529,57 +501,6 @@ namespace FoodIsekaiZ.Gameplay
             }
 
             return -1;
-        }
-
-        private CustomerProfile PickRandomCustomerProfile()
-        {
-            if (customerProfiles == null || customerProfiles.Length == 0)
-            {
-                return null;
-            }
-
-            int availableCount = 0;
-            for (int i = 0; i < customerProfiles.Length; i++)
-            {
-                if (customerProfiles[i] != null && !IsCustomerProfileActive(customerProfiles[i]))
-                {
-                    availableCount++;
-                }
-            }
-
-            if (availableCount > 0)
-            {
-                int selected = UnityEngine.Random.Range(0, availableCount);
-                for (int i = 0; i < customerProfiles.Length; i++)
-                {
-                    if (customerProfiles[i] != null && !IsCustomerProfileActive(customerProfiles[i]) && selected-- == 0)
-                    {
-                        return customerProfiles[i];
-                    }
-                }
-            }
-
-            return customerProfiles[UnityEngine.Random.Range(0, customerProfiles.Length)];
-        }
-
-        private bool IsCustomerProfileActive(CustomerProfile profile)
-        {
-            if (profile == null || customerSlots == null)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < customerSlots.Length; i++)
-            {
-                ArenaSlot2D slot = customerSlots[i];
-                if (slot != null && slot.HasCustomer &&
-                    string.Equals(slot.CustomerDisplayName, profile.displayName, StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         private FoodType PickRandomFood()
@@ -780,6 +701,8 @@ namespace FoodIsekaiZ.Gameplay
             maximumActiveCustomers = Mathf.Clamp(maximumActiveCustomers, 1, 4);
             initialActiveCustomers = Mathf.Min(initialActiveCustomers, maximumActiveCustomers);
             orderTimeLimitSeconds = Mathf.Max(1f, orderTimeLimitSeconds);
+            customerRespawnDelaySeconds.x = Mathf.Max(0f, customerRespawnDelaySeconds.x);
+            customerRespawnDelaySeconds.y = Mathf.Max(customerRespawnDelaySeconds.x, customerRespawnDelaySeconds.y);
             eatingDurationSeconds = Mathf.Max(0.1f, eatingDurationSeconds);
             moneyRewardRange.x = Mathf.Max(0, moneyRewardRange.x);
             moneyRewardRange.y = Mathf.Max(0, moneyRewardRange.y);

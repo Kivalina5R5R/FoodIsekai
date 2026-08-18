@@ -389,19 +389,6 @@ MonoBehaviour:
   orderTimeLimitSeconds: 20
   eatingDurationSeconds: 3
   moneyRewardRange: {x: 10, y: 20}
-  customerProfiles:
-  - displayName: MIMI
-    color: {r: 1, g: 0.45, b: 0.55, a: 1}
-  - displayName: KAI
-    color: {r: 0.2, g: 0.8, b: 1, a: 1}
-  - displayName: LUNA
-    color: {r: 0.72, g: 0.45, b: 1, a: 1}
-  - displayName: TORO
-    color: {r: 1, g: 0.7, b: 0.2, a: 1}
-  - displayName: PICO
-    color: {r: 0.3, g: 1, b: 0.55, a: 1}
-  - displayName: NOVA
-    color: {r: 1, g: 0.35, b: 0.9, a: 1}
   foodOptions:
   - food: 1
     displayName: FOOD 1
@@ -568,17 +555,13 @@ MonoBehaviour:
   slotType: 2
   stationFood: 0
   gameManager: {fileID: 101588415}
-  customerVisual: {fileID: 0}
   moneyVisual: {fileID: 0}
-  customerVisualRenderer: {fileID: 0}
   statusLabel: {fileID: 0}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
   warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
   warningDimAlpha: 0.12
   customerState: 0
-  customerDisplayName: 
-  customerColor: {r: 1, g: 1, b: 1, a: 1}
   requestedFood: 0
   stateRemainingSeconds: 0
   stateDurationSeconds: 0
@@ -1184,17 +1167,13 @@ MonoBehaviour:
   slotType: 0
   stationFood: 0
   gameManager: {fileID: 101588415}
-  customerVisual: {fileID: 0}
   moneyVisual: {fileID: 271817229}
-  customerVisualRenderer: {fileID: 0}
   statusLabel: {fileID: 1683973798}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
   warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
   warningDimAlpha: 0.12
   customerState: 0
-  customerDisplayName: 
-  customerColor: {r: 1, g: 1, b: 1, a: 1}
   requestedFood: 0
   stateRemainingSeconds: 0
   stateDurationSeconds: 0
@@ -2129,17 +2108,13 @@ MonoBehaviour:
   slotType: 1
   stationFood: 5
   gameManager: {fileID: 101588415}
-  customerVisual: {fileID: 0}
   moneyVisual: {fileID: 0}
-  customerVisualRenderer: {fileID: 0}
   statusLabel: {fileID: 0}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
   warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
   warningDimAlpha: 0.12
   customerState: 0
-  customerDisplayName: 
-  customerColor: {r: 1, g: 1, b: 1, a: 1}
   requestedFood: 0
   stateRemainingSeconds: 0
   stateDurationSeconds: 0
@@ -2313,17 +2288,13 @@ MonoBehaviour:
   slotType: 0
   stationFood: 0
   gameManager: {fileID: 101588415}
-  customerVisual: {fileID: 0}
   moneyVisual: {fileID: 373201287}
-  customerVisualRenderer: {fileID: 0}
   statusLabel: {fileID: 1522274865}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
   warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
   warningDimAlpha: 0.12
   customerState: 0
-  customerDisplayName: 
-  customerColor: {r: 1, g: 1, b: 1, a: 1}
   requestedFood: 0
   stateRemainingSeconds: 0
   stateDurationSeconds: 0
@@ -3264,17 +3235,13 @@ MonoBehaviour:
   slotType: 0
   stationFood: 0
   gameManager: {fileID: 101588415}
-  customerVisual: {fileID: 0}
   moneyVisual: {fileID: 1822914236}
-  customerVisualRenderer: {fileID: 0}
   statusLabel: {fileID: 896117168}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
   warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
   warningDimAlpha: 0.12
   customerState: 0
-  customerDisplayName: 
-  customerColor: {r: 1, g: 1, b: 1, a: 1}
   requestedFood: 0
   stateRemainingSeconds: 0
   stateDurationSeconds: 0
@@ -3840,17 +3807,13 @@ MonoBehaviour:
   slotType: 0
   stationFood: 0
   gameManager: {fileID: 101588415}
-  customerVisual: {fileID: 0}
   moneyVisual: {fileID: 113922086}
-  customerVisualRenderer: {fileID: 0}
   statusLabel: {fileID: 907205395}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
   warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
   warningDimAlpha: 0.12
   customerState: 0
-  customerDisplayName: 
-  customerColor: {r: 1, g: 1, b: 1, a: 1}
   requestedFood: 0
   stateRemainingSeconds: 0
   stateDurationSeconds: 0
@@ -3987,17 +3950,13 @@ MonoBehaviour:
   slotType: 1
   stationFood: 4
   gameManager: {fileID: 101588415}
-  customerVisual: {fileID: 0}
   moneyVisual: {fileID: 0}
-  customerVisualRenderer: {fileID: 0}
   statusLabel: {fileID: 0}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
   warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
   warningDimAlpha: 0.12
   customerState: 0
-  customerDisplayName: 
-  customerColor: {r: 1, g: 1, b: 1, a: 1}
   requestedFood: 0
   stateRemainingSeconds: 0
   stateDurationSeconds: 0
@@ -4407,17 +4366,13 @@ MonoBehaviour:
   slotType: 1
   stationFood: 2
   gameManager: {fileID: 101588415}
-  customerVisual: {fileID: 0}
   moneyVisual: {fileID: 0}
-  customerVisualRenderer: {fileID: 0}
   statusLabel: {fileID: 0}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
   warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
   warningDimAlpha: 0.12
   customerState: 0
-  customerDisplayName: 
-  customerColor: {r: 1, g: 1, b: 1, a: 1}
   requestedFood: 0
   stateRemainingSeconds: 0
   stateDurationSeconds: 0
@@ -5967,17 +5922,13 @@ MonoBehaviour:
   slotType: 1
   stationFood: 3
   gameManager: {fileID: 101588415}
-  customerVisual: {fileID: 0}
   moneyVisual: {fileID: 0}
-  customerVisualRenderer: {fileID: 0}
   statusLabel: {fileID: 0}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
   warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
   warningDimAlpha: 0.12
   customerState: 0
-  customerDisplayName: 
-  customerColor: {r: 1, g: 1, b: 1, a: 1}
   requestedFood: 0
   stateRemainingSeconds: 0
   stateDurationSeconds: 0
@@ -6182,17 +6133,13 @@ MonoBehaviour:
   slotType: 1
   stationFood: 1
   gameManager: {fileID: 101588415}
-  customerVisual: {fileID: 0}
   moneyVisual: {fileID: 0}
-  customerVisualRenderer: {fileID: 0}
   statusLabel: {fileID: 0}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
   warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
   warningDimAlpha: 0.12
   customerState: 0
-  customerDisplayName: 
-  customerColor: {r: 1, g: 1, b: 1, a: 1}
   requestedFood: 0
   stateRemainingSeconds: 0
   stateDurationSeconds: 0
