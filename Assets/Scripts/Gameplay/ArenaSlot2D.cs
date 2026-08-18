@@ -13,18 +13,47 @@ namespace FoodIsekaiZ.Gameplay
         [SerializeField] private FoodIsekaiZGameManager gameManager;
 
         [Header("Optional Visuals")]
+        [SerializeField] private GameObject customerVisual;
         [SerializeField] private GameObject moneyVisual;
+        [SerializeField] private Renderer customerVisualRenderer;
+        [SerializeField] private TextMesh statusLabel;
+
+        [Header("Floor Text Warning")]
+        [SerializeField, Range(0f, 1f)] private float warningTimeNormalized = 0.25f;
+        [SerializeField, Min(0.1f)] private float warningBlinkCyclesPerSecond = 3f;
+        [SerializeField] private Color warningTextColor = new Color(1f, 0.2f, 0.15f, 1f);
+        [SerializeField, Range(0f, 1f)] private float warningDimAlpha = 0.12f;
 
         [Header("Customer Runtime (Read Only)")]
-        [SerializeField] private CustomerSlotState customerState = CustomerSlotState.WaitingForFood;
+        [SerializeField] private CustomerSlotState customerState = CustomerSlotState.Empty;
+        [SerializeField] private string customerDisplayName = string.Empty;
+        [SerializeField] private Color customerColor = Color.white;
         [SerializeField] private FoodType requestedFood = FoodType.None;
+        [SerializeField, Min(0f)] private float stateRemainingSeconds;
+        [SerializeField, Min(0f)] private float stateDurationSeconds;
+        [SerializeField, Min(0f)] private float orderDurationSeconds;
+        [SerializeField, Min(0)] private int orderReward;
         [SerializeField, Min(0)] private int availableMoney;
+
+        private MaterialPropertyBlock customerVisualProperties;
 
         public string SlotId => slotId;
         public ArenaSlotType SlotType => slotType;
         public FoodType StationFood => stationFood;
         public CustomerSlotState CustomerState => customerState;
+        public bool HasCustomer => customerState == CustomerSlotState.WaitingForFood || customerState == CustomerSlotState.Eating;
+        public string CustomerDisplayName => customerDisplayName;
+        public Color CustomerColor => customerColor;
         public FoodType RequestedFood => requestedFood;
+        public float StateRemainingSeconds => stateRemainingSeconds;
+        public float StateTimeNormalized => stateDurationSeconds > 0f
+            ? Mathf.Clamp01(stateRemainingSeconds / stateDurationSeconds)
+            : 0f;
+        public float OrderDurationSeconds => orderDurationSeconds;
+        public float OrderTimeNormalized => orderDurationSeconds > 0f
+            ? Mathf.Clamp01(stateRemainingSeconds / orderDurationSeconds)
+            : 0f;
+        public int OrderReward => orderReward;
         public int AvailableMoney => availableMoney;
 
         private void Awake()
@@ -60,17 +89,55 @@ namespace FoodIsekaiZ.Gameplay
                 ? newStationFood
                 : FoodType.None;
             gameManager = newGameManager;
+            RefreshVisuals();
         }
 
-        public void ConfigureCustomer(FoodType food)
+        public void ConfigureVisuals(
+            GameObject newCustomerVisual,
+            GameObject newMoneyVisual,
+            Renderer newCustomerVisualRenderer,
+            TextMesh newStatusLabel)
         {
+            customerVisual = newCustomerVisual;
+            moneyVisual = newMoneyVisual;
+            customerVisualRenderer = newCustomerVisualRenderer;
+            statusLabel = newStatusLabel;
+            RefreshVisuals();
+        }
+
+        public void ConfigureFloorTextWarning(
+            float normalizedThreshold,
+            float blinkCyclesPerSecond,
+            Color blinkColor,
+            float dimAlpha)
+        {
+            warningTimeNormalized = Mathf.Clamp01(normalizedThreshold);
+            warningBlinkCyclesPerSecond = Mathf.Max(0.1f, blinkCyclesPerSecond);
+            warningTextColor = blinkColor;
+            warningDimAlpha = Mathf.Clamp01(dimAlpha);
+            RefreshVisuals();
+        }
+
+        public void ConfigureCustomer(
+            string displayName,
+            Color displayColor,
+            FoodType food,
+            float orderTimeSeconds,
+            int reward)
+        {
+            customerDisplayName = string.IsNullOrWhiteSpace(displayName) ? "CUSTOMER" : displayName;
+            customerColor = displayColor;
             requestedFood = food;
             customerState = CustomerSlotState.WaitingForFood;
+            orderDurationSeconds = Mathf.Max(0.1f, orderTimeSeconds);
+            stateDurationSeconds = orderDurationSeconds;
+            stateRemainingSeconds = stateDurationSeconds;
+            orderReward = Mathf.Max(0, reward);
             availableMoney = 0;
             RefreshVisuals();
         }
 
-        public bool TryBeginEating()
+        public bool TryBeginEating(float eatingDurationSeconds)
         {
             if (slotType != ArenaSlotType.Customer || customerState != CustomerSlotState.WaitingForFood)
             {
@@ -78,8 +145,22 @@ namespace FoodIsekaiZ.Gameplay
             }
 
             customerState = CustomerSlotState.Eating;
+            stateDurationSeconds = Mathf.Max(0.1f, eatingDurationSeconds);
+            stateRemainingSeconds = stateDurationSeconds;
             RefreshVisuals();
             return true;
+        }
+
+        public bool AdvanceStateTimer(float deltaTime)
+        {
+            if (customerState != CustomerSlotState.WaitingForFood && customerState != CustomerSlotState.Eating)
+            {
+                return false;
+            }
+
+            stateRemainingSeconds = Mathf.Max(0f, stateRemainingSeconds - Mathf.Max(0f, deltaTime));
+            RefreshVisuals();
+            return stateRemainingSeconds <= 0f;
         }
 
         public void SpawnMoney(int amount)
@@ -91,6 +172,8 @@ namespace FoodIsekaiZ.Gameplay
 
             availableMoney = Mathf.Max(0, amount);
             customerState = CustomerSlotState.MoneyAvailable;
+            stateRemainingSeconds = 0f;
+            stateDurationSeconds = 0f;
             RefreshVisuals();
         }
 
@@ -102,17 +185,109 @@ namespace FoodIsekaiZ.Gameplay
             }
 
             int collected = availableMoney;
+            ClearCustomer();
+            return collected;
+        }
+
+        public void ClearCustomer()
+        {
+            customerState = CustomerSlotState.Empty;
+            customerDisplayName = string.Empty;
+            customerColor = Color.white;
+            requestedFood = FoodType.None;
+            stateRemainingSeconds = 0f;
+            stateDurationSeconds = 0f;
+            orderDurationSeconds = 0f;
+            orderReward = 0;
             availableMoney = 0;
             RefreshVisuals();
-            return collected;
         }
 
         private void RefreshVisuals()
         {
+            bool showCustomer = customerState == CustomerSlotState.WaitingForFood ||
+                customerState == CustomerSlotState.Eating;
+            if (customerVisual != null)
+            {
+                customerVisual.SetActive(showCustomer);
+            }
+
+            if (showCustomer && customerVisualRenderer != null)
+            {
+                if (customerVisualProperties == null)
+                {
+                    customerVisualProperties = new MaterialPropertyBlock();
+                }
+
+                customerVisualRenderer.GetPropertyBlock(customerVisualProperties);
+                customerVisualProperties.SetColor("_BaseColor", customerColor);
+                customerVisualProperties.SetColor("_Color", customerColor);
+                customerVisualRenderer.SetPropertyBlock(customerVisualProperties);
+            }
+
             if (moneyVisual != null)
             {
                 moneyVisual.SetActive(customerState == CustomerSlotState.MoneyAvailable && availableMoney > 0);
             }
+
+            if (statusLabel != null && slotType == ArenaSlotType.Customer)
+            {
+                string shortId = GetShortSlotId();
+                switch (customerState)
+                {
+                    case CustomerSlotState.WaitingForFood:
+                        statusLabel.text = $"{shortId}  {customerDisplayName}\nF{(int)requestedFood}  {Mathf.CeilToInt(stateRemainingSeconds)}s";
+                        break;
+
+                    case CustomerSlotState.Eating:
+                        statusLabel.text = $"{shortId}  {customerDisplayName}\nEATING  {Mathf.CeilToInt(stateRemainingSeconds)}s";
+                        break;
+
+                    case CustomerSlotState.MoneyAvailable:
+                        statusLabel.text = $"{shortId}\n$ {availableMoney}";
+                        break;
+
+                    default:
+                        statusLabel.text = $"{shortId}\nEMPTY";
+                        break;
+                }
+
+                RefreshStatusLabelAppearance();
+            }
+        }
+
+        private void RefreshStatusLabelAppearance()
+        {
+            if (statusLabel == null)
+            {
+                return;
+            }
+
+            bool nearTimeout = customerState == CustomerSlotState.WaitingForFood &&
+                OrderTimeNormalized > 0f && OrderTimeNormalized <= warningTimeNormalized;
+            if (!nearTimeout)
+            {
+                statusLabel.color = Color.white;
+                return;
+            }
+
+            Color blinkColor = warningTextColor;
+            bool brightPhase = Mathf.Repeat(
+                Time.unscaledTime * warningBlinkCyclesPerSecond,
+                1f) < 0.5f;
+            blinkColor.a = brightPhase ? 1f : warningDimAlpha;
+            statusLabel.color = blinkColor;
+        }
+
+        private string GetShortSlotId()
+        {
+            if (!string.IsNullOrEmpty(slotId) && slotId.StartsWith("CustomerSlot"))
+            {
+                string number = slotId.Substring("CustomerSlot".Length).TrimStart('0');
+                return $"C{(string.IsNullOrEmpty(number) ? "1" : number)}";
+            }
+
+            return slotId;
         }
 
 #if UNITY_EDITOR
@@ -128,6 +303,10 @@ namespace FoodIsekaiZ.Gameplay
             {
                 stationFood = FoodType.None;
             }
+
+            warningTimeNormalized = Mathf.Clamp01(warningTimeNormalized);
+            warningBlinkCyclesPerSecond = Mathf.Max(0.1f, warningBlinkCyclesPerSecond);
+            warningDimAlpha = Mathf.Clamp01(warningDimAlpha);
         }
 #endif
     }

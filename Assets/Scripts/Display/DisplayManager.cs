@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace FoodIsekaiZ.Display
 {
-    /// <summary>เปิดจอที่สองและกำหนด Camera/Canvas ให้ Side กับ Floor แยกจากกัน</summary>
+
     [DefaultExecutionOrder(-200)]
     public sealed class DisplayManager : MonoBehaviour
     {
