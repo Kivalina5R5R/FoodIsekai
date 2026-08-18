@@ -51,6 +51,9 @@ namespace FoodIsekaiZ.Display
         private Rect generatedWallBackgroundUvRect;
         private bool isBuilding;
         private int appliedHash;
+        private FoodIsekaiZGameManager subscribedGameManager;
+        private bool teamScoreDisplayDirty = true;
+        private bool mvpDisplayDirty = true;
 
         public Canvas SideCanvas => sideCanvas;
 
@@ -68,6 +71,8 @@ namespace FoodIsekaiZ.Display
                 CacheGeneratedDisplay(existing);
                 ApplyWallBackgroundAppearance();
                 EnsureReferences();
+                SubscribeToGameEvents();
+                MarkScoreDisplayDirty();
                 appliedHash = CalculateHash();
                 return;
             }
@@ -81,10 +86,19 @@ namespace FoodIsekaiZ.Display
         private void Start()
         {
             EnsureReferences();
+            SubscribeToGameEvents();
+            MarkScoreDisplayDirty();
+            FlushScoreDisplayUpdates();
+        }
+
+        private void OnDisable()
+        {
+            UnsubscribeFromGameEvents();
         }
 
         private void OnDestroy()
         {
+            UnsubscribeFromGameEvents();
             ReleaseGeneratedWallBackgroundSprite();
         }
 
@@ -107,7 +121,15 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
-            UpdateRuntimeText();
+            UpdateRealtimeText();
+        }
+
+        private void LateUpdate()
+        {
+            if (Application.isPlaying)
+            {
+                FlushScoreDisplayUpdates();
+            }
         }
 
         [ContextMenu("Build / Refresh Side Display")]
@@ -121,6 +143,7 @@ namespace FoodIsekaiZ.Display
             isBuilding = true;
             ClearGeneratedDisplay();
             EnsureReferences();
+            SubscribeToGameEvents();
 
             Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             GameObject canvasObject = new GameObject(
@@ -224,7 +247,9 @@ namespace FoodIsekaiZ.Display
             ConfigurePhysicalWall(canvasObject.GetComponent<RectTransform>());
             ConfigureSideCamera();
             ApplyWallBackgroundAppearance();
-            UpdateRuntimeText();
+            MarkScoreDisplayDirty();
+            FlushScoreDisplayUpdates();
+            UpdateRealtimeText();
             appliedHash = CalculateHash();
             isBuilding = false;
         }
@@ -282,26 +307,8 @@ namespace FoodIsekaiZ.Display
                 arenaOrigin.z + (floorDepth * 0.5f) + 0.02f);
         }
 
-        private void UpdateRuntimeText()
+        private void UpdateRealtimeText()
         {
-            if (scoreText != null)
-            {
-                int score = gameManager != null ? gameManager.TeamScore : 0;
-                scoreText.text = $"TEAM SCORE  {FormatScore(score)}";
-            }
-
-            if (mvpText != null)
-            {
-                if (gameManager != null && gameManager.TryGetMvp(out int playerId, out int playerScore))
-                {
-                    mvpText.text = $"MVP  P{playerId}  {FormatScore(playerScore)}";
-                }
-                else
-                {
-                    mvpText.text = "MVP  --  0000";
-                }
-            }
-
             if (uwbStatusText != null)
             {
                 if (uwbManager == null)
@@ -383,6 +390,89 @@ namespace FoodIsekaiZ.Display
                         break;
                 }
             }
+        }
+
+        public void RefreshScoreDisplay()
+        {
+            MarkScoreDisplayDirty();
+            FlushScoreDisplayUpdates();
+        }
+
+        private void MarkScoreDisplayDirty()
+        {
+            teamScoreDisplayDirty = true;
+            mvpDisplayDirty = true;
+        }
+
+        private void FlushScoreDisplayUpdates()
+        {
+            if (teamScoreDisplayDirty)
+            {
+                if (scoreText != null)
+                {
+                    int score = gameManager != null ? gameManager.TeamScore : 0;
+                    scoreText.text = $"TEAM SCORE  {FormatScore(score)}";
+                }
+
+                teamScoreDisplayDirty = false;
+            }
+
+            if (mvpDisplayDirty)
+            {
+                if (mvpText != null)
+                {
+                    if (gameManager != null && gameManager.TryGetMvp(out int playerId, out int playerScore))
+                    {
+                        mvpText.text = $"MVP  P{playerId}  {FormatScore(playerScore)}";
+                    }
+                    else
+                    {
+                        mvpText.text = "MVP  --  0000";
+                    }
+                }
+
+                mvpDisplayDirty = false;
+            }
+        }
+
+        private void SubscribeToGameEvents()
+        {
+            if (!Application.isPlaying || subscribedGameManager == gameManager)
+            {
+                return;
+            }
+
+            UnsubscribeFromGameEvents();
+            if (gameManager == null)
+            {
+                return;
+            }
+
+            subscribedGameManager = gameManager;
+            subscribedGameManager.PlayerScoreChanged += HandlePlayerScoreChanged;
+            subscribedGameManager.TeamScoreChanged += HandleTeamScoreChanged;
+        }
+
+        private void UnsubscribeFromGameEvents()
+        {
+            if (subscribedGameManager == null)
+            {
+                return;
+            }
+
+            subscribedGameManager.PlayerScoreChanged -= HandlePlayerScoreChanged;
+            subscribedGameManager.TeamScoreChanged -= HandleTeamScoreChanged;
+            subscribedGameManager = null;
+        }
+
+        private void HandlePlayerScoreChanged(int playerId, int playerScore)
+        {
+            mvpDisplayDirty = true;
+        }
+
+        private void HandleTeamScoreChanged(int teamScore)
+        {
+            teamScoreDisplayDirty = true;
         }
 
         private void SetCustomerPanelColor(int index, Color color)
