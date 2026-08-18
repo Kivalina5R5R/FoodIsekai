@@ -25,6 +25,7 @@ namespace FoodIsekaiZ.Gameplay
         [SerializeField] private Color warningBlockColor = new Color(1f, 0.08f, 0.04f, 1f);
         [SerializeField] private Color normalLabelColor = Color.white;
         [SerializeField] private Color warningLabelColor = new Color(1f, 0.9f, 0.15f, 1f);
+        [SerializeField, Range(0f, 1f)] private float noCustomerSlotAlpha = 0.5f;
 
         [Header("Customer Runtime (Read Only)")]
         [SerializeField] private CustomerSlotState customerState = CustomerSlotState.Empty;
@@ -277,7 +278,13 @@ namespace FoodIsekaiZ.Gameplay
 
             if (statusLabel != null)
             {
-                statusLabel.color = alertPhase ? warningLabelColor : normalLabelColor;
+                Color labelColor = alertPhase ? warningLabelColor : normalLabelColor;
+                if (!HasCustomer)
+                {
+                    labelColor.a *= noCustomerSlotAlpha;
+                }
+
+                statusLabel.color = labelColor;
             }
 
             if (slotRenderer == null)
@@ -296,10 +303,37 @@ namespace FoodIsekaiZ.Gameplay
             }
 
             Color blockColor = alertPhase ? warningBlockColor : normalBlockColor;
+            if (!HasCustomer)
+            {
+                blockColor.a *= noCustomerSlotAlpha;
+                if (!RendererSupportsAlphaBlending(slotRenderer))
+                {
+                    blockColor.r *= noCustomerSlotAlpha;
+                    blockColor.g *= noCustomerSlotAlpha;
+                    blockColor.b *= noCustomerSlotAlpha;
+                }
+            }
+
             slotRenderer.GetPropertyBlock(slotVisualProperties);
             slotVisualProperties.SetColor("_BaseColor", blockColor);
             slotVisualProperties.SetColor("_Color", blockColor);
             slotRenderer.SetPropertyBlock(slotVisualProperties);
+        }
+
+        private static bool RendererSupportsAlphaBlending(Renderer renderer)
+        {
+            Material material = renderer != null ? renderer.sharedMaterial : null;
+            if (material == null)
+            {
+                return false;
+            }
+
+            if (material.HasProperty("_Surface") && material.GetFloat("_Surface") > 0.5f)
+            {
+                return true;
+            }
+
+            return material.renderQueue >= (int)UnityEngine.Rendering.RenderQueue.Transparent;
         }
 
         private string GetShortSlotId()
@@ -329,6 +363,7 @@ namespace FoodIsekaiZ.Gameplay
 
             warningTimeNormalized = Mathf.Clamp01(warningTimeNormalized);
             warningBlinkCyclesPerSecond = Mathf.Max(0.1f, warningBlinkCyclesPerSecond);
+            noCustomerSlotAlpha = Mathf.Clamp01(noCustomerSlotAlpha);
         }
 #endif
     }

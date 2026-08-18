@@ -194,6 +194,85 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 44333747}
   m_CullTransparentMesh: 1
+--- !u!1 &77298609
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 77298610}
+  - component: {fileID: 77298612}
+  - component: {fileID: 77298611}
+  m_Layer: 0
+  m_Name: MealIntermissionCountdown
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &77298610
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77298609}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1595694064}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.08, y: 0.08}
+  m_AnchorMax: {x: 0.92, y: 0.49}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &77298611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77298609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 0.82, b: 0.15, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 80
+    m_FontStyle: 1
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 80
+    m_Alignment: 4
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
+    m_LineSpacing: 1
+  m_Text: 
+--- !u!222 &77298612
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77298609}
+  m_CullTransparentMesh: 1
 --- !u!1 &101588411
 GameObject:
   m_ObjectHideFlags: 0
@@ -382,13 +461,23 @@ MonoBehaviour:
   - {fileID: 1010904960}
   - {fileID: 457706413}
   - {fileID: 132541454}
+  useMealWaves: 1
+  waveDurationSeconds: 90
+  intermissionDurationSeconds: 10
+  mealWaves:
+  - displayName: BREAKFAST
+  - displayName: LUNCH
+  - displayName: DINNER
   startCustomersOnPlay: 1
   initialActiveCustomers: 4
   maximumActiveCustomers: 4
-  customerRespawnDelaySeconds: {x: 2, y: 5}
   orderTimeLimitSeconds: 20
+  customerRespawnDelaySeconds: {x: 2, y: 5}
   eatingDurationSeconds: 3
   moneyRewardRange: {x: 10, y: 20}
+  correctServeScore: 10
+  bankDepositScore: 5
+  escapedCustomerPenalty: 5
   foodOptions:
   - food: 1
     displayName: FOOD 1
@@ -410,9 +499,13 @@ MonoBehaviour:
     displayName: FOOD 5
     color: {r: 0.8, g: 0.4, b: 1, a: 1}
     canBeOrdered: 1
-  teamBankedMoney: 0
+  teamScore: 0
   completedOrderCount: 0
   expiredOrderCount: 0
+  playerScores: []
+  mealWavePhase: 0
+  currentWaveIndex: -1
+  mealPhaseRemainingSeconds: 0
 --- !u!1 &113922086
 GameObject:
   m_ObjectHideFlags: 0
@@ -559,8 +652,11 @@ MonoBehaviour:
   statusLabel: {fileID: 0}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
-  warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
-  warningDimAlpha: 0.12
+  normalBlockColor: {r: 1, g: 0.5, b: 0.16, a: 1}
+  warningBlockColor: {r: 1, g: 0.2, b: 0.15, a: 1}
+  normalLabelColor: {r: 1, g: 1, b: 1, a: 1}
+  warningLabelColor: {r: 1, g: 0.9, b: 0.15, a: 1}
+  noCustomerSlotAlpha: 0.5
   customerState: 0
   requestedFood: 0
   stateRemainingSeconds: 0
@@ -1171,8 +1267,11 @@ MonoBehaviour:
   statusLabel: {fileID: 1683973798}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
-  warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
-  warningDimAlpha: 0.12
+  normalBlockColor: {r: 1, g: 0.5, b: 0.16, a: 1}
+  warningBlockColor: {r: 1, g: 0.2, b: 0.15, a: 1}
+  normalLabelColor: {r: 1, g: 1, b: 1, a: 1}
+  warningLabelColor: {r: 1, g: 0.9, b: 0.15, a: 1}
+  noCustomerSlotAlpha: 0.5
   customerState: 0
   requestedFood: 0
   stateRemainingSeconds: 0
@@ -1679,8 +1778,8 @@ MonoBehaviour:
   floorBackgroundTextureOffset: {x: 0, y: 0}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
-  warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
-  warningDimAlpha: 0.12
+  warningBlockColor: {r: 1, g: 0.2, b: 0.15, a: 1}
+  warningLabelColor: {r: 1, g: 0.9, b: 0.15, a: 1}
   floorCamera: {fileID: 564735573}
   gameManager: {fileID: 101588415}
   uwbManager: {fileID: 101588412}
@@ -2056,6 +2155,85 @@ Transform:
   - {fileID: 132541453}
   m_Father: {fileID: 505326185}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &448483749
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 448483750}
+  - component: {fileID: 448483752}
+  - component: {fileID: 448483751}
+  m_Layer: 0
+  m_Name: MealWaveTimer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &448483750
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 448483749}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1595694064}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 26, y: -53}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &448483751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 448483749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.1, g: 0.85, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 26
+    m_FontStyle: 1
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 40
+    m_Alignment: 3
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
+    m_LineSpacing: 1
+  m_Text: READY
+--- !u!222 &448483752
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 448483749}
+  m_CullTransparentMesh: 1
 --- !u!1 &457706411
 GameObject:
   m_ObjectHideFlags: 0
@@ -2112,8 +2290,11 @@ MonoBehaviour:
   statusLabel: {fileID: 0}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
-  warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
-  warningDimAlpha: 0.12
+  normalBlockColor: {r: 1, g: 0.5, b: 0.16, a: 1}
+  warningBlockColor: {r: 1, g: 0.2, b: 0.15, a: 1}
+  normalLabelColor: {r: 1, g: 1, b: 1, a: 1}
+  warningLabelColor: {r: 1, g: 0.9, b: 0.15, a: 1}
+  noCustomerSlotAlpha: 0.5
   customerState: 0
   requestedFood: 0
   stateRemainingSeconds: 0
@@ -2292,8 +2473,11 @@ MonoBehaviour:
   statusLabel: {fileID: 1522274865}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
-  warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
-  warningDimAlpha: 0.12
+  normalBlockColor: {r: 1, g: 0.5, b: 0.16, a: 1}
+  warningBlockColor: {r: 1, g: 0.2, b: 0.15, a: 1}
+  normalLabelColor: {r: 1, g: 1, b: 1, a: 1}
+  warningLabelColor: {r: 1, g: 0.9, b: 0.15, a: 1}
+  noCustomerSlotAlpha: 0.5
   customerState: 0
   requestedFood: 0
   stateRemainingSeconds: 0
@@ -3239,8 +3423,11 @@ MonoBehaviour:
   statusLabel: {fileID: 896117168}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
-  warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
-  warningDimAlpha: 0.12
+  normalBlockColor: {r: 1, g: 0.5, b: 0.16, a: 1}
+  warningBlockColor: {r: 1, g: 0.2, b: 0.15, a: 1}
+  normalLabelColor: {r: 1, g: 1, b: 1, a: 1}
+  warningLabelColor: {r: 1, g: 0.9, b: 0.15, a: 1}
+  noCustomerSlotAlpha: 0.5
   customerState: 0
   requestedFood: 0
   stateRemainingSeconds: 0
@@ -3583,9 +3770,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 896117166}
-  m_Text: 'C4
-
-    EMPTY'
+  m_Text: C4
   m_OffsetZ: 0
   m_CharacterSize: 0.055
   m_LineSpacing: 1
@@ -3598,7 +3783,7 @@ TextMesh:
   m_Font: {fileID: 0}
   m_Color:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 2164260863
 --- !u!23 &896117169
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3689,9 +3874,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 907205393}
-  m_Text: 'C1
-
-    EMPTY'
+  m_Text: C1
   m_OffsetZ: 0
   m_CharacterSize: 0.055
   m_LineSpacing: 1
@@ -3704,7 +3887,7 @@ TextMesh:
   m_Font: {fileID: 0}
   m_Color:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 2164260863
 --- !u!23 &907205396
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3811,8 +3994,11 @@ MonoBehaviour:
   statusLabel: {fileID: 907205395}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
-  warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
-  warningDimAlpha: 0.12
+  normalBlockColor: {r: 1, g: 0.5, b: 0.16, a: 1}
+  warningBlockColor: {r: 1, g: 0.2, b: 0.15, a: 1}
+  normalLabelColor: {r: 1, g: 1, b: 1, a: 1}
+  warningLabelColor: {r: 1, g: 0.9, b: 0.15, a: 1}
+  noCustomerSlotAlpha: 0.5
   customerState: 0
   requestedFood: 0
   stateRemainingSeconds: 0
@@ -3954,8 +4140,11 @@ MonoBehaviour:
   statusLabel: {fileID: 0}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
-  warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
-  warningDimAlpha: 0.12
+  normalBlockColor: {r: 1, g: 0.5, b: 0.16, a: 1}
+  warningBlockColor: {r: 1, g: 0.2, b: 0.15, a: 1}
+  normalLabelColor: {r: 1, g: 1, b: 1, a: 1}
+  warningLabelColor: {r: 1, g: 0.9, b: 0.15, a: 1}
+  noCustomerSlotAlpha: 0.5
   customerState: 0
   requestedFood: 0
   stateRemainingSeconds: 0
@@ -4370,8 +4559,11 @@ MonoBehaviour:
   statusLabel: {fileID: 0}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
-  warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
-  warningDimAlpha: 0.12
+  normalBlockColor: {r: 1, g: 0.5, b: 0.16, a: 1}
+  warningBlockColor: {r: 1, g: 0.2, b: 0.15, a: 1}
+  normalLabelColor: {r: 1, g: 1, b: 1, a: 1}
+  warningLabelColor: {r: 1, g: 0.9, b: 0.15, a: 1}
+  noCustomerSlotAlpha: 0.5
   customerState: 0
   requestedFood: 0
   stateRemainingSeconds: 0
@@ -4713,9 +4905,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1522274863}
-  m_Text: 'C3
-
-    EMPTY'
+  m_Text: C3
   m_OffsetZ: 0
   m_CharacterSize: 0.055
   m_LineSpacing: 1
@@ -4728,7 +4918,7 @@ TextMesh:
   m_Font: {fileID: 0}
   m_Color:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 2164260863
 --- !u!23 &1522274866
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4817,6 +5007,9 @@ RectTransform:
   - {fileID: 1991298205}
   - {fileID: 491305669}
   - {fileID: 1376234883}
+  - {fileID: 1595887005}
+  - {fileID: 448483750}
+  - {fileID: 77298610}
   m_Father: {fileID: 278790267}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -4887,6 +5080,85 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!1 &1595887004
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1595887005}
+  - component: {fileID: 1595887007}
+  - component: {fileID: 1595887006}
+  m_Layer: 0
+  m_Name: MVPScore
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1595887005
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595887004}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1595694064}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.02, y: 0.49}
+  m_AnchorMax: {x: 0.29, y: 0.67}
+  m_AnchoredPosition: {x: -5, y: 64}
+  m_SizeDelta: {x: -0.000030517578, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1595887006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595887004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 0.82, b: 0.15, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 28
+    m_FontStyle: 1
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 40
+    m_Alignment: 3
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
+    m_LineSpacing: 1
+  m_Text: MVP  --  0000
+--- !u!222 &1595887007
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595887004}
+  m_CullTransparentMesh: 1
 --- !u!1 &1623700572
 GameObject:
   m_ObjectHideFlags: 0
@@ -4899,7 +5171,7 @@ GameObject:
   - component: {fileID: 1623700575}
   - component: {fileID: 1623700574}
   m_Layer: 0
-  m_Name: TeamMoney
+  m_Name: TeamScore
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4957,7 +5229,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: TEAM MONEY  0000
+  m_Text: TEAM SCORE  0000
 --- !u!222 &1623700575
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5186,9 +5458,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1683973796}
-  m_Text: 'C2
-
-    EMPTY'
+  m_Text: C2
   m_OffsetZ: 0
   m_CharacterSize: 0.055
   m_LineSpacing: 1
@@ -5201,7 +5471,7 @@ TextMesh:
   m_Font: {fileID: 0}
   m_Color:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 2164260863
 --- !u!23 &1683973799
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5926,8 +6196,11 @@ MonoBehaviour:
   statusLabel: {fileID: 0}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
-  warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
-  warningDimAlpha: 0.12
+  normalBlockColor: {r: 1, g: 0.5, b: 0.16, a: 1}
+  warningBlockColor: {r: 1, g: 0.2, b: 0.15, a: 1}
+  normalLabelColor: {r: 1, g: 1, b: 1, a: 1}
+  warningLabelColor: {r: 1, g: 0.9, b: 0.15, a: 1}
+  noCustomerSlotAlpha: 0.5
   customerState: 0
   requestedFood: 0
   stateRemainingSeconds: 0
@@ -6137,8 +6410,11 @@ MonoBehaviour:
   statusLabel: {fileID: 0}
   warningTimeNormalized: 0.25
   warningBlinkCyclesPerSecond: 3
-  warningTextColor: {r: 1, g: 0.2, b: 0.15, a: 1}
-  warningDimAlpha: 0.12
+  normalBlockColor: {r: 1, g: 0.5, b: 0.16, a: 1}
+  warningBlockColor: {r: 1, g: 0.2, b: 0.15, a: 1}
+  normalLabelColor: {r: 1, g: 1, b: 1, a: 1}
+  warningLabelColor: {r: 1, g: 0.9, b: 0.15, a: 1}
+  noCustomerSlotAlpha: 0.5
   customerState: 0
   requestedFood: 0
   stateRemainingSeconds: 0
@@ -6229,7 +6505,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 385200953}
-  - {fileID: 278790267}
   - {fileID: 101588414}
+  - {fileID: 278790267}
   - {fileID: 536440275}
   - {fileID: 2144607759}

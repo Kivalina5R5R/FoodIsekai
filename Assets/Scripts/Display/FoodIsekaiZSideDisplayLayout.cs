@@ -41,6 +41,8 @@ namespace FoodIsekaiZ.Display
         private Canvas sideCanvas;
         private Text scoreText;
         private Text mvpText;
+        private Text mealWaveTimerText;
+        private Text intermissionCountdownText;
         private Text uwbStatusText;
         private readonly Text[] customerStatusTexts = new Text[4];
         private readonly Image[] customerPanelImages = new Image[4];
@@ -54,6 +56,7 @@ namespace FoodIsekaiZ.Display
         private FoodIsekaiZGameManager subscribedGameManager;
         private bool teamScoreDisplayDirty = true;
         private bool mvpDisplayDirty = true;
+        private bool mealWaveDisplayDirty = true;
 
         public Canvas SideCanvas => sideCanvas;
 
@@ -73,6 +76,7 @@ namespace FoodIsekaiZ.Display
                 EnsureReferences();
                 SubscribeToGameEvents();
                 MarkScoreDisplayDirty();
+                MarkMealWaveDisplayDirty();
                 appliedHash = CalculateHash();
                 return;
             }
@@ -89,6 +93,8 @@ namespace FoodIsekaiZ.Display
             SubscribeToGameEvents();
             MarkScoreDisplayDirty();
             FlushScoreDisplayUpdates();
+            MarkMealWaveDisplayDirty();
+            FlushMealWaveDisplayUpdate();
         }
 
         private void OnDisable()
@@ -129,6 +135,7 @@ namespace FoodIsekaiZ.Display
             if (Application.isPlaying)
             {
                 FlushScoreDisplayUpdates();
+                FlushMealWaveDisplayUpdate();
             }
         }
 
@@ -203,6 +210,18 @@ namespace FoodIsekaiZ.Display
                 font);
             mvpText.fontStyle = FontStyle.Bold;
 
+            mealWaveTimerText = CreateText(
+                "MealWaveTimer",
+                canvasObject.transform,
+                new Vector2(0.30f, 0.47f),
+                new Vector2(0.71f, 0.60f),
+                string.Empty,
+                26,
+                TextAnchor.MiddleCenter,
+                accentColor,
+                font);
+            mealWaveTimerText.fontStyle = FontStyle.Bold;
+
             uwbStatusText = CreateText(
                 "UWBStatus",
                 canvasObject.transform,
@@ -244,11 +263,26 @@ namespace FoodIsekaiZ.Display
                 customerTimerSliders[i].gameObject.SetActive(false);
             }
 
+            intermissionCountdownText = CreateText(
+                "MealIntermissionCountdown",
+                canvasObject.transform,
+                new Vector2(0.08f, 0.08f),
+                new Vector2(0.92f, 0.49f),
+                string.Empty,
+                80,
+                TextAnchor.MiddleCenter,
+                moneyColor,
+                font);
+            intermissionCountdownText.fontStyle = FontStyle.Bold;
+            intermissionCountdownText.gameObject.SetActive(false);
+
             ConfigurePhysicalWall(canvasObject.GetComponent<RectTransform>());
             ConfigureSideCamera();
             ApplyWallBackgroundAppearance();
             MarkScoreDisplayDirty();
             FlushScoreDisplayUpdates();
+            MarkMealWaveDisplayDirty();
+            FlushMealWaveDisplayUpdate();
             UpdateRealtimeText();
             appliedHash = CalculateHash();
             isBuilding = false;
@@ -340,17 +374,36 @@ namespace FoodIsekaiZ.Display
             {
                 Text statusText = customerStatusTexts[i];
                 Slider timerSlider = customerTimerSliders[i];
+                if (gameManager != null &&
+                    gameManager.CurrentMealWavePhase == MealWavePhase.Intermission)
+                {
+                    if (statusText != null)
+                    {
+                        statusText.text = string.Empty;
+                        statusText.color = Color.white;
+                    }
+
+                    SetCustomerPanelVisible(i, false);
+                    if (timerSlider != null)
+                    {
+                        timerSlider.gameObject.SetActive(false);
+                    }
+
+                    continue;
+                }
+
+                SetCustomerPanelVisible(i, true);
                 if (statusText == null)
                 {
                     continue;
                 }
 
                 ArenaSlot2D slot = gameManager != null ? gameManager.GetCustomerSlot(i) : null;
-                if (slot == null || slot.CustomerState == CustomerSlotState.Empty)
+                if (slot == null || !slot.HasCustomer)
                 {
                     statusText.text = string.Empty;
                     statusText.color = Color.white;
-                    SetCustomerPanelColor(i, panelColor);
+                    SetCustomerPanelColor(i, WithAlphaMultiplier(panelColor, 0.5f));
                     if (timerSlider != null)
                     {
                         timerSlider.gameObject.SetActive(false);
@@ -398,10 +451,21 @@ namespace FoodIsekaiZ.Display
             FlushScoreDisplayUpdates();
         }
 
+        public void RefreshMealWaveDisplay()
+        {
+            MarkMealWaveDisplayDirty();
+            FlushMealWaveDisplayUpdate();
+        }
+
         private void MarkScoreDisplayDirty()
         {
             teamScoreDisplayDirty = true;
             mvpDisplayDirty = true;
+        }
+
+        private void MarkMealWaveDisplayDirty()
+        {
+            mealWaveDisplayDirty = true;
         }
 
         private void FlushScoreDisplayUpdates()
@@ -435,6 +499,58 @@ namespace FoodIsekaiZ.Display
             }
         }
 
+        private void FlushMealWaveDisplayUpdate()
+        {
+            if (!mealWaveDisplayDirty)
+            {
+                return;
+            }
+
+            mealWaveDisplayDirty = false;
+            if (mealWaveTimerText == null || intermissionCountdownText == null)
+            {
+                return;
+            }
+
+            if (gameManager == null || !gameManager.UsesMealWaves)
+            {
+                mealWaveTimerText.text = string.Empty;
+                intermissionCountdownText.gameObject.SetActive(false);
+                return;
+            }
+
+            int seconds = Mathf.Max(0, Mathf.CeilToInt(gameManager.MealPhaseRemainingSeconds));
+            switch (gameManager.CurrentMealWavePhase)
+            {
+                case MealWavePhase.Active:
+                    mealWaveTimerText.text =
+                        $"{gameManager.CurrentWaveName}  {FormatClock(seconds)}  " +
+                        $"({gameManager.CurrentWaveNumber}/{gameManager.TotalWaveCount})";
+                    intermissionCountdownText.gameObject.SetActive(false);
+                    break;
+
+                case MealWavePhase.Intermission:
+                    mealWaveTimerText.text = "BREAK TIME";
+                    intermissionCountdownText.text =
+                        $"NEXT  {gameManager.NextWaveName}\n{seconds}";
+                    intermissionCountdownText.color = Color.white;
+                    intermissionCountdownText.gameObject.SetActive(true);
+                    break;
+
+                case MealWavePhase.Completed:
+                    mealWaveTimerText.text = "ALL MEALS COMPLETE";
+                    intermissionCountdownText.text = "SERVICE COMPLETE";
+                    intermissionCountdownText.color = moneyColor;
+                    intermissionCountdownText.gameObject.SetActive(true);
+                    break;
+
+                default:
+                    mealWaveTimerText.text = "READY";
+                    intermissionCountdownText.gameObject.SetActive(false);
+                    break;
+            }
+        }
+
         private void SubscribeToGameEvents()
         {
             if (!Application.isPlaying || subscribedGameManager == gameManager)
@@ -451,6 +567,7 @@ namespace FoodIsekaiZ.Display
             subscribedGameManager = gameManager;
             subscribedGameManager.PlayerScoreChanged += HandlePlayerScoreChanged;
             subscribedGameManager.TeamScoreChanged += HandleTeamScoreChanged;
+            subscribedGameManager.MealWaveDisplayChanged += HandleMealWaveDisplayChanged;
         }
 
         private void UnsubscribeFromGameEvents()
@@ -462,6 +579,7 @@ namespace FoodIsekaiZ.Display
 
             subscribedGameManager.PlayerScoreChanged -= HandlePlayerScoreChanged;
             subscribedGameManager.TeamScoreChanged -= HandleTeamScoreChanged;
+            subscribedGameManager.MealWaveDisplayChanged -= HandleMealWaveDisplayChanged;
             subscribedGameManager = null;
         }
 
@@ -475,6 +593,11 @@ namespace FoodIsekaiZ.Display
             teamScoreDisplayDirty = true;
         }
 
+        private void HandleMealWaveDisplayChanged()
+        {
+            mealWaveDisplayDirty = true;
+        }
+
         private void SetCustomerPanelColor(int index, Color color)
         {
             if (index < 0 || index >= customerPanelImages.Length || customerPanelImages[index] == null)
@@ -482,8 +605,23 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
-            color.a = 1f;
             customerPanelImages[index].color = color;
+        }
+
+        private static Color WithAlphaMultiplier(Color color, float multiplier)
+        {
+            color.a *= Mathf.Clamp01(multiplier);
+            return color;
+        }
+
+        private void SetCustomerPanelVisible(int index, bool visible)
+        {
+            if (index < 0 || index >= customerPanelImages.Length || customerPanelImages[index] == null)
+            {
+                return;
+            }
+
+            customerPanelImages[index].enabled = visible;
         }
 
         private static string ShortStatus(string value)
@@ -502,6 +640,12 @@ namespace FoodIsekaiZ.Display
             return score < 0
                 ? $"-{Mathf.Abs(score):0000}"
                 : $"{score:0000}";
+        }
+
+        private static string FormatClock(int totalSeconds)
+        {
+            totalSeconds = Mathf.Max(0, totalSeconds);
+            return $"{totalSeconds / 60:00}:{totalSeconds % 60:00}";
         }
 
         private void CacheGeneratedDisplay(Transform root)
@@ -534,6 +678,22 @@ namespace FoodIsekaiZ.Display
                     moneyColor,
                     font);
                 mvpText.fontStyle = FontStyle.Bold;
+            }
+
+            mealWaveTimerText = GetGeneratedComponent<Text>(root, "MealWaveTimer");
+            if (mealWaveTimerText == null)
+            {
+                mealWaveTimerText = CreateText(
+                    "MealWaveTimer",
+                    root,
+                    new Vector2(0.30f, 0.47f),
+                    new Vector2(0.71f, 0.60f),
+                    string.Empty,
+                    26,
+                    TextAnchor.MiddleCenter,
+                    accentColor,
+                    font);
+                mealWaveTimerText.fontStyle = FontStyle.Bold;
             }
 
             for (int i = 0; i < customerStatusTexts.Length; i++)
@@ -572,8 +732,6 @@ namespace FoodIsekaiZ.Display
                 }
                 else if (migratedLegacyPanel)
                 {
-                    // Upgrade only the old P#/TAG layout. Once it is a CustomerPanel,
-                    // keep any manual RectTransform edits made in the Scene view.
                     SetRect(
                         customerStatusTexts[i].rectTransform,
                         new Vector2(0.05f, 0.30f),
@@ -601,6 +759,23 @@ namespace FoodIsekaiZ.Display
                 {
                     customerTimerFills[i] = GetGeneratedComponent<Image>(panel, "OrderTimer/FillArea/Fill");
                 }
+            }
+
+            intermissionCountdownText = GetGeneratedComponent<Text>(root, "MealIntermissionCountdown");
+            if (intermissionCountdownText == null)
+            {
+                intermissionCountdownText = CreateText(
+                    "MealIntermissionCountdown",
+                    root,
+                    new Vector2(0.08f, 0.08f),
+                    new Vector2(0.92f, 0.49f),
+                    string.Empty,
+                    80,
+                    TextAnchor.MiddleCenter,
+                    moneyColor,
+                    font);
+                intermissionCountdownText.fontStyle = FontStyle.Bold;
+                intermissionCountdownText.gameObject.SetActive(false);
             }
         }
 
@@ -853,6 +1028,8 @@ namespace FoodIsekaiZ.Display
             sideCanvas = null;
             scoreText = null;
             mvpText = null;
+            mealWaveTimerText = null;
+            intermissionCountdownText = null;
             uwbStatusText = null;
             for (int i = 0; i < customerStatusTexts.Length; i++)
             {

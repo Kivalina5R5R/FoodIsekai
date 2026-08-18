@@ -22,6 +22,22 @@ namespace FoodIsekaiZ.Gameplay
         }
 
         [Serializable]
+        public sealed class MealWaveDefinition
+        {
+            [InspectorName("Wave Name")]
+            public string displayName = "MEAL";
+
+            public MealWaveDefinition()
+            {
+            }
+
+            public MealWaveDefinition(string displayName)
+            {
+                this.displayName = displayName;
+            }
+        }
+
+        [Serializable]
         public sealed class FoodOption
         {
             public FoodType food = FoodType.Food1;
@@ -46,6 +62,22 @@ namespace FoodIsekaiZ.Gameplay
 
         [Header("Bottom Area - 5 Food + 1 Bank")]
         [SerializeField] private ArenaSlot2D[] stationSlots = new ArenaSlot2D[6];
+
+        [Header("Meal Waves")]
+        [SerializeField] private bool useMealWaves = true;
+        [Tooltip("เวลาทำอาหารของแต่ละ Wave ใช้ค่าเดียวกันทั้ง BREAKFAST, LUNCH และ DINNER")]
+        [InspectorName("Wave Duration (Seconds)")]
+        [SerializeField, Min(1f)] private float waveDurationSeconds = 90f;
+        [Tooltip("เวลาพักระหว่าง Wave ก่อนเริ่มมื้อถัดไป")]
+        [InspectorName("Break Duration (Seconds)")]
+        [SerializeField, Min(0f)] private float intermissionDurationSeconds = 10f;
+        [Tooltip("ชื่อของแต่ละ Wave เรียงตามลำดับการเล่น")]
+        [SerializeField] private MealWaveDefinition[] mealWaves =
+        {
+            new MealWaveDefinition("BREAKFAST"),
+            new MealWaveDefinition("LUNCH"),
+            new MealWaveDefinition("DINNER")
+        };
 
         [Header("Customer Spawning")]
         [SerializeField] private bool startCustomersOnPlay = true;
@@ -88,14 +120,26 @@ namespace FoodIsekaiZ.Gameplay
         [SerializeField, Min(0)] private int completedOrderCount;
         [SerializeField, Min(0)] private int expiredOrderCount;
         [SerializeField] private List<PlayerScoreRecord> playerScores = new List<PlayerScoreRecord>();
+        [SerializeField] private MealWavePhase mealWavePhase = MealWavePhase.NotStarted;
+        [SerializeField] private int currentWaveIndex = -1;
+        [SerializeField, Min(0f)] private float mealPhaseRemainingSeconds;
 
         private float[] nextCustomerSpawnTimes = Array.Empty<float>();
         private bool customerFlowStarted;
+        private bool mealWaveFlowStarted;
+        private int lastNotifiedMealSecond = int.MinValue;
 
         public int TeamScore => teamScore;
         public int CompletedOrderCount => completedOrderCount;
         public int ExpiredOrderCount => expiredOrderCount;
         public IReadOnlyList<ArenaSlot2D> CustomerSlots => customerSlots;
+        public bool UsesMealWaves => useMealWaves;
+        public MealWavePhase CurrentMealWavePhase => mealWavePhase;
+        public int CurrentWaveNumber => currentWaveIndex >= 0 ? currentWaveIndex + 1 : 0;
+        public int TotalWaveCount => mealWaves != null ? mealWaves.Length : 0;
+        public float MealPhaseRemainingSeconds => mealPhaseRemainingSeconds;
+        public string CurrentWaveName => GetWaveDisplayName(currentWaveIndex);
+        public string NextWaveName => GetWaveDisplayName(currentWaveIndex + 1);
 
         public event Action<int, int> PlayerMoneyDeposited;
         public event Action<int, int> PlayerScoreChanged;
@@ -103,11 +147,24 @@ namespace FoodIsekaiZ.Gameplay
         public event Action<ArenaSlot2D, FoodType> CustomerRequestedFood;
         public event Action<ArenaSlot2D, int> CustomerMoneySpawned;
         public event Action<ArenaSlot2D> CustomerOrderExpired;
+        public event Action MealWaveDisplayChanged;
 
         private void Start()
         {
             ValidateSlotLayout();
-            if (startCustomersOnPlay && !customerFlowStarted)
+            if (!startCustomersOnPlay)
+            {
+                return;
+            }
+
+            if (useMealWaves)
+            {
+                if (!mealWaveFlowStarted)
+                {
+                    StartMealWaveFlow();
+                }
+            }
+            else if (!customerFlowStarted)
             {
                 StartCustomerFlow();
             }
@@ -125,6 +182,16 @@ namespace FoodIsekaiZ.Gameplay
                 customerSlots = Array.Empty<ArenaSlot2D>();
             }
 
+            if (useMealWaves)
+            {
+                if (!mealWaveFlowStarted)
+                {
+                    StartMealWaveFlow();
+                }
+
+                return;
+            }
+
             bool timingStateMissing = nextCustomerSpawnTimes == null ||
                 nextCustomerSpawnTimes.Length != customerSlots.Length;
             bool stalledWithoutCustomers = !HasNonEmptyCustomerSlot() && !HasPendingCustomerSpawn();
@@ -136,6 +203,15 @@ namespace FoodIsekaiZ.Gameplay
 
         private void Update()
         {
+            if (useMealWaves && mealWaveFlowStarted)
+            {
+                TickMealWave(Time.deltaTime);
+                if (mealWavePhase != MealWavePhase.Active)
+                {
+                    return;
+                }
+            }
+
             if (!customerFlowStarted)
             {
                 return;
@@ -143,6 +219,15 @@ namespace FoodIsekaiZ.Gameplay
 
             TickCustomerStates(Time.deltaTime);
             SpawnReadyCustomers();
+        }
+
+        [ContextMenu("Start / Restart 3 Meal Waves")]
+        public void StartMealWaveFlow()
+        {
+            EnsureMealWaveConfiguration();
+            mealWaveFlowStarted = true;
+            currentWaveIndex = 0;
+            BeginCurrentWave();
         }
 
         [ContextMenu("Start / Restart Customer Flow")]
@@ -191,6 +276,13 @@ namespace FoodIsekaiZ.Gameplay
                 return false;
             }
 
+            if (useMealWaves &&
+                mealWavePhase != MealWavePhase.Active &&
+                mealWavePhase != MealWavePhase.Intermission)
+            {
+                return false;
+            }
+
             switch (slot.SlotType)
             {
                 case ArenaSlotType.FoodStation:
@@ -205,6 +297,156 @@ namespace FoodIsekaiZ.Gameplay
                 default:
                     return false;
             }
+        }
+
+        private void TickMealWave(float deltaTime)
+        {
+            if (mealWavePhase != MealWavePhase.Active && mealWavePhase != MealWavePhase.Intermission)
+            {
+                return;
+            }
+
+            mealPhaseRemainingSeconds = Mathf.Max(
+                0f,
+                mealPhaseRemainingSeconds - Mathf.Max(0f, deltaTime));
+            NotifyMealWaveDisplayIfNeeded();
+            if (mealPhaseRemainingSeconds > 0f)
+            {
+                return;
+            }
+
+            if (mealWavePhase == MealWavePhase.Active)
+            {
+                EndCurrentWave();
+            }
+            else
+            {
+                currentWaveIndex++;
+                BeginCurrentWave();
+            }
+        }
+
+        private void BeginCurrentWave()
+        {
+            if (mealWaves == null || currentWaveIndex < 0 || currentWaveIndex >= mealWaves.Length)
+            {
+                CompleteMealWaves();
+                return;
+            }
+
+            mealWavePhase = MealWavePhase.Active;
+            mealPhaseRemainingSeconds = Mathf.Max(1f, waveDurationSeconds);
+            lastNotifiedMealSecond = int.MinValue;
+            StartCustomerFlow();
+            NotifyMealWaveDisplayIfNeeded(true);
+        }
+
+        private void EndCurrentWave()
+        {
+            if (currentWaveIndex >= TotalWaveCount - 1)
+            {
+                CompleteMealWaves();
+                return;
+            }
+
+            PauseCustomerFlowAndKeepAvailableMoney();
+            mealWavePhase = MealWavePhase.Intermission;
+            mealPhaseRemainingSeconds = Mathf.Max(0f, intermissionDurationSeconds);
+            lastNotifiedMealSecond = int.MinValue;
+            NotifyMealWaveDisplayIfNeeded(true);
+            if (mealPhaseRemainingSeconds <= 0f)
+            {
+                currentWaveIndex++;
+                BeginCurrentWave();
+            }
+        }
+
+        private void CompleteMealWaves()
+        {
+            StopCustomerFlowAndClearSlots();
+            mealWavePhase = MealWavePhase.Completed;
+            mealPhaseRemainingSeconds = 0f;
+            lastNotifiedMealSecond = int.MinValue;
+            NotifyMealWaveDisplayIfNeeded(true);
+        }
+
+        private void PauseCustomerFlowAndKeepAvailableMoney()
+        {
+            customerFlowStarted = false;
+            if (customerSlots != null)
+            {
+                for (int i = 0; i < customerSlots.Length; i++)
+                {
+                    ArenaSlot2D slot = customerSlots[i];
+                    if (slot != null && slot.CustomerState != CustomerSlotState.MoneyAvailable)
+                    {
+                        slot.ClearCustomer();
+                    }
+                }
+            }
+
+            nextCustomerSpawnTimes = Array.Empty<float>();
+        }
+
+        private void StopCustomerFlowAndClearSlots()
+        {
+            customerFlowStarted = false;
+            if (customerSlots != null)
+            {
+                for (int i = 0; i < customerSlots.Length; i++)
+                {
+                    customerSlots[i]?.ClearCustomer();
+                }
+            }
+
+            nextCustomerSpawnTimes = Array.Empty<float>();
+        }
+
+        private void NotifyMealWaveDisplayIfNeeded(bool force = false)
+        {
+            int displayedSecond = Mathf.CeilToInt(mealPhaseRemainingSeconds);
+            if (!force && displayedSecond == lastNotifiedMealSecond)
+            {
+                return;
+            }
+
+            lastNotifiedMealSecond = displayedSecond;
+            MealWaveDisplayChanged?.Invoke();
+        }
+
+        private string GetWaveDisplayName(int waveIndex)
+        {
+            if (mealWaves == null || waveIndex < 0 || waveIndex >= mealWaves.Length ||
+                mealWaves[waveIndex] == null || string.IsNullOrWhiteSpace(mealWaves[waveIndex].displayName))
+            {
+                return string.Empty;
+            }
+
+            return mealWaves[waveIndex].displayName.Trim();
+        }
+
+        private void EnsureMealWaveConfiguration()
+        {
+            if (mealWaves == null || mealWaves.Length == 0)
+            {
+                mealWaves = new[]
+                {
+                    new MealWaveDefinition("BREAKFAST"),
+                    new MealWaveDefinition("LUNCH"),
+                    new MealWaveDefinition("DINNER")
+                };
+            }
+
+            for (int i = 0; i < mealWaves.Length; i++)
+            {
+                if (mealWaves[i] == null)
+                {
+                    mealWaves[i] = new MealWaveDefinition($"MEAL {i + 1}");
+                }
+            }
+
+            waveDurationSeconds = Mathf.Max(1f, waveDurationSeconds);
+            intermissionDurationSeconds = Mathf.Max(0f, intermissionDurationSeconds);
         }
 
         public ArenaSlot2D GetCustomerSlot(int index)
@@ -709,6 +951,7 @@ namespace FoodIsekaiZ.Gameplay
             correctServeScore = Mathf.Max(0, correctServeScore);
             bankDepositScore = Mathf.Max(0, bankDepositScore);
             escapedCustomerPenalty = Mathf.Max(0, escapedCustomerPenalty);
+            EnsureMealWaveConfiguration();
         }
 #endif
     }
