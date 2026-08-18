@@ -1,5 +1,6 @@
 using Fortal.UWB;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace FoodIsekaiZ.Gameplay
 {
@@ -46,8 +47,9 @@ namespace FoodIsekaiZ.Gameplay
         [Header("Customer Floor Text Warning")]
         [SerializeField, Range(0f, 1f)] private float warningTimeNormalized = 0.25f;
         [SerializeField, Min(0.1f)] private float warningBlinkCyclesPerSecond = 3f;
-        [SerializeField] private Color warningTextColor = new Color(1f, 0.2f, 0.15f, 1f);
-        [SerializeField, Range(0f, 1f)] private float warningDimAlpha = 0.12f;
+        [FormerlySerializedAs("warningTextColor")]
+        [SerializeField] private Color warningBlockColor = new Color(1f, 0.08f, 0.04f, 1f);
+        [SerializeField] private Color warningLabelColor = new Color(1f, 0.9f, 0.15f, 1f);
 
         [Header("Scene References")]
         [SerializeField] private Camera floorCamera;
@@ -226,8 +228,6 @@ namespace FoodIsekaiZ.Gameplay
             floorCamera.transform.position = new Vector3(center.x, center.y + 10f, center.z);
             floorCamera.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
 
-            // ใน Editor ค่า Camera.aspect ของ targetDisplay 1 อาจยังเป็นค่าจอหลัก
-            // จึงคำนวณจาก resolution ของ Floor โดยตรงเพื่อให้ preview และ build ตรงกัน
             float aspect = floorDisplayResolution.x > 0 && floorDisplayResolution.y > 0
                 ? floorDisplayResolution.x / (float)floorDisplayResolution.y
                 : Mathf.Max(0.1f, floorCamera.aspect);
@@ -304,8 +304,9 @@ namespace FoodIsekaiZ.Gameplay
                 customers[i].ConfigureFloorTextWarning(
                     warningTimeNormalized,
                     warningBlinkCyclesPerSecond,
-                    warningTextColor,
-                    warningDimAlpha);
+                    customerColor,
+                    warningBlockColor,
+                    warningLabelColor);
             }
 
             var stations = new ArenaSlot2D[6];
@@ -516,8 +517,9 @@ namespace FoodIsekaiZ.Gameplay
                 slot.ConfigureFloorTextWarning(
                     warningTimeNormalized,
                     warningBlinkCyclesPerSecond,
-                    warningTextColor,
-                    warningDimAlpha);
+                    customerColor,
+                    warningBlockColor,
+                    warningLabelColor);
                 result[i] = slot;
             }
 
@@ -735,8 +737,8 @@ namespace FoodIsekaiZ.Gameplay
                 hash = (hash * 31) + floorBackgroundTextureOffset.GetHashCode();
                 hash = (hash * 31) + warningTimeNormalized.GetHashCode();
                 hash = (hash * 31) + warningBlinkCyclesPerSecond.GetHashCode();
-                hash = (hash * 31) + warningTextColor.GetHashCode();
-                hash = (hash * 31) + warningDimAlpha.GetHashCode();
+                hash = (hash * 31) + warningBlockColor.GetHashCode();
+                hash = (hash * 31) + warningLabelColor.GetHashCode();
                 hash = (hash * 31) + floorUsesDisplay2.GetHashCode();
                 hash = (hash * 31) + rebuildPreviewWhenSettingsChange.GetHashCode();
                 hash = (hash * 31) + transform.position.GetHashCode();

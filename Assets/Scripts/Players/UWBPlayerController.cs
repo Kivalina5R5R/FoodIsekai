@@ -1,6 +1,7 @@
 using FoodIsekaiZ.Gameplay;
 using Fortal.UWB;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace FoodIsekaiZ.Players
 {
@@ -30,10 +31,23 @@ namespace FoodIsekaiZ.Players
         [SerializeField] private bool allowSceneViewDragInSimulation = true;
         [SerializeField, Min(0.0001f)] private float sceneViewDragThreshold = 0.002f;
 
+        [Header("Floor Player Marker")]
+        [Tooltip("Overall width of the eye-shaped marker in world units.")]
+        [SerializeField, Min(0.1f)] private float markerWorldWidth = 1f;
+        [Tooltip("Marker height relative to its width.")]
+        [SerializeField, Range(0.4f, 1f)] private float markerHeightRatio = 0.76f;
+        [FormerlySerializedAs("markerWhiteGapScale")]
+        [SerializeField, Range(0.2f, 0.9f)] private float markerTransparentGapScale = 0.72f;
+        [SerializeField, Range(0.05f, 0.7f)] private float markerCenterWidthScale = 0.35f;
+        [SerializeField, Range(0.05f, 0.7f)] private float markerCenterHeightScale = 0.40f;
+        [SerializeField, Range(32, 256)] private int markerTextureWidth = 128;
+
         [Header("Floor Player Status")]
         [SerializeField] private bool showCarriedItems = true;
         [SerializeField, Range(0.02f, 0.12f)] private float statusCharacterSize = 0.055f;
         [SerializeField] private Color statusTextColor = Color.white;
+        [Tooltip("Local X/Y offset from the marker centre. Default places text at the upper-right.")]
+        [SerializeField] private Vector2 statusLabelOffset = new Vector2(0.48f, 0.28f);
 
         [Header("Runtime (Read Only)")]
         [SerializeField] private bool isTracking;
@@ -41,6 +55,7 @@ namespace FoodIsekaiZ.Players
 
         private Rigidbody body;
         private SpriteRenderer circleRenderer;
+        private SpriteRenderer markerCenterRenderer;
         private FoodIsekaiZPlayerState playerState;
         private TextMesh carriedStatusText;
         private Vector3 targetPosition;
@@ -49,8 +64,10 @@ namespace FoodIsekaiZ.Players
         private bool isRegistered;
         private bool hasControllerPosition;
         private Vector3 lastControllerPosition;
-        private Texture2D generatedCircleTexture;
-        private Sprite generatedCircleSprite;
+        private Texture2D generatedMarkerTexture;
+        private Sprite generatedMarkerSprite;
+        private Texture2D generatedMarkerCenterTexture;
+        private Sprite generatedMarkerCenterSprite;
 
         public int PlayerId => playerId;
         public int TagId => tagId;
@@ -63,15 +80,11 @@ namespace FoodIsekaiZ.Players
             body.isKinematic = true;
             body.useGravity = false;
             body.constraints = RigidbodyConstraints.FreezeRotation;
-            circleRenderer.color = playerColor;
 
             // Sprite ปกติอยู่บน XY; หมุนให้นอนบนพื้น XZ และหันขึ้นหากล้อง Floor
             transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-
-            if (circleRenderer.sprite == null)
-            {
-                circleRenderer.sprite = CreateCircleSprite(64);
-            }
+            EnsurePlayerMarker();
+            ApplyPlayerMarkerColor();
 
             CreateStatusLabel();
             RefreshStatusLabel();
@@ -90,14 +103,24 @@ namespace FoodIsekaiZ.Players
 
         private void OnDestroy()
         {
-            if (generatedCircleSprite != null)
+            if (generatedMarkerSprite != null)
             {
-                Destroy(generatedCircleSprite);
+                Destroy(generatedMarkerSprite);
             }
 
-            if (generatedCircleTexture != null)
+            if (generatedMarkerTexture != null)
             {
-                Destroy(generatedCircleTexture);
+                Destroy(generatedMarkerTexture);
+            }
+
+            if (generatedMarkerCenterSprite != null)
+            {
+                Destroy(generatedMarkerCenterSprite);
+            }
+
+            if (generatedMarkerCenterTexture != null)
+            {
+                Destroy(generatedMarkerCenterTexture);
             }
         }
 
@@ -119,12 +142,12 @@ namespace FoodIsekaiZ.Players
                 !uwbManager.TryGetArenaPosition2D(tagId, out Vector2 measuredPosition2D, out sampleAgeSeconds))
             {
                 isTracking = false;
-                circleRenderer.enabled = !hideWhenOffline;
+                SetPlayerMarkerVisible(!hideWhenOffline);
                 return;
             }
 
             isTracking = true;
-            circleRenderer.enabled = true;
+            SetPlayerMarkerVisible(true);
             Vector3 measuredPosition = new Vector3(measuredPosition2D.x, floorHeight, measuredPosition2D.y);
 
             if (!hasFirstPosition || Vector3.Distance(body.position, measuredPosition) >= snapDistance)
@@ -235,7 +258,8 @@ namespace FoodIsekaiZ.Players
 
             if (circleRenderer != null)
             {
-                circleRenderer.color = playerColor;
+                EnsurePlayerMarker();
+                ApplyPlayerMarkerColor();
             }
 
             gameObject.name = $"Player{playerId:00}_Tag{tagId}";
@@ -249,14 +273,28 @@ namespace FoodIsekaiZ.Players
                 return;
             }
 
-            GameObject labelObject = new GameObject("PlayerStatus");
-            labelObject.transform.SetParent(transform, false);
-            // Player's local -Z points up from the floor after its 90-degree X rotation.
-            labelObject.transform.localPosition = new Vector3(0f, 0f, -0.035f);
+            Transform existingLabel = transform.Find("PlayerStatus");
+            GameObject labelObject = existingLabel != null
+                ? existingLabel.gameObject
+                : new GameObject("PlayerStatus");
+            if (existingLabel == null)
+            {
+                labelObject.transform.SetParent(transform, false);
+            }
 
-            carriedStatusText = labelObject.AddComponent<TextMesh>();
-            carriedStatusText.anchor = TextAnchor.MiddleCenter;
-            carriedStatusText.alignment = TextAlignment.Center;
+            labelObject.transform.localPosition = new Vector3(
+                statusLabelOffset.x,
+                statusLabelOffset.y,
+                -0.035f);
+
+            carriedStatusText = labelObject.GetComponent<TextMesh>();
+            if (carriedStatusText == null)
+            {
+                carriedStatusText = labelObject.AddComponent<TextMesh>();
+            }
+
+            carriedStatusText.anchor = TextAnchor.LowerLeft;
+            carriedStatusText.alignment = TextAlignment.Left;
             carriedStatusText.fontSize = 64;
             carriedStatusText.characterSize = statusCharacterSize;
             carriedStatusText.fontStyle = FontStyle.Bold;
@@ -284,6 +322,121 @@ namespace FoodIsekaiZ.Players
             if (playerState == null)
             {
                 playerState = GetComponent<FoodIsekaiZPlayerState>();
+            }
+        }
+
+        private void EnsurePlayerMarker()
+        {
+            CacheRequiredComponents();
+            if (circleRenderer == null)
+            {
+                return;
+            }
+
+            if (generatedMarkerSprite == null)
+            {
+                generatedMarkerSprite = CreateEllipseSprite(
+                    markerTextureWidth,
+                    markerHeightRatio,
+                    markerTransparentGapScale,
+                    out generatedMarkerTexture);
+            }
+
+            if (generatedMarkerCenterSprite == null)
+            {
+                generatedMarkerCenterSprite = CreateEllipseSprite(
+                    markerTextureWidth,
+                    markerHeightRatio,
+                    0f,
+                    out generatedMarkerCenterTexture);
+            }
+
+            circleRenderer.sprite = generatedMarkerSprite;
+            circleRenderer.drawMode = SpriteDrawMode.Simple;
+            DisableObsoleteWhiteGap();
+            markerCenterRenderer = GetOrCreateMarkerLayer(
+                "MarkerCenter",
+                new Vector2(markerCenterWidthScale, markerCenterHeightScale),
+                circleRenderer.sortingOrder + 1,
+                generatedMarkerCenterSprite);
+        }
+
+        private void DisableObsoleteWhiteGap()
+        {
+            Transform obsoleteGap = transform.Find("MarkerWhiteGap");
+            if (obsoleteGap == null)
+            {
+                return;
+            }
+
+            SpriteRenderer obsoleteRenderer = obsoleteGap.GetComponent<SpriteRenderer>();
+            if (obsoleteRenderer != null)
+            {
+                obsoleteRenderer.enabled = false;
+            }
+
+            Destroy(obsoleteGap.gameObject);
+        }
+
+        private SpriteRenderer GetOrCreateMarkerLayer(
+            string objectName,
+            Vector2 scale,
+            int sortingOrder,
+            Sprite sprite)
+        {
+            Transform layerTransform = transform.Find(objectName);
+            GameObject layerObject;
+            if (layerTransform == null)
+            {
+                layerObject = new GameObject(objectName);
+                layerTransform = layerObject.transform;
+                layerTransform.SetParent(transform, false);
+            }
+            else
+            {
+                layerObject = layerTransform.gameObject;
+            }
+
+            layerTransform.localPosition = Vector3.zero;
+            layerTransform.localRotation = Quaternion.identity;
+            layerTransform.localScale = new Vector3(scale.x, scale.y, 1f);
+
+            SpriteRenderer renderer = layerObject.GetComponent<SpriteRenderer>();
+            if (renderer == null)
+            {
+                renderer = layerObject.AddComponent<SpriteRenderer>();
+            }
+
+            renderer.sprite = sprite;
+            renderer.drawMode = SpriteDrawMode.Simple;
+            renderer.sortingLayerID = circleRenderer.sortingLayerID;
+            renderer.sortingOrder = sortingOrder;
+            return renderer;
+        }
+
+        private void ApplyPlayerMarkerColor()
+        {
+            if (circleRenderer != null)
+            {
+                circleRenderer.color = playerColor;
+            }
+
+            if (markerCenterRenderer != null)
+            {
+                markerCenterRenderer.color = playerColor;
+            }
+        }
+
+        private void SetPlayerMarkerVisible(bool visible)
+        {
+            if (circleRenderer != null)
+            {
+                circleRenderer.enabled = visible;
+            }
+
+            if (markerCenterRenderer != null)
+            {
+                markerCenterRenderer.enabled = visible;
             }
         }
 
@@ -350,36 +503,53 @@ namespace FoodIsekaiZ.Players
             isRegistered = false;
         }
 
-        private Sprite CreateCircleSprite(int size)
+        private Sprite CreateEllipseSprite(
+            int requestedWidth,
+            float heightRatio,
+            float transparentInnerScale,
+            out Texture2D generatedTexture)
         {
-            generatedCircleTexture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            int width = Mathf.Clamp(requestedWidth, 32, 256);
+            int height = Mathf.Max(16, Mathf.RoundToInt(width * Mathf.Clamp(heightRatio, 0.4f, 1f)));
+            generatedTexture = new Texture2D(width, height, TextureFormat.RGBA32, false)
             {
-                name = $"Runtime Circle P{playerId}",
+                name = $"Runtime Player Marker P{playerId}",
                 filterMode = FilterMode.Bilinear,
                 wrapMode = TextureWrapMode.Clamp
             };
 
-            Color[] pixels = new Color[size * size];
-            float center = (size - 1) * 0.5f;
-            float radius = center - 1f;
-            for (int y = 0; y < size; y++)
+            Color[] pixels = new Color[width * height];
+            float centerX = (width - 1) * 0.5f;
+            float centerY = (height - 1) * 0.5f;
+            float radiusX = Mathf.Max(1f, centerX - 1f);
+            float radiusY = Mathf.Max(1f, centerY - 1f);
+            float edgePixels = Mathf.Min(radiusX, radiusY);
+            for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x < size; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    float distance = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
-                    float alpha = Mathf.Clamp01(radius + 1f - distance);
-                    pixels[(y * size) + x] = new Color(1f, 1f, 1f, alpha);
+                    float normalizedX = (x - centerX) / radiusX;
+                    float normalizedY = (y - centerY) / radiusY;
+                    float normalizedDistance = Mathf.Sqrt(
+                        (normalizedX * normalizedX) + (normalizedY * normalizedY));
+                    float outerAlpha = Mathf.Clamp01((1f - normalizedDistance) * edgePixels);
+                    float innerAlpha = transparentInnerScale > 0f
+                        ? Mathf.Clamp01((normalizedDistance - transparentInnerScale) * edgePixels)
+                        : 1f;
+                    float alpha = outerAlpha * innerAlpha;
+                    pixels[(y * width) + x] = new Color(1f, 1f, 1f, alpha);
                 }
             }
 
-            generatedCircleTexture.SetPixels(pixels);
-            generatedCircleTexture.Apply();
-            generatedCircleSprite = Sprite.Create(
-                generatedCircleTexture,
-                new Rect(0f, 0f, size, size),
+            generatedTexture.SetPixels(pixels);
+            generatedTexture.Apply();
+            Sprite generatedSprite = Sprite.Create(
+                generatedTexture,
+                new Rect(0f, 0f, width, height),
                 new Vector2(0.5f, 0.5f),
-                size);
-            return generatedCircleSprite;
+                width / Mathf.Max(0.1f, markerWorldWidth));
+            generatedSprite.name = $"Runtime Player Marker P{playerId}";
+            return generatedSprite;
         }
     }
 }
