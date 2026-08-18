@@ -4,19 +4,17 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Fortal.UWB
 {
     public enum UWBTransportMode
     {
         Serial,
-        Udp
+        Udp,
+        Simulation
     }
 
-    /// <summary>
-    /// Reads the NoopLoop LinkTrack UWB binary protocol from serial or UDP, trilaterates each
-    /// registered tag from the configured anchor Transforms, and exposes calibrated positions.
-    /// </summary>
     [DefaultExecutionOrder(-100)]
     public sealed class UWBManager : MonoBehaviour
     {
@@ -46,9 +44,35 @@ namespace Fortal.UWB
             public float lastPositionFrameHistoryTime = -999f;
         }
 
+        [Serializable]
+        public sealed class SimulatedTagDefinition
+        {
+            [Min(0)] public int tagId = 1;
+            [Tooltip("Initial raw physical X/Z position before arena mapping.")]
+            public Vector2 initialPhysicalPosition = new Vector2(3f, 2f);
+            public bool autoMove;
+            [Range(0f, 10f)] public float movementPhase;
+
+            public SimulatedTagDefinition()
+            {
+            }
+
+            public SimulatedTagDefinition(int tagId, Vector2 initialPhysicalPosition, float movementPhase)
+            {
+                this.tagId = tagId;
+                this.initialPhysicalPosition = initialPhysicalPosition;
+                this.movementPhase = movementPhase;
+            }
+        }
+
         [Header("Connection")]
         [SerializeField] private UWBTransportMode transportMode = UWBTransportMode.Serial;
+        [Tooltip("Use Transport Mode from this component instead of UWBConfig.json. Useful for scene-local Simulation mode.")]
+        [SerializeField] private bool overrideConfigTransportMode;
         [SerializeField] private bool connectOnStart = true;
+        [Tooltip("Reconnect automatically after the serial cable, UDP socket, or reader stops unexpectedly.")]
+        [SerializeField] private bool autoReconnect = true;
+        [SerializeField, Min(0.5f)] private float reconnectDelaySeconds = 2f;
 
         [Header("Serial")]
         [SerializeField] private string portName = "COM3";
@@ -57,6 +81,22 @@ namespace Fortal.UWB
         [Header("UDP (NoopLoop binary datagram)")]
         [SerializeField] private string udpListenAddress = "0.0.0.0";
         [SerializeField] private int udpListenPort = 9000;
+
+        [Header("Simulation")]
+        [Tooltip("Move the selected simulated tag with WASD or arrow keys in Play Mode.")]
+        [SerializeField] private bool simulationKeyboardControl;
+        [SerializeField, Min(0)] private int simulationKeyboardTagId = 6;
+        [SerializeField, Min(0.1f)] private float simulationKeyboardSpeedMetersPerSecond = 1.8f;
+        [SerializeField] private bool clampSimulationToPhysicalBounds = true;
+        [SerializeField, Min(0f)] private float simulationAutoMoveRadiusMeters = 0.2f;
+        [SerializeField, Min(0f)] private float simulationAutoMoveSpeed = 0.8f;
+        [SerializeField] private SimulatedTagDefinition[] simulatedTags =
+        {
+            new SimulatedTagDefinition(6, new Vector2(1.2f, 2f), 0f),
+            new SimulatedTagDefinition(7, new Vector2(2.4f, 2f), 1.5f),
+            new SimulatedTagDefinition(8, new Vector2(3.6f, 2f), 3f),
+            new SimulatedTagDefinition(9, new Vector2(4.8f, 2f), 4.5f)
+        };
 
         [Header("Scene Anchors")]
         [Tooltip("Physical anchor positions placed in the Unity scene, matched by index to Anchor Device Ids. If UWBConfig.json has UWBAnchorPositions set, those override these Transforms' positions at Start.")]
@@ -115,6 +155,11 @@ namespace Fortal.UWB
 
         [Header("State")]
         [SerializeField] private bool isConnected;
+        [SerializeField] private bool isReceivingProtocolFrames;
+        [SerializeField] private bool isReceivingFrames;
+        [SerializeField] private float lastProtocolFrameAgeSeconds = 999f;
+        [SerializeField] private float lastFrameAgeSeconds = 999f;
+        [SerializeField] private int receivedFrameCount;
         [SerializeField] private string status = "Idle";
 
         private readonly Dictionary<int, TrackedTag> tags = new Dictionary<int, TrackedTag>();
@@ -122,14 +167,30 @@ namespace Fortal.UWB
         private readonly NoopLoopFrameParser parser = new NoopLoopFrameParser();
         private readonly Queue<NoopLoopPose> pendingPoses = new Queue<NoopLoopPose>();
         private readonly List<NoopLoopPose> posesForMainThread = new List<NoopLoopPose>(32);
+        private readonly Dictionary<int, Vector2> simulatedPhysicalPositions = new Dictionary<int, Vector2>();
 
         private NoopLoopSerialPort serialPort;
         private UdpClient udpClient;
         private Thread readThread;
         private volatile bool keepReading;
         private string threadStatus = "Idle";
+        private bool connectionRequested;
+        private float nextReconnectTime = -1f;
+        private int parsedFrameCount;
+        private int usableFrameCount;
+        private int observedParsedFrameCount;
+        private int observedUsableFrameCount;
+        private float lastProtocolFrameTime = -999f;
+        private float lastUsableFrameTime = -999f;
+        private string lastLoggedConnectionError = string.Empty;
 
         public bool IsConnected => isConnected;
+        public bool IsSimulationMode => transportMode == UWBTransportMode.Simulation;
+        public bool IsReceivingProtocolFrames => isReceivingProtocolFrames;
+        public bool IsReceivingFrames => isReceivingFrames;
+        public float LastProtocolFrameAgeSeconds => lastProtocolFrameAgeSeconds;
+        public float LastFrameAgeSeconds => lastFrameAgeSeconds;
+        public int ReceivedFrameCount => receivedFrameCount;
         public string Status => status;
 
         private void Start()
@@ -137,7 +198,10 @@ namespace Fortal.UWB
             FoodIsekaiZ.Configuration.UWBConfigData config = FoodIsekaiZ.Configuration.UWBConfigManager.GetConfig();
             if (config != null)
             {
-                transportMode = config.transportMode;
+                if (!overrideConfigTransportMode)
+                {
+                    transportMode = config.transportMode;
+                }
                 portName = config.UWBSerialPort;
                 if (config.UWBBaudRate > 0)
                 {
@@ -171,7 +235,13 @@ namespace Fortal.UWB
                 }
             }
 
+            if (axisConversion == null)
+            {
+                axisConversion = new FoodIsekaiZ.Configuration.UWBAxisConversion();
+            }
+
             axisConversion.Validate();
+            ValidateRuntimeSetup();
 
             if (connectOnStart)
             {
@@ -179,14 +249,23 @@ namespace Fortal.UWB
             }
         }
 
-        /// <summary>
-        /// Repositions the configured anchor Transforms from UWBConfig.json so a physical
-        /// anchor re-measurement only requires editing the JSON, not the scene.
-        /// </summary>
         private void ApplyAnchorPositionsFromConfig(FoodIsekaiZ.Configuration.UWBConfigData config)
         {
             if (config.UWBAnchorPositions == null || anchorSceneObjects == null)
             {
+                return;
+            }
+
+            if (!HasUsableAnchorGeometry(config.UWBAnchorPositions, config.UWBAnchorPositions.Length))
+            {
+                if (!useDevicePositionFirst)
+                {
+                    Debug.LogWarning(
+                        "[UWBManager] UWBAnchorPositions is still empty or invalid. " +
+                        "Keeping scene anchor positions and falling back to device positions when solving is unavailable.",
+                        this);
+                }
+
                 return;
             }
 
@@ -202,14 +281,57 @@ namespace Fortal.UWB
 
         private void OnDestroy()
         {
+            connectionRequested = false;
             Disconnect();
         }
 
         [ContextMenu("Connect")]
         public void Connect()
         {
+            connectionRequested = true;
+            if (keepReading && (transportMode == UWBTransportMode.Simulation || readThread != null))
+            {
+                return;
+            }
+
             if (readThread != null)
             {
+                CloseTransport();
+            }
+
+            TryOpenTransport();
+        }
+
+        [ContextMenu("Reset Simulation Positions")]
+        public void ResetSimulationPositions()
+        {
+            simulatedPhysicalPositions.Clear();
+        }
+
+        private void TryOpenTransport()
+        {
+            if (readThread != null)
+            {
+                return;
+            }
+
+            lock (poseLock)
+            {
+                pendingPoses.Clear();
+                observedParsedFrameCount = parsedFrameCount;
+                observedUsableFrameCount = usableFrameCount;
+                lastProtocolFrameTime = -999f;
+                lastUsableFrameTime = -999f;
+            }
+
+            if (transportMode == UWBTransportMode.Simulation)
+            {
+                simulatedPhysicalPositions.Clear();
+                keepReading = true;
+                threadStatus = "Simulation ready";
+                status = threadStatus;
+                nextReconnectTime = -1f;
+                lastLoggedConnectionError = string.Empty;
                 return;
             }
 
@@ -238,17 +360,33 @@ namespace Fortal.UWB
                     Name = "NoopLoop UWB Reader"
                 };
                 readThread.Start();
+                nextReconnectTime = -1f;
+                lastLoggedConnectionError = string.Empty;
             }
             catch (Exception ex)
             {
                 threadStatus = $"Open failed: {ex.Message}";
-                Debug.LogError($"[UWBManager] Connection failed: {ex.Message}", this);
-                Disconnect();
+                if (!string.Equals(lastLoggedConnectionError, ex.Message, StringComparison.Ordinal))
+                {
+                    lastLoggedConnectionError = ex.Message;
+                    Debug.LogError($"[UWBManager] Connection failed: {ex.Message}", this);
+                }
+                CloseTransport();
+                ScheduleReconnect();
             }
         }
 
         [ContextMenu("Disconnect")]
         public void Disconnect()
+        {
+            connectionRequested = false;
+            nextReconnectTime = -1f;
+            CloseTransport();
+            threadStatus = "Disconnected";
+            status = threadStatus;
+        }
+
+        private void CloseTransport()
         {
             keepReading = false;
 
@@ -283,6 +421,16 @@ namespace Fortal.UWB
             }
 
             isConnected = false;
+            isReceivingProtocolFrames = false;
+            isReceivingFrames = false;
+        }
+
+        private void ScheduleReconnect()
+        {
+            if (connectionRequested && autoReconnect)
+            {
+                nextReconnectTime = Time.unscaledTime + Mathf.Max(0.5f, reconnectDelaySeconds);
+            }
         }
 
         private void ReadLoop()
@@ -339,10 +487,11 @@ namespace Fortal.UWB
             bool usable = pose.FrameType != "AnchorFrame0-NoTag";
             lock (poseLock)
             {
+                parsedFrameCount++;
                 if (usable)
                 {
-                    // เก็บทุก frame เพื่อไม่ให้ Tag คนหนึ่งทับอีกคนก่อนถึง Unity Update
-                    // จำกัด queue เพื่อป้องกัน memory โตไม่สิ้นสุดหาก main thread ค้าง
+                    usableFrameCount++;
+
                     if (pendingPoses.Count >= 256)
                     {
                         pendingPoses.Dequeue();
@@ -354,8 +503,6 @@ namespace Fortal.UWB
                 threadStatus = usable ? $"{pose.FrameType} OK: T{pose.Id}" : "AnchorFrame0 OK, waiting for Tag";
             }
         }
-
-        // ── Tag registration (called by UWBTracker) ─────────────────────────────
 
         public void AddTag(UWBTracker tracker)
         {
@@ -373,10 +520,7 @@ namespace Fortal.UWB
             entry.tracker = tracker;
         }
 
-        /// <summary>
-        /// ลงทะเบียน Tag ที่ consumer ภายนอก (เช่น UWBPlayerController) ต้องการอ่าน
-        /// โดยไม่บังคับให้ใช้ UWBTracker component ตัวเดิมของโปรเจกต์ต้นแบบ
-        /// </summary>
+
         public void RegisterTag(int tagId)
         {
             if (!tags.TryGetValue(tagId, out TrackedTag entry))
@@ -434,10 +578,6 @@ namespace Fortal.UWB
             return ageSeconds <= maxPoseAgeSeconds;
         }
 
-        /// <summary>
-        /// แปลงพิกัดจริง UWB ไปยังสนาม X/Z (คืนค่า X/Z ผ่าน Vector2.x/y)
-        /// ตาม calibration rectangle เพื่อให้ขนาดจอ/ขนาดสนามเปลี่ยนได้โดยไม่แก้ controller
-        /// </summary>
         public bool TryGetArenaPosition2D(int tagId, out Vector2 arenaPosition, out float ageSeconds)
         {
             arenaPosition = default;
@@ -475,17 +615,66 @@ namespace Fortal.UWB
             return true;
         }
 
-        /// <summary>ทำให้ขอบเขต UWB mapping ตรงกับสนามที่ procedural layout สร้าง</summary>
+        public bool SetSimulatedArenaPosition2D(int tagId, Vector2 arenaPosition)
+        {
+            if (transportMode != UWBTransportMode.Simulation)
+            {
+                return false;
+            }
+
+            Vector2 physicalPosition = arenaPosition;
+            if (useArenaMapping)
+            {
+                float arenaWidth = arenaMax.x - arenaMin.x;
+                float arenaHeight = arenaMax.y - arenaMin.y;
+                if (Mathf.Abs(arenaWidth) < 0.0001f || Mathf.Abs(arenaHeight) < 0.0001f)
+                {
+                    return false;
+                }
+
+                float normalizedX = (arenaPosition.x - arenaMin.x) / arenaWidth;
+                float normalizedY = (arenaPosition.y - arenaMin.y) / arenaHeight;
+                if (clampToArena)
+                {
+                    normalizedX = Mathf.Clamp01(normalizedX);
+                    normalizedY = Mathf.Clamp01(normalizedY);
+                }
+
+                physicalPosition = new Vector2(
+                    Mathf.LerpUnclamped(physicalMinMeters.x, physicalMaxMeters.x, normalizedX),
+                    Mathf.LerpUnclamped(physicalMinMeters.y, physicalMaxMeters.y, normalizedY));
+            }
+
+            simulatedPhysicalPositions[tagId] = ClampSimulatedPhysicalPosition(physicalPosition);
+            return true;
+        }
+
         public void SetArenaBounds2D(Rect bounds)
         {
             arenaMin = bounds.min;
             arenaMax = bounds.max;
         }
 
-        // ── Main-thread update ───────────────────────────────────────────────────
-
         private void Update()
         {
+            if (connectionRequested && readThread != null && !keepReading)
+            {
+                CloseTransport();
+                ScheduleReconnect();
+            }
+
+            if (connectionRequested && autoReconnect && readThread == null &&
+                nextReconnectTime >= 0f && Time.unscaledTime >= nextReconnectTime)
+            {
+                TryOpenTransport();
+            }
+
+            if (transportMode == UWBTransportMode.Simulation)
+            {
+                UpdateSimulation();
+                return;
+            }
+
             posesForMainThread.Clear();
             lock (poseLock)
             {
@@ -497,8 +686,31 @@ namespace Fortal.UWB
                 isConnected = keepReading &&
                     ((transportMode == UWBTransportMode.Serial && serialPort != null && serialPort.IsOpen) ||
                      (transportMode == UWBTransportMode.Udp && udpClient != null));
+
+                if (observedParsedFrameCount != parsedFrameCount)
+                {
+                    observedParsedFrameCount = parsedFrameCount;
+                    lastProtocolFrameTime = Time.unscaledTime;
+                }
+
+                if (observedUsableFrameCount != usableFrameCount)
+                {
+                    observedUsableFrameCount = usableFrameCount;
+                    lastUsableFrameTime = Time.unscaledTime;
+                }
+
+                receivedFrameCount = parsedFrameCount;
                 status = threadStatus;
             }
+
+            lastProtocolFrameAgeSeconds = lastProtocolFrameTime > -900f
+                ? Mathf.Max(0f, Time.unscaledTime - lastProtocolFrameTime)
+                : 999f;
+            lastFrameAgeSeconds = lastUsableFrameTime > -900f
+                ? Mathf.Max(0f, Time.unscaledTime - lastUsableFrameTime)
+                : 999f;
+            isReceivingProtocolFrames = isConnected && lastProtocolFrameAgeSeconds <= maxPoseAgeSeconds;
+            isReceivingFrames = isConnected && lastFrameAgeSeconds <= maxPoseAgeSeconds;
 
             for (int i = 0; i < posesForMainThread.Count; i++)
             {
@@ -506,6 +718,254 @@ namespace Fortal.UWB
             }
 
             PredictTagsDuringSignalGap();
+        }
+
+        private void UpdateSimulation()
+        {
+            isConnected = connectionRequested && keepReading;
+            if (!isConnected)
+            {
+                isReceivingProtocolFrames = false;
+                isReceivingFrames = false;
+                lastProtocolFrameAgeSeconds = 999f;
+                lastFrameAgeSeconds = 999f;
+                status = threadStatus;
+                return;
+            }
+
+            float now = Time.unscaledTime;
+            Vector2 keyboardInput = ReadSimulationKeyboardInput();
+            int simulatedTagCount = 0;
+
+            foreach (KeyValuePair<int, TrackedTag> pair in tags)
+            {
+                int tagId = pair.Key;
+                TrackedTag entry = pair.Value;
+                SimulatedTagDefinition definition = GetSimulatedTagDefinition(tagId);
+
+                if (!simulatedPhysicalPositions.TryGetValue(tagId, out Vector2 basePosition))
+                {
+                    basePosition = definition != null
+                        ? definition.initialPhysicalPosition
+                        : GetFallbackSimulatedPosition(tagId);
+                }
+
+                if (simulationKeyboardControl && tagId == simulationKeyboardTagId && keyboardInput.sqrMagnitude > 0f)
+                {
+                    basePosition += keyboardInput * simulationKeyboardSpeedMetersPerSecond * Time.unscaledDeltaTime;
+                }
+
+                basePosition = ClampSimulatedPhysicalPosition(basePosition);
+                simulatedPhysicalPositions[tagId] = basePosition;
+
+                Vector2 sampledPosition = basePosition;
+                if (definition != null && definition.autoMove && simulationAutoMoveRadiusMeters > 0f)
+                {
+                    float phase = (now * simulationAutoMoveSpeed) + definition.movementPhase;
+                    sampledPosition += new Vector2(Mathf.Cos(phase), Mathf.Sin(phase)) * simulationAutoMoveRadiusMeters;
+                    sampledPosition = ClampSimulatedPhysicalPosition(sampledPosition);
+                }
+
+                Vector3 positionMeters = ApplyPlayerHeightPolicy(
+                    new Vector3(sampledPosition.x, fixedPlayerHeightY, sampledPosition.y));
+
+                float sampleDt = entry.hasUwbPosition
+                    ? Mathf.Max(0.001f, now - entry.lastUwbSampleTime)
+                    : Mathf.Max(0.001f, Time.unscaledDeltaTime);
+                entry.trackingVelocityMetersPerSecond = entry.hasUwbPosition
+                    ? (positionMeters - entry.lastUwbPositionMeters) / sampleDt
+                    : Vector3.zero;
+                entry.lastUwbPositionMeters = positionMeters;
+                entry.lastUwbSampleTime = now;
+                entry.hasUwbPosition = true;
+                entry.hasPose = true;
+                entry.latestPositionMeters = positionMeters;
+                entry.latestPoseTime = now;
+                entry.lastPredictionTime = now;
+                entry.isPredicted = false;
+                entry.tracker?.ApplyTrackedPosition(positionMeters, 0f);
+                simulatedTagCount++;
+            }
+
+            parsedFrameCount++;
+            receivedFrameCount = parsedFrameCount;
+            lastProtocolFrameTime = now;
+            lastProtocolFrameAgeSeconds = 0f;
+            isReceivingProtocolFrames = true;
+
+            if (simulatedTagCount > 0)
+            {
+                usableFrameCount++;
+                lastUsableFrameTime = now;
+                lastFrameAgeSeconds = 0f;
+                isReceivingFrames = true;
+                threadStatus = $"Simulation OK: {simulatedTagCount} tags";
+            }
+            else
+            {
+                lastFrameAgeSeconds = 999f;
+                isReceivingFrames = false;
+                threadStatus = "Simulation ready, waiting for players";
+            }
+
+            status = threadStatus;
+        }
+
+        private Vector2 ReadSimulationKeyboardInput()
+        {
+            if (!simulationKeyboardControl || Keyboard.current == null)
+            {
+                return Vector2.zero;
+            }
+
+            Keyboard keyboard = Keyboard.current;
+            float x = 0f;
+            float y = 0f;
+            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed)
+            {
+                x -= 1f;
+            }
+            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed)
+            {
+                x += 1f;
+            }
+            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed)
+            {
+                y -= 1f;
+            }
+            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed)
+            {
+                y += 1f;
+            }
+
+            Vector2 input = new Vector2(x, y);
+            return input.sqrMagnitude > 1f ? input.normalized : input;
+        }
+
+        private SimulatedTagDefinition GetSimulatedTagDefinition(int tagId)
+        {
+            if (simulatedTags == null)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < simulatedTags.Length; i++)
+            {
+                if (simulatedTags[i] != null && simulatedTags[i].tagId == tagId)
+                {
+                    return simulatedTags[i];
+                }
+            }
+
+            return null;
+        }
+
+        private Vector2 GetFallbackSimulatedPosition(int tagId)
+        {
+            float minX = Mathf.Min(physicalMinMeters.x, physicalMaxMeters.x);
+            float maxX = Mathf.Max(physicalMinMeters.x, physicalMaxMeters.x);
+            float minY = Mathf.Min(physicalMinMeters.y, physicalMaxMeters.y);
+            float maxY = Mathf.Max(physicalMinMeters.y, physicalMaxMeters.y);
+            float x01 = ((Mathf.Abs(tagId) % 4) + 1f) / 5f;
+            return new Vector2(Mathf.Lerp(minX, maxX, x01), Mathf.Lerp(minY, maxY, 0.5f));
+        }
+
+        private Vector2 ClampSimulatedPhysicalPosition(Vector2 position)
+        {
+            if (!clampSimulationToPhysicalBounds)
+            {
+                return position;
+            }
+
+            position.x = Mathf.Clamp(
+                position.x,
+                Mathf.Min(physicalMinMeters.x, physicalMaxMeters.x),
+                Mathf.Max(physicalMinMeters.x, physicalMaxMeters.x));
+            position.y = Mathf.Clamp(
+                position.y,
+                Mathf.Min(physicalMinMeters.y, physicalMaxMeters.y),
+                Mathf.Max(physicalMinMeters.y, physicalMaxMeters.y));
+            return position;
+        }
+
+        private void ValidateRuntimeSetup()
+        {
+            if (transportMode == UWBTransportMode.Serial && string.IsNullOrWhiteSpace(portName))
+            {
+                Debug.LogError("[UWBManager] Serial mode requires UWBSerialPort in UWBConfig.json.", this);
+            }
+
+            if (useArenaMapping)
+            {
+                float physicalWidth = Mathf.Abs(physicalMaxMeters.x - physicalMinMeters.x);
+                float physicalHeight = Mathf.Abs(physicalMaxMeters.y - physicalMinMeters.y);
+                if (physicalWidth < 0.0001f || physicalHeight < 0.0001f)
+                {
+                    Debug.LogError(
+                        "[UWBManager] physicalMinMeters and physicalMaxMeters must describe a non-zero measured play area.",
+                        this);
+                }
+            }
+
+            if (!useDevicePositionFirst && !HasUsableSceneAnchorGeometry())
+            {
+                Debug.LogWarning(
+                    "[UWBManager] Trilateration is enabled but fewer than three non-collinear scene anchors are assigned. " +
+                    "Tracking will safely fall back to the tag's onboard position until anchors are configured.",
+                    this);
+            }
+        }
+
+        private bool HasUsableSceneAnchorGeometry()
+        {
+            if (anchorSceneObjects == null)
+            {
+                return false;
+            }
+
+            Vector3[] positions = new Vector3[anchorSceneObjects.Length];
+            int count = 0;
+            for (int i = 0; i < anchorSceneObjects.Length; i++)
+            {
+                if (anchorSceneObjects[i] != null)
+                {
+                    positions[count++] = anchorSceneObjects[i].position;
+                }
+            }
+
+            return HasUsableAnchorGeometry(positions, count);
+        }
+
+        private static bool HasUsableAnchorGeometry(Vector3[] positions, int count)
+        {
+            if (positions == null || count < 3)
+            {
+                return false;
+            }
+
+            int safeCount = Mathf.Min(count, positions.Length);
+            for (int a = 0; a < safeCount - 2; a++)
+            {
+                for (int b = a + 1; b < safeCount - 1; b++)
+                {
+                    Vector3 ab = positions[b] - positions[a];
+                    if (ab.sqrMagnitude < 0.000001f)
+                    {
+                        continue;
+                    }
+
+                    for (int c = b + 1; c < safeCount; c++)
+                    {
+                        Vector3 ac = positions[c] - positions[a];
+                        if (Vector3.Cross(ab, ac).sqrMagnitude > 0.000001f)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         private void ApplyPoseToRegisteredTags(NoopLoopPose framePose)
@@ -640,9 +1100,7 @@ namespace Fortal.UWB
 
         private Vector3 ResolveTagPosition(NoopLoopPose pose, TrackedTag target)
         {
-            // Trilaterated positions come from scene Transforms and are already in Unity space;
-            // only the tag's raw onboard position needs the protocol -> Unity axis conversion
-            // (plus the origin offset that shifts it into the play area).
+
             Vector3 devicePosition = axisConversion.Apply(pose.PositionMeters) + inputOffset;
             Vector3 position = devicePosition;
             bool fromSolver = false;
@@ -677,8 +1135,6 @@ namespace Fortal.UWB
                         return ApplyPlayerHeightPolicy(target.latestPositionMeters);
                     }
 
-                    // A repeated far position is probably a real movement after a short
-                    // signal gap. Recover gradually so it can never teleport.
                     position = Vector3.MoveTowards(target.lastUwbPositionMeters, position, maxTrackingRecoveryStepMeters);
                 }
             }
@@ -800,8 +1256,6 @@ namespace Fortal.UWB
             return true;
         }
 
-        // ── Anchor helpers ───────────────────────────────────────────────────────
-
         private bool TryGetAnchorPosition(int anchorIndex, out Vector3 positionMeters)
         {
             positionMeters = default;
@@ -853,8 +1307,6 @@ namespace Fortal.UWB
 
             return hasAny;
         }
-
-        // ── Trilateration ────────────────────────────────────────────────────────
 
         private bool TryTrilaterateFromSceneAnchors(NoopLoopPose pose, out Vector3 position)
         {

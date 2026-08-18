@@ -19,6 +19,7 @@ namespace FoodIsekaiZ.Gameplay
 
     public enum CustomerSlotState
     {
+        Empty,
         WaitingForFood,
         Eating,
         MoneyAvailable

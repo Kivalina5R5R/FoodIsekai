@@ -1,15 +1,11 @@
 using FoodIsekaiZ.Gameplay;
-using FoodIsekaiZ.Players;
 using Fortal.UWB;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace FoodIsekaiZ.Display
 {
-    /// <summary>
-    /// สร้าง UI จอข้าง Display 1 ตามสัดส่วน 1536x435 ของ PaperArena
-    /// เป็น preview เริ่มต้นสำหรับคะแนน, UWB status และสถานะผู้เล่น
-    /// </summary>
+
     [ExecuteAlways]
     public sealed class FoodIsekaiZSideDisplayLayout : MonoBehaviour
     {
@@ -27,18 +23,31 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private Color accentColor = new Color(0.1f, 0.85f, 1f, 1f);
         [SerializeField] private Color moneyColor = new Color(1f, 0.82f, 0.15f, 1f);
 
+        [Header("Wall Screen Background")]
+        [Tooltip("Optional texture stretched across the whole wall display behind the UI.")]
+        [SerializeField] private Texture2D wallBackgroundTexture;
+        [SerializeField] private Color wallBackgroundTextureTint = Color.white;
+        [SerializeField] private Rect wallBackgroundUvRect = new Rect(0f, 0f, 1f, 1f);
+
         [Header("Scene References")]
         [SerializeField] private Camera sideCamera;
         [SerializeField] private FoodIsekaiZArenaLayout arenaLayout;
         [SerializeField] private FoodIsekaiZGameManager gameManager;
         [SerializeField] private UWBManager uwbManager;
-        [SerializeField] private UWBPlayerSpawner playerSpawner;
         [SerializeField] private bool autoBuildPreview = true;
+        [Tooltip("Off keeps manual Scene View layout edits. Use Build / Refresh Side Display when you want a full rebuild.")]
+        [SerializeField] private bool rebuildPreviewWhenSettingsChange;
 
         private Canvas sideCanvas;
         private Text scoreText;
         private Text uwbStatusText;
-        private readonly Text[] playerStatusTexts = new Text[4];
+        private readonly Text[] customerStatusTexts = new Text[4];
+        private readonly Image[] customerPanelImages = new Image[4];
+        private readonly Slider[] customerTimerSliders = new Slider[4];
+        private readonly Image[] customerTimerFills = new Image[4];
+        private Sprite generatedWallBackgroundSprite;
+        private Texture2D generatedWallBackgroundTexture;
+        private Rect generatedWallBackgroundUvRect;
         private bool isBuilding;
         private int appliedHash;
 
@@ -46,6 +55,22 @@ namespace FoodIsekaiZ.Display
 
         private void OnEnable()
         {
+            Transform existing = transform.Find(GeneratedRootName);
+            if (existing != null)
+            {
+                Transform obsoleteAccent = existing.Find("TopAccent");
+                if (obsoleteAccent != null)
+                {
+                    SafeDestroy(obsoleteAccent.gameObject);
+                }
+
+                CacheGeneratedDisplay(existing);
+                ApplyWallBackgroundAppearance();
+                EnsureReferences();
+                appliedHash = CalculateHash();
+                return;
+            }
+
             if (autoBuildPreview)
             {
                 BuildSideDisplay();
@@ -57,11 +82,18 @@ namespace FoodIsekaiZ.Display
             EnsureReferences();
         }
 
+        private void OnDestroy()
+        {
+            ReleaseGeneratedWallBackgroundSprite();
+        }
+
         private void Update()
         {
+            ApplyWallBackgroundAppearance();
+
             if (!Application.isPlaying)
             {
-                if (autoBuildPreview && !isBuilding)
+                if (autoBuildPreview && rebuildPreviewWhenSettingsChange && !isBuilding)
                 {
                     EnsureReferences();
                     int currentHash = CalculateHash();
@@ -110,7 +142,6 @@ namespace FoodIsekaiZ.Display
             scaler.scaleFactor = 1f;
 
             CreatePanel("Background", canvasObject.transform, Vector2.zero, Vector2.one, backgroundColor);
-            CreatePanel("TopAccent", canvasObject.transform, new Vector2(0f, 0.965f), Vector2.one, accentColor);
 
             Text title = CreateText(
                 "Title",
@@ -147,27 +178,39 @@ namespace FoodIsekaiZ.Display
                 accentColor,
                 font);
 
-            for (int i = 0; i < playerStatusTexts.Length; i++)
+            for (int i = 0; i < customerStatusTexts.Length; i++)
             {
-                float cellMin = i / (float)playerStatusTexts.Length;
-                float cellMax = (i + 1f) / playerStatusTexts.Length;
+                float cellMin = i / (float)customerStatusTexts.Length;
+                float cellMax = (i + 1f) / customerStatusTexts.Length;
                 Vector2 min = new Vector2(cellMin + 0.008f, 0.08f);
                 Vector2 max = new Vector2(cellMax - 0.008f, 0.49f);
-                Transform panel = CreatePanel($"PlayerPanel{i + 1}", canvasObject.transform, min, max, panelColor);
-                playerStatusTexts[i] = CreateText(
+                Transform panel = CreatePanel($"CustomerPanel{i + 1}", canvasObject.transform, min, max, panelColor);
+                customerPanelImages[i] = panel.GetComponent<Image>();
+                customerStatusTexts[i] = CreateText(
                     "Status",
                     panel,
-                    Vector2.zero,
-                    Vector2.one,
-                    $"P{i + 1}   TAG --\nWAITING",
-                    28,
+                    new Vector2(0.05f, 0.30f),
+                    new Vector2(0.95f, 0.96f),
+                    string.Empty,
+                    68,
                     TextAnchor.MiddleCenter,
                     Color.white,
                     font);
+                customerStatusTexts[i].fontStyle = FontStyle.Bold;
+                customerTimerSliders[i] = CreateTimerSlider(
+                    "OrderTimer",
+                    panel,
+                    new Vector2(0.08f, 0.12f),
+                    new Vector2(0.92f, 0.29f),
+                    backgroundColor,
+                    accentColor,
+                    out customerTimerFills[i]);
+                customerTimerSliders[i].gameObject.SetActive(false);
             }
 
             ConfigurePhysicalWall(canvasObject.GetComponent<RectTransform>());
             ConfigureSideCamera();
+            ApplyWallBackgroundAppearance();
             UpdateRuntimeText();
             appliedHash = CalculateHash();
             isBuilding = false;
@@ -236,33 +279,292 @@ namespace FoodIsekaiZ.Display
 
             if (uwbStatusText != null)
             {
-                bool connected = uwbManager != null && uwbManager.IsConnected;
-                uwbStatusText.text = connected ? "UWB  ONLINE" : "UWB  WAITING";
-                uwbStatusText.color = connected ? Color.green : accentColor;
+                if (uwbManager == null)
+                {
+                    uwbStatusText.text = "UWB  MISSING\nMANAGER NOT FOUND";
+                    uwbStatusText.color = Color.red;
+                }
+                else if (uwbManager.IsReceivingFrames)
+                {
+                    string source = uwbManager.IsSimulationMode ? "UWB SIM" : "UWB";
+                    uwbStatusText.text = $"{source}  ONLINE  {uwbManager.LastFrameAgeSeconds:0.0}s\n{ShortStatus(uwbManager.Status)}";
+                    uwbStatusText.color = Color.green;
+                }
+                else if (uwbManager.IsConnected)
+                {
+                    uwbStatusText.text = uwbManager.IsReceivingProtocolFrames
+                        ? "UWB  LINK OK\nWAITING FOR TAG"
+                        : "UWB  PORT OPEN\nNO BINARY DATA";
+                    uwbStatusText.color = Color.yellow;
+                }
+                else
+                {
+                    uwbStatusText.text = $"UWB  OFFLINE\n{ShortStatus(uwbManager.Status)}";
+                    uwbStatusText.color = Color.red;
+                }
             }
 
-            for (int i = 0; i < playerStatusTexts.Length; i++)
+            for (int i = 0; i < customerStatusTexts.Length; i++)
             {
-                if (playerStatusTexts[i] == null)
+                Text statusText = customerStatusTexts[i];
+                Slider timerSlider = customerTimerSliders[i];
+                if (statusText == null)
                 {
                     continue;
                 }
 
-                if (playerSpawner != null &&
-                    i < playerSpawner.SpawnedPlayers.Count &&
-                    playerSpawner.SpawnedPlayers[i] != null)
+                ArenaSlot2D slot = gameManager != null ? gameManager.GetCustomerSlot(i) : null;
+                if (slot == null || slot.CustomerState == CustomerSlotState.Empty)
                 {
-                    UWBPlayerController player = playerSpawner.SpawnedPlayers[i];
-                    string state = player.IsTracking ? "TRACKING" : "WAITING";
-                    playerStatusTexts[i].text = $"P{player.PlayerId}   TAG {player.TagId}\n{state}";
-                    playerStatusTexts[i].color = player.IsTracking ? Color.green : Color.white;
+                    statusText.text = string.Empty;
+                    statusText.color = Color.white;
+                    SetCustomerPanelColor(i, panelColor);
+                    if (timerSlider != null)
+                    {
+                        timerSlider.gameObject.SetActive(false);
+                    }
+                    continue;
+                }
+
+                statusText.text = slot.RequestedFood >= FoodType.Food1 && slot.RequestedFood <= FoodType.Food5
+                    ? $"F{(int)slot.RequestedFood}"
+                    : string.Empty;
+                statusText.color = gameManager != null
+                    ? gameManager.GetFoodColor(slot.RequestedFood)
+                    : Color.white;
+                SetCustomerPanelColor(i, panelColor);
+
+                switch (slot.CustomerState)
+                {
+                    case CustomerSlotState.WaitingForFood:
+                    case CustomerSlotState.Eating:
+                        if (timerSlider != null)
+                        {
+                            timerSlider.gameObject.SetActive(true);
+                            timerSlider.SetValueWithoutNotify(slot.StateTimeNormalized);
+                        }
+
+                        if (customerTimerFills[i] != null)
+                        {
+                            customerTimerFills[i].color = accentColor;
+                        }
+                        break;
+
+                    case CustomerSlotState.MoneyAvailable:
+                        if (timerSlider != null)
+                        {
+                            timerSlider.gameObject.SetActive(false);
+                        }
+                        break;
+                }
+            }
+        }
+
+        private void SetCustomerPanelColor(int index, Color color)
+        {
+            if (index < 0 || index >= customerPanelImages.Length || customerPanelImages[index] == null)
+            {
+                return;
+            }
+
+            color.a = 1f;
+            customerPanelImages[index].color = color;
+        }
+
+        private static string ShortStatus(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return "NO STATUS";
+            }
+
+            const int maxLength = 34;
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength - 3) + "...";
+        }
+
+        private void CacheGeneratedDisplay(Transform root)
+        {
+            sideCanvas = root.GetComponent<Canvas>();
+            scoreText = GetGeneratedComponent<Text>(root, "TeamMoney");
+            uwbStatusText = GetGeneratedComponent<Text>(root, "UWBStatus");
+            Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+
+            for (int i = 0; i < customerStatusTexts.Length; i++)
+            {
+                bool migratedLegacyPanel = false;
+                Transform panel = root.Find($"CustomerPanel{i + 1}");
+                if (panel == null)
+                {
+                    panel = root.Find($"PlayerPanel{i + 1}");
+                    if (panel != null)
+                    {
+                        panel.name = $"CustomerPanel{i + 1}";
+                        migratedLegacyPanel = true;
+                    }
+                }
+
+                if (panel == null)
+                {
+                    continue;
+                }
+
+                customerPanelImages[i] = panel != null ? panel.GetComponent<Image>() : null;
+                customerStatusTexts[i] = GetGeneratedComponent<Text>(panel, "Status");
+                if (customerStatusTexts[i] == null)
+                {
+                    customerStatusTexts[i] = CreateText(
+                        "Status",
+                        panel,
+                        new Vector2(0.05f, 0.30f),
+                        new Vector2(0.95f, 0.96f),
+                        string.Empty,
+                        68,
+                        TextAnchor.MiddleCenter,
+                        Color.white,
+                        font);
+                }
+                else if (migratedLegacyPanel)
+                {
+                    // Upgrade only the old P#/TAG layout. Once it is a CustomerPanel,
+                    // keep any manual RectTransform edits made in the Scene view.
+                    SetRect(
+                        customerStatusTexts[i].rectTransform,
+                        new Vector2(0.05f, 0.30f),
+                        new Vector2(0.95f, 0.96f));
+                    customerStatusTexts[i].font = font;
+                    customerStatusTexts[i].fontSize = 68;
+                    customerStatusTexts[i].alignment = TextAnchor.MiddleCenter;
+                    customerStatusTexts[i].fontStyle = FontStyle.Bold;
+                }
+
+                customerTimerSliders[i] = GetGeneratedComponent<Slider>(panel, "OrderTimer");
+                if (customerTimerSliders[i] == null)
+                {
+                    customerTimerSliders[i] = CreateTimerSlider(
+                        "OrderTimer",
+                        panel,
+                        new Vector2(0.08f, 0.12f),
+                        new Vector2(0.92f, 0.29f),
+                        backgroundColor,
+                        accentColor,
+                        out customerTimerFills[i]);
+                    customerTimerSliders[i].gameObject.SetActive(false);
                 }
                 else
                 {
-                    playerStatusTexts[i].text = $"P{i + 1}   TAG --\nWAITING";
-                    playerStatusTexts[i].color = Color.white;
+                    customerTimerFills[i] = GetGeneratedComponent<Image>(panel, "OrderTimer/FillArea/Fill");
                 }
             }
+        }
+
+        private void ApplyWallBackgroundAppearance()
+        {
+            Transform root = sideCanvas != null ? sideCanvas.transform : transform.Find(GeneratedRootName);
+            Transform background = root != null ? root.Find("Background") : null;
+            if (background == null)
+            {
+                return;
+            }
+
+            Image image = background.GetComponent<Image>();
+            RawImage rawImage = background.GetComponent<RawImage>();
+            if (image == null && rawImage != null)
+            {
+                rawImage.enabled = true;
+                rawImage.raycastTarget = false;
+                rawImage.texture = wallBackgroundTexture;
+                rawImage.color = wallBackgroundTexture != null
+                    ? wallBackgroundTextureTint
+                    : backgroundColor;
+                rawImage.uvRect = wallBackgroundUvRect;
+                return;
+            }
+
+            if (image == null)
+            {
+                image = background.gameObject.AddComponent<Image>();
+            }
+
+            if (rawImage != null)
+            {
+                rawImage.enabled = false;
+            }
+
+            image.enabled = true;
+            image.raycastTarget = false;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = false;
+            image.color = wallBackgroundTexture != null
+                ? wallBackgroundTextureTint
+                : backgroundColor;
+            image.sprite = GetOrCreateWallBackgroundSprite();
+        }
+
+        private Sprite GetOrCreateWallBackgroundSprite()
+        {
+            if (wallBackgroundTexture == null)
+            {
+                ReleaseGeneratedWallBackgroundSprite();
+                return null;
+            }
+
+            if (generatedWallBackgroundSprite != null &&
+                generatedWallBackgroundTexture == wallBackgroundTexture &&
+                generatedWallBackgroundUvRect == wallBackgroundUvRect)
+            {
+                return generatedWallBackgroundSprite;
+            }
+
+            ReleaseGeneratedWallBackgroundSprite();
+            float xMin = Mathf.Clamp01(wallBackgroundUvRect.x);
+            float yMin = Mathf.Clamp01(wallBackgroundUvRect.y);
+            float xMax = Mathf.Clamp01(wallBackgroundUvRect.x + wallBackgroundUvRect.width);
+            float yMax = Mathf.Clamp01(wallBackgroundUvRect.y + wallBackgroundUvRect.height);
+            if (xMax <= xMin || yMax <= yMin)
+            {
+                xMin = 0f;
+                yMin = 0f;
+                xMax = 1f;
+                yMax = 1f;
+            }
+
+            Rect pixelRect = Rect.MinMaxRect(
+                xMin * wallBackgroundTexture.width,
+                yMin * wallBackgroundTexture.height,
+                xMax * wallBackgroundTexture.width,
+                yMax * wallBackgroundTexture.height);
+            generatedWallBackgroundSprite = Sprite.Create(
+                wallBackgroundTexture,
+                pixelRect,
+                new Vector2(0.5f, 0.5f),
+                100f);
+            generatedWallBackgroundSprite.name = "Runtime Wall Background";
+            generatedWallBackgroundSprite.hideFlags = HideFlags.HideAndDontSave;
+            generatedWallBackgroundTexture = wallBackgroundTexture;
+            generatedWallBackgroundUvRect = wallBackgroundUvRect;
+            return generatedWallBackgroundSprite;
+        }
+
+        private void ReleaseGeneratedWallBackgroundSprite()
+        {
+            if (generatedWallBackgroundSprite != null)
+            {
+                SafeDestroy(generatedWallBackgroundSprite);
+            }
+
+            generatedWallBackgroundSprite = null;
+            generatedWallBackgroundTexture = null;
+        }
+
+        private static T GetGeneratedComponent<T>(Transform root, string relativePath) where T : Component
+        {
+            if (root == null)
+            {
+                return null;
+            }
+
+            Transform target = root.Find(relativePath);
+            return target != null ? target.GetComponent<T>() : null;
         }
 
         private void EnsureReferences()
@@ -295,10 +597,6 @@ namespace FoodIsekaiZ.Display
                 uwbManager = FindAnyObjectByType<UWBManager>();
             }
 
-            if (playerSpawner == null)
-            {
-                playerSpawner = FindAnyObjectByType<UWBPlayerSpawner>();
-            }
         }
 
         private static Transform CreatePanel(
@@ -314,6 +612,51 @@ namespace FoodIsekaiZ.Display
             SetRect(rect, anchorMin, anchorMax);
             panelObject.GetComponent<Image>().color = color;
             return panelObject.transform;
+        }
+
+        private static Slider CreateTimerSlider(
+            string objectName,
+            Transform parent,
+            Vector2 anchorMin,
+            Vector2 anchorMax,
+            Color trackColor,
+            Color fillColor,
+            out Image fillImage)
+        {
+            GameObject sliderObject = new GameObject(objectName, typeof(RectTransform), typeof(Slider));
+            sliderObject.transform.SetParent(parent, false);
+            SetRect(sliderObject.GetComponent<RectTransform>(), anchorMin, anchorMax);
+
+            Transform track = CreatePanel("Track", sliderObject.transform, Vector2.zero, Vector2.one, trackColor);
+            Image trackImage = track.GetComponent<Image>();
+            trackImage.raycastTarget = false;
+
+            GameObject fillAreaObject = new GameObject("FillArea", typeof(RectTransform));
+            fillAreaObject.transform.SetParent(sliderObject.transform, false);
+            SetRect(
+                fillAreaObject.GetComponent<RectTransform>(),
+                new Vector2(0.025f, 0.16f),
+                new Vector2(0.975f, 0.84f));
+
+            Transform fill = CreatePanel("Fill", fillAreaObject.transform, Vector2.zero, Vector2.one, fillColor);
+            fillImage = fill.GetComponent<Image>();
+            fillImage.raycastTarget = false;
+
+            Slider slider = sliderObject.GetComponent<Slider>();
+            slider.minValue = 0f;
+            slider.maxValue = 1f;
+            slider.value = 1f;
+            slider.wholeNumbers = false;
+            slider.direction = Slider.Direction.LeftToRight;
+            slider.fillRect = fill.GetComponent<RectTransform>();
+            slider.handleRect = null;
+            slider.targetGraphic = fillImage;
+            slider.interactable = false;
+            slider.transition = Selectable.Transition.None;
+            Navigation navigation = slider.navigation;
+            navigation.mode = Navigation.Mode.None;
+            slider.navigation = navigation;
+            return slider;
         }
 
         private static Text CreateText(
@@ -363,9 +706,12 @@ namespace FoodIsekaiZ.Display
             sideCanvas = null;
             scoreText = null;
             uwbStatusText = null;
-            for (int i = 0; i < playerStatusTexts.Length; i++)
+            for (int i = 0; i < customerStatusTexts.Length; i++)
             {
-                playerStatusTexts[i] = null;
+                customerStatusTexts[i] = null;
+                customerPanelImages[i] = null;
+                customerTimerSliders[i] = null;
+                customerTimerFills[i] = null;
             }
         }
 
@@ -383,6 +729,10 @@ namespace FoodIsekaiZ.Display
                 hash = (hash * 31) + panelColor.GetHashCode();
                 hash = (hash * 31) + accentColor.GetHashCode();
                 hash = (hash * 31) + moneyColor.GetHashCode();
+                hash = (hash * 31) + (wallBackgroundTexture != null ? wallBackgroundTexture.GetInstanceID() : 0);
+                hash = (hash * 31) + wallBackgroundTextureTint.GetHashCode();
+                hash = (hash * 31) + wallBackgroundUvRect.GetHashCode();
+                hash = (hash * 31) + rebuildPreviewWhenSettingsChange.GetHashCode();
                 hash = (hash * 31) + (sideCamera != null ? sideCamera.GetInstanceID() : 0);
                 hash = (hash * 31) + (arenaLayout != null ? arenaLayout.ArenaSize.GetHashCode() : 0);
                 hash = (hash * 31) + (arenaLayout != null ? arenaLayout.transform.position.GetHashCode() : 0);
