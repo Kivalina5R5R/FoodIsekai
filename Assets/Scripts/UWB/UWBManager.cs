@@ -168,6 +168,10 @@ namespace Fortal.UWB
         private readonly Queue<NoopLoopPose> pendingPoses = new Queue<NoopLoopPose>();
         private readonly List<NoopLoopPose> posesForMainThread = new List<NoopLoopPose>(32);
         private readonly Dictionary<int, Vector2> simulatedPhysicalPositions = new Dictionary<int, Vector2>();
+        private readonly Vector3[] trilaterationPoints = new Vector3[AnchorCount];
+        private readonly float[] trilaterationDistances = new float[AnchorCount];
+        private readonly float[,] leastSquaresAta = new float[3, 3];
+        private readonly float[] leastSquaresAtb = new float[3];
 
         private NoopLoopSerialPort serialPort;
         private UdpClient udpClient;
@@ -471,7 +475,11 @@ namespace Fortal.UWB
                 }
                 catch (Exception ex)
                 {
-                    threadStatus = $"Read stopped: {ex.Message}";
+                    lock (poseLock)
+                    {
+                        threadStatus = $"Read stopped: {ex.Message}";
+                    }
+
                     keepReading = false;
                 }
             }
@@ -1317,8 +1325,6 @@ namespace Fortal.UWB
             }
 
             int anchorLimit = Mathf.Clamp(trackingAnchorCount, 3, AnchorCount);
-            Vector3[] points = new Vector3[anchorLimit];
-            float[] distances = new float[anchorLimit];
             int count = 0;
             for (int i = 0; i < anchorLimit; i++)
             {
@@ -1339,8 +1345,8 @@ namespace Fortal.UWB
                     continue;
                 }
 
-                points[count] = anchorPosition;
-                distances[count] = distance;
+                trilaterationPoints[count] = anchorPosition;
+                trilaterationDistances[count] = distance;
                 count++;
             }
 
@@ -1349,12 +1355,22 @@ namespace Fortal.UWB
                 return false;
             }
 
-            if (TryCalculateFromCoplanarTopAnchors(distances, points, count, out position))
+            if (TryCalculateFromCoplanarTopAnchors(
+                    trilaterationDistances,
+                    trilaterationPoints,
+                    count,
+                    out position))
             {
                 return true;
             }
 
-            return SolveLeastSquares(points, distances, count, out position);
+            return SolveLeastSquares(
+                trilaterationPoints,
+                trilaterationDistances,
+                count,
+                leastSquaresAta,
+                leastSquaresAtb,
+                out position);
         }
 
         private static bool TryCalculateFromCoplanarTopAnchors(float[] distances, Vector3[] anchors, int count, out Vector3 position)
@@ -1432,13 +1448,19 @@ namespace Fortal.UWB
             return true;
         }
 
-        private static bool SolveLeastSquares(Vector3[] anchors, float[] distances, int count, out Vector3 position)
+        private static bool SolveLeastSquares(
+            Vector3[] anchors,
+            float[] distances,
+            int count,
+            float[,] ata,
+            float[] atb,
+            out Vector3 position)
         {
             position = default;
+            Array.Clear(ata, 0, ata.Length);
+            Array.Clear(atb, 0, atb.Length);
             Vector3 p0 = anchors[0];
             float d0 = distances[0];
-            float[,] ata = new float[3, 3];
-            float[] atb = new float[3];
 
             for (int i = 1; i < count; i++)
             {

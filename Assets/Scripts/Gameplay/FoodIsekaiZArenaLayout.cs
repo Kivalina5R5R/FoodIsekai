@@ -61,6 +61,7 @@ namespace FoodIsekaiZ.Gameplay
         [SerializeField, HideInInspector] private int layoutConfigVersion;
 
         private Material sharedMaterial;
+        private MaterialPropertyBlock sharedPropertyBlock;
         private Transform generatedRoot;
         private bool isBuilding;
         private int appliedLayoutHash;
@@ -444,10 +445,15 @@ namespace FoodIsekaiZ.Gameplay
                 renderer.sharedMaterial = sharedMaterial;
             }
 
-            var block = new MaterialPropertyBlock();
-            renderer.GetPropertyBlock(block);
-            block.SetColor("_BaseColor", color);
-            block.SetColor("_Color", color);
+            if (sharedPropertyBlock == null)
+            {
+                sharedPropertyBlock = new MaterialPropertyBlock();
+            }
+
+            sharedPropertyBlock.Clear();
+            renderer.GetPropertyBlock(sharedPropertyBlock);
+            sharedPropertyBlock.SetColor("_BaseColor", color);
+            sharedPropertyBlock.SetColor("_Color", color);
             if (applyFloorTexture)
             {
                 Texture texture = floorBackgroundTexture != null
@@ -458,12 +464,12 @@ namespace FoodIsekaiZ.Gameplay
                     floorBackgroundTextureTiling.y,
                     floorBackgroundTextureOffset.x,
                     floorBackgroundTextureOffset.y);
-                block.SetTexture("_BaseMap", texture);
-                block.SetTexture("_MainTex", texture);
-                block.SetVector("_BaseMap_ST", textureTransform);
-                block.SetVector("_MainTex_ST", textureTransform);
+                sharedPropertyBlock.SetTexture("_BaseMap", texture);
+                sharedPropertyBlock.SetTexture("_MainTex", texture);
+                sharedPropertyBlock.SetVector("_BaseMap_ST", textureTransform);
+                sharedPropertyBlock.SetVector("_MainTex_ST", textureTransform);
             }
-            renderer.SetPropertyBlock(block);
+            renderer.SetPropertyBlock(sharedPropertyBlock);
         }
 
         private void EnsureMaterial()
@@ -630,10 +636,15 @@ namespace FoodIsekaiZ.Gameplay
             MeshRenderer renderer = rectangle.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = sharedMaterial;
 
-            var block = new MaterialPropertyBlock();
-            block.SetColor("_BaseColor", color);
-            block.SetColor("_Color", color);
-            renderer.SetPropertyBlock(block);
+            if (sharedPropertyBlock == null)
+            {
+                sharedPropertyBlock = new MaterialPropertyBlock();
+            }
+
+            sharedPropertyBlock.Clear();
+            sharedPropertyBlock.SetColor("_BaseColor", color);
+            sharedPropertyBlock.SetColor("_Color", color);
+            renderer.SetPropertyBlock(sharedPropertyBlock);
             return rectangle;
         }
 
