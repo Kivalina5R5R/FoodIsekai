@@ -57,6 +57,14 @@ namespace FoodIsekaiZ.Display
         private bool teamScoreDisplayDirty = true;
         private bool mvpDisplayDirty = true;
         private bool mealWaveDisplayDirty = true;
+        private bool uwbStatusDisplayInitialized;
+        private int lastUwbDisplayMode = -1;
+        private int lastUwbAgeTenths = int.MinValue;
+        private bool lastUwbSimulationMode;
+        private string lastUwbStatus;
+        private readonly bool[] customerDisplayInitialized = new bool[4];
+        private readonly FoodType[] lastCustomerDisplayedFood = new FoodType[4];
+        private readonly Color[] lastCustomerDisplayedColor = new Color[4];
 
         public Canvas SideCanvas => sideCanvas;
 
@@ -72,6 +80,7 @@ namespace FoodIsekaiZ.Display
                 }
 
                 CacheGeneratedDisplay(existing);
+                ResetRealtimeDisplayCaches();
                 ApplyWallBackgroundAppearance();
                 EnsureReferences();
                 SubscribeToGameEvents();
@@ -343,32 +352,7 @@ namespace FoodIsekaiZ.Display
 
         private void UpdateRealtimeText()
         {
-            if (uwbStatusText != null)
-            {
-                if (uwbManager == null)
-                {
-                    uwbStatusText.text = "UWB  MISSING\nMANAGER NOT FOUND";
-                    uwbStatusText.color = Color.red;
-                }
-                else if (uwbManager.IsReceivingFrames)
-                {
-                    string source = uwbManager.IsSimulationMode ? "UWB SIM" : "UWB";
-                    uwbStatusText.text = $"{source}  ONLINE  {uwbManager.LastFrameAgeSeconds:0.0}s\n{ShortStatus(uwbManager.Status)}";
-                    uwbStatusText.color = Color.green;
-                }
-                else if (uwbManager.IsConnected)
-                {
-                    uwbStatusText.text = uwbManager.IsReceivingProtocolFrames
-                        ? "UWB  LINK OK\nWAITING FOR TAG"
-                        : "UWB  PORT OPEN\nNO BINARY DATA";
-                    uwbStatusText.color = Color.yellow;
-                }
-                else
-                {
-                    uwbStatusText.text = $"UWB  OFFLINE\n{ShortStatus(uwbManager.Status)}";
-                    uwbStatusText.color = Color.red;
-                }
-            }
+            UpdateUwbStatusText();
 
             for (int i = 0; i < customerStatusTexts.Length; i++)
             {
@@ -379,10 +363,15 @@ namespace FoodIsekaiZ.Display
                 {
                     if (statusText != null)
                     {
-                        statusText.text = string.Empty;
+                        if (statusText.text != string.Empty)
+                        {
+                            statusText.text = string.Empty;
+                        }
+
                         statusText.color = Color.white;
                     }
 
+                    customerDisplayInitialized[i] = false;
                     SetCustomerPanelVisible(i, false);
                     if (timerSlider != null)
                     {
@@ -401,8 +390,17 @@ namespace FoodIsekaiZ.Display
                 ArenaSlot2D slot = gameManager != null ? gameManager.GetCustomerSlot(i) : null;
                 if (slot == null || !slot.HasCustomer)
                 {
-                    statusText.text = string.Empty;
-                    statusText.color = Color.white;
+                    if (!customerDisplayInitialized[i] ||
+                        lastCustomerDisplayedFood[i] != FoodType.None ||
+                        lastCustomerDisplayedColor[i] != Color.white)
+                    {
+                        statusText.text = string.Empty;
+                        statusText.color = Color.white;
+                        lastCustomerDisplayedFood[i] = FoodType.None;
+                        lastCustomerDisplayedColor[i] = Color.white;
+                        customerDisplayInitialized[i] = true;
+                    }
+
                     SetCustomerPanelColor(i, WithAlphaMultiplier(panelColor, 0.5f));
                     if (timerSlider != null)
                     {
@@ -411,12 +409,23 @@ namespace FoodIsekaiZ.Display
                     continue;
                 }
 
-                statusText.text = slot.RequestedFood >= FoodType.Food1 && slot.RequestedFood <= FoodType.Food5
-                    ? $"F{(int)slot.RequestedFood}"
-                    : string.Empty;
-                statusText.color = gameManager != null
+                FoodType requestedFood = slot.RequestedFood;
+                Color requestedFoodColor = gameManager != null
                     ? gameManager.GetFoodColor(slot.RequestedFood)
                     : Color.white;
+                if (!customerDisplayInitialized[i] ||
+                    lastCustomerDisplayedFood[i] != requestedFood ||
+                    lastCustomerDisplayedColor[i] != requestedFoodColor)
+                {
+                    statusText.text = requestedFood >= FoodType.Food1 && requestedFood <= FoodType.Food5
+                        ? $"F{(int)requestedFood}"
+                        : string.Empty;
+                    statusText.color = requestedFoodColor;
+                    lastCustomerDisplayedFood[i] = requestedFood;
+                    lastCustomerDisplayedColor[i] = requestedFoodColor;
+                    customerDisplayInitialized[i] = true;
+                }
+
                 SetCustomerPanelColor(i, panelColor);
 
                 switch (slot.CustomerState)
@@ -442,6 +451,102 @@ namespace FoodIsekaiZ.Display
                         }
                         break;
                 }
+            }
+        }
+
+        private void UpdateUwbStatusText()
+        {
+            if (uwbStatusText == null)
+            {
+                return;
+            }
+
+            int displayMode;
+            int ageTenths = int.MinValue;
+            bool simulationMode = false;
+            string managerStatus = null;
+
+            if (uwbManager == null)
+            {
+                displayMode = 0;
+            }
+            else if (uwbManager.IsReceivingFrames)
+            {
+                displayMode = 1;
+                ageTenths = Mathf.FloorToInt(Mathf.Max(0f, uwbManager.LastFrameAgeSeconds) * 10f + 0.5f);
+                simulationMode = uwbManager.IsSimulationMode;
+                managerStatus = uwbManager.Status;
+            }
+            else if (uwbManager.IsConnected)
+            {
+                displayMode = uwbManager.IsReceivingProtocolFrames ? 2 : 3;
+            }
+            else
+            {
+                displayMode = 4;
+                managerStatus = uwbManager.Status;
+            }
+
+            bool changed = !uwbStatusDisplayInitialized ||
+                lastUwbDisplayMode != displayMode ||
+                lastUwbAgeTenths != ageTenths ||
+                lastUwbSimulationMode != simulationMode ||
+                !string.Equals(lastUwbStatus, managerStatus, System.StringComparison.Ordinal);
+            if (!changed)
+            {
+                return;
+            }
+
+            switch (displayMode)
+            {
+                case 0:
+                    uwbStatusText.text = "UWB  MISSING\nMANAGER NOT FOUND";
+                    uwbStatusText.color = Color.red;
+                    break;
+
+                case 1:
+                    string source = simulationMode ? "UWB SIM" : "UWB";
+                    uwbStatusText.text =
+                        $"{source}  ONLINE  {ageTenths / 10f:0.0}s\n{ShortStatus(managerStatus)}";
+                    uwbStatusText.color = Color.green;
+                    break;
+
+                case 2:
+                    uwbStatusText.text = "UWB  LINK OK\nWAITING FOR TAG";
+                    uwbStatusText.color = Color.yellow;
+                    break;
+
+                case 3:
+                    uwbStatusText.text = "UWB  PORT OPEN\nNO BINARY DATA";
+                    uwbStatusText.color = Color.yellow;
+                    break;
+
+                default:
+                    uwbStatusText.text = $"UWB  OFFLINE\n{ShortStatus(managerStatus)}";
+                    uwbStatusText.color = Color.red;
+                    break;
+            }
+
+            uwbStatusDisplayInitialized = true;
+            lastUwbDisplayMode = displayMode;
+            lastUwbAgeTenths = ageTenths;
+            lastUwbSimulationMode = simulationMode;
+            lastUwbStatus = managerStatus;
+        }
+
+        private void ResetRealtimeDisplayCaches()
+        {
+            uwbStatusDisplayInitialized = false;
+            lastUwbDisplayMode = -1;
+            lastUwbAgeTenths = int.MinValue;
+            lastUwbSimulationMode = false;
+            lastUwbStatus = null;
+
+            for (int i = 0; i < customerDisplayInitialized.Length; i++)
+            {
+                customerDisplayInitialized[i] = false;
+                lastCustomerDisplayedFood[i] = FoodType.None;
+                lastCustomerDisplayedColor[i] = default;
             }
         }
 
@@ -1038,6 +1143,8 @@ namespace FoodIsekaiZ.Display
                 customerTimerSliders[i] = null;
                 customerTimerFills[i] = null;
             }
+
+            ResetRealtimeDisplayCaches();
         }
 
         private int CalculateHash()

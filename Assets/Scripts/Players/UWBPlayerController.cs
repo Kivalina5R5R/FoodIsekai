@@ -68,6 +68,11 @@ namespace FoodIsekaiZ.Players
         private Sprite generatedMarkerSprite;
         private Texture2D generatedMarkerCenterTexture;
         private Sprite generatedMarkerCenterSprite;
+        private bool statusDisplayInitialized;
+        private FoodIsekaiZPlayerState lastDisplayedState;
+        private FoodType lastDisplayedFood;
+        private int lastDisplayedMoney;
+        private int lastDisplayedPlayerId;
 
         public int PlayerId => playerId;
         public int TagId => tagId;
@@ -449,6 +454,7 @@ namespace FoodIsekaiZ.Players
                     carriedStatusText.gameObject.SetActive(false);
                 }
 
+                statusDisplayInitialized = false;
                 return;
             }
 
@@ -467,11 +473,25 @@ namespace FoodIsekaiZ.Players
                 playerState = GetComponent<FoodIsekaiZPlayerState>();
             }
 
-            string food = playerState != null && playerState.HeldFood != FoodType.None
-                ? $"F{(int)playerState.HeldFood}"
-                : "--";
+            FoodType displayedFood = playerState != null ? playerState.HeldFood : FoodType.None;
             int money = playerState != null ? playerState.CarriedMoney : 0;
-            carriedStatusText.text = $"P{playerId}\n{food}  ${money}";
+            if (!statusDisplayInitialized ||
+                lastDisplayedState != playerState ||
+                lastDisplayedFood != displayedFood ||
+                lastDisplayedMoney != money ||
+                lastDisplayedPlayerId != playerId)
+            {
+                string food = displayedFood != FoodType.None
+                    ? $"F{(int)displayedFood}"
+                    : "--";
+                carriedStatusText.text = $"P{playerId}\n{food}  ${money}";
+                lastDisplayedState = playerState;
+                lastDisplayedFood = displayedFood;
+                lastDisplayedMoney = money;
+                lastDisplayedPlayerId = playerId;
+                statusDisplayInitialized = true;
+            }
+
             carriedStatusText.color = statusTextColor;
             carriedStatusText.characterSize = statusCharacterSize;
             carriedStatusText.gameObject.SetActive(true);
