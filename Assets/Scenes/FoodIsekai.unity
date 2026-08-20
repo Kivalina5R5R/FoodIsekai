@@ -317,6 +317,8 @@ MonoBehaviour:
   simulationKeyboardTagId: 6
   simulationKeyboardSpeedMetersPerSecond: 1.8
   clampSimulationToPhysicalBounds: 1
+  simulationMinMeters: {x: 0, y: 0}
+  simulationMaxMeters: {x: 6, y: 4}
   simulationAutoMoveRadiusMeters: 0.2
   simulationAutoMoveSpeed: 0.8
   simulatedTags:
@@ -348,36 +350,15 @@ MonoBehaviour:
   anchorOnlineDistanceThresholdMeters: 0.01
   useDevicePositionFirst: 1
   axisConversion:
-    rawXTo: x
-    rawYTo: z
+    rawXTo: z
+    rawYTo: x
     rawZTo: none
-  inputOffset: {x: 0, y: 0, z: 0}
-  useArenaMapping: 1
-  clampToArena: 1
-  physicalMinMeters: {x: 0, y: 0}
-  physicalMaxMeters: {x: 6, y: 4}
-  arenaMin: {x: -5.5, y: -2.5}
-  arenaMax: {x: 5.5, y: 2.5}
-  useSceneArenaBounds: 1
-  maxPoseAgeSeconds: 1
-  maxTrackingPredictionSeconds: 0.35
-  rejectTrackingPositionJumps: 1
-  maxTrackingPositionJumpMeters: 0.75
-  maxTrackingPredictionSpeedMetersPerSecond: 2.5
-  maxTrackingRecoveryStepMeters: 0.15
-  maxUwbMotionSpeedMetersPerSecond: 1.8
+  inputOffset: {x: 0.8, y: 0, z: -0.5}
   rejectSolvedPositionOutsideAnchorBounds: 1
   solvedPositionBoundsMarginMeters: 1
   holdLastPositionWhenRejected: 1
   lockPlayersToFixedHeight: 1
   fixedPlayerHeightY: 0
-  smoothTagPosition: 1
-  trackingPositionDeadZoneMeters: 0.08
-  averageUwbPositionFrames: 1
-  uwbPositionAverageFrameCount: 4
-  movingLatestFrameBlend: 0.7
-  stationaryPositionLerp: 0.25
-  movingPositionLerp: 0.85
   isConnected: 0
   isReceivingProtocolFrames: 0
   isReceivingFrames: 0
@@ -406,17 +387,13 @@ MonoBehaviour:
     udpListenAddress: 0.0.0.0
     udpListenPort: 9000
     axisConversion:
-      rawXTo: x
-      rawYTo: z
+      rawXTo: z
+      rawYTo: x
       rawZTo: none
-    UWBInputOffset: {x: 0, y: 0, z: 0}
+    UWBInputOffset: {x: 0.8, y: 0, z: -0.5}
     metersToWorldScale: 1
-    useArenaMapping: 1
-    clampToArena: 1
-    physicalMinMeters: {x: 0, y: 0}
-    physicalMaxMeters: {x: 6, y: 4}
-    arenaMin: {x: -6, y: -4}
-    arenaMax: {x: 6, y: 4}
+    simulationMinMeters: {x: 0, y: 0}
+    simulationMaxMeters: {x: 6, y: 4}
     UWBAnchorPositions:
     - {x: 0, y: 0, z: 0}
     - {x: 0, y: 0, z: 0}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FoodIsekaiZ.Gameplay;
+using Fortal.UWB;
 using UnityEngine;
 
 namespace FoodIsekaiZ.Players
@@ -44,15 +45,42 @@ namespace FoodIsekaiZ.Players
             new PlayerDefinition(4, 4, Color.green)
         };
 
+        [Header("Serial Presence")]
+        [Tooltip("In Serial mode, disable each Player GameObject until its configured UWB tag is receiving fresh data. The spawner keeps the tag registered so it can be re-enabled.")]
+        [SerializeField] private bool disableOfflinePlayersInSerial = true;
+
         private readonly List<UWBPlayerController> spawnedPlayers = new List<UWBPlayerController>();
+        private UWBManager uwbManager;
 
         public IReadOnlyList<UWBPlayerController> SpawnedPlayers => spawnedPlayers;
 
         private void Start()
         {
+            uwbManager = FindAnyObjectByType<UWBManager>();
             if (spawnOnStart)
             {
                 SpawnPlayers();
+            }
+        }
+
+        private void Update()
+        {
+            RefreshSerialPlayerPresence();
+        }
+
+        private void OnDestroy()
+        {
+            if (uwbManager == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < spawnedPlayers.Count; i++)
+            {
+                if (spawnedPlayers[i] != null)
+                {
+                    uwbManager.UnregisterTag(spawnedPlayers[i].TagId);
+                }
             }
         }
 
@@ -94,6 +122,7 @@ namespace FoodIsekaiZ.Players
                 }
 
                 controller.gameObject.SetActive(true);
+                uwbManager?.RegisterTag(controller.TagId);
                 spawnedPlayers.Add(controller);
             }
         }
@@ -136,12 +165,45 @@ namespace FoodIsekaiZ.Players
             {
                 if (spawnedPlayers[i] != null)
                 {
+                    if (uwbManager != null)
+                    {
+                        uwbManager.UnregisterTag(spawnedPlayers[i].TagId);
+                    }
+
                     spawnedPlayers[i].gameObject.SetActive(false);
                     Destroy(spawnedPlayers[i].gameObject);
                 }
             }
 
             spawnedPlayers.Clear();
+        }
+
+        private void RefreshSerialPlayerPresence()
+        {
+            if (uwbManager == null)
+            {
+                uwbManager = FindAnyObjectByType<UWBManager>();
+            }
+
+            if (uwbManager == null || !disableOfflinePlayersInSerial || !uwbManager.IsSerialMode)
+            {
+                return;
+            }
+
+            for (int i = 0; i < spawnedPlayers.Count; i++)
+            {
+                UWBPlayerController player = spawnedPlayers[i];
+                if (player == null)
+                {
+                    continue;
+                }
+
+                bool online = uwbManager.IsTagOnline(player.TagId);
+                if (player.gameObject.activeSelf != online)
+                {
+                    player.gameObject.SetActive(online);
+                }
+            }
         }
 
 #if UNITY_EDITOR

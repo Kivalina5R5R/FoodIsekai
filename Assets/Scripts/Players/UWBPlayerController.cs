@@ -82,6 +82,7 @@ namespace FoodIsekaiZ.Players
         private void Awake()
         {
             CacheRequiredComponents();
+            ApplyTrackingSettingsFromConfig();
             body.isKinematic = true;
             body.useGravity = false;
             body.constraints = RigidbodyConstraints.FreezeRotation;
@@ -94,6 +95,29 @@ namespace FoodIsekaiZ.Players
             CreateStatusLabel();
             RefreshStatusLabel();
             RecordControllerPosition(transform.position);
+        }
+
+        private void Start()
+        {
+            // Re-apply after config initialization so JSON remains the source of truth
+            // even when this player prefab enabled before UWBConfigManager.
+            ApplyTrackingSettingsFromConfig();
+        }
+
+        private void ApplyTrackingSettingsFromConfig()
+        {
+            FoodIsekaiZ.Configuration.UWBConfigData config =
+                FoodIsekaiZ.Configuration.UWBConfigManager.GetConfig();
+            FoodIsekaiZ.Configuration.UWBTrackingSettings tracking = config?.tracking;
+            if (tracking == null)
+            {
+                return;
+            }
+
+            tracking.Validate();
+            smoothTime = tracking.trackerSmoothTime;
+            positionDeadZone = tracking.trackerDeadzoneMeters;
+            snapDistance = tracking.trackerSnapDistanceMeters;
         }
 
         private void OnEnable()
