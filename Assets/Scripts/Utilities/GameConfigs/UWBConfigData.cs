@@ -2,23 +2,17 @@ using UnityEngine;
 
 namespace FoodIsekaiZ.Configuration
 {
-    /// <summary>
-    /// Free-form remap of the tracker's raw X/Y/Z onto Unity's X/Y/Z. Each field names where one
-    /// raw axis is sent, using a signed token: "x", "-x", "y", "-y", "z", "-z", or "none"/"0" to
-    /// drop that axis. Lets a mis-calibrated NoopLoop frame (e.g. long side reported as Y) be
-    /// corrected from config without code changes.
-    /// </summary>
+
     [System.Serializable]
     public class UWBAxisConversion
     {
         [Tooltip("Where the tracker's raw X goes in Unity. Tokens: x, -x, y, -y, z, -z, none.")]
-        public string rawXTo = "x";
+        public string rawXTo = "z";
         [Tooltip("Where the tracker's raw Y goes in Unity. Tokens: x, -x, y, -y, z, -z, none.")]
-        public string rawYTo = "z";
+        public string rawYTo = "x";
         [Tooltip("Where the tracker's raw Z goes in Unity. Tokens: x, -x, y, -y, z, -z, none.")]
         public string rawZTo = "none";
 
-        /// <summary>Maps a raw tracker position onto Unity space per the configured tokens.</summary>
         public Vector3 Apply(Vector3 raw)
         {
             Vector3 result = Vector3.zero;
@@ -28,11 +22,6 @@ namespace FoodIsekaiZ.Configuration
             return result;
         }
 
-        /// <summary>
-        /// Logs warnings for unknown tokens or for multiple raw axes mapping onto the same Unity
-        /// axis (their values are summed, which is rarely intended). Never changes behavior; call
-        /// once at setup rather than per frame.
-        /// </summary>
         public void Validate()
         {
             int[] destinationCounts = new int[3];
@@ -74,7 +63,6 @@ namespace FoodIsekaiZ.Configuration
             }
         }
 
-        /// <summary>Parses a token into a Unity axis index (0=X, 1=Y, 2=Z) and sign. Returns false for "none"/blank/unknown.</summary>
         private static bool TryParseToken(string token, out int axisIndex, out float sign)
         {
             axisIndex = -1;
