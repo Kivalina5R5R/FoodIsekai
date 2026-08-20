@@ -35,6 +35,9 @@ namespace FoodIsekaiZ.Players
         [SerializeField] private UWBPlayerController playerPrefab;
         [SerializeField] private Transform playerParent;
         [SerializeField] private bool spawnOnStart = true;
+        [Header("Player Size")]
+        [Tooltip("ขนาดโดยรวมของ Player ทุกตัว รวม marker และ collider")]
+        [SerializeField, Min(0.05f)] private float playerScale = 1f;
 
         [Header("Player ID / UWB Tag Mapping")]
         [SerializeField] private PlayerDefinition[] players =
@@ -115,6 +118,7 @@ namespace FoodIsekaiZ.Players
                     0.12f,
                     definition.initialPosition.y);
                 controller.Configure(definition.playerId, definition.tagId, definition.color);
+                controller.SetPlayerScale(playerScale);
 
                 if (controller.GetComponent<FoodIsekaiZPlayerState>() == null)
                 {
