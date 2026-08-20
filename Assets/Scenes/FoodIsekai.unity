@@ -354,11 +354,25 @@ MonoBehaviour:
     rawYTo: x
     rawZTo: none
   inputOffset: {x: 0.8, y: 0, z: -0.5}
+  maxPoseAgeSeconds: 1
+  maxTrackingPredictionSeconds: 0.35
+  rejectTrackingPositionJumps: 1
+  maxTrackingPositionJumpMeters: 0.75
+  maxTrackingPredictionSpeedMetersPerSecond: 2.5
+  maxTrackingRecoveryStepMeters: 0.15
+  maxUwbMotionSpeedMetersPerSecond: 1.8
   rejectSolvedPositionOutsideAnchorBounds: 1
   solvedPositionBoundsMarginMeters: 1
   holdLastPositionWhenRejected: 1
   lockPlayersToFixedHeight: 1
   fixedPlayerHeightY: 0
+  smoothTagPosition: 1
+  trackingPositionDeadZoneMeters: 0.08
+  averageUwbPositionFrames: 1
+  uwbPositionAverageFrameCount: 4
+  movingLatestFrameBlend: 0.7
+  stationaryPositionLerp: 0.25
+  movingPositionLerp: 0.85
   isConnected: 0
   isReceivingProtocolFrames: 0
   isReceivingFrames: 0
@@ -394,6 +408,25 @@ MonoBehaviour:
     metersToWorldScale: 1
     simulationMinMeters: {x: 0, y: 0}
     simulationMaxMeters: {x: 6, y: 4}
+    tracking:
+      maxPoseAgeSeconds: 1
+      maxTrackingPredictionSeconds: 0.35
+      rejectTrackingPositionJumps: 1
+      maxTrackingPositionJumpMeters: 0.75
+      maxTrackingPredictionSpeedMetersPerSecond: 2.5
+      maxTrackingRecoveryStepMeters: 0.15
+      maxUwbMotionSpeedMetersPerSecond: 1.8
+      smoothTagPosition: 1
+      trackingPositionDeadZoneMeters: 0.08
+      averageUwbPositionFrames: 1
+      uwbPositionAverageFrameCount: 4
+      movingLatestFrameBlend: 0.7
+      stationaryPositionLerp: 0.25
+      movingPositionLerp: 0.85
+      trackerSmoothTime: 0.15
+      trackerDeadzoneMeters: 0.03
+      trackerFilterStrength: 0.6
+      trackerSnapDistanceMeters: 2
     UWBAnchorPositions:
     - {x: 0, y: 0, z: 0}
     - {x: 0, y: 0, z: 0}
@@ -6295,6 +6328,7 @@ MonoBehaviour:
   playerPrefab: {fileID: 0}
   playerParent: {fileID: 0}
   spawnOnStart: 1
+  playerScale: 0.75
   players:
   - enabled: 1
     playerId: 1
@@ -6316,6 +6350,7 @@ MonoBehaviour:
     tagId: 9
     color: {r: 0, g: 1, b: 0, a: 1}
     initialPosition: {x: 0, y: 0}
+  disableOfflinePlayersInSerial: 1
 --- !u!4 &2144607759
 Transform:
   m_ObjectHideFlags: 0

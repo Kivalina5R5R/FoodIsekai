@@ -26,6 +26,10 @@ namespace FoodIsekaiZ.Players
         [SerializeField, Min(0.1f)] private float maxSpeed = 12f;
         [SerializeField, Min(0f)] private float floorHeight = 0.12f;
 
+        [Header("Player Size")]
+        [Tooltip("Uniform scale applied to the Player root, including its marker and collider.")]
+        [SerializeField, Min(0.05f)] private float playerScale = 1f;
+
         [Header("Editor Simulation")]
         [Tooltip("During Play Mode, dragging this Player in Scene View writes the position back to its simulated UWB tag.")]
         [SerializeField] private bool allowSceneViewDragInSimulation = true;
@@ -64,6 +68,8 @@ namespace FoodIsekaiZ.Players
         private bool isRegistered;
         private bool hasControllerPosition;
         private Vector3 lastControllerPosition;
+        private Vector3 baseLocalScale = Vector3.one;
+        private bool baseScaleCaptured;
         private Texture2D generatedMarkerTexture;
         private Sprite generatedMarkerSprite;
         private Texture2D generatedMarkerCenterTexture;
@@ -86,6 +92,7 @@ namespace FoodIsekaiZ.Players
             body.isKinematic = true;
             body.useGravity = false;
             body.constraints = RigidbodyConstraints.FreezeRotation;
+            ApplyPlayerScale();
 
             // Sprite ปกติอยู่บน XY; หมุนให้นอนบนพื้น XZ และหันขึ้นหากล้อง Floor
             transform.rotation = Quaternion.Euler(90f, 0f, 0f);
@@ -293,6 +300,23 @@ namespace FoodIsekaiZ.Players
 
             gameObject.name = $"Player{playerId:00}_Tag{tagId}";
             RefreshStatusLabel();
+        }
+
+        public void SetPlayerScale(float newScale)
+        {
+            playerScale = Mathf.Max(0.05f, newScale);
+            ApplyPlayerScale();
+        }
+
+        private void ApplyPlayerScale()
+        {
+            if (!baseScaleCaptured)
+            {
+                baseLocalScale = transform.localScale;
+                baseScaleCaptured = true;
+            }
+
+            transform.localScale = baseLocalScale * Mathf.Max(0.05f, playerScale);
         }
 
         private void CreateStatusLabel()

@@ -5,14 +5,14 @@
     "udpListenAddress": "0.0.0.0",
     "udpListenPort": 9000,
     "axisConversion": {
-        "rawXTo": "z",
-        "rawYTo": "x",
+        "rawXTo": "x",
+        "rawYTo": "-z",
         "rawZTo": "none"
     },
     "UWBInputOffset": {
-        "x": 0.8,
+        "x": -6.0,
         "y": 0.0,
-        "z": -0.5
+        "z": 1.5
     },
     "metersToWorldScale": 1.0,
     "simulationMinMeters": {
