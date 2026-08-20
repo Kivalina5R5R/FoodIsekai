@@ -46,13 +46,38 @@ namespace Fortal.UWB
                 manager = FindAnyObjectByType<UWBManager>();
             }
 
-            FoodIsekaiZ.Configuration.UWBConfigData config = FoodIsekaiZ.Configuration.UWBConfigManager.GetConfig();
-            if (config != null)
-            {
-                metersToWorldScale = config.metersToWorldScale;
-            }
+            ApplyTrackingSettingsFromConfig();
 
             manager?.AddTag(this);
+        }
+
+        private void Start()
+        {
+            // Start runs after the scene config manager has initialized, even when this
+            // tracker was enabled before the manager's Awake callback.
+            ApplyTrackingSettingsFromConfig();
+        }
+
+        private void ApplyTrackingSettingsFromConfig()
+        {
+            FoodIsekaiZ.Configuration.UWBConfigData config = FoodIsekaiZ.Configuration.UWBConfigManager.GetConfig();
+            if (config == null)
+            {
+                return;
+            }
+
+            metersToWorldScale = config.metersToWorldScale;
+            FoodIsekaiZ.Configuration.UWBTrackingSettings tracking = config.tracking;
+            if (tracking == null)
+            {
+                return;
+            }
+
+            tracking.Validate();
+            smoothTime = tracking.trackerSmoothTime;
+            deadzone = tracking.trackerDeadzoneMeters;
+            filterStrength = tracking.trackerFilterStrength;
+            snapDistance = tracking.trackerSnapDistanceMeters;
         }
 
         private void OnDisable()

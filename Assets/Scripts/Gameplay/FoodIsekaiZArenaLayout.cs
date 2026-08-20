@@ -200,11 +200,6 @@ namespace FoodIsekaiZ.Gameplay
                 gameManager.ConfigureSlots(customers, stations);
             }
 
-            if (uwbManager != null)
-            {
-                uwbManager.SetArenaBounds2D(ArenaBounds);
-            }
-
             ConfigureFloorCamera();
             ApplyFloorBackgroundAppearance();
             appliedLayoutHash = CalculateLayoutHash();
@@ -328,7 +323,6 @@ namespace FoodIsekaiZ.Gameplay
 
             gameManager?.ConfigureSlots(customers, stations, false);
             gameManager?.EnsureCustomerFlowStarted();
-            uwbManager?.SetArenaBounds2D(ArenaBounds);
         }
 
         private ArenaSlot2D FindExistingSlot(string relativePath)

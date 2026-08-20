@@ -107,6 +107,50 @@ namespace FoodIsekaiZ.Configuration
     }
 
     [System.Serializable]
+    public class UWBTrackingSettings
+    {
+        public float maxPoseAgeSeconds = 1f;
+        public float maxTrackingPredictionSeconds = 0.35f;
+        public bool rejectTrackingPositionJumps = true;
+        public float maxTrackingPositionJumpMeters = 0.75f;
+        public float maxTrackingPredictionSpeedMetersPerSecond = 2.5f;
+        public float maxTrackingRecoveryStepMeters = 0.15f;
+        public float maxUwbMotionSpeedMetersPerSecond = 1.8f;
+
+        public bool smoothTagPosition = true;
+        public float trackingPositionDeadZoneMeters = 0.08f;
+        public bool averageUwbPositionFrames = true;
+        public int uwbPositionAverageFrameCount = 4;
+        public float movingLatestFrameBlend = 0.7f;
+        public float stationaryPositionLerp = 0.25f;
+        public float movingPositionLerp = 0.85f;
+
+        public float trackerSmoothTime = 0.15f;
+        public float trackerDeadzoneMeters = 0.03f;
+        public float trackerFilterStrength = 0.6f;
+        public float trackerSnapDistanceMeters = 2f;
+
+        public void Validate()
+        {
+            maxPoseAgeSeconds = Mathf.Max(0.05f, maxPoseAgeSeconds);
+            maxTrackingPredictionSeconds = Mathf.Clamp(maxTrackingPredictionSeconds, 0f, 1f);
+            maxTrackingPositionJumpMeters = Mathf.Clamp(maxTrackingPositionJumpMeters, 0.1f, 2f);
+            maxTrackingPredictionSpeedMetersPerSecond = Mathf.Clamp(maxTrackingPredictionSpeedMetersPerSecond, 0.5f, 5f);
+            maxTrackingRecoveryStepMeters = Mathf.Clamp(maxTrackingRecoveryStepMeters, 0.05f, 0.35f);
+            maxUwbMotionSpeedMetersPerSecond = Mathf.Clamp(maxUwbMotionSpeedMetersPerSecond, 0.5f, 3f);
+            trackingPositionDeadZoneMeters = Mathf.Clamp(trackingPositionDeadZoneMeters, 0f, 0.1f);
+            uwbPositionAverageFrameCount = Mathf.Clamp(uwbPositionAverageFrameCount, 3, 4);
+            movingLatestFrameBlend = Mathf.Clamp01(movingLatestFrameBlend);
+            stationaryPositionLerp = Mathf.Clamp(stationaryPositionLerp, 0.01f, 1f);
+            movingPositionLerp = Mathf.Clamp(movingPositionLerp, 0.01f, 1f);
+            trackerSmoothTime = Mathf.Clamp(trackerSmoothTime, 0.05f, 0.5f);
+            trackerDeadzoneMeters = Mathf.Clamp(trackerDeadzoneMeters, 0.01f, 0.2f);
+            trackerFilterStrength = Mathf.Clamp(trackerFilterStrength, 0f, 0.95f);
+            trackerSnapDistanceMeters = Mathf.Clamp(trackerSnapDistanceMeters, 0.5f, 5f);
+        }
+    }
+
+    [System.Serializable]
     public class UWBConfigData
     {
         [Header("UWB")]
@@ -118,24 +162,22 @@ namespace FoodIsekaiZ.Configuration
         public string udpListenAddress = "0.0.0.0";
         public int udpListenPort = 9000;
 
-        [Tooltip("Per-axis remap of the raw tracker position onto Unity space. Default sends raw X -> Unity X and raw Y -> Unity Z (raw Z dropped), matching the old YtoZ mode.")]
+        [Tooltip("Per-axis remap of the raw tracker position onto Unity space. Matches the calibrated paintingGround coordinate frame: raw X -> Unity Z and raw Y -> Unity X.")]
         public UWBAxisConversion axisConversion = new UWBAxisConversion();
 
-        [Tooltip("Meters added to the device position after axis conversion, to shift the tracker origin into the play area. Example: with axisConversion rawYTo=\"-z\", set this Z to the field depth so a downward-increasing raw Y mirrors into 0..depth instead of going negative.")]
-        public Vector3 UWBInputOffset = Vector3.zero;
+        [Tooltip("Meters added to the device position after axis conversion, matching the calibrated paintingGround tracker origin.")]
+        public Vector3 UWBInputOffset = new Vector3(0.8f, 0f, -0.5f);
 
         [Tooltip("Multiplier applied to raw UWB positions (real-world meters) to convert them into game-world units. 1 = 1 real meter maps to 1 Unity unit.")]
         public float metersToWorldScale = 1f;
 
-        [Header("Arena Mapping (UWB X/Z -> Floor X/Z)")]
-        [Tooltip("เปิดการ map พิกัดจริงเป็นพิกัด 2D ของฉาก Floor")]
-        public bool useArenaMapping = true;
-        public bool clampToArena = true;
-        public Vector2 physicalMinMeters = Vector2.zero;
-        public Vector2 physicalMaxMeters = new Vector2(6f, 4f);
-        [Tooltip("ขอบเขตสนาม X/Z โดยเก็บ X ใน Vector2.x และ Z ใน Vector2.y")]
-        public Vector2 arenaMin = new Vector2(-6f, -4f);
-        public Vector2 arenaMax = new Vector2(6f, 4f);
+        [Header("Editor Simulation Bounds")]
+        [Tooltip("Only limits simulated keyboard/auto movement. Live UWB positions are never remapped or clamped.")]
+        public Vector2 simulationMinMeters = Vector2.zero;
+        public Vector2 simulationMaxMeters = new Vector2(6f, 4f);
+
+        [Header("Tracking / Smoothing")]
+        public UWBTrackingSettings tracking = new UWBTrackingSettings();
 
         [Header("UWB Anchors")]
         [Tooltip("World-space meters position of each NoopLoop anchor. Matched by index to UWBManager's Scene Anchors / Anchor Device Ids.")]

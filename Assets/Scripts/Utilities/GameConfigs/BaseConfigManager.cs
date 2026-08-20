@@ -53,6 +53,23 @@ namespace FoodIsekaiZ.Configuration
             if (debugMode)
                 Debug.Log($"Load {fileName} from: {filePath}");
 
+            // Keep the project StreamingAssets JSON as the calibration source of truth,
+            // matching the paintingGround UWB setup. This prevents an old persistent copy
+            // from silently restoring a stale coordinate mapping.
+            string streamingPath = Path.Combine(Application.streamingAssetsPath, $"{fileName}.json");
+            if (File.Exists(streamingPath))
+            {
+                string streamingJson = File.ReadAllText(streamingPath);
+                TConfig streamingConfig = JsonUtility.FromJson<TConfig>(streamingJson);
+                if (streamingConfig != null)
+                {
+                    Config = streamingConfig;
+                    if (debugMode)
+                        Debug.Log($"Loaded {fileName} from project StreamingAssets: {streamingPath}");
+                    return;
+                }
+            }
+
             if (File.Exists(filePath))
             {
                 string json = File.ReadAllText(filePath);
