@@ -172,9 +172,19 @@ namespace FoodIsekaiZ.Configuration
         public float metersToWorldScale = 1f;
 
         [Header("Editor Simulation Bounds")]
-        [Tooltip("Only limits simulated keyboard/auto movement. Live UWB positions are never remapped or clamped.")]
+        [Tooltip("Physical X/Z range used by simulated keyboard and auto movement.")]
         public Vector2 simulationMinMeters = Vector2.zero;
         public Vector2 simulationMaxMeters = new Vector2(6f, 4f);
+
+        [Header("Arena Mapping")]
+        [Tooltip("Maps the calibrated physical UWB X/Z range into the centered Floor arena coordinates.")]
+        public bool useArenaMapping = true;
+        public bool clampToArena = true;
+        public Vector2 physicalMinMeters = Vector2.zero;
+        public Vector2 physicalMaxMeters = new Vector2(6f, 4f);
+        [Tooltip("Arena X/Z bounds. Vector2.y represents world Z.")]
+        public Vector2 arenaMin = new Vector2(-5.5f, -2.5f);
+        public Vector2 arenaMax = new Vector2(5.5f, 2.5f);
 
         [Header("Tracking / Smoothing")]
         public UWBTrackingSettings tracking = new UWBTrackingSettings();

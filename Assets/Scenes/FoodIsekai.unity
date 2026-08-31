@@ -354,6 +354,13 @@ MonoBehaviour:
     rawYTo: x
     rawZTo: none
   inputOffset: {x: 0.8, y: 0, z: -0.5}
+  useArenaMapping: 1
+  clampToArena: 1
+  physicalMinMeters: {x: 0, y: 0}
+  physicalMaxMeters: {x: 6, y: 4}
+  arenaMin: {x: -5.5, y: -2.5}
+  arenaMax: {x: 5.5, y: 2.5}
+  useSceneArenaBounds: 1
   maxPoseAgeSeconds: 1
   maxTrackingPredictionSeconds: 0.35
   rejectTrackingPositionJumps: 1
@@ -408,6 +415,12 @@ MonoBehaviour:
     metersToWorldScale: 1
     simulationMinMeters: {x: 0, y: 0}
     simulationMaxMeters: {x: 6, y: 4}
+    useArenaMapping: 1
+    clampToArena: 1
+    physicalMinMeters: {x: 0, y: 0}
+    physicalMaxMeters: {x: 6, y: 4}
+    arenaMin: {x: -5.5, y: -2.5}
+    arenaMax: {x: 5.5, y: 2.5}
     tracking:
       maxPoseAgeSeconds: 1
       maxTrackingPredictionSeconds: 0.35
@@ -1765,38 +1778,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b67e3d22e5230d4e88cedb267e46eb4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Gameplay.FoodIsekaiZArenaLayout
+  arenaRoot: {fileID: 505326185}
   arenaSize: {x: 11, y: 5}
-  matchFloorDisplayAspect: 1
-  floorDisplayResolution: {x: 2816, y: 1280}
-  floorWorldWidth: 11
-  cameraPadding: 0
-  customerSlotSize: {x: 2.2, y: 1.05}
-  stationSlotSize: {x: 1.65, y: 1.05}
-  slotEdgeInset: 0.45
-  showGrid: 0
-  gridColumns: 10
-  gridRows: 10
-  gridLineThickness: 0.018
-  backgroundColor: {r: 0.035, g: 0.055, b: 0.075, a: 1}
-  gridColor: {r: 0.15, g: 0.45, b: 0.55, a: 0.28}
-  customerColor: {r: 1, g: 0.5, b: 0.16, a: 1}
-  foodStationColor: {r: 0.2, g: 0.75, b: 0.35, a: 1}
-  depositColor: {r: 1, g: 0.82, b: 0.15, a: 1}
-  floorBackgroundTexture: {fileID: 0}
-  floorBackgroundTextureTint: {r: 1, g: 1, b: 1, a: 1}
-  floorBackgroundTextureTiling: {x: 1, y: 1}
-  floorBackgroundTextureOffset: {x: 0, y: 0}
-  warningTimeNormalized: 0.25
-  warningBlinkCyclesPerSecond: 3
-  warningBlockColor: {r: 1, g: 0.2, b: 0.15, a: 1}
-  warningLabelColor: {r: 1, g: 0.9, b: 0.15, a: 1}
-  floorCamera: {fileID: 564735573}
   gameManager: {fileID: 101588415}
-  uwbManager: {fileID: 101588412}
-  floorUsesDisplay2: 1
-  autoBuildPreview: 1
-  rebuildPreviewWhenSettingsChange: 0
-  layoutConfigVersion: 2
 --- !u!114 &278790269
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1809,29 +1793,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff98d0f68a3b0214da3f32a29062ec67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FoodIsekaiZSideDisplayLayout
-  referenceResolution: {x: 1536, y: 435}
-  sideDisplayResolution: {x: 1536, y: 435}
-  floorDisplayResolution: {x: 2816, y: 1280}
-  wallMatchesFloorWidth: 1
-  wallWidthRatio: 1
-  backgroundColor: {r: 0.025, g: 0.035, b: 0.055, a: 1}
-  panelColor: {r: 0.065, g: 0.09, b: 0.13, a: 1}
-  accentColor: {r: 0.1, g: 0.85, b: 1, a: 1}
-  moneyColor: {r: 1, g: 0.82, b: 0.15, a: 1}
-  wallBackgroundTexture: {fileID: 0}
-  wallBackgroundTextureTint: {r: 1, g: 1, b: 1, a: 1}
-  wallBackgroundUvRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
+  sideCanvas: {fileID: 1595694067}
   sideCamera: {fileID: 875458886}
   arenaLayout: {fileID: 278790268}
   gameManager: {fileID: 101588415}
   uwbManager: {fileID: 101588412}
-  autoBuildPreview: 1
-  rebuildPreviewWhenSettingsChange: 0
+  panelColor: {r: 0.065, g: 0.09, b: 0.13, a: 1}
+  accentColor: {r: 0.1, g: 0.85, b: 1, a: 1}
+  moneyColor: {r: 1, g: 0.82, b: 0.15, a: 1}
 --- !u!1 &373201287
 GameObject:
   m_ObjectHideFlags: 0
@@ -2660,7 +2629,7 @@ GameObject:
   m_Component:
   - component: {fileID: 505326185}
   m_Layer: 0
-  m_Name: _GeneratedArena
+  m_Name: Arena
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4991,7 +4960,7 @@ GameObject:
   - component: {fileID: 1595694066}
   - component: {fileID: 1595694065}
   m_Layer: 0
-  m_Name: _GeneratedSideDisplay
+  m_Name: SideDisplay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6334,22 +6303,22 @@ MonoBehaviour:
     playerId: 1
     tagId: 6
     color: {r: 0, g: 0.09906292, b: 1, a: 1}
-    initialPosition: {x: 0, y: 0}
+    initialPosition: {x: -3.3, y: 0}
   - enabled: 1
     playerId: 2
     tagId: 7
     color: {r: 1, g: 0, b: 1, a: 1}
-    initialPosition: {x: 0, y: 0}
+    initialPosition: {x: -1.1, y: 0}
   - enabled: 1
     playerId: 3
     tagId: 8
     color: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-    initialPosition: {x: 0, y: 0}
+    initialPosition: {x: 1.1, y: 0}
   - enabled: 1
     playerId: 4
     tagId: 9
     color: {r: 0, g: 1, b: 0, a: 1}
-    initialPosition: {x: 0, y: 0}
+    initialPosition: {x: 3.3, y: 0}
   disableOfflinePlayersInSerial: 1
 --- !u!4 &2144607759
 Transform:

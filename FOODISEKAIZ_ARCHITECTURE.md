@@ -41,22 +41,22 @@ FoodIsekaiZScene
 │   ├── UWBManager
 │   ├── DisplayManager
 │   └── FoodIsekaiZGameManager
-├── Display1_Side
+├── Display1_Wall
 │   ├── SideCamera
 │   └── SideDisplayLayout (FoodIsekaiZSideDisplayLayout)
-│       └── _GeneratedSideDisplay (Canvas, Target Display 1)
+│       └── SideDisplay (Canvas, Target Display 1)
 └── Display2_Floor
     ├── FloorCamera (Orthographic, อยู่เหนือสนามและมองลงระนาบ XZ)
     ├── FloorCanvas (Target Display 2)
     ├── Map (FoodIsekaiZArenaLayout)
-    │   └── _GeneratedArena
+    │   └── Arena
     │       ├── Background + Grid + Boundary
     │       ├── TopCustomerSlots (Customer01..04)
     │       └── BottomStationSlots (Food01..05, Deposit)
     └── Players (UWBPlayerSpawner; สร้าง Player01..04 ตอน runtime)
 ```
 
-`FoodIsekaiZArenaLayout` ใช้แนวทางเดียวกับ `MapBackground`/`PaperArenaCamera` ของ PaperArena: สร้าง mesh จากขนาดสนามและ fit Orthographic Camera จาก bounds อัตโนมัติ แต่เพิ่ม Edit Mode preview ให้เห็นสนามและจุดทั้งหมดก่อนกด Play เลือก `Game View > Display 2` เพื่อดูภาพจาก Floor Camera
+`FoodIsekaiZArenaLayout` ไม่สร้างหรือลบ hierarchy และไม่จัดวาง geometry เองแล้ว แต่สร้าง mesh/material สีของ visual บน object ที่มีอยู่ใน `Map/Arena` แล้ว bind `ArenaSlot2D` เข้ากับ GameManager ตอนเริ่มเกม โดยไม่แตะตำแหน่งหรือสร้าง object ใหม่ เลือก `Game View > Display 2` เพื่อดูภาพจาก Floor Camera
 
 ### Player array / prefab
 
@@ -85,13 +85,13 @@ Tag ID ต้องตรงกับ byte ID ที่อ่านได้จ�
 
 ### Slot setup
 
-วิธีแนะนำคือให้ `FoodIsekaiZArenaLayout` สร้าง Slot ทั้ง 10 ช่องและส่ง array เข้า GameManager อัตโนมัติ จึงไม่ต้องสร้าง/ลาก Slot ด้วยมือ ขั้นตอนด้านล่างใช้เมื่ออยากจัดตำแหน่งเองเท่านั้น
+วาง Slot ทั้ง 10 ช่องด้วยมือใต้ `Map/Arena` แล้ว `FoodIsekaiZArenaLayout` จะอ่านจาก hierarchy และส่ง array เข้า GameManager ตอนเริ่มเกม ตำแหน่ง, ขนาด, สี และ Collider จึงแก้ได้ตรงที่ object แต่ละตัว
 
 - ด้านบนสร้าง `ArenaSlot2D` 4 ตัว, `slotType = Customer`
 - ด้านล่างสร้าง `ArenaSlot2D` 5 ตัว, `slotType = FoodStation`, ตั้ง `stationFood` เป็น Food1..Food5 ไม่ซ้ำกัน
 - ด้านล่างอีก 1 ตัว, `slotType = MoneyDeposit`
-- แต่ละ slot ต้องมี `BoxCollider`; script จะตั้ง `isTrigger = true`
-- นำ Customer ทั้ง 4 และ Bottom ทั้ง 6 ใส่ array ของ `FoodIsekaiZGameManager`
+- แต่ละ slot ต้องมี `BoxCollider` และตั้ง `Is Trigger` ใน Inspector
+- `FoodIsekaiZArenaLayout` จะ bind Customer ทั้ง 4 และ Bottom ทั้ง 6 ให้ `FoodIsekaiZGameManager` จาก `ArenaSlot2D` ที่พบ
 - ใส่ child visual ของเหรียญลง `moneyVisual` ของ Customer แต่ละช่อง (ไม่บังคับ)
 
 Gameplay loop คือหยิบอาหารเมื่อมือว่าง, ส่งอาหารที่ตรงกับ request, รอ `eatingDurationSeconds`, เก็บเงินเมื่อเดินเข้า Customer อีกครั้ง และเดินเข้าช่อง Deposit เพื่อเพิ่มคะแนนทีม
@@ -101,10 +101,10 @@ Gameplay loop คือหยิบอาหารเมื่อมือว่
 1. เพิ่ม `UWBConfigManager` ก่อนเข้า Play Mode ครั้งแรก ระบบจะสร้าง `UWBConfig.json` ที่ `Application.persistentDataPath`
 2. Serial: เลือก `transportMode = Serial`, ตั้ง COM และ baud (NoopLoop ปกติ 921600)
 3. UDP: เลือก `transportMode = Udp`, ตั้ง listen address/port ตัวส่งต้องส่ง **NoopLoop binary frame** ทั้งก้อนใน datagram; JSON/CSV ต้องมี adapter parser เพิ่ม
-4. ตั้ง `axisConversion` ตามการติดตั้งจริง ค่าเริ่มต้น raw X -> Unity X, raw Y -> Unity Z, raw Z ถูกทิ้ง
+4. โปรเจกต์นี้ใช้ calibration เดียวกับ `paintingGround`: raw X -> Unity Z, raw Y -> Unity X, raw Z ถูกทิ้ง และ offset `(0.8, 0, -0.5)`
 5. เดิน Tag ไปมุมล่างซ้ายและบันทึก `(X,Z)` เป็น `physicalMinMeters`
 6. เดิน Tag ไปมุมบนขวาและบันทึก `(X,Z)` เป็น `physicalMaxMeters`
-7. ตั้งขอบเขต Floor X/Z เป็น `arenaMin`/`arenaMax` เช่น `(-6,-4)` ถึง `(6,4)` โดย Vector2.y แทน world Z
+7. ตั้งขอบเขต Floor X/Z เป็น `arenaMin`/`arenaMax`; Scene นี้อ่านจาก `FoodIsekaiZArenaLayout` อัตโนมัติเป็น `(-5.5,-2.5)` ถึง `(5.5,2.5)` โดย Vector2.y แทน world Z
 8. เปิด `clampToArena` เพื่อไม่ให้ noise พาผู้เล่นออกนอกกรอบ
 
 สูตร mapping ที่ใช้:
@@ -125,10 +125,10 @@ floorXZ    = Lerp(arenaMin, arenaMax, normalized)
 - Side Wall ถูกวางตั้งตรงตลอดขอบหลังของ Floor เพื่อให้ Scene preview เป็นรูปตัว L ตามการติดตั้งจริง (`Wall Matches Floor Width`)
 - CanvasScaler ใน Scene PaperArena เดิมใช้ reference resolution `1920x1080` ทั้งสอง Canvas แต่ FoodIsekaiZ Side preview ใช้ `1536x435` เพื่อจัด UI ตรงกับจอจริง
 - ต่อจอ Side และ Floor ให้ Windows เห็นเป็น Extended Desktop ก่อนเปิดเกม
-- `SideCamera.targetDisplay = 0` และ Side Canvas `targetDisplay = 0`
-- `FloorCamera.targetDisplay = 1` และ Floor Canvas `targetDisplay = 1`
-- `DisplayManager` ตั้งค่าให้และเรียก Display 2 ด้วย `2816x1280`; Standalone primary output ใช้ `1536x435`
-- ใส่ `FoodIsekaiZSideDisplayLayout` ที่ `Display1_Side` เพื่อสร้างจอคะแนน/UWB/Player status ใน Edit Mode
+- `FloorCamera.targetDisplay = 1` และ Floor Canvas `targetDisplay = 1` (Unity Display 2 / FloorDisplay)
+- `SideCamera.targetDisplay = 0` และ Side Canvas `targetDisplay = 0` (Unity Display 1 / WallDisplay)
+- `DisplayManager` ใช้ Standalone primary output เป็นกำแพง `1536x435` และเรียก Display 2 เป็นพื้นด้วย `2816x1280`
+- ใส่ `FoodIsekaiZSideDisplayLayout` บน `Map` และลาก Canvas `SideDisplay` เข้า `Wall Canvas`; สคริปต์จะอัปเดตเฉพาะค่าคะแนน/สถานะตอน Play และไม่สร้าง UI ใน Edit Mode
 - Camera ของ Floor ใช้ Orthographic อยู่ด้านบนแกน Y และมองลงพื้น XZ; แยก Culling Mask เช่น `SideView`/`FloorView` เพื่อไม่ให้ object ข้ามจอ
 - Multi-display ทำงานถูกต้องใน Standalone Player มากกว่า Game View ปกติ ให้ทดสอบด้วย Windows build และเลือก resolution ของแต่ละจอให้ตรง hardware
 
@@ -142,7 +142,8 @@ floorXZ    = Lerp(arenaMin, arenaMax, normalized)
 - [ ] Player มี Rigidbody + SphereCollider + FoodIsekaiZPlayerState
 - [ ] Customer 4 ช่องเป็น trigger และอยู่ด้านบน
 - [ ] Food Station 5 ช่องกำหนด Food1..Food5 และ Deposit 1 ช่องอยู่ด้านล่าง
-- [ ] Camera/Canvas ของ Side ใช้ display 0, Floor ใช้ display 1
+- [ ] Camera/Canvas ของ Side/Wall ใช้ display 0 (Display 1 / WallDisplay), Floor ใช้ display 1 (Display 2 / FloorDisplay)
+- [ ] `Map/Arena` และ `Map/SideDisplay` เป็น object ที่วางมือและแก้ได้จาก Inspector โดยไม่มี auto-generate
 - [ ] Build Windows ทดสอบทั้ง serial permission, tag disconnect/reconnect และสองจอจริง
 - [ ] ทดสอบ noise ตอนยืนนิ่ง แล้วปรับ manager dead zone ก่อนปรับ player `smoothTime`
 

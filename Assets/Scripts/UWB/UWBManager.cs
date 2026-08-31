@@ -116,6 +116,18 @@ namespace Fortal.UWB
         [Tooltip("Meters added to the device position after axis conversion. Used to shift the tracker origin into the play area - e.g. with rawYTo=\"-z\", set Z to the field depth so a flipped axis mirrors back into 0..depth instead of going negative. Overridden by UWBConfig.json's UWBInputOffset.")]
         [SerializeField] private Vector3 inputOffset = Vector3.zero;
 
+        [Header("Arena Mapping")]
+        [Tooltip("Convert calibrated physical UWB X/Z coordinates into the centered Floor arena coordinates.")]
+        [SerializeField] private bool useArenaMapping = true;
+        [SerializeField] private bool clampToArena = true;
+        [SerializeField] private Vector2 physicalMinMeters = Vector2.zero;
+        [SerializeField] private Vector2 physicalMaxMeters = new Vector2(6f, 4f);
+        [Tooltip("Arena X/Z bounds. Vector2.y represents world Z.")]
+        [SerializeField] private Vector2 arenaMin = new Vector2(-5.5f, -2.5f);
+        [SerializeField] private Vector2 arenaMax = new Vector2(5.5f, 2.5f);
+        [Tooltip("Read the final X/Z bounds from FoodIsekaiZArenaLayout so tracking always follows the visible floor.")]
+        [SerializeField] private bool useSceneArenaBounds = true;
+
         [Header("Tracking")]
         [SerializeField] private float maxPoseAgeSeconds = 1f;
         [Tooltip("How long a tag may continue along its last measured walking direction when UWB frames are temporarily missing.")]
@@ -215,8 +227,24 @@ namespace Fortal.UWB
                 udpListenPort = config.udpListenPort;
                 simulationMinMeters = config.simulationMinMeters;
                 simulationMaxMeters = config.simulationMaxMeters;
+                useArenaMapping = config.useArenaMapping;
+                clampToArena = config.clampToArena;
+                physicalMinMeters = config.physicalMinMeters;
+                physicalMaxMeters = config.physicalMaxMeters;
+                arenaMin = config.arenaMin;
+                arenaMax = config.arenaMax;
                 ApplyTrackingSettingsFromConfig(config.tracking);
                 ApplyAnchorPositionsFromConfig(config);
+            }
+
+            if (useSceneArenaBounds)
+            {
+                FoodIsekaiZ.Gameplay.FoodIsekaiZArenaLayout layout =
+                    FindAnyObjectByType<FoodIsekaiZ.Gameplay.FoodIsekaiZArenaLayout>();
+                if (layout != null)
+                {
+                    SetArenaBounds2D(layout.ArenaBounds);
+                }
             }
 
             if (axisConversion == null)
@@ -604,9 +632,13 @@ namespace Fortal.UWB
             }
 
             Vector2 physical = new Vector2(positionMeters.x, positionMeters.z);
-            // The calibrated coordinate frame is already Unity-space metres.
-            arenaPosition = physical;
-            return true;
+            if (!useArenaMapping)
+            {
+                arenaPosition = physical;
+                return true;
+            }
+
+            return TryMapPhysicalToArena(physical, out arenaPosition);
         }
 
         public bool SetSimulatedArenaPosition2D(int tagId, Vector2 arenaPosition)
@@ -616,8 +648,70 @@ namespace Fortal.UWB
                 return false;
             }
 
-            simulatedPhysicalPositions[tagId] = ClampSimulatedPhysicalPosition(arenaPosition);
+            Vector2 physicalPosition = arenaPosition;
+            if (useArenaMapping && !TryMapArenaToPhysical(arenaPosition, out physicalPosition))
+            {
+                return false;
+            }
+
+            simulatedPhysicalPositions[tagId] = ClampSimulatedPhysicalPosition(physicalPosition);
             return true;
+        }
+
+        private bool TryMapPhysicalToArena(Vector2 physicalPosition, out Vector2 arenaPosition)
+        {
+            arenaPosition = default;
+            float physicalWidth = physicalMaxMeters.x - physicalMinMeters.x;
+            float physicalHeight = physicalMaxMeters.y - physicalMinMeters.y;
+            if (Mathf.Abs(physicalWidth) < 0.0001f || Mathf.Abs(physicalHeight) < 0.0001f)
+            {
+                Debug.LogError("[UWBManager] Physical arena bounds must have non-zero width and height.", this);
+                return false;
+            }
+
+            float normalizedX = (physicalPosition.x - physicalMinMeters.x) / physicalWidth;
+            float normalizedY = (physicalPosition.y - physicalMinMeters.y) / physicalHeight;
+            if (clampToArena)
+            {
+                normalizedX = Mathf.Clamp01(normalizedX);
+                normalizedY = Mathf.Clamp01(normalizedY);
+            }
+
+            arenaPosition = new Vector2(
+                Mathf.LerpUnclamped(arenaMin.x, arenaMax.x, normalizedX),
+                Mathf.LerpUnclamped(arenaMin.y, arenaMax.y, normalizedY));
+            return true;
+        }
+
+        private bool TryMapArenaToPhysical(Vector2 arenaPosition, out Vector2 physicalPosition)
+        {
+            physicalPosition = default;
+            float arenaWidth = arenaMax.x - arenaMin.x;
+            float arenaHeight = arenaMax.y - arenaMin.y;
+            if (Mathf.Abs(arenaWidth) < 0.0001f || Mathf.Abs(arenaHeight) < 0.0001f)
+            {
+                Debug.LogError("[UWBManager] Arena bounds must have non-zero width and height.", this);
+                return false;
+            }
+
+            float normalizedX = (arenaPosition.x - arenaMin.x) / arenaWidth;
+            float normalizedY = (arenaPosition.y - arenaMin.y) / arenaHeight;
+            if (clampToArena)
+            {
+                normalizedX = Mathf.Clamp01(normalizedX);
+                normalizedY = Mathf.Clamp01(normalizedY);
+            }
+
+            physicalPosition = new Vector2(
+                Mathf.LerpUnclamped(physicalMinMeters.x, physicalMaxMeters.x, normalizedX),
+                Mathf.LerpUnclamped(physicalMinMeters.y, physicalMaxMeters.y, normalizedY));
+            return true;
+        }
+
+        private void SetArenaBounds2D(Rect bounds)
+        {
+            arenaMin = bounds.min;
+            arenaMax = bounds.max;
         }
 
         private void Update()
@@ -858,6 +952,18 @@ namespace Fortal.UWB
             if (transportMode == UWBTransportMode.Serial && string.IsNullOrWhiteSpace(portName))
             {
                 Debug.LogError("[UWBManager] Serial mode requires UWBSerialPort in UWBConfig.json.", this);
+            }
+
+            if (useArenaMapping)
+            {
+                float physicalWidth = Mathf.Abs(physicalMaxMeters.x - physicalMinMeters.x);
+                float physicalHeight = Mathf.Abs(physicalMaxMeters.y - physicalMinMeters.y);
+                if (physicalWidth < 0.0001f || physicalHeight < 0.0001f)
+                {
+                    Debug.LogError(
+                        "[UWBManager] physicalMinMeters and physicalMaxMeters must describe a non-zero measured play area.",
+                        this);
+                }
             }
 
             if (!useDevicePositionFirst && !HasUsableSceneAnchorGeometry())
