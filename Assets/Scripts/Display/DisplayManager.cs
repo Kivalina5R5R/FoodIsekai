@@ -6,7 +6,7 @@ namespace FoodIsekaiZ.Display
     [DefaultExecutionOrder(-200)]
     public sealed class DisplayManager : MonoBehaviour
     {
-        [Header("Display 1 - Side / Wall")]
+        [Header("Display 1 - Wall")]
         [SerializeField] private Camera sideCamera;
         [SerializeField] private Canvas[] sideCanvases;
 
@@ -38,21 +38,22 @@ namespace FoodIsekaiZ.Display
         [ContextMenu("Configure Camera And Canvas Outputs")]
         public void ConfigureOutputs()
         {
-            // Unity index 0 = Display 1, index 1 = Display 2
+            // This installation's Game View profiles identify Display 1 as the wall
+            // and Display 2 as the floor, so role constants are used instead of raw indices.
+            if (floorCamera != null)
+            {
+                floorCamera.targetDisplay = DisplayOutput.FloorDisplayIndex;
+            }
+
             if (sideCamera != null)
             {
-                sideCamera.targetDisplay = 0;
+                sideCamera.targetDisplay = DisplayOutput.WallDisplayIndex;
                 sideCamera.clearFlags = CameraClearFlags.SolidColor;
                 sideCamera.backgroundColor = sideDisplayBackground;
             }
 
-            if (floorCamera != null)
-            {
-                floorCamera.targetDisplay = 1;
-            }
-
-            SetCanvasDisplay(sideCanvases, 0);
-            SetCanvasDisplay(floorCanvases, 1);
+            SetCanvasDisplay(floorCanvases, DisplayOutput.FloorDisplayIndex);
+            SetCanvasDisplay(sideCanvases, DisplayOutput.WallDisplayIndex);
         }
 
         [ContextMenu("Activate Displays")]
@@ -66,7 +67,7 @@ namespace FoodIsekaiZ.Display
 
             if (applyPaperArenaResolutionsInStandalone && !Application.isEditor)
             {
-                // PaperArena Game View profiles: Side 1536x435, Floor 2816x1280
+                // Display 1 is the wall (1536x435); Display 2 is the floor (2816x1280).
                 var targetRefreshRate = new RefreshRate
                 {
                     numerator = (uint)refreshRate,

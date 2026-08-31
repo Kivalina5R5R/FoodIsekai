@@ -5,14 +5,14 @@
     "udpListenAddress": "0.0.0.0",
     "udpListenPort": 9000,
     "axisConversion": {
-        "rawXTo": "x",
-        "rawYTo": "-z",
+        "rawXTo": "z",
+        "rawYTo": "x",
         "rawZTo": "none"
     },
     "UWBInputOffset": {
-        "x": -6.0,
+        "x": 0.8,
         "y": 0.0,
-        "z": 1.5
+        "z": -0.5
     },
     "metersToWorldScale": 1.0,
     "simulationMinMeters": {
@@ -22,6 +22,24 @@
     "simulationMaxMeters": {
         "x": 6.0,
         "y": 4.0
+    },
+    "useArenaMapping": true,
+    "clampToArena": true,
+    "physicalMinMeters": {
+        "x": 0.0,
+        "y": 0.0
+    },
+    "physicalMaxMeters": {
+        "x": 6.0,
+        "y": 4.0
+    },
+    "arenaMin": {
+        "x": -5.5,
+        "y": -2.5
+    },
+    "arenaMax": {
+        "x": 5.5,
+        "y": 2.5
     },
     "tracking": {
         "maxPoseAgeSeconds": 1.0,
