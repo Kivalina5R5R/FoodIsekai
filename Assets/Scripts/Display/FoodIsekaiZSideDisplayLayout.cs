@@ -547,13 +547,13 @@ namespace FoodIsekaiZ.Display
 
             for (int i = 0; i < customerStatusTexts.Length; i++)
             {
-                Transform panel = root.Find($"CustomerPanel{i + 1}");
+                Transform panel = FindManualTransform(root, $"CustomerPanel{i + 1}");
                 if (panel == null)
                 {
                     continue;
                 }
 
-                customerPanelImages[i] = panel.GetComponent<Image>();
+                customerPanelImages[i] = GetManualComponentInHierarchy<Image>(panel);
                 customerStatusTexts[i] = GetManualComponent<Text>(panel, "Status");
                 customerTimerSliders[i] = GetManualComponent<Slider>(panel, "OrderTimer");
                 customerTimerFills[i] = GetManualComponent<Image>(panel, "OrderTimer/FillArea/Fill");
@@ -613,13 +613,76 @@ namespace FoodIsekaiZ.Display
 
         private static T GetManualComponent<T>(Transform root, string relativePath) where T : Component
         {
+            Transform target = FindManualTransform(root, relativePath);
+            return target != null ? target.GetComponent<T>() : null;
+        }
+
+        private static T GetManualComponentInHierarchy<T>(Transform root) where T : Component
+        {
             if (root == null)
             {
                 return null;
             }
 
-            Transform target = root.Find(relativePath);
-            return target != null ? target.GetComponent<T>() : null;
+            T component = root.GetComponent<T>();
+            return component != null ? component : root.GetComponentInChildren<T>(true);
+        }
+
+        private static Transform FindManualTransform(Transform root, string relativePath)
+        {
+            if (root == null || string.IsNullOrWhiteSpace(relativePath))
+            {
+                return null;
+            }
+
+            Transform directTarget = root.Find(relativePath);
+            if (directTarget != null)
+            {
+                return directTarget;
+            }
+
+            string[] pathParts = relativePath.Split('/');
+            return FindNestedTransform(root, pathParts, 0);
+        }
+
+        private static Transform FindNestedTransform(
+            Transform current,
+            string[] pathParts,
+            int pathIndex)
+        {
+            if (current.name == pathParts[pathIndex])
+            {
+                if (pathIndex == pathParts.Length - 1)
+                {
+                    return current;
+                }
+
+                for (int i = 0; i < current.childCount; i++)
+                {
+                    Transform nestedTarget = FindNestedTransform(
+                        current.GetChild(i),
+                        pathParts,
+                        pathIndex + 1);
+                    if (nestedTarget != null)
+                    {
+                        return nestedTarget;
+                    }
+                }
+            }
+
+            for (int i = 0; i < current.childCount; i++)
+            {
+                Transform nestedTarget = FindNestedTransform(
+                    current.GetChild(i),
+                    pathParts,
+                    pathIndex);
+                if (nestedTarget != null)
+                {
+                    return nestedTarget;
+                }
+            }
+
+            return null;
         }
 
         private void EnsureReferences()
