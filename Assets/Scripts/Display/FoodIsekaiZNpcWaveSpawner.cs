@@ -11,9 +11,7 @@ using UnityEditor.SceneManagement;
 
 namespace FoodIsekaiZ.Display
 {
-    /// <summary>
-    /// Draws a unique NPC prefab for each active customer slot during a meal wave.
-    /// </summary>
+
     public sealed class FoodIsekaiZNpcWaveSpawner : MonoBehaviour
     {
         private const int DisplaySlotCount = 6;
@@ -22,13 +20,76 @@ namespace FoodIsekaiZ.Display
         private const string DefaultNpcPrefabFolder = "Assets/Prefab";
         private const string DefaultNpcPrefabNamePrefix = "NPC";
 
+        [Serializable]
+        private sealed class NpcPrefabSetting
+        {
+            [SerializeField] private GameObject prefab;
+            [SerializeField] private bool flipWhenEnteringFromLeft;
+            [SerializeField] private bool flipWhenEnteringFromRight;
+
+            public GameObject Prefab => prefab;
+            public bool FlipWhenEnteringFromLeft => flipWhenEnteringFromLeft;
+            public bool FlipWhenEnteringFromRight => flipWhenEnteringFromRight;
+
+            public NpcPrefabSetting(
+                GameObject prefab,
+                bool flipWhenEnteringFromLeft,
+                bool flipWhenEnteringFromRight)
+            {
+                this.prefab = prefab;
+                this.flipWhenEnteringFromLeft = flipWhenEnteringFromLeft;
+                this.flipWhenEnteringFromRight = flipWhenEnteringFromRight;
+            }
+        }
+
         [Header("NPC Prefab Pool")]
-        [Tooltip("NPC prefabs are drawn without replacement during one Wave. The list has no character-count limit and is refreshed from the configured folder in the Unity Editor.")]
-        [SerializeField] private GameObject[] npcPrefabs = Array.Empty<GameObject>();
+        [Tooltip("NPC prefabs are drawn without replacement during one Wave. Configure each Prefab and its entry orientation in the same list.")]
+        [InspectorName("NPC Prefabs")]
+        [SerializeField] private NpcPrefabSetting[] npcPrefabSettings = Array.Empty<NpcPrefabSetting>();
         [Tooltip("Folder searched recursively for NPC prefabs when the scene is validated or play mode starts in the Unity Editor.")]
         [SerializeField] private string npcPrefabFolder = DefaultNpcPrefabFolder;
         [Tooltip("Only prefab assets whose names start with this prefix are included in the automatic pool.")]
         [SerializeField] private string npcPrefabNamePrefix = DefaultNpcPrefabNamePrefix;
+
+        [Header("NPC Entrance")]
+        [Tooltip("Distance outside the wall canvas from which each NPC starts walking.")]
+        [SerializeField, Min(0.1f)] private float entranceDistanceCanvasMultiplier = 0.75f;
+        [Tooltip("Time in seconds for an NPC to walk from its entrance point to its assigned T slot.")]
+        [SerializeField, Min(0.05f)] private float entranceDurationSeconds = 1.5f;
+        [Tooltip("Distance from the assigned T slot at which the NPC switches to the near-target walking duration.")]
+        [SerializeField, Min(0.01f)] private float nearTargetDistanceCanvasMultiplier = 0.15f;
+        [Tooltip("Walking duration used while the NPC is near its assigned T slot. The default slows the final approach from 1.5 to 2 seconds.")]
+        [SerializeField, Min(0.05f)] private float nearTargetDurationSeconds = 2f;
+        [Tooltip("Time in seconds an NPC remains at its assigned T slot before the food UI and timer are shown.")]
+        [SerializeField, Min(0f)] private float arrivalHoldDurationSeconds = 1f;
+
+        [Header("NPC Walking Motion")]
+        [Tooltip("Vertical distance in canvas pixels that an NPC bobs while walking.")]
+        [SerializeField, Min(0f)] private float walkingBobHeight = 6f;
+        [Tooltip("Number of up-and-down walking cycles per second.")]
+        [SerializeField, Min(0.1f)] private float walkingBobFrequency = 4.5f;
+
+        [Header("NPC Spawn Schedule")]
+        [Tooltip("Maximum number of NPCs allowed to start walking in one batch. The value is limited to 1 or 2.")]
+        [SerializeField, Range(1, 2)] private int maximumNpcSpawnsPerBatch = 2;
+        [Tooltip("Random minimum delay before the first NPC batch of a Wave.")]
+        [SerializeField, Min(0f)] private float minimumInitialSpawnDelaySeconds = 0.35f;
+        [Tooltip("Random maximum delay before the first NPC batch of a Wave.")]
+        [SerializeField, Min(0f)] private float maximumInitialSpawnDelaySeconds = 1.1f;
+        [Tooltip("Random minimum delay between NPC spawn batches. The next batch also waits until the previous batch reaches its slots.")]
+        [SerializeField, Min(0.05f)] private float minimumBatchDelaySeconds = 2f;
+        [Tooltip("Random maximum delay between NPC spawn batches. The next batch also waits until the previous batch reaches its slots.")]
+        [SerializeField, Min(0.05f)] private float maximumBatchDelaySeconds = 3f;
+
+        [Header("NPC Exit")]
+        [Tooltip("Time in seconds for an NPC to walk from its slot back beyond the side it entered from.")]
+        [SerializeField, Min(0.05f)] private float exitDurationSeconds = 1.5f;
+        [Tooltip("Time in seconds for an NPC to turn around smoothly before leaving. The turn uses a 2D squash-and-flip motion.")]
+        [SerializeField, Min(0f)] private float exitTurnDurationSeconds = 0.2f;
+        [Tooltip("Small sideways lean in degrees used during the 2D turn.")]
+        [SerializeField, Range(0f, 15f)] private float exitTurnLeanDegrees = 4f;
+        [Tooltip("The narrowest width ratio reached at the middle of the 2D turn.")]
+        [SerializeField, Range(0.05f, 0.5f)] private float exitTurnMinimumWidth = 0.18f;
 
         [Header("Wall Display")]
         [SerializeField] private Canvas sideCanvas;
@@ -38,9 +99,26 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private Transform frontLayer;
 
         private readonly GameObject[] spawnedNpcs = new GameObject[DisplaySlotCount];
-        private readonly List<GameObject> availableNpcPrefabs = new List<GameObject>();
+        private readonly GameObject[] spawnedNpcPrefabs = new GameObject[DisplaySlotCount];
+        private readonly Transform[] customerPanels = new Transform[DisplaySlotCount];
+        private readonly Vector2[] npcTargetPositions = new Vector2[DisplaySlotCount];
+        private readonly Vector2[] npcMovementPositions = new Vector2[DisplaySlotCount];
+        private readonly Vector2[] npcExitTargetPositions = new Vector2[DisplaySlotCount];
+        private readonly float[] npcWalkPhases = new float[DisplaySlotCount];
+        private readonly float[] npcExitTurnStartTimes = new float[DisplaySlotCount];
+        private readonly Vector3[] npcExitTurnStartScales = new Vector3[DisplaySlotCount];
+        private readonly Quaternion[] npcExitTurnStartRotations = new Quaternion[DisplaySlotCount];
+        private readonly bool[] npcArrivedAtSlots = new bool[DisplaySlotCount];
+        private readonly bool[] npcExitingAtSlots = new bool[DisplaySlotCount];
+        private readonly bool[] npcUiShownAtSlots = new bool[DisplaySlotCount];
+        private readonly float[] npcUiReadyTimes = new float[DisplaySlotCount];
+        private readonly int[] npcCustomerGenerations = new int[DisplaySlotCount];
+        private readonly List<int> pendingSpawnSlots = new List<int>(DisplaySlotCount);
+        private readonly List<GameObject> npcPrefabPool = new List<GameObject>();
+        private readonly List<Transform> sortedNpcLayerChildren = new List<Transform>(DisplaySlotCount);
         private int activeWaveNumber = -1;
-        private bool npcPoolExhaustedLogged;
+        private float nextSpawnBatchTime;
+        private int lastNpcSpawnBatchSize;
         private bool npcPoolConfigured;
         private bool npcPrefabConfigurationLogged;
 
@@ -55,6 +133,7 @@ namespace FoodIsekaiZ.Display
 #endif
             EnsureReferences();
             EnsureNpcLayers();
+            CacheCustomerPanels();
             HideLegacyNpcPlaceholders();
         }
 
@@ -70,6 +149,7 @@ namespace FoodIsekaiZ.Display
         {
             EnsureReferences();
             EnsureNpcLayers();
+            CacheCustomerPanels();
         }
 
 #if UNITY_EDITOR
@@ -80,6 +160,7 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
+            ClampTimingSettings();
             RepairNpcPrefabReferences();
         }
 #endif
@@ -94,6 +175,8 @@ namespace FoodIsekaiZ.Display
 
             ClearSpawnedNpcs();
             activeWaveNumber = -1;
+            nextSpawnBatchTime = 0f;
+            lastNpcSpawnBatchSize = 0;
         }
 
         private void Update()
@@ -126,6 +209,7 @@ namespace FoodIsekaiZ.Display
             }
 
             SynchronizeNpcSlots();
+            AnimateNpcArrivals();
         }
 
         private void BeginWave(int waveNumber)
@@ -133,34 +217,38 @@ namespace FoodIsekaiZ.Display
             ClearSpawnedNpcs();
             BuildAvailablePrefabPool();
             activeWaveNumber = waveNumber;
+            lastNpcSpawnBatchSize = 0;
+            nextSpawnBatchTime = Time.time + GetRandomDelay(
+                minimumInitialSpawnDelaySeconds,
+                maximumInitialSpawnDelaySeconds);
         }
 
         private void BuildAvailablePrefabPool()
         {
-            availableNpcPrefabs.Clear();
-            npcPoolExhaustedLogged = false;
+            npcPrefabPool.Clear();
             npcPoolConfigured = false;
             npcPrefabConfigurationLogged = false;
 
-            if (npcPrefabs == null)
+            if (npcPrefabSettings == null)
             {
                 LogNpcPrefabConfigurationError();
                 return;
             }
 
             var uniquePrefabs = new HashSet<GameObject>();
-            for (int i = 0; i < npcPrefabs.Length; i++)
+            for (int i = 0; i < npcPrefabSettings.Length; i++)
             {
-                GameObject prefab = npcPrefabs[i];
+                NpcPrefabSetting setting = npcPrefabSettings[i];
+                GameObject prefab = setting != null ? setting.Prefab : null;
                 if (!IsUsableNpcPrefab(prefab) || !uniquePrefabs.Add(prefab))
                 {
                     continue;
                 }
 
-                availableNpcPrefabs.Add(prefab);
+                npcPrefabPool.Add(prefab);
             }
 
-            npcPoolConfigured = availableNpcPrefabs.Count > 0;
+            npcPoolConfigured = npcPrefabPool.Count > 0;
             if (!npcPoolConfigured)
             {
                 LogNpcPrefabConfigurationError();
@@ -169,31 +257,97 @@ namespace FoodIsekaiZ.Display
 
         private void SynchronizeNpcSlots()
         {
+            pendingSpawnSlots.Clear();
             for (int slotIndex = 0; slotIndex < spawnedNpcs.Length; slotIndex++)
             {
                 ArenaSlot2D slot = gameManager.GetCustomerSlot(slotIndex);
                 bool shouldHaveNpc = slot != null && slot.CustomerState != CustomerSlotState.Empty;
                 if (!shouldHaveNpc)
                 {
-                    DestroyNpcAtSlot(slotIndex);
+                    if (spawnedNpcs[slotIndex] != null && !npcExitingAtSlots[slotIndex])
+                    {
+                        BeginNpcExit(slotIndex);
+                    }
+
                     continue;
                 }
 
                 if (spawnedNpcs[slotIndex] != null)
                 {
+                    if (!npcExitingAtSlots[slotIndex] &&
+                        slot.CustomerGeneration != npcCustomerGenerations[slotIndex])
+                    {
+                        BeginNpcExit(slotIndex);
+                    }
+
                     continue;
                 }
 
-                SpawnNpcAtSlot(slotIndex);
+                pendingSpawnSlots.Add(slotIndex);
+            }
+
+            if (pendingSpawnSlots.Count == 0 ||
+                Time.time < nextSpawnBatchTime ||
+                HasNpcEntrancesInProgress())
+            {
+                return;
+            }
+
+            if (!npcPoolConfigured)
+            {
+                LogNpcPrefabConfigurationError();
+                return;
+            }
+
+            int maximumBatchSize = lastNpcSpawnBatchSize >= 2
+                ? 1
+                : Mathf.Clamp(maximumNpcSpawnsPerBatch, 1, 2);
+            int batchSize = Mathf.Min(
+                UnityEngine.Random.Range(1, maximumBatchSize + 1),
+                pendingSpawnSlots.Count);
+            int spawnedCount = 0;
+            for (int i = 0; i < batchSize; i++)
+            {
+                int pendingIndex = UnityEngine.Random.Range(0, pendingSpawnSlots.Count);
+                int slotIndex = pendingSpawnSlots[pendingIndex];
+                pendingSpawnSlots.RemoveAt(pendingIndex);
+                if (SpawnNpcAtSlot(slotIndex))
+                {
+                    spawnedCount++;
+                }
+            }
+
+            if (spawnedCount > 0)
+            {
+                lastNpcSpawnBatchSize = spawnedCount;
+                nextSpawnBatchTime = Time.time + GetRandomDelay(
+                    minimumBatchDelaySeconds,
+                    maximumBatchDelaySeconds);
             }
         }
 
-        private void SpawnNpcAtSlot(int slotIndex)
+        private bool HasNpcEntrancesInProgress()
         {
+            for (int slotIndex = 0; slotIndex < spawnedNpcs.Length; slotIndex++)
+            {
+                if (spawnedNpcs[slotIndex] != null &&
+                    !npcArrivedAtSlots[slotIndex] &&
+                    !npcExitingAtSlots[slotIndex])
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool SpawnNpcAtSlot(int slotIndex)
+        {
+            SetCustomerPanelVisible(slotIndex, false);
             GameObject prefab = DrawNextNpcPrefab();
             if (prefab == null)
             {
-                return;
+                return false;
             }
 
             Transform prefabTransform;
@@ -206,61 +360,428 @@ namespace FoodIsekaiZ.Display
             catch (MissingReferenceException)
             {
                 LogNpcPrefabConfigurationError();
-                return;
+                return false;
             }
 
             if (prefabTransform == null)
             {
                 LogNpcPrefabConfigurationError();
-                return;
+                return false;
             }
 
-            Transform parent = IsBackLayerPrefabName(prefabName) ? backLayer : frontLayer;
-            if (parent == null)
+            Transform finalLayer = IsBackLayerPrefabName(prefabName) ? backLayer : frontLayer;
+            Transform movementLayer = backLayer;
+            if (finalLayer == null || movementLayer == null)
             {
                 Debug.LogWarning(
                     $"[{nameof(FoodIsekaiZNpcWaveSpawner)}] NPC layer is missing; cannot spawn '{prefabName}'.",
                     this);
+                return false;
+            }
+
+            // Keep every moving NPC behind settled NPCs until it reaches its slot.
+            Transform instanceTransform = Instantiate(prefabTransform, movementLayer, false);
+            GameObject instance = instanceTransform.gameObject;
+            instance.name = prefabName;
+            if (!AlignNpcToDisplaySlot(instance, slotIndex))
+            {
+                Destroy(instance);
+                return false;
+            }
+
+            ApplyNpcEntranceOrientation(instance, slotIndex, prefab);
+            PlaceNpcAtEntrance(instance, slotIndex);
+            spawnedNpcs[slotIndex] = instance;
+            spawnedNpcPrefabs[slotIndex] = prefab;
+            npcCustomerGenerations[slotIndex] = gameManager.GetCustomerSlot(slotIndex)?.CustomerGeneration ?? 0;
+            SortNpcLayerChildren(movementLayer);
+            return true;
+        }
+
+        private void SortNpcLayerChildren(Transform layer)
+        {
+            sortedNpcLayerChildren.Clear();
+            for (int i = 0; i < layer.childCount; i++)
+            {
+                Transform child = layer.GetChild(i);
+                if (GetSpawnedNpcSlotIndex(child.gameObject) >= 0)
+                {
+                    sortedNpcLayerChildren.Add(child);
+                }
+            }
+
+            sortedNpcLayerChildren.Sort((left, right) =>
+                GetNpcDepthOrder(GetSpawnedNpcSlotIndex(left.gameObject)).CompareTo(
+                    GetNpcDepthOrder(GetSpawnedNpcSlotIndex(right.gameObject))));
+            for (int i = 0; i < sortedNpcLayerChildren.Count; i++)
+            {
+                sortedNpcLayerChildren[i].SetSiblingIndex(i);
+            }
+        }
+
+        private int GetSpawnedNpcSlotIndex(GameObject instance)
+        {
+            for (int i = 0; i < spawnedNpcs.Length; i++)
+            {
+                if (spawnedNpcs[i] == instance)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private static int GetNpcDepthOrder(int slotIndex)
+        {
+            int slotsPerSide = DisplaySlotCount / 2;
+            return slotIndex < slotsPerSide
+                ? slotsPerSide - 1 - slotIndex
+                : slotIndex;
+        }
+
+        private void BeginNpcExit(int slotIndex)
+        {
+            RectTransform canvasRect = sideCanvas.GetComponent<RectTransform>();
+            if (canvasRect == null)
+            {
+                DestroyNpcAtSlot(slotIndex);
                 return;
             }
 
-            Transform instanceTransform = Instantiate(prefabTransform, parent, false);
-            GameObject instance = instanceTransform.gameObject;
-            instance.name = prefabName;
-            AlignNpcToDisplaySlot(instance, slotIndex);
-            spawnedNpcs[slotIndex] = instance;
+            float exitDistance = Mathf.Max(
+                1f,
+                canvasRect.rect.width * entranceDistanceCanvasMultiplier);
+            float direction = slotIndex < DisplaySlotCount / 2 ? -1f : 1f;
+            npcExitTargetPositions[slotIndex] = npcTargetPositions[slotIndex] +
+                new Vector2(direction * exitDistance, 0f);
+            npcExitingAtSlots[slotIndex] = true;
+            npcArrivedAtSlots[slotIndex] = false;
+            npcUiShownAtSlots[slotIndex] = false;
+            npcUiReadyTimes[slotIndex] = 0f;
+            SetCustomerPanelVisible(slotIndex, false);
+            RectTransform npcRect = spawnedNpcs[slotIndex].GetComponent<RectTransform>();
+            if (npcRect != null)
+            {
+                npcExitTurnStartTimes[slotIndex] = Time.time;
+                npcExitTurnStartScales[slotIndex] = npcRect.localScale;
+                npcExitTurnStartRotations[slotIndex] = npcRect.localRotation;
+            }
+
+            MoveNpcToMovementLayer(slotIndex);
+        }
+
+        private void AnimateNpcExitTurn(int slotIndex, RectTransform npcRect)
+        {
+            float turnDuration = Mathf.Max(0f, exitTurnDurationSeconds);
+            Vector3 startScale = npcExitTurnStartScales[slotIndex];
+            float startScaleX = Mathf.Max(0.0001f, Mathf.Abs(startScale.x));
+            float startScaleXSign = startScale.x < 0f ? -1f : 1f;
+            if (turnDuration <= 0f)
+            {
+                startScale.x = -startScaleX * startScaleXSign;
+                npcRect.localScale = startScale;
+                return;
+            }
+
+            float turnProgress = Mathf.Clamp01(
+                (Time.time - npcExitTurnStartTimes[slotIndex]) / turnDuration);
+            float turnHalfProgress = turnProgress < 0.5f
+                ? turnProgress * 2f
+                : (turnProgress - 0.5f) * 2f;
+            float easedHalfProgress = Mathf.SmoothStep(0f, 1f, turnHalfProgress);
+            float widthRatio = turnProgress < 0.5f
+                ? Mathf.Lerp(1f, exitTurnMinimumWidth, easedHalfProgress)
+                : Mathf.Lerp(exitTurnMinimumWidth, 1f, easedHalfProgress);
+            float scaleXSign = turnProgress < 0.5f
+                ? startScaleXSign
+                : -startScaleXSign;
+            startScale.x = startScaleX * widthRatio * scaleXSign;
+            npcRect.localScale = startScale;
+
+            float lean = Mathf.Sin(turnProgress * Mathf.PI) * exitTurnLeanDegrees;
+            npcRect.localRotation = npcExitTurnStartRotations[slotIndex] *
+                Quaternion.Euler(0f, 0f, lean);
+        }
+
+        private void AnimateNpcExit(int slotIndex, RectTransform canvasRect)
+        {
+            GameObject instance = spawnedNpcs[slotIndex];
+            if (instance == null)
+            {
+                npcExitingAtSlots[slotIndex] = false;
+                return;
+            }
+
+            RectTransform npcRect = instance.GetComponent<RectTransform>();
+            if (npcRect == null)
+            {
+                DestroyNpcAtSlot(slotIndex);
+                return;
+            }
+
+            AnimateNpcExitTurn(slotIndex, npcRect);
+            float exitDistance = Mathf.Max(
+                1f,
+                canvasRect.rect.width * entranceDistanceCanvasMultiplier);
+            float exitSpeed = exitDistance / Mathf.Max(0.05f, exitDurationSeconds);
+            Vector2 exitPosition = Vector2.MoveTowards(
+                npcMovementPositions[slotIndex],
+                npcExitTargetPositions[slotIndex],
+                exitSpeed * Time.deltaTime);
+            npcMovementPositions[slotIndex] = exitPosition;
+            if (Vector2.Distance(exitPosition, npcExitTargetPositions[slotIndex]) <= 0.01f)
+            {
+                npcRect.anchoredPosition = npcExitTargetPositions[slotIndex];
+                DestroyNpcAtSlot(slotIndex);
+                return;
+            }
+
+            npcWalkPhases[slotIndex] +=
+                Time.deltaTime * walkingBobFrequency * Mathf.PI * 2f;
+            float walkingBobOffset = Mathf.Sin(npcWalkPhases[slotIndex]) * walkingBobHeight;
+            npcRect.anchoredPosition = exitPosition + Vector2.up * walkingBobOffset;
+        }
+
+        private void AnimateNpcArrivals()
+        {
+            RectTransform canvasRect = sideCanvas.GetComponent<RectTransform>();
+            if (canvasRect == null)
+            {
+                return;
+            }
+
+            float entranceDistance = Mathf.Max(
+                1f,
+                canvasRect.rect.width * entranceDistanceCanvasMultiplier);
+            float nearTargetDistance = Mathf.Max(
+                1f,
+                canvasRect.rect.width * nearTargetDistanceCanvasMultiplier);
+            for (int slotIndex = 0; slotIndex < spawnedNpcs.Length; slotIndex++)
+            {
+                if (spawnedNpcs[slotIndex] == null)
+                {
+                    continue;
+                }
+
+                if (npcExitingAtSlots[slotIndex])
+                {
+                    AnimateNpcExit(slotIndex, canvasRect);
+                    continue;
+                }
+
+                if (npcArrivedAtSlots[slotIndex])
+                {
+                    if (!npcUiShownAtSlots[slotIndex] && Time.time >= npcUiReadyTimes[slotIndex])
+                    {
+                        ShowNpcUi(slotIndex);
+                    }
+
+                    continue;
+                }
+
+                RectTransform npcRect = spawnedNpcs[slotIndex].GetComponent<RectTransform>();
+                if (npcRect == null)
+                {
+                    MarkNpcArrived(slotIndex);
+                    continue;
+                }
+
+                float distanceToTarget = Vector2.Distance(
+                    npcMovementPositions[slotIndex],
+                    npcTargetPositions[slotIndex]);
+                float movementDuration = distanceToTarget <= nearTargetDistance
+                    ? nearTargetDurationSeconds
+                    : entranceDurationSeconds;
+                float movementSpeed = entranceDistance /
+                    Mathf.Max(0.05f, movementDuration);
+                Vector2 movementPosition = Vector2.MoveTowards(
+                    npcMovementPositions[slotIndex],
+                    npcTargetPositions[slotIndex],
+                    movementSpeed * Time.deltaTime);
+
+                npcMovementPositions[slotIndex] = movementPosition;
+                bool reachedTarget = Vector2.Distance(
+                    movementPosition,
+                    npcTargetPositions[slotIndex]) <= 0.01f;
+                if (reachedTarget)
+                {
+                    npcRect.anchoredPosition = npcTargetPositions[slotIndex];
+                    npcMovementPositions[slotIndex] = npcTargetPositions[slotIndex];
+                    MarkNpcArrived(slotIndex);
+                    continue;
+                }
+
+                npcWalkPhases[slotIndex] +=
+                    Time.deltaTime * walkingBobFrequency * Mathf.PI * 2f;
+                float walkingBobOffset = Mathf.Sin(npcWalkPhases[slotIndex]) *
+                    walkingBobHeight;
+                npcRect.anchoredPosition = movementPosition + Vector2.up * walkingBobOffset;
+            }
+        }
+
+        private void MarkNpcArrived(int slotIndex)
+        {
+            npcArrivedAtSlots[slotIndex] = true;
+            npcExitingAtSlots[slotIndex] = false;
+            npcMovementPositions[slotIndex] = npcTargetPositions[slotIndex];
+            npcWalkPhases[slotIndex] = 0f;
+            MoveNpcToFinalLayer(slotIndex);
+            npcUiShownAtSlots[slotIndex] = false;
+            npcUiReadyTimes[slotIndex] = Time.time + Mathf.Max(0f, arrivalHoldDurationSeconds);
+            SetCustomerPanelVisible(slotIndex, false);
+        }
+
+        private void MoveNpcToFinalLayer(int slotIndex)
+        {
+            GameObject instance = spawnedNpcs[slotIndex];
+            if (instance == null)
+            {
+                return;
+            }
+
+            Transform finalLayer = IsBackLayerPrefabName(instance.name) ? backLayer : frontLayer;
+            MoveNpcToLayer(slotIndex, finalLayer);
+        }
+
+        private void MoveNpcToMovementLayer(int slotIndex)
+        {
+            MoveNpcToLayer(slotIndex, backLayer);
+        }
+
+        private void MoveNpcToLayer(int slotIndex, Transform targetLayer)
+        {
+            GameObject instance = spawnedNpcs[slotIndex];
+            if (instance == null)
+            {
+                return;
+            }
+
+            Transform currentLayer = instance.transform.parent;
+            if (targetLayer == null || currentLayer == targetLayer)
+            {
+                return;
+            }
+
+            RectTransform instanceRect = instance.GetComponent<RectTransform>();
+            Vector2 anchoredPosition = instanceRect != null
+                ? instanceRect.anchoredPosition
+                : Vector2.zero;
+            instance.transform.SetParent(targetLayer, false);
+            if (instanceRect != null)
+            {
+                instanceRect.anchoredPosition = anchoredPosition;
+            }
+
+            if (currentLayer != null)
+            {
+                SortNpcLayerChildren(currentLayer);
+            }
+
+            SortNpcLayerChildren(targetLayer);
+        }
+
+        private void ShowNpcUi(int slotIndex)
+        {
+            npcUiShownAtSlots[slotIndex] = true;
+            SetCustomerPanelVisible(slotIndex, true);
+            StartCustomerTimerForSlot(slotIndex);
+        }
+
+        private void StartCustomerTimerForSlot(int slotIndex)
+        {
+            ArenaSlot2D slot = gameManager.GetCustomerSlot(slotIndex);
+            slot?.StartCustomerTimer();
         }
 
         private GameObject DrawNextNpcPrefab()
         {
-            if (availableNpcPrefabs.Count == 0)
+            int unusedPrefabCount = 0;
+            for (int i = 0; i < npcPrefabPool.Count; i++)
             {
-                LogNpcPoolExhausted();
+                GameObject prefab = npcPrefabPool[i];
+                if (IsUsableNpcPrefab(prefab) && !IsNpcPrefabInUse(prefab))
+                {
+                    unusedPrefabCount++;
+                }
+            }
+
+            if (unusedPrefabCount == 0)
+            {
                 return null;
             }
 
-            int selectedIndex = UnityEngine.Random.Range(0, availableNpcPrefabs.Count);
-            GameObject selectedPrefab = availableNpcPrefabs[selectedIndex];
-            availableNpcPrefabs.RemoveAt(selectedIndex);
-            if (availableNpcPrefabs.Count == 0)
+            int selectedUnusedIndex = UnityEngine.Random.Range(0, unusedPrefabCount);
+            for (int i = 0; i < npcPrefabPool.Count; i++)
             {
-                LogNpcPoolExhausted();
+                GameObject prefab = npcPrefabPool[i];
+                if (!IsUsableNpcPrefab(prefab) || IsNpcPrefabInUse(prefab))
+                {
+                    continue;
+                }
+
+                if (selectedUnusedIndex == 0)
+                {
+                    return prefab;
+                }
+
+                selectedUnusedIndex--;
             }
 
-            return selectedPrefab;
+            return null;
         }
 
-        private void LogNpcPoolExhausted()
+        private bool IsNpcPrefabInUse(GameObject prefab)
         {
-            if (!npcPoolConfigured || npcPoolExhaustedLogged)
+            for (int slotIndex = 0; slotIndex < spawnedNpcPrefabs.Length; slotIndex++)
+            {
+                if (spawnedNpcs[slotIndex] != null &&
+                    spawnedNpcPrefabs[slotIndex] == prefab)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void ApplyNpcEntranceOrientation(GameObject instance, int slotIndex, GameObject prefab)
+        {
+            bool enteringFromLeft = slotIndex < DisplaySlotCount / 2;
+            if (!ShouldFlipForEntry(prefab, enteringFromLeft))
             {
                 return;
             }
 
-            npcPoolExhaustedLogged = true;
-            Debug.Log(
-                $"[{nameof(FoodIsekaiZNpcWaveSpawner)}] NPC หมดแล้ว — ไม่ Spawn เพิ่มใน Wave นี้.",
-                    this);
+            RectTransform instanceRect = instance.GetComponent<RectTransform>();
+            if (instanceRect == null)
+            {
+                return;
+            }
+
+            Vector3 scale = instanceRect.localScale;
+            instanceRect.localScale = new Vector3(-scale.x, scale.y, scale.z);
+        }
+
+        private bool ShouldFlipForEntry(GameObject prefab, bool enteringFromLeft)
+        {
+            if (npcPrefabSettings == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < npcPrefabSettings.Length; i++)
+            {
+                NpcPrefabSetting setting = npcPrefabSettings[i];
+                if (setting != null && setting.Prefab == prefab)
+                {
+                    return enteringFromLeft
+                        ? setting.FlipWhenEnteringFromLeft
+                        : setting.FlipWhenEnteringFromRight;
+                }
+            }
+
+            return false;
         }
 
         private void LogNpcPrefabConfigurationError()
@@ -272,18 +793,30 @@ namespace FoodIsekaiZ.Display
 
             npcPrefabConfigurationLogged = true;
             Debug.LogError(
-                $"[{nameof(FoodIsekaiZNpcWaveSpawner)}] ไม่พบ NPC Prefab ที่ใช้งานได้ใน npcPrefabs — ตรวจรายการ Prefab ใน Inspector.",
+                $"[{nameof(FoodIsekaiZNpcWaveSpawner)}] ไม่พบ NPC Prefab ที่ใช้งานได้ใน NPC Prefabs — ตรวจรายการ Prefab ใน Inspector.",
                 this);
         }
 
         private void DestroyNpcAtSlot(int slotIndex)
         {
-            if (spawnedNpcs[slotIndex] == null)
+            GameObject instance = spawnedNpcs[slotIndex];
+            spawnedNpcPrefabs[slotIndex] = null;
+            npcMovementPositions[slotIndex] = Vector2.zero;
+            npcExitTargetPositions[slotIndex] = Vector2.zero;
+            npcWalkPhases[slotIndex] = 0f;
+            npcArrivedAtSlots[slotIndex] = false;
+            npcExitingAtSlots[slotIndex] = false;
+            npcUiShownAtSlots[slotIndex] = false;
+            npcUiReadyTimes[slotIndex] = 0f;
+            npcCustomerGenerations[slotIndex] = 0;
+            SetCustomerPanelVisible(slotIndex, false);
+            if (instance == null)
             {
+                spawnedNpcs[slotIndex] = null;
                 return;
             }
 
-            Destroy(spawnedNpcs[slotIndex]);
+            Destroy(instance);
             spawnedNpcs[slotIndex] = null;
         }
 
@@ -293,6 +826,34 @@ namespace FoodIsekaiZ.Display
             {
                 DestroyNpcAtSlot(i);
             }
+        }
+
+        private void ClampTimingSettings()
+        {
+            entranceDurationSeconds = Mathf.Max(0.05f, entranceDurationSeconds);
+            nearTargetDistanceCanvasMultiplier = Mathf.Max(
+                0.01f,
+                nearTargetDistanceCanvasMultiplier);
+            nearTargetDurationSeconds = Mathf.Max(0.05f, nearTargetDurationSeconds);
+            arrivalHoldDurationSeconds = Mathf.Max(0f, arrivalHoldDurationSeconds);
+            walkingBobHeight = Mathf.Max(0f, walkingBobHeight);
+            walkingBobFrequency = Mathf.Max(0.1f, walkingBobFrequency);
+            maximumNpcSpawnsPerBatch = Mathf.Clamp(maximumNpcSpawnsPerBatch, 1, 2);
+            minimumInitialSpawnDelaySeconds = Mathf.Max(0f, minimumInitialSpawnDelaySeconds);
+            maximumInitialSpawnDelaySeconds = Mathf.Max(
+                minimumInitialSpawnDelaySeconds,
+                maximumInitialSpawnDelaySeconds);
+            minimumBatchDelaySeconds = Mathf.Max(0.05f, minimumBatchDelaySeconds);
+            maximumBatchDelaySeconds = Mathf.Max(
+                minimumBatchDelaySeconds,
+                maximumBatchDelaySeconds);
+        }
+
+        private static float GetRandomDelay(float minimumSeconds, float maximumSeconds)
+        {
+            float minimum = Mathf.Max(0f, minimumSeconds);
+            float maximum = Mathf.Max(minimum, maximumSeconds);
+            return UnityEngine.Random.Range(minimum, maximum);
         }
 
 #if UNITY_EDITOR
@@ -330,13 +891,21 @@ namespace FoodIsekaiZ.Display
             discoveredPrefabs.Sort((left, right) =>
                 string.Compare(left.name, right.name, StringComparison.OrdinalIgnoreCase));
 
-            if (discoveredPrefabs.Count == 0 || HasSamePrefabReferences(discoveredPrefabs))
+            if (discoveredPrefabs.Count == 0)
+            {
+                return;
+            }
+
+            NpcPrefabSetting[] synchronizedSettings = BuildNpcPrefabSettings(discoveredPrefabs);
+            bool prefabSettingsChanged = !HasSameNpcPrefabSettings(synchronizedSettings);
+            if (!prefabSettingsChanged)
             {
                 return;
             }
 
             repairingNpcPrefabReferences = true;
-            npcPrefabs = discoveredPrefabs.ToArray();
+            npcPrefabSettings = synchronizedSettings;
+
             repairingNpcPrefabReferences = false;
 
             if (!Application.isPlaying)
@@ -349,16 +918,37 @@ namespace FoodIsekaiZ.Display
             }
         }
 
-        private bool HasSamePrefabReferences(List<GameObject> discoveredPrefabs)
+        private NpcPrefabSetting[] BuildNpcPrefabSettings(List<GameObject> discoveredPrefabs)
         {
-            if (npcPrefabs == null || npcPrefabs.Length != discoveredPrefabs.Count)
+            var synchronizedSettings = new NpcPrefabSetting[discoveredPrefabs.Count];
+            for (int i = 0; i < discoveredPrefabs.Count; i++)
+            {
+                GameObject prefab = discoveredPrefabs[i];
+                bool flipWhenEnteringFromLeft = ShouldFlipForEntry(prefab, true);
+                bool flipWhenEnteringFromRight = ShouldFlipForEntry(prefab, false);
+                synchronizedSettings[i] = new NpcPrefabSetting(
+                    prefab,
+                    flipWhenEnteringFromLeft,
+                    flipWhenEnteringFromRight);
+            }
+
+            return synchronizedSettings;
+        }
+
+        private bool HasSameNpcPrefabSettings(NpcPrefabSetting[] synchronizedSettings)
+        {
+            if (npcPrefabSettings == null || npcPrefabSettings.Length != synchronizedSettings.Length)
             {
                 return false;
             }
 
-            for (int i = 0; i < discoveredPrefabs.Count; i++)
+            for (int i = 0; i < synchronizedSettings.Length; i++)
             {
-                if (npcPrefabs[i] != discoveredPrefabs[i])
+                NpcPrefabSetting current = npcPrefabSettings[i];
+                NpcPrefabSetting synchronized = synchronizedSettings[i];
+                if (current == null || current.Prefab != synchronized.Prefab ||
+                    current.FlipWhenEnteringFromLeft != synchronized.FlipWhenEnteringFromLeft ||
+                    current.FlipWhenEnteringFromRight != synchronized.FlipWhenEnteringFromRight)
                 {
                     return false;
                 }
@@ -368,14 +958,14 @@ namespace FoodIsekaiZ.Display
         }
 #endif
 
-        private void AlignNpcToDisplaySlot(GameObject instance, int slotIndex)
+        private bool AlignNpcToDisplaySlot(GameObject instance, int slotIndex)
         {
             RectTransform instanceRect = instance.GetComponent<RectTransform>();
             RectTransform canvasRect = sideCanvas.GetComponent<RectTransform>();
             Transform target = FindNestedTransform(sideCanvas.transform, $"CustomerPanel{slotIndex + 1}");
             if (instanceRect == null || canvasRect == null || target == null)
             {
-                return;
+                return false;
             }
 
             float authoredVerticalPosition = instanceRect.anchoredPosition.y;
@@ -386,6 +976,56 @@ namespace FoodIsekaiZ.Display
                 targetLocalPosition.x,
                 authoredVerticalPosition);
             instanceRect.localRotation = Quaternion.identity;
+            npcTargetPositions[slotIndex] = instanceRect.anchoredPosition;
+            return true;
+        }
+
+        private void PlaceNpcAtEntrance(GameObject instance, int slotIndex)
+        {
+            RectTransform instanceRect = instance.GetComponent<RectTransform>();
+            RectTransform canvasRect = sideCanvas.GetComponent<RectTransform>();
+            if (instanceRect == null || canvasRect == null)
+            {
+                return;
+            }
+
+            float entranceDistance = Mathf.Max(
+                1f,
+                canvasRect.rect.width * entranceDistanceCanvasMultiplier);
+            float direction = slotIndex < DisplaySlotCount / 2 ? -1f : 1f;
+            instanceRect.anchoredPosition = npcTargetPositions[slotIndex] +
+                new Vector2(direction * entranceDistance, 0f);
+            npcExitTargetPositions[slotIndex] =
+                npcTargetPositions[slotIndex] + new Vector2(direction * entranceDistance, 0f);
+            npcMovementPositions[slotIndex] = instanceRect.anchoredPosition;
+            npcWalkPhases[slotIndex] = UnityEngine.Random.Range(0f, Mathf.PI * 2f);
+            npcArrivedAtSlots[slotIndex] = false;
+            npcExitingAtSlots[slotIndex] = false;
+            npcUiShownAtSlots[slotIndex] = false;
+            npcUiReadyTimes[slotIndex] = 0f;
+        }
+
+        private void CacheCustomerPanels()
+        {
+            if (sideCanvas == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < customerPanels.Length; i++)
+            {
+                customerPanels[i] = FindNestedTransform(sideCanvas.transform, $"CustomerPanel{i + 1}");
+            }
+        }
+
+        private void SetCustomerPanelVisible(int slotIndex, bool visible)
+        {
+            if (slotIndex < 0 || slotIndex >= customerPanels.Length || customerPanels[slotIndex] == null)
+            {
+                return;
+            }
+
+            customerPanels[slotIndex].gameObject.SetActive(visible);
         }
 
         private void EnsureReferences()

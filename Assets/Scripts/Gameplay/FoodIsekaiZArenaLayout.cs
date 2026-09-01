@@ -3,10 +3,6 @@ using UnityEngine;
 
 namespace FoodIsekaiZ.Gameplay
 {
-    /// <summary>
-    /// Binds the manually authored arena hierarchy to the runtime game manager.
-    /// The arena geometry and slot visuals are edited directly in the Unity scene.
-    /// </summary>
     [ExecuteAlways]
     public sealed class FoodIsekaiZArenaLayout : MonoBehaviour
     {
@@ -37,10 +33,8 @@ namespace FoodIsekaiZ.Gameplay
         private Mesh foodStationMesh;
         private MaterialPropertyBlock manualVisualProperties;
 
-        /// <summary>Gets the manually configured arena size used for player mapping.</summary>
         public Vector2 ArenaSize => arenaSize;
 
-        /// <summary>Gets the world-space bounds used for player mapping.</summary>
         public Rect ArenaBounds => new Rect(
             new Vector2(transform.position.x, transform.position.z) - (arenaSize * 0.5f),
             arenaSize);

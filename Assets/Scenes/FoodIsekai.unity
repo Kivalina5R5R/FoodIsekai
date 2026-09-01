@@ -5145,32 +5145,6 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 1
---- !u!114 &2088000001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1595694063}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a5f56f612f248ecb6f0a90f6be6af3d, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FoodIsekaiZNpcWaveSpawner
-  npcPrefabs:
-  - {fileID: 100100000, guid: 38bbdd5f70a732e41843a9344b985b30, type: 3}
-  - {fileID: 100100000, guid: 05e92ac31c79c8d4e9a52a7c6d4ee172, type: 3}
-  - {fileID: 100100000, guid: 6668d060424b0b941bef27b80b08747a, type: 3}
-  - {fileID: 100100000, guid: d71db65071ac56c468a31720377f9dc7, type: 3}
-  - {fileID: 100100000, guid: da4c7eb95df0b434682830e8a806ed5e, type: 3}
-  - {fileID: 100100000, guid: fb0b321f095e4a7429c38eb35381cc48, type: 3}
-  - {fileID: 100100000, guid: c44f229f648ce2e4ca945e5267987973, type: 3}
-  - {fileID: 100100000, guid: 5f9df0894e4403046b6e209bf38cea29, type: 3}
-  - {fileID: 100100000, guid: fcf84d33816f81a45b3aa613a52df623, type: 3}
-  sideCanvas: {fileID: 1595694067}
-  gameManager: {fileID: 101588415}
-  backLayer: {fileID: 0}
-  frontLayer: {fileID: 0}
 --- !u!1 &1595887004
 GameObject:
   m_ObjectHideFlags: 0
@@ -7996,6 +7970,68 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2016000050}
   m_CullTransparentMesh: 1
+--- !u!114 &2088000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595694063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a5f56f612f248ecb6f0a90f6be6af3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FoodIsekaiZNpcWaveSpawner
+  npcPrefabSettings:
+  - prefab: {fileID: 6073996257957425641, guid: 38bbdd5f70a732e41843a9344b985b30, type: 3}
+    flipWhenEnteringFromLeft: 1
+    flipWhenEnteringFromRight: 0
+  - prefab: {fileID: 2439736854106506458, guid: 05e92ac31c79c8d4e9a52a7c6d4ee172, type: 3}
+    flipWhenEnteringFromLeft: 0
+    flipWhenEnteringFromRight: 1
+  - prefab: {fileID: 2511242541350101823, guid: 6668d060424b0b941bef27b80b08747a, type: 3}
+    flipWhenEnteringFromLeft: 0
+    flipWhenEnteringFromRight: 1
+  - prefab: {fileID: 4493748292918481856, guid: d71db65071ac56c468a31720377f9dc7, type: 3}
+    flipWhenEnteringFromLeft: 1
+    flipWhenEnteringFromRight: 0
+  - prefab: {fileID: 2185585169733752568, guid: da4c7eb95df0b434682830e8a806ed5e, type: 3}
+    flipWhenEnteringFromLeft: 0
+    flipWhenEnteringFromRight: 1
+  - prefab: {fileID: 6818552528379430525, guid: fb0b321f095e4a7429c38eb35381cc48, type: 3}
+    flipWhenEnteringFromLeft: 1
+    flipWhenEnteringFromRight: 0
+  - prefab: {fileID: 8433587963194950509, guid: c44f229f648ce2e4ca945e5267987973, type: 3}
+    flipWhenEnteringFromLeft: 1
+    flipWhenEnteringFromRight: 0
+  - prefab: {fileID: 4176302844896620408, guid: 5f9df0894e4403046b6e209bf38cea29, type: 3}
+    flipWhenEnteringFromLeft: 0
+    flipWhenEnteringFromRight: 1
+  - prefab: {fileID: 6506360766124097809, guid: fcf84d33816f81a45b3aa613a52df623, type: 3}
+    flipWhenEnteringFromLeft: 1
+    flipWhenEnteringFromRight: 0
+  npcPrefabFolder: Assets/Prefab
+  npcPrefabNamePrefix: NPC
+  entranceDistanceCanvasMultiplier: 0.75
+  entranceDurationSeconds: 1.5
+  nearTargetDistanceCanvasMultiplier: 0.15
+  nearTargetDurationSeconds: 2
+  arrivalHoldDurationSeconds: 1
+  walkingBobHeight: 6
+  walkingBobFrequency: 4.5
+  maximumNpcSpawnsPerBatch: 2
+  minimumInitialSpawnDelaySeconds: 0.35
+  maximumInitialSpawnDelaySeconds: 1.1
+  minimumBatchDelaySeconds: 2
+  maximumBatchDelaySeconds: 3
+  exitDurationSeconds: 1.5
+  exitTurnDurationSeconds: 0.2
+  exitTurnLeanDegrees: 4
+  exitTurnMinimumWidth: 0.18
+  sideCanvas: {fileID: 1595694067}
+  gameManager: {fileID: 101588415}
+  backLayer: {fileID: 0}
+  frontLayer: {fileID: 0}
 --- !u!1 &2144607757
 GameObject:
   m_ObjectHideFlags: 0

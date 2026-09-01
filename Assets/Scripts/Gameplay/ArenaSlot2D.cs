@@ -35,6 +35,8 @@ namespace FoodIsekaiZ.Gameplay
         [SerializeField, Min(0f)] private float orderDurationSeconds;
         [SerializeField, Min(0)] private int orderReward;
         [SerializeField, Min(0)] private int availableMoney;
+        private bool customerTimerStarted;
+        private int customerGeneration;
 
         private MaterialPropertyBlock slotVisualProperties;
         private Renderer slotRenderer;
@@ -45,6 +47,8 @@ namespace FoodIsekaiZ.Gameplay
         public ArenaSlotType SlotType => slotType;
         public FoodType StationFood => stationFood;
         public CustomerSlotState CustomerState => customerState;
+        /// <summary>Gets the incrementing identity of the customer currently assigned to this slot.</summary>
+        public int CustomerGeneration => customerGeneration;
         public bool HasCustomer => customerState == CustomerSlotState.WaitingForFood || customerState == CustomerSlotState.Eating;
         public FoodType RequestedFood => requestedFood;
         public float StateRemainingSeconds => stateRemainingSeconds;
@@ -174,19 +178,46 @@ namespace FoodIsekaiZ.Gameplay
 
         public void ConfigureCustomer(FoodType food, float orderTimeSeconds, int reward)
         {
+            customerGeneration = customerGeneration == int.MaxValue ? 1 : customerGeneration + 1;
             requestedFood = food;
             customerState = CustomerSlotState.WaitingForFood;
             orderDurationSeconds = Mathf.Max(0.1f, orderTimeSeconds);
             stateDurationSeconds = orderDurationSeconds;
-            stateRemainingSeconds = stateDurationSeconds;
+            stateRemainingSeconds = 0f;
             orderReward = Mathf.Max(0, reward);
             availableMoney = 0;
+            customerTimerStarted = false;
             RefreshVisuals();
+        }
+
+        /// <summary>Starts the waiting-for-food timer when the customer's display presentation is visible.</summary>
+        public bool StartCustomerTimer()
+        {
+            if (slotType != ArenaSlotType.Customer ||
+                customerState != CustomerSlotState.WaitingForFood)
+            {
+                return false;
+            }
+
+            if (customerTimerStarted)
+            {
+                return true;
+            }
+
+            customerTimerStarted = true;
+            stateRemainingSeconds = stateDurationSeconds;
+            RefreshVisuals();
+            return true;
         }
 
         public bool TryBeginEating(float eatingDurationSeconds)
         {
             if (slotType != ArenaSlotType.Customer || customerState != CustomerSlotState.WaitingForFood)
+            {
+                return false;
+            }
+
+            if (!customerTimerStarted)
             {
                 return false;
             }
@@ -201,6 +232,11 @@ namespace FoodIsekaiZ.Gameplay
         public bool AdvanceStateTimer(float deltaTime)
         {
             if (customerState != CustomerSlotState.WaitingForFood && customerState != CustomerSlotState.Eating)
+            {
+                return false;
+            }
+
+            if (!customerTimerStarted)
             {
                 return false;
             }
@@ -221,6 +257,7 @@ namespace FoodIsekaiZ.Gameplay
             customerState = CustomerSlotState.MoneyAvailable;
             stateRemainingSeconds = 0f;
             stateDurationSeconds = 0f;
+            customerTimerStarted = false;
             RefreshVisuals();
         }
 
@@ -245,6 +282,7 @@ namespace FoodIsekaiZ.Gameplay
             orderDurationSeconds = 0f;
             orderReward = 0;
             availableMoney = 0;
+            customerTimerStarted = false;
             RefreshVisuals();
         }
 
