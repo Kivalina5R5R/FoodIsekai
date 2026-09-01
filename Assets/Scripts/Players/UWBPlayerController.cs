@@ -36,14 +36,11 @@ namespace FoodIsekaiZ.Players
         [SerializeField, Min(0.0001f)] private float sceneViewDragThreshold = 0.002f;
 
         [Header("Floor Player Marker")]
-        [Tooltip("Overall width of the eye-shaped marker in world units.")]
+        [Tooltip("Diameter of the circular marker in world units.")]
         [SerializeField, Min(0.1f)] private float markerWorldWidth = 1f;
-        [Tooltip("Marker height relative to its width.")]
-        [SerializeField, Range(0.4f, 1f)] private float markerHeightRatio = 0.76f;
         [FormerlySerializedAs("markerWhiteGapScale")]
         [SerializeField, Range(0.2f, 0.9f)] private float markerTransparentGapScale = 0.72f;
         [SerializeField, Range(0.05f, 0.7f)] private float markerCenterWidthScale = 0.35f;
-        [SerializeField, Range(0.05f, 0.7f)] private float markerCenterHeightScale = 0.40f;
         [SerializeField, Range(32, 256)] private int markerTextureWidth = 128;
 
         [Header("Floor Player Status")]
@@ -388,18 +385,16 @@ namespace FoodIsekaiZ.Players
 
             if (generatedMarkerSprite == null)
             {
-                generatedMarkerSprite = CreateEllipseSprite(
+                generatedMarkerSprite = CreateCircleSprite(
                     markerTextureWidth,
-                    markerHeightRatio,
                     markerTransparentGapScale,
                     out generatedMarkerTexture);
             }
 
             if (generatedMarkerCenterSprite == null)
             {
-                generatedMarkerCenterSprite = CreateEllipseSprite(
+                generatedMarkerCenterSprite = CreateCircleSprite(
                     markerTextureWidth,
-                    markerHeightRatio,
                     0f,
                     out generatedMarkerCenterTexture);
             }
@@ -409,7 +404,7 @@ namespace FoodIsekaiZ.Players
             DisableObsoleteWhiteGap();
             markerCenterRenderer = GetOrCreateMarkerLayer(
                 "MarkerCenter",
-                new Vector2(markerCenterWidthScale, markerCenterHeightScale),
+                markerCenterWidthScale,
                 circleRenderer.sortingOrder + 1,
                 generatedMarkerCenterSprite);
         }
@@ -433,7 +428,7 @@ namespace FoodIsekaiZ.Players
 
         private SpriteRenderer GetOrCreateMarkerLayer(
             string objectName,
-            Vector2 scale,
+            float uniformScale,
             int sortingOrder,
             Sprite sprite)
         {
@@ -452,7 +447,7 @@ namespace FoodIsekaiZ.Players
 
             layerTransform.localPosition = Vector3.zero;
             layerTransform.localRotation = Quaternion.identity;
-            layerTransform.localScale = new Vector3(scale.x, scale.y, 1f);
+            layerTransform.localScale = new Vector3(uniformScale, uniformScale, 1f);
 
             SpriteRenderer renderer = layerObject.GetComponent<SpriteRenderer>();
             if (renderer == null)
@@ -571,14 +566,13 @@ namespace FoodIsekaiZ.Players
             isRegistered = false;
         }
 
-        private Sprite CreateEllipseSprite(
+        private Sprite CreateCircleSprite(
             int requestedWidth,
-            float heightRatio,
             float transparentInnerScale,
             out Texture2D generatedTexture)
         {
             int width = Mathf.Clamp(requestedWidth, 32, 256);
-            int height = Mathf.Max(16, Mathf.RoundToInt(width * Mathf.Clamp(heightRatio, 0.4f, 1f)));
+            int height = width;
             generatedTexture = new Texture2D(width, height, TextureFormat.RGBA32, false)
             {
                 name = $"Runtime Player Marker P{playerId}",
@@ -589,20 +583,18 @@ namespace FoodIsekaiZ.Players
             Color[] pixels = new Color[width * height];
             float centerX = (width - 1) * 0.5f;
             float centerY = (height - 1) * 0.5f;
-            float radiusX = Mathf.Max(1f, centerX - 1f);
-            float radiusY = Mathf.Max(1f, centerY - 1f);
-            float edgePixels = Mathf.Min(radiusX, radiusY);
+            float radius = Mathf.Max(1f, centerX - 1f);
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    float normalizedX = (x - centerX) / radiusX;
-                    float normalizedY = (y - centerY) / radiusY;
+                    float normalizedX = (x - centerX) / radius;
+                    float normalizedY = (y - centerY) / radius;
                     float normalizedDistance = Mathf.Sqrt(
                         (normalizedX * normalizedX) + (normalizedY * normalizedY));
-                    float outerAlpha = Mathf.Clamp01((1f - normalizedDistance) * edgePixels);
+                    float outerAlpha = Mathf.Clamp01((1f - normalizedDistance) * radius);
                     float innerAlpha = transparentInnerScale > 0f
-                        ? Mathf.Clamp01((normalizedDistance - transparentInnerScale) * edgePixels)
+                        ? Mathf.Clamp01((normalizedDistance - transparentInnerScale) * radius)
                         : 1f;
                     float alpha = outerAlpha * innerAlpha;
                     pixels[(y * width) + x] = new Color(1f, 1f, 1f, alpha);
