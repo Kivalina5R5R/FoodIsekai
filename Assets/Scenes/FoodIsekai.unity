@@ -5051,6 +5051,7 @@ GameObject:
   - component: {fileID: 1595694067}
   - component: {fileID: 1595694066}
   - component: {fileID: 1595694065}
+  - component: {fileID: 2088000001}
   m_Layer: 0
   m_Name: SideDisplay
   m_TagString: Untagged
@@ -5144,6 +5145,32 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 1
+--- !u!114 &2088000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595694063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a5f56f612f248ecb6f0a90f6be6af3d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FoodIsekaiZNpcWaveSpawner
+  npcPrefabs:
+  - {fileID: 100100000, guid: 38bbdd5f70a732e41843a9344b985b30, type: 3}
+  - {fileID: 100100000, guid: 05e92ac31c79c8d4e9a52a7c6d4ee172, type: 3}
+  - {fileID: 100100000, guid: 6668d060424b0b941bef27b80b08747a, type: 3}
+  - {fileID: 100100000, guid: d71db65071ac56c468a31720377f9dc7, type: 3}
+  - {fileID: 100100000, guid: da4c7eb95df0b434682830e8a806ed5e, type: 3}
+  - {fileID: 100100000, guid: fb0b321f095e4a7429c38eb35381cc48, type: 3}
+  - {fileID: 100100000, guid: c44f229f648ce2e4ca945e5267987973, type: 3}
+  - {fileID: 100100000, guid: 5f9df0894e4403046b6e209bf38cea29, type: 3}
+  - {fileID: 100100000, guid: fcf84d33816f81a45b3aa613a52df623, type: 3}
+  sideCanvas: {fileID: 1595694067}
+  gameManager: {fileID: 101588415}
+  backLayer: {fileID: 0}
+  frontLayer: {fileID: 0}
 --- !u!1 &1595887004
 GameObject:
   m_ObjectHideFlags: 0
