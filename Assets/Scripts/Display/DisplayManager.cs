@@ -6,11 +6,11 @@ namespace FoodIsekaiZ.Display
     [DefaultExecutionOrder(-200)]
     public sealed class DisplayManager : MonoBehaviour
     {
-        [Header("Display 1 - Wall")]
+        [Header("Display 2 - Wall")]
         [SerializeField] private Camera sideCamera;
         [SerializeField] private Canvas[] sideCanvases;
 
-        [Header("Display 2 - LED Floor")]
+        [Header("Display 1 - LED Floor")]
         [SerializeField] private Camera floorCamera;
         [SerializeField] private Canvas[] floorCanvases;
 
@@ -38,8 +38,8 @@ namespace FoodIsekaiZ.Display
         [ContextMenu("Configure Camera And Canvas Outputs")]
         public void ConfigureOutputs()
         {
-            // This installation's Game View profiles identify Display 1 as the wall
-            // and Display 2 as the floor, so role constants are used instead of raw indices.
+            // This installation uses Display 1 for the floor and Display 2 for the wall,
+            // so role constants are used instead of raw indices.
             if (floorCamera != null)
             {
                 floorCamera.targetDisplay = DisplayOutput.FloorDisplayIndex;
@@ -67,20 +67,20 @@ namespace FoodIsekaiZ.Display
 
             if (applyPaperArenaResolutionsInStandalone && !Application.isEditor)
             {
-                // Display 1 is the wall (1536x435); Display 2 is the floor (2816x1280).
+                // Display 1 is the floor (2816x1280); Display 2 is the wall (1536x435).
                 var targetRefreshRate = new RefreshRate
                 {
                     numerator = (uint)refreshRate,
                     denominator = 1u
                 };
                 Screen.SetResolution(
-                    sideDisplayResolution.x,
-                    sideDisplayResolution.y,
+                    floorDisplayResolution.x,
+                    floorDisplayResolution.y,
                     FullScreenMode.FullScreenWindow,
                     targetRefreshRate);
                 UnityEngine.Display.displays[1].Activate(
-                    floorDisplayResolution.x,
-                    floorDisplayResolution.y,
+                    sideDisplayResolution.x,
+                    sideDisplayResolution.y,
                     targetRefreshRate);
             }
             else
