@@ -6,10 +6,10 @@ namespace FoodIsekaiZ.Display
     /// </summary>
     public static class DisplayOutput
     {
-        /// <summary>Unity index for the horizontal LED floor display (Display 2 on this installation).</summary>
-        public const int FloorDisplayIndex = 1;
+        /// <summary>Unity index for the horizontal LED floor display (Display 1 on this installation).</summary>
+        public const int FloorDisplayIndex = 0;
 
-        /// <summary>Unity index for the vertical wall display (Display 1 on this installation).</summary>
-        public const int WallDisplayIndex = 0;
+        /// <summary>Unity index for the vertical wall display (Display 2 on this installation).</summary>
+        public const int WallDisplayIndex = 1;
     }
 }

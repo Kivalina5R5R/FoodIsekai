@@ -11,13 +11,21 @@ namespace FoodIsekaiZ.Display
     /// </summary>
     public sealed class FoodIsekaiZSideDisplayLayout : MonoBehaviour
     {
-        [Header("Manual Wall Display")]
+        private const int CustomerPanelCapacity = 6;
+
+        [Header("Manual Wall Display (T1-T6)")]
         [Tooltip("Canvas authored in the scene. Edit its children directly; this component never creates or removes them.")]
         [SerializeField] private Canvas sideCanvas;
         [SerializeField] private Camera sideCamera;
         [SerializeField] private FoodIsekaiZArenaLayout arenaLayout;
         [SerializeField] private FoodIsekaiZGameManager gameManager;
         [SerializeField] private UWBManager uwbManager;
+
+        [Header("Wall Background")]
+        [Tooltip("Optional Image used as the wall-display background. Assign a Sprite in its Source Image field.")]
+        [SerializeField] private Image backgroundImage;
+        [Tooltip("Tint applied when the background Image has a Sprite assigned. White keeps the source image colors unchanged.")]
+        [SerializeField] private Color backgroundImageTint = Color.white;
 
         [Header("Runtime Colors")]
         [SerializeField] private Color panelColor = new Color(0.065f, 0.09f, 0.13f, 1f);
@@ -29,10 +37,10 @@ namespace FoodIsekaiZ.Display
         private Text mealWaveTimerText;
         private Text intermissionCountdownText;
         private Text uwbStatusText;
-        private readonly Text[] customerStatusTexts = new Text[4];
-        private readonly Image[] customerPanelImages = new Image[4];
-        private readonly Slider[] customerTimerSliders = new Slider[4];
-        private readonly Image[] customerTimerFills = new Image[4];
+        private readonly Text[] customerStatusTexts = new Text[CustomerPanelCapacity];
+        private readonly Image[] customerPanelImages = new Image[CustomerPanelCapacity];
+        private readonly Slider[] customerTimerSliders = new Slider[CustomerPanelCapacity];
+        private readonly Image[] customerTimerFills = new Image[CustomerPanelCapacity];
         private FoodIsekaiZGameManager subscribedGameManager;
         private bool teamScoreDisplayDirty = true;
         private bool mvpDisplayDirty = true;
@@ -42,23 +50,36 @@ namespace FoodIsekaiZ.Display
         private int lastUwbAgeTenths = int.MinValue;
         private bool lastUwbSimulationMode;
         private string lastUwbStatus;
-        private readonly bool[] customerDisplayInitialized = new bool[4];
-        private readonly FoodType[] lastCustomerDisplayedFood = new FoodType[4];
-        private readonly Color[] lastCustomerDisplayedColor = new Color[4];
+        private readonly bool[] customerDisplayInitialized = new bool[CustomerPanelCapacity];
+        private readonly FoodType[] lastCustomerDisplayedFood = new FoodType[CustomerPanelCapacity];
+        private readonly Color[] lastCustomerDisplayedColor = new Color[CustomerPanelCapacity];
 
         /// <summary>Gets the manually authored wall-display Canvas.</summary>
         public Canvas SideCanvas => sideCanvas;
+
+        private void OnValidate()
+        {
+            if (!Application.isPlaying)
+            {
+                ApplyBackgroundImage();
+                ConfigureWallCamera();
+            }
+        }
 
         private void Awake()
         {
             EnsureReferences();
             CacheManualDisplay();
+            ApplyBackgroundImage();
+            ConfigureWallCamera();
         }
 
         private void Start()
         {
             EnsureReferences();
             CacheManualDisplay();
+            ApplyBackgroundImage();
+            ConfigureWallCamera();
             SubscribeToGameEvents();
             MarkScoreDisplayDirty();
             FlushScoreDisplayUpdates();
@@ -513,6 +534,11 @@ namespace FoodIsekaiZ.Display
             }
 
             Transform root = sideCanvas.transform;
+            if (backgroundImage == null)
+            {
+                backgroundImage = GetManualComponent<Image>(root, "Background");
+            }
+
             scoreText = GetManualComponent<Text>(root, "TeamScore");
             mvpText = GetManualComponent<Text>(root, "MVPScore");
             mealWaveTimerText = GetManualComponent<Text>(root, "MealWaveTimer");
@@ -534,6 +560,55 @@ namespace FoodIsekaiZ.Display
             }
 
             ResetRealtimeDisplayCaches();
+        }
+
+        private void ApplyBackgroundImage()
+        {
+            if (backgroundImage == null)
+            {
+                return;
+            }
+
+            backgroundImage.enabled = true;
+            backgroundImage.raycastTarget = false;
+            backgroundImage.type = Image.Type.Simple;
+            backgroundImage.preserveAspect = false;
+            backgroundImage.transform.SetAsFirstSibling();
+
+            if (backgroundImage.sprite != null)
+            {
+                backgroundImage.color = backgroundImageTint;
+            }
+        }
+
+        private void ConfigureWallCamera()
+        {
+            if (sideCanvas == null || sideCamera == null)
+            {
+                return;
+            }
+
+            RectTransform canvasRect = sideCanvas.GetComponent<RectTransform>();
+            if (canvasRect == null)
+            {
+                return;
+            }
+
+            var corners = new Vector3[4];
+            canvasRect.GetWorldCorners(corners);
+            float wallWidth = Vector3.Distance(corners[0], corners[3]);
+            float wallHeight = Vector3.Distance(corners[0], corners[1]);
+            if (wallWidth <= Mathf.Epsilon || wallHeight <= Mathf.Epsilon)
+            {
+                return;
+            }
+
+            Vector3 wallCenter = (corners[0] + corners[2]) * 0.5f;
+            sideCamera.targetDisplay = DisplayOutput.WallDisplayIndex;
+            sideCamera.orthographic = true;
+            sideCamera.aspect = wallWidth / wallHeight;
+            sideCamera.orthographicSize = wallHeight * 0.5f;
+            sideCamera.transform.position = wallCenter - (sideCamera.transform.forward * 10f);
         }
 
         private static T GetManualComponent<T>(Transform root, string relativePath) where T : Component

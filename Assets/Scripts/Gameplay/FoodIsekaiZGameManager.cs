@@ -8,6 +8,8 @@ namespace FoodIsekaiZ.Gameplay
 
     public sealed class FoodIsekaiZGameManager : MonoBehaviour
     {
+        private const int CustomerSlotCapacity = 6;
+
         [Serializable]
         private sealed class PlayerScoreRecord
         {
@@ -57,8 +59,8 @@ namespace FoodIsekaiZ.Gameplay
             }
         }
 
-        [Header("Top Area - 4 Customer Slots")]
-        [SerializeField] private ArenaSlot2D[] customerSlots = new ArenaSlot2D[4];
+        [Header("Top Area - 6 Customer Slots (C1-C6)")]
+        [SerializeField] private ArenaSlot2D[] customerSlots = new ArenaSlot2D[CustomerSlotCapacity];
 
         [Header("Bottom Area - 5 Food + 1 Bank")]
         [SerializeField] private ArenaSlot2D[] stationSlots = new ArenaSlot2D[6];
@@ -81,8 +83,8 @@ namespace FoodIsekaiZ.Gameplay
 
         [Header("Customer Spawning")]
         [SerializeField] private bool startCustomersOnPlay = true;
-        [SerializeField, Range(0, 4)] private int initialActiveCustomers = 4;
-        [SerializeField, Range(1, 4)] private int maximumActiveCustomers = 4;
+        [SerializeField, Range(0, CustomerSlotCapacity)] private int initialActiveCustomers = CustomerSlotCapacity;
+        [SerializeField, Range(1, CustomerSlotCapacity)] private int maximumActiveCustomers = CustomerSlotCapacity;
 
         [Header("Customer Timing")]
         [Tooltip("เวลาที่ลูกค้ารอรับอาหารก่อนหนี")]
@@ -879,9 +881,9 @@ namespace FoodIsekaiZ.Gameplay
         [ContextMenu("Validate Slot Layout")]
         private void ValidateSlotLayout()
         {
-            if (customerSlots == null || customerSlots.Length != 4)
+            if (customerSlots == null || customerSlots.Length != CustomerSlotCapacity)
             {
-                Debug.LogWarning("[FoodIsekaiZ] Customer area should contain exactly C1-C4.", this);
+                Debug.LogWarning("[FoodIsekaiZ] Customer area should contain exactly C1-C6.", this);
             }
 
             if (stationSlots == null || stationSlots.Length != 6)
@@ -939,8 +941,8 @@ namespace FoodIsekaiZ.Gameplay
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            initialActiveCustomers = Mathf.Clamp(initialActiveCustomers, 0, 4);
-            maximumActiveCustomers = Mathf.Clamp(maximumActiveCustomers, 1, 4);
+            initialActiveCustomers = Mathf.Clamp(initialActiveCustomers, 0, CustomerSlotCapacity);
+            maximumActiveCustomers = Mathf.Clamp(maximumActiveCustomers, 1, CustomerSlotCapacity);
             initialActiveCustomers = Mathf.Min(initialActiveCustomers, maximumActiveCustomers);
             orderTimeLimitSeconds = Mathf.Max(1f, orderTimeLimitSeconds);
             customerRespawnDelaySeconds.x = Mathf.Max(0f, customerRespawnDelaySeconds.x);
