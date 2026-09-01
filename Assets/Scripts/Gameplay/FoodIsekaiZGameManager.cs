@@ -9,6 +9,7 @@ namespace FoodIsekaiZ.Gameplay
     public sealed class FoodIsekaiZGameManager : MonoBehaviour
     {
         private const int CustomerSlotCapacity = 6;
+        private const int MaximumConsecutiveSameFoodOrders = 2;
 
         [Serializable]
         private sealed class PlayerScoreRecord
@@ -127,6 +128,7 @@ namespace FoodIsekaiZ.Gameplay
         [SerializeField, Min(0f)] private float mealPhaseRemainingSeconds;
 
         private float[] nextCustomerSpawnTimes = Array.Empty<float>();
+        private readonly FoodOrderGenerator foodOrderGenerator = new FoodOrderGenerator();
         private bool customerFlowStarted;
         private bool mealWaveFlowStarted;
         private int lastNotifiedMealSecond = int.MinValue;
@@ -252,13 +254,14 @@ namespace FoodIsekaiZ.Gameplay
             }
 
             customerFlowStarted = true;
+            foodOrderGenerator.Reset();
             int initialCount = Mathf.Min(initialActiveCustomers, maximumActiveCustomers, CountUsableCustomerSlots());
             for (int i = 0; i < initialCount; i++)
             {
                 int slotIndex = PickRandomEmptySlotIndex();
                 if (slotIndex >= 0)
                 {
-                    SpawnCustomer(customerSlots[slotIndex]);
+                    SpawnCustomer(customerSlots[slotIndex], slotIndex);
                 }
             }
 
@@ -680,20 +683,23 @@ namespace FoodIsekaiZ.Gameplay
                     continue;
                 }
 
-                SpawnCustomer(slot);
+                SpawnCustomer(slot, i);
                 nextCustomerSpawnTimes[i] = float.PositiveInfinity;
                 activeCustomers++;
             }
         }
 
-        private void SpawnCustomer(ArenaSlot2D slot)
+        private void SpawnCustomer(ArenaSlot2D slot, int slotIndex)
         {
             if (slot == null)
             {
                 return;
             }
 
-            FoodType food = PickRandomFood();
+            FoodType food = foodOrderGenerator.PickRandomFood(
+                customerSlots,
+                slotIndex,
+                foodOptions);
             int reward = UnityEngine.Random.Range(
                 Mathf.Min(moneyRewardRange.x, moneyRewardRange.y),
                 Mathf.Max(moneyRewardRange.x, moneyRewardRange.y) + 1);
@@ -745,37 +751,6 @@ namespace FoodIsekaiZ.Gameplay
             }
 
             return -1;
-        }
-
-        private FoodType PickRandomFood()
-        {
-            int enabledCount = 0;
-            if (foodOptions != null)
-            {
-                for (int i = 0; i < foodOptions.Length; i++)
-                {
-                    if (IsOrderable(foodOptions[i]))
-                    {
-                        enabledCount++;
-                    }
-                }
-            }
-
-            if (enabledCount == 0)
-            {
-                return (FoodType)UnityEngine.Random.Range((int)FoodType.Food1, (int)FoodType.Food5 + 1);
-            }
-
-            int selected = UnityEngine.Random.Range(0, enabledCount);
-            for (int i = 0; i < foodOptions.Length; i++)
-            {
-                if (IsOrderable(foodOptions[i]) && selected-- == 0)
-                {
-                    return foodOptions[i].food;
-                }
-            }
-
-            return FoodType.Food1;
         }
 
         private FoodOption GetFoodOption(FoodType food)
