@@ -43,7 +43,7 @@ namespace FoodIsekaiZ.Display
         }
 
         [Header("NPC Prefab Pool")]
-        [Tooltip("NPC prefabs are drawn without replacement during one Wave. Configure each Prefab and its entry orientation in the same list.")]
+        [Tooltip("NPC prefabs are drawn without replacement during one Wave. Across Waves, prefabs with lower Power are selected first. Configure each Prefab and its entry orientation in the same list.")]
         [InspectorName("NPC Prefabs")]
         [SerializeField] private NpcPrefabSetting[] npcPrefabSettings = Array.Empty<NpcPrefabSetting>();
         [Tooltip("Folder searched recursively for NPC prefabs when the scene is validated or play mode starts in the Unity Editor.")]
@@ -85,11 +85,15 @@ namespace FoodIsekaiZ.Display
         [Tooltip("Time in seconds for an NPC to walk from its slot back beyond the side it entered from.")]
         [SerializeField, Min(0.05f)] private float exitDurationSeconds = 1.5f;
         [Tooltip("Time in seconds for an NPC to turn around smoothly before leaving. The turn uses a 2D squash-and-flip motion.")]
-        [SerializeField, Min(0f)] private float exitTurnDurationSeconds = 0.2f;
+        [SerializeField, Min(0f)] private float exitTurnDurationSeconds = 0.3f;
         [Tooltip("Small sideways lean in degrees used during the 2D turn.")]
-        [SerializeField, Range(0f, 15f)] private float exitTurnLeanDegrees = 4f;
-        [Tooltip("The narrowest width ratio reached at the middle of the 2D turn.")]
-        [SerializeField, Range(0.05f, 0.5f)] private float exitTurnMinimumWidth = 0.18f;
+        [SerializeField, Range(0f, 15f)] private float exitTurnLeanDegrees = 2.5f;
+        [Tooltip("The narrowest width ratio reached at the middle of the 2D turn. Keep this high for a subtle flip.")]
+        [SerializeField, Range(0.6f, 1f)] private float exitTurnMinimumWidth = 0.78f;
+        [Tooltip("Small upward lift in canvas pixels used during the 2D turn.")]
+        [SerializeField, Min(0f)] private float exitTurnLiftPixels = 2f;
+        [Tooltip("Subtle vertical stretch ratio used while the NPC is compressed during the 2D turn.")]
+        [SerializeField, Range(0f, 0.25f)] private float exitTurnHeightStretch = 0.02f;
 
         [Header("Wall Display")]
         [SerializeField] private Canvas sideCanvas;
@@ -116,9 +120,12 @@ namespace FoodIsekaiZ.Display
         private readonly List<int> pendingSpawnSlots = new List<int>(DisplaySlotCount);
         private readonly List<GameObject> npcPrefabPool = new List<GameObject>();
         private readonly List<Transform> sortedNpcLayerChildren = new List<Transform>(DisplaySlotCount);
+        private readonly Dictionary<GameObject, int> npcPrefabPowerByPrefab =
+            new Dictionary<GameObject, int>();
         private int activeWaveNumber = -1;
         private float nextSpawnBatchTime;
         private int lastNpcSpawnBatchSize;
+        private GameObject lastSpawnedNpcPrefab;
         private bool npcPoolConfigured;
         private bool npcPrefabConfigurationLogged;
 
@@ -394,6 +401,7 @@ namespace FoodIsekaiZ.Display
             spawnedNpcs[slotIndex] = instance;
             spawnedNpcPrefabs[slotIndex] = prefab;
             npcCustomerGenerations[slotIndex] = gameManager.GetCustomerSlot(slotIndex)?.CustomerGeneration ?? 0;
+            IncreaseNpcPrefabPower(prefab);
             SortNpcLayerChildren(movementLayer);
             return true;
         }
@@ -471,7 +479,7 @@ namespace FoodIsekaiZ.Display
             MoveNpcToMovementLayer(slotIndex);
         }
 
-        private void AnimateNpcExitTurn(int slotIndex, RectTransform npcRect)
+        private bool AnimateNpcExitTurn(int slotIndex, RectTransform npcRect)
         {
             float turnDuration = Mathf.Max(0f, exitTurnDurationSeconds);
             Vector3 startScale = npcExitTurnStartScales[slotIndex];
@@ -481,27 +489,32 @@ namespace FoodIsekaiZ.Display
             {
                 startScale.x = -startScaleX * startScaleXSign;
                 npcRect.localScale = startScale;
-                return;
+                npcRect.localRotation = npcExitTurnStartRotations[slotIndex];
+                return true;
             }
 
             float turnProgress = Mathf.Clamp01(
                 (Time.time - npcExitTurnStartTimes[slotIndex]) / turnDuration);
-            float turnHalfProgress = turnProgress < 0.5f
-                ? turnProgress * 2f
-                : (turnProgress - 0.5f) * 2f;
-            float easedHalfProgress = Mathf.SmoothStep(0f, 1f, turnHalfProgress);
-            float widthRatio = turnProgress < 0.5f
-                ? Mathf.Lerp(1f, exitTurnMinimumWidth, easedHalfProgress)
-                : Mathf.Lerp(exitTurnMinimumWidth, 1f, easedHalfProgress);
+            float collapseProgress = Mathf.Sin(turnProgress * Mathf.PI);
+            float easedCollapseProgress = Mathf.SmoothStep(0f, 1f, collapseProgress);
+            float widthRatio = Mathf.Lerp(
+                1f,
+                Mathf.Clamp(exitTurnMinimumWidth, 0.6f, 1f),
+                easedCollapseProgress);
+            float heightRatio = 1f +
+                Mathf.Clamp01(exitTurnHeightStretch) * easedCollapseProgress;
             float scaleXSign = turnProgress < 0.5f
                 ? startScaleXSign
                 : -startScaleXSign;
             startScale.x = startScaleX * widthRatio * scaleXSign;
+            startScale.y *= heightRatio;
             npcRect.localScale = startScale;
 
-            float lean = Mathf.Sin(turnProgress * Mathf.PI) * exitTurnLeanDegrees;
+            float exitDirection = slotIndex < DisplaySlotCount / 2 ? -1f : 1f;
+            float lean = collapseProgress * exitTurnLeanDegrees * exitDirection;
             npcRect.localRotation = npcExitTurnStartRotations[slotIndex] *
                 Quaternion.Euler(0f, 0f, lean);
+            return turnProgress >= 1f;
         }
 
         private void AnimateNpcExit(int slotIndex, RectTransform canvasRect)
@@ -520,7 +533,19 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
-            AnimateNpcExitTurn(slotIndex, npcRect);
+            bool turnCompleted = AnimateNpcExitTurn(slotIndex, npcRect);
+            if (!turnCompleted)
+            {
+                float turnLift = Mathf.Sin(
+                    Mathf.Clamp01(
+                        (Time.time - npcExitTurnStartTimes[slotIndex]) /
+                        Mathf.Max(0.05f, exitTurnDurationSeconds)) * Mathf.PI) *
+                    Mathf.Max(0f, exitTurnLiftPixels);
+                npcRect.anchoredPosition = npcMovementPositions[slotIndex] +
+                    Vector2.up * turnLift;
+                return;
+            }
+
             float exitDistance = Mathf.Max(
                 1f,
                 canvasRect.rect.width * entranceDistanceCanvasMultiplier);
@@ -696,22 +721,9 @@ namespace FoodIsekaiZ.Display
 
         private GameObject DrawNextNpcPrefab()
         {
-            int unusedPrefabCount = 0;
-            for (int i = 0; i < npcPrefabPool.Count; i++)
-            {
-                GameObject prefab = npcPrefabPool[i];
-                if (IsUsableNpcPrefab(prefab) && !IsNpcPrefabInUse(prefab))
-                {
-                    unusedPrefabCount++;
-                }
-            }
-
-            if (unusedPrefabCount == 0)
-            {
-                return null;
-            }
-
-            int selectedUnusedIndex = UnityEngine.Random.Range(0, unusedPrefabCount);
+            int lowestPower = int.MaxValue;
+            int lowestPowerPrefabCount = 0;
+            bool lastPrefabHasLowestPower = false;
             for (int i = 0; i < npcPrefabPool.Count; i++)
             {
                 GameObject prefab = npcPrefabPool[i];
@@ -720,15 +732,85 @@ namespace FoodIsekaiZ.Display
                     continue;
                 }
 
-                if (selectedUnusedIndex == 0)
+                int power = GetNpcPrefabPower(prefab);
+                if (power < lowestPower)
+                {
+                    lowestPower = power;
+                    lowestPowerPrefabCount = 1;
+                    lastPrefabHasLowestPower = prefab == lastSpawnedNpcPrefab;
+                }
+                else if (power == lowestPower)
+                {
+                    lowestPowerPrefabCount++;
+                    lastPrefabHasLowestPower |= prefab == lastSpawnedNpcPrefab;
+                }
+            }
+
+            if (lowestPowerPrefabCount == 0)
+            {
+                return null;
+            }
+
+            // Avoid an immediate repeat when another prefab has the same lowest Power.
+            bool excludeLastSpawnedPrefab = lastPrefabHasLowestPower && lowestPowerPrefabCount > 1;
+            int selectablePrefabCount = excludeLastSpawnedPrefab
+                ? lowestPowerPrefabCount - 1
+                : lowestPowerPrefabCount;
+            int selectedPrefabIndex = UnityEngine.Random.Range(0, selectablePrefabCount);
+            for (int i = 0; i < npcPrefabPool.Count; i++)
+            {
+                GameObject prefab = npcPrefabPool[i];
+                if (!IsUsableNpcPrefab(prefab) || IsNpcPrefabInUse(prefab))
+                {
+                    continue;
+                }
+
+                if (GetNpcPrefabPower(prefab) != lowestPower ||
+                    (excludeLastSpawnedPrefab && prefab == lastSpawnedNpcPrefab))
+                {
+                    continue;
+                }
+
+                if (selectedPrefabIndex == 0)
                 {
                     return prefab;
                 }
 
-                selectedUnusedIndex--;
+                selectedPrefabIndex--;
             }
 
             return null;
+        }
+
+        private int GetNpcPrefabPower(GameObject prefab)
+        {
+            if (prefab == null)
+            {
+                return int.MaxValue;
+            }
+
+            return npcPrefabPowerByPrefab.TryGetValue(prefab, out int power)
+                ? power
+                : 0;
+        }
+
+        private void IncreaseNpcPrefabPower(GameObject prefab)
+        {
+            if (prefab == null)
+            {
+                return;
+            }
+
+            int nextPower = GetNpcPrefabPower(prefab) + 1;
+            npcPrefabPowerByPrefab[prefab] = nextPower;
+            lastSpawnedNpcPrefab = prefab;
+        }
+
+        [ContextMenu("Reset NPC Power")]
+        private void ResetNpcPower()
+        {
+            npcPrefabPowerByPrefab.Clear();
+            lastSpawnedNpcPrefab = null;
         }
 
         private bool IsNpcPrefabInUse(GameObject prefab)
@@ -847,6 +929,11 @@ namespace FoodIsekaiZ.Display
             maximumBatchDelaySeconds = Mathf.Max(
                 minimumBatchDelaySeconds,
                 maximumBatchDelaySeconds);
+            exitTurnDurationSeconds = Mathf.Max(0f, exitTurnDurationSeconds);
+            exitTurnLeanDegrees = Mathf.Clamp(exitTurnLeanDegrees, 0f, 15f);
+            exitTurnMinimumWidth = Mathf.Clamp(exitTurnMinimumWidth, 0.6f, 1f);
+            exitTurnLiftPixels = Mathf.Max(0f, exitTurnLiftPixels);
+            exitTurnHeightStretch = Mathf.Clamp(exitTurnHeightStretch, 0f, 0.25f);
         }
 
         private static float GetRandomDelay(float minimumSeconds, float maximumSeconds)

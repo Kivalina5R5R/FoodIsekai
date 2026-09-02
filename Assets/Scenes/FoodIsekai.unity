@@ -8010,6 +8010,21 @@ MonoBehaviour:
   - prefab: {fileID: 6506360766124097809, guid: fcf84d33816f81a45b3aa613a52df623, type: 3}
     flipWhenEnteringFromLeft: 1
     flipWhenEnteringFromRight: 0
+  - prefab: {fileID: 3883234354083900449, guid: b1bab0a58e247e645ae90a50ad3d3029, type: 3}
+    flipWhenEnteringFromLeft: 0
+    flipWhenEnteringFromRight: 1
+  - prefab: {fileID: 793442058924395373, guid: 271ce1629fb83a24195db5ceda87b620, type: 3}
+    flipWhenEnteringFromLeft: 1
+    flipWhenEnteringFromRight: 0
+  - prefab: {fileID: 8386321999106957261, guid: 0d57735fb8e65a84597290e7493359cc, type: 3}
+    flipWhenEnteringFromLeft: 0
+    flipWhenEnteringFromRight: 1
+  - prefab: {fileID: 4066378040681040324, guid: 75dddf59ef1d44c4c987c2342dc014f6, type: 3}
+    flipWhenEnteringFromLeft: 0
+    flipWhenEnteringFromRight: 1
+  - prefab: {fileID: 8851068066204854546, guid: fb6b9e9da1ed3f54fb431e2cc24a9119, type: 3}
+    flipWhenEnteringFromLeft: 0
+    flipWhenEnteringFromRight: 1
   npcPrefabFolder: Assets/Prefab
   npcPrefabNamePrefix: NPC
   entranceDistanceCanvasMultiplier: 0.75
@@ -8025,9 +8040,11 @@ MonoBehaviour:
   minimumBatchDelaySeconds: 2
   maximumBatchDelaySeconds: 3
   exitDurationSeconds: 1.5
-  exitTurnDurationSeconds: 0.2
-  exitTurnLeanDegrees: 4
-  exitTurnMinimumWidth: 0.18
+  exitTurnDurationSeconds: 0.3
+  exitTurnLeanDegrees: 2.5
+  exitTurnMinimumWidth: 0.78
+  exitTurnLiftPixels: 2
+  exitTurnHeightStretch: 0.02
   sideCanvas: {fileID: 1595694067}
   gameManager: {fileID: 101588415}
   backLayer: {fileID: 0}
