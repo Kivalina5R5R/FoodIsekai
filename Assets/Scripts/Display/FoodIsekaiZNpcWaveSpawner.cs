@@ -268,7 +268,10 @@ namespace FoodIsekaiZ.Display
             for (int slotIndex = 0; slotIndex < spawnedNpcs.Length; slotIndex++)
             {
                 ArenaSlot2D slot = gameManager.GetCustomerSlot(slotIndex);
-                bool shouldHaveNpc = slot != null && slot.CustomerState != CustomerSlotState.Empty;
+                // MoneyAvailable means the customer has finished eating and has
+                // already left the floor. Keep the C slot occupied by its money,
+                // but do not keep the NPC visual there.
+                bool shouldHaveNpc = slot != null && slot.HasCustomer;
                 if (!shouldHaveNpc)
                 {
                     if (spawnedNpcs[slotIndex] != null && !npcExitingAtSlots[slotIndex])

@@ -24,13 +24,21 @@ namespace FoodIsekaiZ.Gameplay
             }
         }
 
+        /// <summary>
+        /// Picks up food from a food station, replacing any food currently held by the player.
+        /// </summary>
+        /// <param name="food">The food assigned to the station being interacted with.</param>
+        /// <returns><see langword="true"/> when a valid food was picked up.</returns>
         public bool TryPickFood(FoodType food)
         {
-            if (food == FoodType.None || heldFood != FoodType.None)
+            if (food < FoodType.Food1 || food > FoodType.Food5)
             {
                 return false;
             }
 
+            // Picking up from F is an explicit replacement action. The food that was
+            // already held is discarded as part of this pickup, so the player does
+            // not need to visit a customer slot before choosing a different food.
             heldFood = food;
             return true;
         }
