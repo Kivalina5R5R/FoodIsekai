@@ -3,13 +3,13 @@
     "UWBBaudRate": 921600,
     "axisConversion": {
         "rawXTo": "x",
-        "rawYTo": "z",
+        "rawYTo": "-z",
         "rawZTo": "none"
     },
     "UWBInputOffset": {
-        "x": 0.0,
+        "x": -5.3,
         "y": 0.0,
-        "z": 0.0
+        "z": 1.25
     },
     "metersToWorldScale": 1.0,
     "tracking": {
