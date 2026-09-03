@@ -19,11 +19,6 @@ namespace FoodIsekaiZ.Players
         [SerializeField] private UWBManager uwbManager;
         [SerializeField] private bool hideWhenOffline;
 
-        [Header("Movement Smoothing")]
-        [SerializeField, Range(0.02f, 0.5f)] private float smoothTime = 0.12f;
-        [SerializeField, Min(0f)] private float positionDeadZone = 0.03f;
-        [SerializeField, Min(0.1f)] private float snapDistance = 2f;
-        [SerializeField, Min(0.1f)] private float maxSpeed = 12f;
         [SerializeField, Min(0f)] private float floorHeight = 0.12f;
 
         [Header("Player Size")]
@@ -59,9 +54,6 @@ namespace FoodIsekaiZ.Players
         private SpriteRenderer markerCenterRenderer;
         private FoodIsekaiZPlayerState playerState;
         private TextMesh carriedStatusText;
-        private Vector3 targetPosition;
-        private Vector3 smoothVelocity;
-        private bool hasFirstPosition;
         private bool isRegistered;
         private bool hasControllerPosition;
         private Vector3 lastControllerPosition;
@@ -85,7 +77,6 @@ namespace FoodIsekaiZ.Players
         private void Awake()
         {
             CacheRequiredComponents();
-            ApplyTrackingSettingsFromConfig();
             body.isKinematic = true;
             body.useGravity = false;
             body.constraints = RigidbodyConstraints.FreezeRotation;
@@ -99,29 +90,6 @@ namespace FoodIsekaiZ.Players
             CreateStatusLabel();
             RefreshStatusLabel();
             RecordControllerPosition(transform.position);
-        }
-
-        private void Start()
-        {
-            // Re-apply after config initialization so JSON remains the source of truth
-            // even when this player prefab enabled before UWBConfigManager.
-            ApplyTrackingSettingsFromConfig();
-        }
-
-        private void ApplyTrackingSettingsFromConfig()
-        {
-            FoodIsekaiZ.Configuration.UWBConfigData config =
-                FoodIsekaiZ.Configuration.UWBConfigManager.GetConfig();
-            FoodIsekaiZ.Configuration.UWBTrackingSettings tracking = config?.tracking;
-            if (tracking == null)
-            {
-                return;
-            }
-
-            tracking.Validate();
-            smoothTime = tracking.trackerSmoothTime;
-            positionDeadZone = tracking.trackerDeadzoneMeters;
-            snapDistance = tracking.trackerSnapDistanceMeters;
         }
 
         private void OnEnable()
@@ -183,43 +151,9 @@ namespace FoodIsekaiZ.Players
             SetPlayerMarkerVisible(true);
             Vector3 measuredPosition = new Vector3(measuredPosition2D.x, floorHeight, measuredPosition2D.y);
 
-            if (!hasFirstPosition || Vector3.Distance(body.position, measuredPosition) >= snapDistance)
-            {
-                targetPosition = measuredPosition;
-                body.position = measuredPosition;
-                smoothVelocity = Vector3.zero;
-                hasFirstPosition = true;
-                RecordControllerPosition(measuredPosition);
-                return;
-            }
-
-            if (Vector3.Distance(targetPosition, measuredPosition) >= positionDeadZone)
-            {
-                targetPosition = measuredPosition;
-            }
-        }
-
-        private void FixedUpdate()
-        {
-            if (CaptureSceneViewSimulationDrag())
-            {
-                return;
-            }
-
-            if (!hasFirstPosition)
-            {
-                return;
-            }
-
-            Vector3 next = Vector3.SmoothDamp(
-                body.position,
-                targetPosition,
-                ref smoothVelocity,
-                smoothTime,
-                maxSpeed,
-                Time.fixedDeltaTime);
-            body.MovePosition(next);
-            RecordControllerPosition(next);
+            // UWBManager already applies the smoothing configured in UWBConfig.json.
+            body.position = measuredPosition;
+            RecordControllerPosition(measuredPosition);
         }
 
         private bool CaptureSceneViewSimulationDrag()
@@ -250,9 +184,6 @@ namespace FoodIsekaiZ.Players
             }
 
             body.position = committedPosition;
-            targetPosition = committedPosition;
-            smoothVelocity = Vector3.zero;
-            hasFirstPosition = true;
             RecordControllerPosition(committedPosition);
             return true;
 #else
@@ -277,7 +208,6 @@ namespace FoodIsekaiZ.Players
 
             UnregisterManager();
             tagId = newTagId;
-            hasFirstPosition = false;
             FindAndRegisterManager();
         }
 
