@@ -1,9 +1,6 @@
 {
     "UWBSerialPort": "COM5",
     "UWBBaudRate": 921600,
-    "transportMode": 0,
-    "udpListenAddress": "0.0.0.0",
-    "udpListenPort": 9000,
     "axisConversion": {
         "rawXTo": "z",
         "rawYTo": "x",
@@ -15,32 +12,6 @@
         "z": -0.5
     },
     "metersToWorldScale": 1.0,
-    "simulationMinMeters": {
-        "x": 0.0,
-        "y": 0.0
-    },
-    "simulationMaxMeters": {
-        "x": 6.0,
-        "y": 4.0
-    },
-    "useArenaMapping": true,
-    "clampToArena": true,
-    "physicalMinMeters": {
-        "x": 0.0,
-        "y": 0.0
-    },
-    "physicalMaxMeters": {
-        "x": 6.0,
-        "y": 4.0
-    },
-    "arenaMin": {
-        "x": -5.5,
-        "y": -2.5
-    },
-    "arenaMax": {
-        "x": 5.5,
-        "y": 2.5
-    },
     "tracking": {
         "maxPoseAgeSeconds": 1.0,
         "maxTrackingPredictionSeconds": 0.35,
