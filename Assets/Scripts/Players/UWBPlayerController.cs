@@ -26,7 +26,7 @@ namespace FoodIsekaiZ.Players
         [SerializeField, Min(0.05f)] private float playerScale = 1f;
 
         [Header("Editor Simulation")]
-        [Tooltip("During Play Mode, dragging this Player in Scene View writes the position back to its simulated UWB tag.")]
+        [Tooltip("During Play Mode, dragging this Player in Scene View moves its standalone position, or writes it back to the simulated UWB tag when using UWB Simulation.")]
         [SerializeField] private bool allowSceneViewDragInSimulation = true;
         [SerializeField, Min(0.0001f)] private float sceneViewDragThreshold = 0.002f;
 
@@ -55,6 +55,7 @@ namespace FoodIsekaiZ.Players
         private FoodIsekaiZPlayerState playerState;
         private TextMesh carriedStatusText;
         private bool isRegistered;
+        private bool useUwbTracking = true;
         private bool hasControllerPosition;
         private Vector3 lastControllerPosition;
         private Vector3 baseLocalScale = Vector3.one;
@@ -129,6 +130,19 @@ namespace FoodIsekaiZ.Players
         {
             RefreshStatusLabel();
 
+            if (!useUwbTracking)
+            {
+                if (CaptureStandaloneSimulationDrag())
+                {
+                    return;
+                }
+
+                isTracking = false;
+                sampleAgeSeconds = 0f;
+                SetPlayerMarkerVisible(true);
+                return;
+            }
+
             if (!isRegistered)
             {
                 FindAndRegisterManager();
@@ -159,9 +173,13 @@ namespace FoodIsekaiZ.Players
         private bool CaptureSceneViewSimulationDrag()
         {
 #if UNITY_EDITOR
-            if (!allowSceneViewDragInSimulation || !Application.isPlaying ||
-                uwbManager == null || !uwbManager.IsSimulationMode || body == null ||
+            if (!allowSceneViewDragInSimulation || !Application.isPlaying || body == null ||
                 !hasControllerPosition)
+            {
+                return false;
+            }
+
+            if (uwbManager == null || !uwbManager.IsSimulationMode)
             {
                 return false;
             }
@@ -191,6 +209,33 @@ namespace FoodIsekaiZ.Players
 #endif
         }
 
+        private bool CaptureStandaloneSimulationDrag()
+        {
+#if UNITY_EDITOR
+            if (!allowSceneViewDragInSimulation || !Application.isPlaying || body == null ||
+                !hasControllerPosition)
+            {
+                return false;
+            }
+
+            Vector3 currentPosition = transform.position;
+            Vector2 planarDelta = new Vector2(
+                currentPosition.x - lastControllerPosition.x,
+                currentPosition.z - lastControllerPosition.z);
+            if (planarDelta.sqrMagnitude <= sceneViewDragThreshold * sceneViewDragThreshold)
+            {
+                return false;
+            }
+
+            Vector3 committedPosition = new Vector3(currentPosition.x, floorHeight, currentPosition.z);
+            body.position = committedPosition;
+            RecordControllerPosition(committedPosition);
+            return true;
+#else
+            return false;
+#endif
+        }
+
         private void RecordControllerPosition(Vector3 position)
         {
             lastControllerPosition = position;
@@ -209,6 +254,40 @@ namespace FoodIsekaiZ.Players
             UnregisterManager();
             tagId = newTagId;
             FindAndRegisterManager();
+        }
+
+        /// <summary>กำหนดว่าจะให้ Controller อ่านตำแหน่งจาก UWB หรือไม่</summary>
+        public void SetUwbTrackingEnabled(bool enabled)
+        {
+            if (useUwbTracking == enabled)
+            {
+                return;
+            }
+
+            useUwbTracking = enabled;
+            if (useUwbTracking)
+            {
+                FindAndRegisterManager();
+                return;
+            }
+
+            UnregisterManager();
+            isTracking = false;
+            sampleAgeSeconds = 0f;
+            SetPlayerMarkerVisible(true);
+        }
+
+        /// <summary>ตั้งตำแหน่งโลกของ Player สำหรับ standalone Simulation mode</summary>
+        public void SetStandaloneWorldPosition(Vector2 worldPosition)
+        {
+            Vector3 targetPosition = new Vector3(worldPosition.x, floorHeight, worldPosition.y);
+            transform.position = targetPosition;
+            if (body != null)
+            {
+                body.position = targetPosition;
+            }
+
+            RecordControllerPosition(targetPosition);
         }
 
         public void Configure(int newPlayerId, int newTagId, Color newColor)
@@ -472,6 +551,11 @@ namespace FoodIsekaiZ.Players
 
         private void FindAndRegisterManager()
         {
+            if (!useUwbTracking)
+            {
+                return;
+            }
+
             if (uwbManager == null)
             {
                 uwbManager = FindAnyObjectByType<UWBManager>();

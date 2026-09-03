@@ -2,14 +2,14 @@
     "UWBSerialPort": "COM5",
     "UWBBaudRate": 921600,
     "axisConversion": {
-        "rawXTo": "z",
-        "rawYTo": "x",
+        "rawXTo": "x",
+        "rawYTo": "z",
         "rawZTo": "none"
     },
     "UWBInputOffset": {
-        "x": 0.8,
+        "x": 0.0,
         "y": 0.0,
-        "z": -0.5
+        "z": 0.0
     },
     "metersToWorldScale": 1.0,
     "tracking": {

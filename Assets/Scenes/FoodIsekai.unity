@@ -326,6 +326,8 @@ GameObject:
   - component: {fileID: 101588413}
   - component: {fileID: 101588412}
   - component: {fileID: 101588415}
+  - component: {fileID: 101588416}
+  - component: {fileID: 101588417}
   m_Layer: 0
   m_Name: System
   m_TagString: Untagged
@@ -346,11 +348,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Fortal.UWB.UWBManager
   transportMode: 2
-  overrideConfigTransportMode: 1
   connectOnStart: 1
   autoReconnect: 1
   reconnectDelaySeconds: 2
-  portName: COM3
+  portName: COM5
   baudRate: 921600
   udpListenAddress: 0.0.0.0
   udpListenPort: 9000
@@ -391,17 +392,11 @@ MonoBehaviour:
   anchorOnlineDistanceThresholdMeters: 0.01
   useDevicePositionFirst: 1
   axisConversion:
-    rawXTo: z
-    rawYTo: x
+    rawXTo: x
+    rawYTo: z
     rawZTo: none
-  inputOffset: {x: 0.8, y: 0, z: -0.5}
-  useArenaMapping: 1
-  clampToArena: 1
-  physicalMinMeters: {x: 0, y: 0}
-  physicalMaxMeters: {x: 6, y: 4}
-  arenaMin: {x: -5.5, y: -2.5}
-  arenaMax: {x: 5.5, y: 2.5}
-  useSceneArenaBounds: 1
+  inputOffset: {x: 0, y: 0, z: 0}
+  metersToWorldScale: 1
   maxPoseAgeSeconds: 1
   maxTrackingPredictionSeconds: 0.35
   rejectTrackingPositionJumps: 1
@@ -445,23 +440,12 @@ MonoBehaviour:
   Config:
     UWBSerialPort: COM5
     UWBBaudRate: 921600
-    transportMode: 0
-    udpListenAddress: 0.0.0.0
-    udpListenPort: 9000
     axisConversion:
-      rawXTo: z
-      rawYTo: x
+      rawXTo: x
+      rawYTo: z
       rawZTo: none
-    UWBInputOffset: {x: 0.8, y: 0, z: -0.5}
+    UWBInputOffset: {x: 0, y: 0, z: 0}
     metersToWorldScale: 1
-    simulationMinMeters: {x: 0, y: 0}
-    simulationMaxMeters: {x: 6, y: 4}
-    useArenaMapping: 1
-    clampToArena: 1
-    physicalMinMeters: {x: 0, y: 0}
-    physicalMaxMeters: {x: 6, y: 4}
-    arenaMin: {x: -5.5, y: -2.5}
-    arenaMax: {x: 5.5, y: 2.5}
     tracking:
       maxPoseAgeSeconds: 1
       maxTrackingPredictionSeconds: 0.35
@@ -572,6 +556,119 @@ MonoBehaviour:
   mealWavePhase: 0
   currentWaveIndex: -1
   mealPhaseRemainingSeconds: 0
+--- !u!114 &101588416
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 101588411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8ebd6f5abf142839ff7ad3d668d2c8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Audio.FoodIsekaiZBgmPlayer
+  bgmClip: {fileID: 8300000, guid: 91895784db79e8045a3c8b666253b234, type: 3}
+  playOnStart: 1
+  loop: 1
+  volume: 1
+--- !u!82 &101588417
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 101588411}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 91895784db79e8045a3c8b666253b234, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &113922086
 GameObject:
   m_ObjectHideFlags: 0
@@ -1845,6 +1942,7 @@ MonoBehaviour:
   arenaLayout: {fileID: 278790268}
   gameManager: {fileID: 101588415}
   uwbManager: {fileID: 101588412}
+  playerSpawner: {fileID: 2144607758}
   backgroundImage: {fileID: 44333749}
   backgroundImageTint: {r: 1, g: 1, b: 1, a: 1}
   panelColor: {r: 0.065, g: 0.09, b: 0.13, a: 1}
@@ -5688,13 +5786,14 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.3844806, y: 0.390625, z: 1}
+  m_LocalScale: {x: 0.347, y: 0.390625, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 505326185}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1799906244
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -5731,25 +5830,25 @@ SpriteRenderer:
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
   m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
+  m_SelectedEditorRenderState: 0
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -100
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 0c350e5fd400cf34a8839970f5268fd2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 28.61, y: 12.8}
-  m_AdaptiveMode: 0
-  m_AdaptiveThreshold: 0.5
+  m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1809678785
 GameObject:

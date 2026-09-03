@@ -7,9 +7,9 @@ namespace FoodIsekaiZ.Configuration
     public class UWBAxisConversion
     {
         [Tooltip("Where the tracker's raw X goes in Unity. Tokens: x, -x, y, -y, z, -z, none.")]
-        public string rawXTo = "z";
+        public string rawXTo = "x";
         [Tooltip("Where the tracker's raw Y goes in Unity. Tokens: x, -x, y, -y, z, -z, none.")]
-        public string rawYTo = "x";
+        public string rawYTo = "z";
         [Tooltip("Where the tracker's raw Z goes in Unity. Tokens: x, -x, y, -y, z, -z, none.")]
         public string rawZTo = "none";
 
@@ -157,34 +157,14 @@ namespace FoodIsekaiZ.Configuration
         public string UWBSerialPort = "COM5";
         public int UWBBaudRate = 921600;
 
-        [Tooltip("รับข้อมูลจาก Serial หรือ UDP datagram ที่บรรจุ NoopLoop binary frame")]
-        public Fortal.UWB.UWBTransportMode transportMode = Fortal.UWB.UWBTransportMode.Serial;
-        public string udpListenAddress = "0.0.0.0";
-        public int udpListenPort = 9000;
-
-        [Tooltip("Per-axis remap of the raw tracker position onto Unity space. Matches the calibrated paintingGround coordinate frame: raw X -> Unity Z and raw Y -> Unity X.")]
+        [Tooltip("Per-axis remap of the raw tracker position onto the configured Unity world frame.")]
         public UWBAxisConversion axisConversion = new UWBAxisConversion();
 
-        [Tooltip("Meters added to the device position after axis conversion, matching the calibrated paintingGround tracker origin.")]
-        public Vector3 UWBInputOffset = new Vector3(0.8f, 0f, -0.5f);
+        [Tooltip("Meters added to the device position after axis conversion.")]
+        public Vector3 UWBInputOffset = Vector3.zero;
 
         [Tooltip("Multiplier applied to raw UWB positions (real-world meters) to convert them into game-world units. 1 = 1 real meter maps to 1 Unity unit.")]
         public float metersToWorldScale = 1f;
-
-        [Header("Editor Simulation Bounds")]
-        [Tooltip("Physical X/Z range used by simulated keyboard and auto movement.")]
-        public Vector2 simulationMinMeters = Vector2.zero;
-        public Vector2 simulationMaxMeters = new Vector2(6f, 4f);
-
-        [Header("Arena Mapping")]
-        [Tooltip("Maps the calibrated physical UWB X/Z range into the centered Floor arena coordinates.")]
-        public bool useArenaMapping = true;
-        public bool clampToArena = true;
-        public Vector2 physicalMinMeters = Vector2.zero;
-        public Vector2 physicalMaxMeters = new Vector2(6f, 4f);
-        [Tooltip("Arena X/Z bounds. Vector2.y represents world Z.")]
-        public Vector2 arenaMin = new Vector2(-5.5f, -2.5f);
-        public Vector2 arenaMax = new Vector2(5.5f, 2.5f);
 
         [Header("Tracking / Smoothing")]
         public UWBTrackingSettings tracking = new UWBTrackingSettings();
