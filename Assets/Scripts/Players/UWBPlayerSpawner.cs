@@ -19,7 +19,7 @@ namespace FoodIsekaiZ.Players
             [Min(1)] public int playerId = 1;
             [Min(0)] public int tagId = 1;
             public Color color = Color.cyan;
-            [Tooltip("ตำแหน่ง X/Z ก่อน UWB frame แรก (Vector2.y คือ world Z)")]
+            [Tooltip("ตำแหน่ง X/Z เริ่มต้นก่อน UWB frame แรก และใช้เป็นจุดเกิดใน standalone Simulation (Vector2.y คือ world Z)")]
             public Vector2 initialPosition;
 
             public PlayerDefinition(int playerId, int tagId, Color color)
@@ -35,6 +35,7 @@ namespace FoodIsekaiZ.Players
         [SerializeField] private UWBPlayerController playerPrefab;
         [SerializeField] private Transform playerParent;
         [SerializeField] private bool spawnOnStart = true;
+
         [Header("Player Size")]
         [Tooltip("ขนาดโดยรวมของ Player ทุกตัว รวม marker และ collider")]
         [SerializeField, Min(0.05f)] private float playerScale = 1f;
@@ -54,12 +55,30 @@ namespace FoodIsekaiZ.Players
 
         private readonly List<UWBPlayerController> spawnedPlayers = new List<UWBPlayerController>();
         private UWBManager uwbManager;
+        private bool standaloneSimulationMode;
 
         public IReadOnlyList<UWBPlayerController> SpawnedPlayers => spawnedPlayers;
 
+        /// <summary>คืนค่า true เมื่อ Spawner อยู่ใน standalone Simulation ของ UWBManager</summary>
+        public bool IsStandaloneSimulationMode => standaloneSimulationMode;
+
+        private void Awake()
+        {
+            UWBManager manager = FindAnyObjectByType<UWBManager>();
+            standaloneSimulationMode = manager != null && manager.IsSimulationMode;
+            if (!standaloneSimulationMode || manager == null)
+            {
+                return;
+            }
+
+            // Simulation ของ UWBManager ใช้เป็นตัวเลือกโหมดเท่านั้นใน Spawner นี้
+            // จึงปิด pipeline จำลองของ UWB เพื่อไม่ให้ตำแหน่ง Player ถูกเขียนทับ
+            manager.enabled = false;
+        }
+
         private void Start()
         {
-            uwbManager = FindAnyObjectByType<UWBManager>();
+            uwbManager = standaloneSimulationMode ? null : FindAnyObjectByType<UWBManager>();
             if (spawnOnStart)
             {
                 SpawnPlayers();
@@ -73,7 +92,7 @@ namespace FoodIsekaiZ.Players
 
         private void OnDestroy()
         {
-            if (uwbManager == null)
+            if (standaloneSimulationMode || uwbManager == null)
             {
                 return;
             }
@@ -104,6 +123,7 @@ namespace FoodIsekaiZ.Players
             }
 
             Transform targetParent = playerParent != null ? playerParent : transform;
+            bool useUwbTracking = !standaloneSimulationMode;
             for (int i = 0; i < players.Length; i++)
             {
                 PlayerDefinition definition = players[i];
@@ -113,11 +133,21 @@ namespace FoodIsekaiZ.Players
                 }
 
                 UWBPlayerController controller = CreatePlayer(targetParent);
-                controller.transform.localPosition = new Vector3(
-                    definition.initialPosition.x,
-                    0.12f,
-                    definition.initialPosition.y);
+                controller.SetUwbTrackingEnabled(useUwbTracking);
                 controller.Configure(definition.playerId, definition.tagId, definition.color);
+                if (useUwbTracking)
+                {
+                    controller.transform.localPosition = new Vector3(
+                        definition.initialPosition.x,
+                        0.12f,
+                        definition.initialPosition.y);
+                }
+                else
+                {
+                    // ใช้ตำแหน่งเริ่มต้นเดิมเพื่อให้ผู้เล่นเรียงถัดกันบนเส้นกลางสนาม
+                    controller.SetStandaloneWorldPosition(definition.initialPosition);
+                }
+
                 controller.SetPlayerScale(playerScale);
 
                 if (controller.GetComponent<FoodIsekaiZPlayerState>() == null)
@@ -126,7 +156,11 @@ namespace FoodIsekaiZ.Players
                 }
 
                 controller.gameObject.SetActive(true);
-                uwbManager?.RegisterTag(controller.TagId);
+                if (useUwbTracking)
+                {
+                    uwbManager?.RegisterTag(controller.TagId);
+                }
+
                 spawnedPlayers.Add(controller);
             }
         }
@@ -184,6 +218,11 @@ namespace FoodIsekaiZ.Players
 
         private void RefreshSerialPlayerPresence()
         {
+            if (standaloneSimulationMode)
+            {
+                return;
+            }
+
             if (uwbManager == null)
             {
                 uwbManager = FindAnyObjectByType<UWBManager>();

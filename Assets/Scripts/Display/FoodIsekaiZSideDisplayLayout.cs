@@ -1,4 +1,5 @@
 using FoodIsekaiZ.Gameplay;
+using FoodIsekaiZ.Players;
 using Fortal.UWB;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,6 +21,7 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private FoodIsekaiZArenaLayout arenaLayout;
         [SerializeField] private FoodIsekaiZGameManager gameManager;
         [SerializeField] private UWBManager uwbManager;
+        [SerializeField] private UWBPlayerSpawner playerSpawner;
 
         [Header("Wall Background")]
         [Tooltip("Optional Image used as the wall-display background. Assign a Sprite in its Source Image field.")]
@@ -232,7 +234,11 @@ namespace FoodIsekaiZ.Display
             bool simulationMode = false;
             string managerStatus = null;
 
-            if (uwbManager == null)
+            if (playerSpawner != null && playerSpawner.IsStandaloneSimulationMode)
+            {
+                displayMode = 5;
+            }
+            else if (uwbManager == null)
             {
                 displayMode = 0;
             }
@@ -285,6 +291,11 @@ namespace FoodIsekaiZ.Display
                 case 3:
                     uwbStatusText.text = "UWB  PORT OPEN\nNO BINARY DATA";
                     uwbStatusText.color = Color.yellow;
+                    break;
+
+                case 5:
+                    uwbStatusText.text = "SIMULATION MODE\nUWB DISABLED";
+                    uwbStatusText.color = Color.green;
                     break;
 
                 default:
@@ -713,6 +724,11 @@ namespace FoodIsekaiZ.Display
             if (uwbManager == null)
             {
                 uwbManager = FindAnyObjectByType<UWBManager>();
+            }
+
+            if (playerSpawner == null)
+            {
+                playerSpawner = FindAnyObjectByType<UWBPlayerSpawner>();
             }
         }
     }
