@@ -30,7 +30,6 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private Color backgroundImageTint = Color.white;
 
         [Header("Runtime Colors")]
-        [SerializeField] private Color panelColor = new Color(0.065f, 0.09f, 0.13f, 1f);
         [SerializeField] private Color accentColor = new Color(0.1f, 0.85f, 1f, 1f);
         [SerializeField] private Color moneyColor = new Color(1f, 0.82f, 0.15f, 1f);
 
@@ -40,7 +39,7 @@ namespace FoodIsekaiZ.Display
         private Text intermissionCountdownText;
         private Text uwbStatusText;
         private readonly Text[] customerStatusTexts = new Text[CustomerPanelCapacity];
-        private readonly Image[] customerPanelImages = new Image[CustomerPanelCapacity];
+        private readonly Image[] customerPanelBackgrounds = new Image[CustomerPanelCapacity];
         private readonly Slider[] customerTimerSliders = new Slider[CustomerPanelCapacity];
         private readonly Image[] customerTimerFills = new Image[CustomerPanelCapacity];
         private FoodIsekaiZGameManager subscribedGameManager;
@@ -166,7 +165,6 @@ namespace FoodIsekaiZ.Display
                         customerDisplayInitialized[i] = true;
                     }
 
-                    SetCustomerPanelColor(i, WithAlphaMultiplier(panelColor, 0.5f));
                     if (timerSlider != null)
                     {
                         timerSlider.gameObject.SetActive(false);
@@ -191,8 +189,6 @@ namespace FoodIsekaiZ.Display
                     lastCustomerDisplayedColor[i] = requestedFoodColor;
                     customerDisplayInitialized[i] = true;
                 }
-
-                SetCustomerPanelColor(i, panelColor);
 
                 switch (slot.CustomerState)
                 {
@@ -482,30 +478,17 @@ namespace FoodIsekaiZ.Display
             mealWaveDisplayDirty = true;
         }
 
-        private void SetCustomerPanelColor(int index, Color color)
-        {
-            if (index < 0 || index >= customerPanelImages.Length || customerPanelImages[index] == null)
-            {
-                return;
-            }
-
-            customerPanelImages[index].color = color;
-        }
-
-        private static Color WithAlphaMultiplier(Color color, float multiplier)
-        {
-            color.a *= Mathf.Clamp01(multiplier);
-            return color;
-        }
-
         private void SetCustomerPanelVisible(int index, bool visible)
         {
-            if (index < 0 || index >= customerPanelImages.Length || customerPanelImages[index] == null)
+            if (index < 0 || index >= customerPanelBackgrounds.Length)
             {
                 return;
             }
 
-            customerPanelImages[index].enabled = visible;
+            if (customerPanelBackgrounds[index] != null)
+            {
+                customerPanelBackgrounds[index].enabled = visible;
+            }
         }
 
         private static string ShortStatus(string value)
@@ -564,7 +547,7 @@ namespace FoodIsekaiZ.Display
                     continue;
                 }
 
-                customerPanelImages[i] = GetManualComponentInHierarchy<Image>(panel);
+                customerPanelBackgrounds[i] = GetManualComponent<Image>(panel, "BG Order");
                 customerStatusTexts[i] = GetManualComponent<Text>(panel, "Status");
                 customerTimerSliders[i] = GetManualComponent<Slider>(panel, "OrderTimer");
                 customerTimerFills[i] = GetManualComponent<Image>(panel, "OrderTimer/FillArea/Fill");
@@ -626,17 +609,6 @@ namespace FoodIsekaiZ.Display
         {
             Transform target = FindManualTransform(root, relativePath);
             return target != null ? target.GetComponent<T>() : null;
-        }
-
-        private static T GetManualComponentInHierarchy<T>(Transform root) where T : Component
-        {
-            if (root == null)
-            {
-                return null;
-            }
-
-            T component = root.GetComponent<T>();
-            return component != null ? component : root.GetComponentInChildren<T>(true);
         }
 
         private static Transform FindManualTransform(Transform root, string relativePath)
