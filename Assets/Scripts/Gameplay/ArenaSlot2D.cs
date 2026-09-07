@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -37,6 +38,7 @@ namespace FoodIsekaiZ.Gameplay
         [SerializeField, Min(0)] private int availableMoney;
         private bool customerTimerStarted;
         private int customerGeneration;
+        private Func<bool> isMoneyPresentationComplete;
 
         private MaterialPropertyBlock slotVisualProperties;
         private Renderer slotRenderer;
@@ -49,7 +51,12 @@ namespace FoodIsekaiZ.Gameplay
         public CustomerSlotState CustomerState => customerState;
         /// <summary>Gets the incrementing identity of the customer currently assigned to this slot.</summary>
         public int CustomerGeneration => customerGeneration;
-        public bool HasCustomer => customerState == CustomerSlotState.WaitingForFood || customerState == CustomerSlotState.Eating;
+        /// <summary>Whether a customer still occupies this slot, including its success presentation.</summary>
+        public bool HasCustomer => customerState == CustomerSlotState.WaitingForFood ||
+            customerState == CustomerSlotState.Eating || customerState == CustomerSlotState.Completing;
+        /// <summary>Whether this completed order can expose its reward for collection.</summary>
+        public bool IsReadyToSpawnMoney => customerState == CustomerSlotState.Completing &&
+            (isMoneyPresentationComplete == null || isMoneyPresentationComplete());
         public FoodType RequestedFood => requestedFood;
         public float StateRemainingSeconds => stateRemainingSeconds;
         public float StateTimeNormalized => stateDurationSeconds > 0f
@@ -178,6 +185,7 @@ namespace FoodIsekaiZ.Gameplay
 
         public void ConfigureCustomer(FoodType food, float orderTimeSeconds, int reward)
         {
+            isMoneyPresentationComplete = null;
             customerGeneration = customerGeneration == int.MaxValue ? 1 : customerGeneration + 1;
             requestedFood = food;
             customerState = CustomerSlotState.WaitingForFood;
@@ -246,6 +254,33 @@ namespace FoodIsekaiZ.Gameplay
             return stateRemainingSeconds <= 0f;
         }
 
+        /// <summary>Stops the eating timer and reserves the slot while its success presentation finishes.</summary>
+        public bool TryFinishEating()
+        {
+            if (customerState != CustomerSlotState.Eating || stateRemainingSeconds > 0f)
+            {
+                return false;
+            }
+
+            customerState = CustomerSlotState.Completing;
+            stateRemainingSeconds = 0f;
+            stateDurationSeconds = 0f;
+            customerTimerStarted = false;
+            isMoneyPresentationComplete = null;
+            RefreshVisuals();
+            return true;
+        }
+
+        /// <summary>Defers this order's money until the supplied presentation condition is true.</summary>
+        public void WaitForMoneyPresentation(Func<bool> isComplete)
+        {
+            if (customerState == CustomerSlotState.Completing)
+            {
+                isMoneyPresentationComplete = isComplete;
+            }
+        }
+
+        /// <summary>Makes the completed order's reward visible and available to collect.</summary>
         public void SpawnMoney(int amount)
         {
             if (slotType != ArenaSlotType.Customer)
@@ -254,6 +289,7 @@ namespace FoodIsekaiZ.Gameplay
             }
 
             availableMoney = Mathf.Max(0, amount);
+            isMoneyPresentationComplete = null;
             customerState = CustomerSlotState.MoneyAvailable;
             stateRemainingSeconds = 0f;
             stateDurationSeconds = 0f;
@@ -275,6 +311,7 @@ namespace FoodIsekaiZ.Gameplay
 
         public void ClearCustomer()
         {
+            isMoneyPresentationComplete = null;
             customerState = CustomerSlotState.Empty;
             requestedFood = FoodType.None;
             stateRemainingSeconds = 0f;
