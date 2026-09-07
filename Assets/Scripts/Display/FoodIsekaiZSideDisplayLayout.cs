@@ -23,6 +23,10 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private UWBManager uwbManager;
         [SerializeField] private UWBPlayerSpawner playerSpawner;
 
+        [Header("Customer Food Prefabs")]
+        [Tooltip("Food prefabs used as the customer order icons, ordered Food1 through Food5.")]
+        [SerializeField] private GameObject[] foodPrefabs = new GameObject[5];
+
         [Header("Wall Background")]
         [Tooltip("Optional Image used as the wall-display background. Assign a Sprite in its Source Image field.")]
         [SerializeField] private Image backgroundImage;
@@ -38,7 +42,7 @@ namespace FoodIsekaiZ.Display
         private Text mealWaveTimerText;
         private Text intermissionCountdownText;
         private Text uwbStatusText;
-        private readonly Text[] customerStatusTexts = new Text[CustomerPanelCapacity];
+        private readonly Image[] customerStatusImages = new Image[CustomerPanelCapacity];
         private readonly Image[] customerPanelBackgrounds = new Image[CustomerPanelCapacity];
         private readonly Slider[] customerTimerSliders = new Slider[CustomerPanelCapacity];
         private readonly Image[] customerTimerFills = new Image[CustomerPanelCapacity];
@@ -53,34 +57,27 @@ namespace FoodIsekaiZ.Display
         private string lastUwbStatus;
         private readonly bool[] customerDisplayInitialized = new bool[CustomerPanelCapacity];
         private readonly FoodType[] lastCustomerDisplayedFood = new FoodType[CustomerPanelCapacity];
-        private readonly Color[] lastCustomerDisplayedColor = new Color[CustomerPanelCapacity];
 
         /// <summary>Gets the manually authored wall-display Canvas.</summary>
         public Canvas SideCanvas => sideCanvas;
 
         private void OnValidate()
         {
-            if (!Application.isPlaying)
-            {
-                ApplyBackgroundImage();
-                ConfigureWallCamera();
-            }
+            // Scene-authored layout and styling are intentionally left untouched here.
+            // Unity calls OnValidate when scripts reload, so changing UI properties from
+            // this method would overwrite values edited manually in the Scene view.
         }
 
         private void Awake()
         {
             EnsureReferences();
             CacheManualDisplay();
-            ApplyBackgroundImage();
-            ConfigureWallCamera();
         }
 
         private void Start()
         {
             EnsureReferences();
             CacheManualDisplay();
-            ApplyBackgroundImage();
-            ConfigureWallCamera();
             SubscribeToGameEvents();
             MarkScoreDisplayDirty();
             FlushScoreDisplayUpdates();
@@ -118,23 +115,14 @@ namespace FoodIsekaiZ.Display
         {
             UpdateUwbStatusText();
 
-            for (int i = 0; i < customerStatusTexts.Length; i++)
+            for (int i = 0; i < customerStatusImages.Length; i++)
             {
-                Text statusText = customerStatusTexts[i];
+                Image statusImage = customerStatusImages[i];
                 Slider timerSlider = customerTimerSliders[i];
                 if (gameManager != null &&
                     gameManager.CurrentMealWavePhase == MealWavePhase.Intermission)
                 {
-                    if (statusText != null)
-                    {
-                        if (statusText.text != string.Empty)
-                        {
-                            statusText.text = string.Empty;
-                        }
-
-                        statusText.color = Color.white;
-                    }
-
+                    SetCustomerFoodImage(i, FoodType.None);
                     customerDisplayInitialized[i] = false;
                     SetCustomerPanelVisible(i, false);
                     if (timerSlider != null)
@@ -146,7 +134,7 @@ namespace FoodIsekaiZ.Display
                 }
 
                 SetCustomerPanelVisible(i, true);
-                if (statusText == null)
+                if (statusImage == null)
                 {
                     continue;
                 }
@@ -155,13 +143,10 @@ namespace FoodIsekaiZ.Display
                 if (slot == null || !slot.HasCustomer)
                 {
                     if (!customerDisplayInitialized[i] ||
-                        lastCustomerDisplayedFood[i] != FoodType.None ||
-                        lastCustomerDisplayedColor[i] != Color.white)
+                        lastCustomerDisplayedFood[i] != FoodType.None)
                     {
-                        statusText.text = string.Empty;
-                        statusText.color = Color.white;
+                        SetCustomerFoodImage(i, FoodType.None);
                         lastCustomerDisplayedFood[i] = FoodType.None;
-                        lastCustomerDisplayedColor[i] = Color.white;
                         customerDisplayInitialized[i] = true;
                     }
 
@@ -174,19 +159,11 @@ namespace FoodIsekaiZ.Display
                 }
 
                 FoodType requestedFood = slot.RequestedFood;
-                Color requestedFoodColor = gameManager != null
-                    ? gameManager.GetFoodColor(slot.RequestedFood)
-                    : Color.white;
                 if (!customerDisplayInitialized[i] ||
-                    lastCustomerDisplayedFood[i] != requestedFood ||
-                    lastCustomerDisplayedColor[i] != requestedFoodColor)
+                    lastCustomerDisplayedFood[i] != requestedFood)
                 {
-                    statusText.text = requestedFood >= FoodType.Food1 && requestedFood <= FoodType.Food5
-                        ? $"F{(int)requestedFood}"
-                        : string.Empty;
-                    statusText.color = requestedFoodColor;
+                    SetCustomerFoodImage(i, requestedFood);
                     lastCustomerDisplayedFood[i] = requestedFood;
-                    lastCustomerDisplayedColor[i] = requestedFoodColor;
                     customerDisplayInitialized[i] = true;
                 }
 
@@ -198,11 +175,6 @@ namespace FoodIsekaiZ.Display
                         {
                             timerSlider.gameObject.SetActive(true);
                             timerSlider.SetValueWithoutNotify(slot.StateTimeNormalized);
-                        }
-
-                        if (customerTimerFills[i] != null)
-                        {
-                            customerTimerFills[i].color = accentColor;
                         }
 
                         break;
@@ -269,34 +241,28 @@ namespace FoodIsekaiZ.Display
             {
                 case 0:
                     uwbStatusText.text = "UWB  MISSING\nMANAGER NOT FOUND";
-                    uwbStatusText.color = Color.red;
                     break;
 
                 case 1:
                     string source = simulationMode ? "UWB SIM" : "UWB";
                     uwbStatusText.text =
                         $"{source}  ONLINE  {ageTenths / 10f:0.0}s\n{ShortStatus(managerStatus)}";
-                    uwbStatusText.color = Color.green;
                     break;
 
                 case 2:
                     uwbStatusText.text = "UWB  LINK OK\nWAITING FOR TAG";
-                    uwbStatusText.color = Color.yellow;
                     break;
 
                 case 3:
                     uwbStatusText.text = "UWB  PORT OPEN\nNO BINARY DATA";
-                    uwbStatusText.color = Color.yellow;
                     break;
 
                 case 5:
                     uwbStatusText.text = "SIMULATION MODE\nUWB DISABLED";
-                    uwbStatusText.color = Color.green;
                     break;
 
                 default:
                     uwbStatusText.text = $"UWB  OFFLINE\n{ShortStatus(managerStatus)}";
-                    uwbStatusText.color = Color.red;
                     break;
             }
 
@@ -319,7 +285,6 @@ namespace FoodIsekaiZ.Display
             {
                 customerDisplayInitialized[i] = false;
                 lastCustomerDisplayedFood[i] = FoodType.None;
-                lastCustomerDisplayedColor[i] = default;
             }
         }
 
@@ -355,7 +320,7 @@ namespace FoodIsekaiZ.Display
                 if (scoreText != null)
                 {
                     int score = gameManager != null ? gameManager.TeamScore : 0;
-                    scoreText.text = $"TEAM SCORE  {FormatScore(score)}";
+                    scoreText.text = FormatScore(score);
                 }
 
                 teamScoreDisplayDirty = false;
@@ -413,14 +378,12 @@ namespace FoodIsekaiZ.Display
                     mealWaveTimerText.text = "BREAK TIME";
                     intermissionCountdownText.text =
                         $"NEXT  {gameManager.NextWaveName}\n{seconds}";
-                    intermissionCountdownText.color = Color.white;
                     intermissionCountdownText.gameObject.SetActive(true);
                     break;
 
                 case MealWavePhase.Completed:
                     mealWaveTimerText.text = "ALL MEALS COMPLETE";
                     intermissionCountdownText.text = "SERVICE COMPLETE";
-                    intermissionCountdownText.color = moneyColor;
                     intermissionCountdownText.gameObject.SetActive(true);
                     break;
 
@@ -491,6 +454,41 @@ namespace FoodIsekaiZ.Display
             }
         }
 
+        private void SetCustomerFoodImage(int index, FoodType food)
+        {
+            if (index < 0 || index >= customerStatusImages.Length)
+            {
+                return;
+            }
+
+            Image statusImage = customerStatusImages[index];
+            if (statusImage == null)
+            {
+                return;
+            }
+
+            statusImage.sprite = GetFoodSprite(food);
+            statusImage.enabled = statusImage.sprite != null;
+        }
+
+        private Sprite GetFoodSprite(FoodType food)
+        {
+            int foodIndex = (int)food - (int)FoodType.Food1;
+            if (foodPrefabs == null || foodIndex < 0 || foodIndex >= foodPrefabs.Length)
+            {
+                return null;
+            }
+
+            GameObject foodPrefab = foodPrefabs[foodIndex];
+            if (foodPrefab == null)
+            {
+                return null;
+            }
+
+            Image prefabImage = foodPrefab.GetComponent<Image>();
+            return prefabImage != null ? prefabImage.sprite : null;
+        }
+
         private static string ShortStatus(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -539,7 +537,7 @@ namespace FoodIsekaiZ.Display
             intermissionCountdownText = GetManualComponent<Text>(root, "MealIntermissionCountdown");
             uwbStatusText = GetManualComponent<Text>(root, "UWBStatus");
 
-            for (int i = 0; i < customerStatusTexts.Length; i++)
+            for (int i = 0; i < customerStatusImages.Length; i++)
             {
                 Transform panel = FindManualTransform(root, $"CustomerPanel{i + 1}");
                 if (panel == null)
@@ -548,61 +546,12 @@ namespace FoodIsekaiZ.Display
                 }
 
                 customerPanelBackgrounds[i] = GetManualComponent<Image>(panel, "BG Order");
-                customerStatusTexts[i] = GetManualComponent<Text>(panel, "Status");
+                customerStatusImages[i] = GetManualComponent<Image>(panel, "Status");
                 customerTimerSliders[i] = GetManualComponent<Slider>(panel, "OrderTimer");
                 customerTimerFills[i] = GetManualComponent<Image>(panel, "OrderTimer/FillArea/Fill");
             }
 
             ResetRealtimeDisplayCaches();
-        }
-
-        private void ApplyBackgroundImage()
-        {
-            if (backgroundImage == null)
-            {
-                return;
-            }
-
-            backgroundImage.enabled = true;
-            backgroundImage.raycastTarget = false;
-            backgroundImage.type = Image.Type.Simple;
-            backgroundImage.preserveAspect = false;
-            backgroundImage.transform.SetAsFirstSibling();
-
-            if (backgroundImage.sprite != null)
-            {
-                backgroundImage.color = backgroundImageTint;
-            }
-        }
-
-        private void ConfigureWallCamera()
-        {
-            if (sideCanvas == null || sideCamera == null)
-            {
-                return;
-            }
-
-            RectTransform canvasRect = sideCanvas.GetComponent<RectTransform>();
-            if (canvasRect == null)
-            {
-                return;
-            }
-
-            var corners = new Vector3[4];
-            canvasRect.GetWorldCorners(corners);
-            float wallWidth = Vector3.Distance(corners[0], corners[3]);
-            float wallHeight = Vector3.Distance(corners[0], corners[1]);
-            if (wallWidth <= Mathf.Epsilon || wallHeight <= Mathf.Epsilon)
-            {
-                return;
-            }
-
-            Vector3 wallCenter = (corners[0] + corners[2]) * 0.5f;
-            sideCamera.targetDisplay = DisplayOutput.WallDisplayIndex;
-            sideCamera.orthographic = true;
-            sideCamera.aspect = wallWidth / wallHeight;
-            sideCamera.orthographicSize = wallHeight * 0.5f;
-            sideCamera.transform.position = wallCenter - (sideCamera.transform.forward * 10f);
         }
 
         private static T GetManualComponent<T>(Transform root, string relativePath) where T : Component
