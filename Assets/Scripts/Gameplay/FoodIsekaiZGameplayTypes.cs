@@ -22,7 +22,9 @@ namespace FoodIsekaiZ.Gameplay
         Empty,
         WaitingForFood,
         Eating,
-        MoneyAvailable
+        MoneyAvailable,
+        /// <summary>The customer has finished eating and is waiting for the success presentation.</summary>
+        Completing
     }
 
     public enum MealWavePhase

@@ -44,6 +44,8 @@ namespace FoodIsekaiZ.Display
         private Text uwbStatusText;
         private readonly Image[] customerStatusImages = new Image[CustomerPanelCapacity];
         private readonly Image[] customerPanelBackgrounds = new Image[CustomerPanelCapacity];
+        private readonly CustomerPanelPresentation[] customerPanelPresentations =
+            new CustomerPanelPresentation[CustomerPanelCapacity];
         private readonly Slider[] customerTimerSliders = new Slider[CustomerPanelCapacity];
         private readonly Image[] customerTimerFills = new Image[CustomerPanelCapacity];
         private readonly Vector2[] authoredCustomerStatusPositions =
@@ -119,6 +121,13 @@ namespace FoodIsekaiZ.Display
 
             for (int i = 0; i < customerStatusImages.Length; i++)
             {
+                // Preserve the served food and timer until the success collapse has finished,
+                // even when another player collects the money in the same frame.
+                if (customerPanelPresentations[i] != null && customerPanelPresentations[i].IsCompleting)
+                {
+                    continue;
+                }
+
                 Image statusImage = customerStatusImages[i];
                 Slider timerSlider = customerTimerSliders[i];
                 if (gameManager != null &&
@@ -625,6 +634,7 @@ namespace FoodIsekaiZ.Display
                 }
 
                 customerPanelBackgrounds[i] = GetManualComponent<Image>(panel, "BG Order");
+                customerPanelPresentations[i] = panel.GetComponent<CustomerPanelPresentation>();
                 customerStatusImages[i] = GetManualComponent<Image>(panel, "Status");
                 customerTimerSliders[i] = GetManualComponent<Slider>(panel, "OrderTimer");
                 customerTimerFills[i] = GetManualComponent<Image>(panel, "OrderTimer/FillArea/Fill");

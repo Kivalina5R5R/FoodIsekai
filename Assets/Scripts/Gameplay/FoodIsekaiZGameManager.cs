@@ -149,6 +149,9 @@ namespace FoodIsekaiZ.Gameplay
         public event Action<int, int> PlayerScoreChanged;
         public event Action<int> TeamScoreChanged;
         public event Action<ArenaSlot2D, FoodType> CustomerRequestedFood;
+        /// <summary>Raised when eating ends, before the reward becomes visible or collectible.</summary>
+        public event Action<ArenaSlot2D, int> CustomerFinishedEating;
+        /// <summary>Raised when a completed order's money is visible and available to collect.</summary>
         public event Action<ArenaSlot2D, int> CustomerMoneySpawned;
         public event Action<ArenaSlot2D> CustomerOrderExpired;
         public event Action MealWaveDisplayChanged;
@@ -210,10 +213,13 @@ namespace FoodIsekaiZ.Gameplay
             if (useMealWaves && mealWaveFlowStarted)
             {
                 TickMealWave(Time.deltaTime);
-                if (mealWavePhase != MealWavePhase.Active)
-                {
-                    return;
-                }
+            }
+
+            // Earned rewards may still finish their presentation as intermission begins.
+            TickCompletedCustomerMoney();
+            if (useMealWaves && mealWaveFlowStarted && mealWavePhase != MealWavePhase.Active)
+            {
+                return;
             }
 
             if (!customerFlowStarted)
@@ -383,7 +389,8 @@ namespace FoodIsekaiZ.Gameplay
                 for (int i = 0; i < customerSlots.Length; i++)
                 {
                     ArenaSlot2D slot = customerSlots[i];
-                    if (slot != null && slot.CustomerState != CustomerSlotState.MoneyAvailable)
+                    if (slot != null && slot.CustomerState != CustomerSlotState.MoneyAvailable &&
+                        slot.CustomerState != CustomerSlotState.Completing)
                     {
                         slot.ClearCustomer();
                     }
@@ -545,14 +552,51 @@ namespace FoodIsekaiZ.Gameplay
                     slot.ClearCustomer();
                     ScheduleCustomer(i);
                 }
-                else if (slot.CustomerState == CustomerSlotState.Eating)
+                else if (slot.TryFinishEating())
                 {
+                    int generation = slot.CustomerGeneration;
                     int reward = slot.OrderReward;
-                    slot.SpawnMoney(reward);
                     completedOrderCount++;
-                    CustomerMoneySpawned?.Invoke(slot, reward);
+                    CustomerFinishedEating?.Invoke(slot, reward);
+                    // Without a presentation, the reward is ready in this same frame.
+                    TrySpawnCompletedCustomerMoney(slot, generation);
                 }
             }
+        }
+
+        private void TickCompletedCustomerMoney()
+        {
+            if (customerSlots == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < customerSlots.Length; i++)
+            {
+                ArenaSlot2D slot = customerSlots[i];
+                if (slot != null)
+                {
+                    TrySpawnCompletedCustomerMoney(slot, slot.CustomerGeneration);
+                }
+            }
+        }
+
+        private void TrySpawnCompletedCustomerMoney(ArenaSlot2D slot, int generation)
+        {
+            if (slot == null || slot.CustomerGeneration != generation || !slot.IsReadyToSpawnMoney)
+            {
+                return;
+            }
+
+            // A presentation callback must not release a reward belonging to a replacement customer.
+            if (slot.CustomerGeneration != generation || slot.CustomerState != CustomerSlotState.Completing)
+            {
+                return;
+            }
+
+            int reward = slot.OrderReward;
+            slot.SpawnMoney(reward);
+            CustomerMoneySpawned?.Invoke(slot, reward);
         }
 
         private bool TryInteractWithCustomer(FoodIsekaiZPlayerState player, ArenaSlot2D slot)

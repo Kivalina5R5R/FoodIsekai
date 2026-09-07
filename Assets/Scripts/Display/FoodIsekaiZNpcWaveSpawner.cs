@@ -56,9 +56,9 @@ namespace FoodIsekaiZ.Display
         [SerializeField, Min(0.1f)] private float entranceDistanceCanvasMultiplier = 0.75f;
         [Tooltip("Time in seconds for an NPC to walk from its entrance point to its assigned T slot.")]
         [SerializeField, Min(0.05f)] private float entranceDurationSeconds = 1.5f;
-        [Tooltip("Distance from the assigned T slot at which the NPC switches to the near-target walking duration.")]
+        [Tooltip("Distance from the assigned T slot at which the NPC begins easing into a gentle stop.")]
         [SerializeField, Min(0.01f)] private float nearTargetDistanceCanvasMultiplier = 0.15f;
-        [Tooltip("Walking duration used while the NPC is near its assigned T slot. The default slows the final approach from 1.5 to 2 seconds.")]
+        [Tooltip("Pace of the final approach. The stopping curve matches the incoming walking speed and eases to zero without overshooting.")]
         [SerializeField, Min(0.05f)] private float nearTargetDurationSeconds = 2f;
         [Tooltip("Time in seconds an NPC remains at its assigned T slot before the food UI and timer are shown.")]
         [SerializeField, Min(0f)] private float arrivalHoldDurationSeconds = 1f;
@@ -68,6 +68,16 @@ namespace FoodIsekaiZ.Display
         [SerializeField, Min(0f)] private float walkingBobHeight = 6f;
         [Tooltip("Number of up-and-down walking cycles per second.")]
         [SerializeField, Min(0.1f)] private float walkingBobFrequency = 4.5f;
+
+        [Header("NPC Idle Breathing")]
+        [Tooltip("Seconds for one gentle inhale and exhale while the NPC stands at its slot.")]
+        [SerializeField, Min(0.2f)] private float idleBreathingCycleSeconds = 3.6f;
+        [Tooltip("Height expansion of the NPC image during an inhale; its lower edge stays grounded.")]
+        [SerializeField, Range(0f, 0.03f)] private float idleBreathingHeight = 0.008f;
+        [Tooltip("Subtle width expansion of the NPC image during an inhale.")]
+        [SerializeField, Range(0f, 0.02f)] private float idleBreathingWidth = 0.0025f;
+        [Tooltip("Seconds to blend breathing in after arrival and out when leaving.")]
+        [SerializeField, Min(0.01f)] private float idleBreathingBlendSeconds = 0.45f;
 
         [Header("NPC Spawn Schedule")]
         [Tooltip("Maximum number of NPCs allowed to start walking in one batch. The value is limited to 1 or 2.")]
@@ -105,8 +115,17 @@ namespace FoodIsekaiZ.Display
         private readonly GameObject[] spawnedNpcs = new GameObject[DisplaySlotCount];
         private readonly GameObject[] spawnedNpcPrefabs = new GameObject[DisplaySlotCount];
         private readonly Transform[] customerPanels = new Transform[DisplaySlotCount];
+        private readonly CustomerPanelPresentation[] customerPanelPresentations =
+            new CustomerPanelPresentation[DisplaySlotCount];
+        private FoodIsekaiZGameManager subscribedGameManager;
         private readonly Vector2[] npcTargetPositions = new Vector2[DisplaySlotCount];
         private readonly Vector2[] npcMovementPositions = new Vector2[DisplaySlotCount];
+        private readonly Vector2[] npcApproachStartPositions = new Vector2[DisplaySlotCount];
+        private readonly float[] npcApproachElapsedSeconds = new float[DisplaySlotCount];
+        private readonly float[] npcApproachDurations = new float[DisplaySlotCount];
+        private readonly float[] npcApproachTangents = new float[DisplaySlotCount];
+        private readonly bool[] npcApproachingAtSlots = new bool[DisplaySlotCount];
+        private readonly NpcIdleBreathing[] npcIdleBreathing = new NpcIdleBreathing[DisplaySlotCount];
         private readonly Vector2[] npcExitTargetPositions = new Vector2[DisplaySlotCount];
         private readonly float[] npcWalkPhases = new float[DisplaySlotCount];
         private readonly float[] npcExitTurnStartTimes = new float[DisplaySlotCount];
@@ -174,6 +193,7 @@ namespace FoodIsekaiZ.Display
 
         private void OnDisable()
         {
+            UnsubscribeFromCustomerEvents();
             if (!Application.isPlaying)
             {
                 activeWaveNumber = -1;
@@ -189,6 +209,7 @@ namespace FoodIsekaiZ.Display
         private void Update()
         {
             EnsureReferences();
+            SubscribeToCustomerEvents();
             if (gameManager == null || sideCanvas == null)
             {
                 return;
@@ -268,9 +289,8 @@ namespace FoodIsekaiZ.Display
             for (int slotIndex = 0; slotIndex < spawnedNpcs.Length; slotIndex++)
             {
                 ArenaSlot2D slot = gameManager.GetCustomerSlot(slotIndex);
-                // MoneyAvailable means the customer has finished eating and has
-                // already left the floor. Keep the C slot occupied by its money,
-                // but do not keep the NPC visual there.
+                // Completing keeps the NPC at its slot. The money becomes available
+                // after the success celebration, allowing the NPC to leave.
                 bool shouldHaveNpc = slot != null && slot.HasCustomer;
                 if (!shouldHaveNpc)
                 {
@@ -293,7 +313,11 @@ namespace FoodIsekaiZ.Display
                     continue;
                 }
 
-                pendingSpawnSlots.Add(slotIndex);
+                if (customerPanelPresentations[slotIndex] == null ||
+                    !customerPanelPresentations[slotIndex].IsCelebrating)
+                {
+                    pendingSpawnSlots.Add(slotIndex);
+                }
             }
 
             if (pendingSpawnSlots.Count == 0 ||
@@ -401,6 +425,16 @@ namespace FoodIsekaiZ.Display
 
             ApplyNpcEntranceOrientation(instance, slotIndex, prefab);
             PlaceNpcAtEntrance(instance, slotIndex);
+            RectTransform visualBody = FindNestedTransform(instance.transform, "Image") as RectTransform;
+            if (visualBody != null)
+            {
+                NpcIdleBreathing breathing = instance.AddComponent<NpcIdleBreathing>();
+                breathing.Initialize(visualBody, idleBreathingCycleSeconds, idleBreathingHeight,
+                    idleBreathingWidth, idleBreathingBlendSeconds,
+                    npcWalkPhases[slotIndex] / (Mathf.PI * 2f));
+                npcIdleBreathing[slotIndex] = breathing;
+            }
+
             spawnedNpcs[slotIndex] = instance;
             spawnedNpcPrefabs[slotIndex] = prefab;
             npcCustomerGenerations[slotIndex] = gameManager.GetCustomerSlot(slotIndex)?.CustomerGeneration ?? 0;
@@ -453,6 +487,12 @@ namespace FoodIsekaiZ.Display
 
         private void BeginNpcExit(int slotIndex)
         {
+            CustomerPanelPresentation presentation = customerPanelPresentations[slotIndex];
+            if (presentation != null && presentation.IsCelebrating)
+            {
+                return;
+            }
+
             RectTransform canvasRect = sideCanvas.GetComponent<RectTransform>();
             if (canvasRect == null)
             {
@@ -468,6 +508,8 @@ namespace FoodIsekaiZ.Display
                 new Vector2(direction * exitDistance, 0f);
             npcExitingAtSlots[slotIndex] = true;
             npcArrivedAtSlots[slotIndex] = false;
+            npcApproachingAtSlots[slotIndex] = false;
+            npcIdleBreathing[slotIndex]?.EndIdle();
             npcUiShownAtSlots[slotIndex] = false;
             npcUiReadyTimes[slotIndex] = 0f;
             SetCustomerPanelVisible(slotIndex, false);
@@ -615,46 +657,88 @@ namespace FoodIsekaiZ.Display
                     continue;
                 }
 
-                float distanceToTarget = Vector2.Distance(
-                    npcMovementPositions[slotIndex],
-                    npcTargetPositions[slotIndex]);
-                float movementDuration = distanceToTarget <= nearTargetDistance
-                    ? nearTargetDurationSeconds
-                    : entranceDurationSeconds;
-                float movementSpeed = entranceDistance /
-                    Mathf.Max(0.05f, movementDuration);
-                Vector2 movementPosition = Vector2.MoveTowards(
-                    npcMovementPositions[slotIndex],
-                    npcTargetPositions[slotIndex],
-                    movementSpeed * Time.deltaTime);
+                AnimateNpcArrival(slotIndex, npcRect, entranceDistance, nearTargetDistance);
+            }
+        }
 
-                npcMovementPositions[slotIndex] = movementPosition;
-                bool reachedTarget = Vector2.Distance(
-                    movementPosition,
-                    npcTargetPositions[slotIndex]) <= 0.01f;
-                if (reachedTarget)
+        private void AnimateNpcArrival(int slotIndex, RectTransform npcRect,
+            float entranceDistance, float nearTargetDistance)
+        {
+            float movementSpeed = entranceDistance / Mathf.Max(0.05f, entranceDurationSeconds);
+            float remainingFrameSeconds = Time.deltaTime;
+            float bobWeight = 1f;
+            if (!npcApproachingAtSlots[slotIndex])
+            {
+                float distanceToTarget = Vector2.Distance(
+                    npcMovementPositions[slotIndex], npcTargetPositions[slotIndex]);
+                // Split the frame at the start of the stopping zone, so entering it
+                // preserves the incoming velocity even at a low frame rate.
+                float farWalkSeconds = Mathf.Min(remainingFrameSeconds,
+                    Mathf.Max(0f, distanceToTarget - nearTargetDistance) / movementSpeed);
+                npcMovementPositions[slotIndex] = Vector2.MoveTowards(
+                    npcMovementPositions[slotIndex], npcTargetPositions[slotIndex],
+                    movementSpeed * farWalkSeconds);
+                npcWalkPhases[slotIndex] += farWalkSeconds * walkingBobFrequency * Mathf.PI * 2f;
+                remainingFrameSeconds -= farWalkSeconds;
+                if (distanceToTarget - movementSpeed * farWalkSeconds <= nearTargetDistance + 0.01f)
+                {
+                    BeginNpcFinalApproach(slotIndex, entranceDistance, movementSpeed);
+                }
+            }
+
+            if (npcApproachingAtSlots[slotIndex])
+            {
+                npcApproachElapsedSeconds[slotIndex] += remainingFrameSeconds;
+                float progress = Mathf.Clamp01(npcApproachElapsedSeconds[slotIndex] /
+                    npcApproachDurations[slotIndex]);
+                float tangent = npcApproachTangents[slotIndex];
+                float remaining = 1f - progress;
+                // Cubic Hermite: match the walking velocity at the start, reach
+                // exactly zero at the end, and stay monotonic throughout.
+                float easedProgress = 1f - remaining * remaining * (1f + (2f - tangent) * progress);
+                npcMovementPositions[slotIndex] = Vector2.Lerp(
+                    npcApproachStartPositions[slotIndex], npcTargetPositions[slotIndex], easedProgress);
+                bobWeight = 1f - Mathf.SmoothStep(0f, 1f, progress);
+                float strideSpeed = remaining * (tangent + (6f - 3f * tangent) * progress) / tangent;
+                npcWalkPhases[slotIndex] +=
+                    remainingFrameSeconds * walkingBobFrequency * Mathf.PI * 2f * Mathf.Lerp(0.3f, 1f, strideSpeed);
+                if (progress >= 1f)
                 {
                     npcRect.anchoredPosition = npcTargetPositions[slotIndex];
-                    npcMovementPositions[slotIndex] = npcTargetPositions[slotIndex];
                     MarkNpcArrived(slotIndex);
-                    continue;
+                    return;
                 }
-
-                npcWalkPhases[slotIndex] +=
-                    Time.deltaTime * walkingBobFrequency * Mathf.PI * 2f;
-                float walkingBobOffset = Mathf.Sin(npcWalkPhases[slotIndex]) *
-                    walkingBobHeight;
-                npcRect.anchoredPosition = movementPosition + Vector2.up * walkingBobOffset;
             }
+
+            float walkingBobOffset = Mathf.Sin(npcWalkPhases[slotIndex]) * walkingBobHeight * bobWeight;
+            npcRect.anchoredPosition = npcMovementPositions[slotIndex] + Vector2.up * walkingBobOffset;
+        }
+
+        private void BeginNpcFinalApproach(int slotIndex, float entranceDistance, float incomingSpeed)
+        {
+            Vector2 startPosition = npcMovementPositions[slotIndex];
+            float distance = Mathf.Max(0.0001f, Vector2.Distance(startPosition, npcTargetPositions[slotIndex]));
+            float nearTargetSpeed = entranceDistance / Mathf.Max(0.05f, nearTargetDurationSeconds);
+            // Tangents between 2 and 3 give a continuously decreasing speed.
+            // Bound the requested pace to keep this curve from speeding up or reversing.
+            float duration = Mathf.Clamp(2f * distance / nearTargetSpeed,
+                2f * distance / incomingSpeed, 3f * distance / incomingSpeed);
+            npcApproachStartPositions[slotIndex] = startPosition;
+            npcApproachElapsedSeconds[slotIndex] = 0f;
+            npcApproachDurations[slotIndex] = duration;
+            npcApproachTangents[slotIndex] = incomingSpeed * duration / distance;
+            npcApproachingAtSlots[slotIndex] = true;
         }
 
         private void MarkNpcArrived(int slotIndex)
         {
             npcArrivedAtSlots[slotIndex] = true;
+            npcApproachingAtSlots[slotIndex] = false;
             npcExitingAtSlots[slotIndex] = false;
             npcMovementPositions[slotIndex] = npcTargetPositions[slotIndex];
             npcWalkPhases[slotIndex] = 0f;
             MoveNpcToFinalLayer(slotIndex);
+            npcIdleBreathing[slotIndex]?.BeginIdle();
             npcUiShownAtSlots[slotIndex] = false;
             npcUiReadyTimes[slotIndex] = Time.time + Mathf.Max(0f, arrivalHoldDurationSeconds);
             SetCustomerPanelVisible(slotIndex, false);
@@ -886,6 +970,8 @@ namespace FoodIsekaiZ.Display
         {
             GameObject instance = spawnedNpcs[slotIndex];
             spawnedNpcPrefabs[slotIndex] = null;
+            npcIdleBreathing[slotIndex] = null;
+            npcApproachingAtSlots[slotIndex] = false;
             npcMovementPositions[slotIndex] = Vector2.zero;
             npcExitTargetPositions[slotIndex] = Vector2.zero;
             npcWalkPhases[slotIndex] = 0f;
@@ -909,6 +995,7 @@ namespace FoodIsekaiZ.Display
         {
             for (int i = 0; i < spawnedNpcs.Length; i++)
             {
+                customerPanelPresentations[i]?.Hide(true);
                 DestroyNpcAtSlot(i);
             }
         }
@@ -923,6 +1010,10 @@ namespace FoodIsekaiZ.Display
             arrivalHoldDurationSeconds = Mathf.Max(0f, arrivalHoldDurationSeconds);
             walkingBobHeight = Mathf.Max(0f, walkingBobHeight);
             walkingBobFrequency = Mathf.Max(0.1f, walkingBobFrequency);
+            idleBreathingCycleSeconds = Mathf.Max(0.2f, idleBreathingCycleSeconds);
+            idleBreathingHeight = Mathf.Clamp(idleBreathingHeight, 0f, 0.03f);
+            idleBreathingWidth = Mathf.Clamp(idleBreathingWidth, 0f, 0.02f);
+            idleBreathingBlendSeconds = Mathf.Max(0.01f, idleBreathingBlendSeconds);
             maximumNpcSpawnsPerBatch = Mathf.Clamp(maximumNpcSpawnsPerBatch, 1, 2);
             minimumInitialSpawnDelaySeconds = Mathf.Max(0f, minimumInitialSpawnDelaySeconds);
             maximumInitialSpawnDelaySeconds = Mathf.Max(
@@ -1089,6 +1180,7 @@ namespace FoodIsekaiZ.Display
                 npcTargetPositions[slotIndex] + new Vector2(direction * entranceDistance, 0f);
             npcMovementPositions[slotIndex] = instanceRect.anchoredPosition;
             npcWalkPhases[slotIndex] = UnityEngine.Random.Range(0f, Mathf.PI * 2f);
+            npcApproachingAtSlots[slotIndex] = false;
             npcArrivedAtSlots[slotIndex] = false;
             npcExitingAtSlots[slotIndex] = false;
             npcUiShownAtSlots[slotIndex] = false;
@@ -1105,6 +1197,9 @@ namespace FoodIsekaiZ.Display
             for (int i = 0; i < customerPanels.Length; i++)
             {
                 customerPanels[i] = FindNestedTransform(sideCanvas.transform, $"CustomerPanel{i + 1}");
+                customerPanelPresentations[i] = customerPanels[i] != null
+                    ? customerPanels[i].GetComponent<CustomerPanelPresentation>()
+                    : null;
             }
         }
 
@@ -1115,7 +1210,66 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
-            customerPanels[slotIndex].gameObject.SetActive(visible);
+            CustomerPanelPresentation presentation = customerPanelPresentations[slotIndex];
+            if (presentation == null)
+            {
+                customerPanels[slotIndex].gameObject.SetActive(visible);
+                return;
+            }
+
+            if (visible)
+            {
+                presentation.Show();
+            }
+            else
+            {
+                presentation.Hide();
+            }
+        }
+
+        private void SubscribeToCustomerEvents()
+        {
+            if (subscribedGameManager == gameManager)
+            {
+                return;
+            }
+
+            UnsubscribeFromCustomerEvents();
+            subscribedGameManager = gameManager;
+            if (subscribedGameManager != null)
+            {
+                subscribedGameManager.CustomerFinishedEating += HandleCustomerFinishedEating;
+            }
+        }
+
+        private void UnsubscribeFromCustomerEvents()
+        {
+            if (subscribedGameManager != null)
+            {
+                subscribedGameManager.CustomerFinishedEating -= HandleCustomerFinishedEating;
+            }
+
+            subscribedGameManager = null;
+        }
+
+        private void HandleCustomerFinishedEating(ArenaSlot2D slot, int reward)
+        {
+            for (int i = 0; i < customerPanels.Length; i++)
+            {
+                if (gameManager.GetCustomerSlot(i) != slot || !npcUiShownAtSlots[i] ||
+                    npcExitingAtSlots[i] || npcCustomerGenerations[i] != slot.CustomerGeneration)
+                {
+                    continue;
+                }
+
+                CustomerPanelPresentation presentation = customerPanelPresentations[i];
+                if (presentation != null)
+                {
+                    presentation.Complete();
+                    slot.WaitForMoneyPresentation(() => presentation == null || !presentation.IsCelebrating);
+                }
+                return;
+            }
         }
 
         private void EnsureReferences()
