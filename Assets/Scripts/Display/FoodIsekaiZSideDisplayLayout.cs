@@ -46,6 +46,8 @@ namespace FoodIsekaiZ.Display
         private readonly Image[] customerPanelBackgrounds = new Image[CustomerPanelCapacity];
         private readonly Slider[] customerTimerSliders = new Slider[CustomerPanelCapacity];
         private readonly Image[] customerTimerFills = new Image[CustomerPanelCapacity];
+        private readonly Vector2[] authoredCustomerStatusPositions =
+            new Vector2[CustomerPanelCapacity];
         private FoodIsekaiZGameManager subscribedGameManager;
         private bool teamScoreDisplayDirty = true;
         private bool mvpDisplayDirty = true;
@@ -468,6 +470,7 @@ namespace FoodIsekaiZ.Display
             }
 
             statusImage.sprite = GetFoodSprite(food);
+            ApplyFoodBottomAlignment(index, statusImage);
             statusImage.enabled = statusImage.sprite != null;
         }
 
@@ -487,6 +490,82 @@ namespace FoodIsekaiZ.Display
 
             Image prefabImage = foodPrefab.GetComponent<Image>();
             return prefabImage != null ? prefabImage.sprite : null;
+        }
+
+        private void ApplyFoodBottomAlignment(int index, Image statusImage)
+        {
+            if (index < 0 || index >= authoredCustomerStatusPositions.Length ||
+                statusImage == null || statusImage.rectTransform == null)
+            {
+                return;
+            }
+
+            Vector2 authoredPosition = authoredCustomerStatusPositions[index];
+            Sprite sprite = statusImage.sprite;
+            if (sprite == null)
+            {
+                statusImage.rectTransform.anchoredPosition = authoredPosition;
+                return;
+            }
+
+            Vector4 padding = UnityEngine.Sprites.DataUtility.GetPadding(sprite);
+            float spriteHeight = Mathf.Max(1f, sprite.rect.height);
+            float currentBottomPaddingRatio = padding.y / spriteHeight;
+            float bottomPaddingDelta = GetMinimumFoodBottomPaddingRatio() - currentBottomPaddingRatio;
+            float displayedHeight = GetDisplayedSpriteHeight(statusImage, sprite);
+
+            statusImage.rectTransform.anchoredPosition = authoredPosition +
+                Vector2.up * (bottomPaddingDelta * displayedHeight);
+        }
+
+        private float GetMinimumFoodBottomPaddingRatio()
+        {
+            float minimumRatio = float.MaxValue;
+            if (foodPrefabs == null)
+            {
+                return 0f;
+            }
+
+            for (int i = 0; i < foodPrefabs.Length; i++)
+            {
+                GameObject foodPrefab = foodPrefabs[i];
+                if (foodPrefab == null)
+                {
+                    continue;
+                }
+
+                Image prefabImage = foodPrefab.GetComponent<Image>();
+                Sprite sprite = prefabImage != null ? prefabImage.sprite : null;
+                if (sprite == null)
+                {
+                    continue;
+                }
+
+                Vector4 padding = UnityEngine.Sprites.DataUtility.GetPadding(sprite);
+                minimumRatio = Mathf.Min(minimumRatio, padding.y / Mathf.Max(1f, sprite.rect.height));
+            }
+
+            return minimumRatio == float.MaxValue ? 0f : minimumRatio;
+        }
+
+        private static float GetDisplayedSpriteHeight(Image image, Sprite sprite)
+        {
+            Rect rect = image.rectTransform.rect;
+            if (rect.width <= 0f || rect.height <= 0f)
+            {
+                return 0f;
+            }
+
+            if (!image.preserveAspect || sprite.rect.height <= 0f || sprite.rect.width <= 0f)
+            {
+                return rect.height;
+            }
+
+            float spriteAspect = sprite.rect.width / sprite.rect.height;
+            float rectAspect = rect.width / rect.height;
+            return rectAspect > spriteAspect
+                ? rect.height
+                : rect.width / spriteAspect;
         }
 
         private static string ShortStatus(string value)
@@ -549,6 +628,11 @@ namespace FoodIsekaiZ.Display
                 customerStatusImages[i] = GetManualComponent<Image>(panel, "Status");
                 customerTimerSliders[i] = GetManualComponent<Slider>(panel, "OrderTimer");
                 customerTimerFills[i] = GetManualComponent<Image>(panel, "OrderTimer/FillArea/Fill");
+                if (customerStatusImages[i] != null)
+                {
+                    authoredCustomerStatusPositions[i] =
+                        customerStatusImages[i].rectTransform.anchoredPosition;
+                }
             }
 
             ResetRealtimeDisplayCaches();
