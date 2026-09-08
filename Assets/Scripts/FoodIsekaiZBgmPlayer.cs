@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace FoodIsekaiZ.Audio
 {
-    /// <summary>เล่นเพลง BGM ของเกมเมื่อเริ่ม Play Mode</summary>
+    // เล่นเพลง BGM ของเกมเมื่อเริ่ม Play Mode
     [DisallowMultipleComponent]
     [RequireComponent(typeof(AudioSource))]
     public sealed class FoodIsekaiZBgmPlayer : MonoBehaviour

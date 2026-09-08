@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace FoodIsekaiZ.Display
 {
@@ -23,6 +24,7 @@ namespace FoodIsekaiZ.Display
         private Transform emojiRoot;
         private CanvasGroup bubbleGroup;
         private NpcEmojiBurstGraphic burst;
+        private NpcLoveHeartParticles loveHearts;
         private Vector3 authoredBubbleScale;
         private float authoredBubbleAlpha;
         private int initialMoodLevel;
@@ -36,16 +38,22 @@ namespace FoodIsekaiZ.Display
         private float changeStartAlpha;
         private ChangePhase changePhase;
 
-        /// <summary>Binds the prefab's direct emotion children and hides the entire bubble.</summary>
-        /// <param name="emojiRoot">The authored Emoji child, including its bubble Image.</param>
-        /// <param name="initialMoodLevel">Initial preference, clamped from zero (Normal) to two (Fun).</param>
-        public void Initialize(Transform emojiRoot, int initialMoodLevel)
+        // Binds the authored Emoji bubble and its direct emotion children, then hides the bubble.
+        // Initial preference is clamped from zero (Normal) to two (Fun).
+        // The NPC's body image provides the bounds for Love hearts.
+        public void Initialize(Transform emojiRoot, int initialMoodLevel, Image visualBody = null)
         {
             Hide();
             if (burst != null)
             {
                 Destroy(burst.gameObject);
                 burst = null;
+            }
+            if (loveHearts != null)
+            {
+                loveHearts.Stop();
+                Destroy(loveHearts.gameObject);
+                loveHearts = null;
             }
             this.emojiRoot = emojiRoot;
             this.initialMoodLevel = Mathf.Clamp(initialMoodLevel, 0, 2);
@@ -56,6 +64,7 @@ namespace FoodIsekaiZ.Display
                 bubbleGroup = GetOrAddGroup(emojiRoot.gameObject);
                 authoredBubbleAlpha = bubbleGroup.alpha;
                 CreateBurst(emojiRoot as RectTransform);
+                CreateLoveHearts(visualBody);
             }
 
             for (int index = 0; index < emotionObjects.Length; index++)
@@ -96,6 +105,7 @@ namespace FoodIsekaiZ.Display
             entranceElapsed = 0f;
             changeElapsed = 0f;
             burst?.Stop();
+            loveHearts?.FadeOut();
             for (int index = 0; index < emotionObjects.Length; index++)
             {
                 RestoreEmotion(index);
@@ -168,6 +178,15 @@ namespace FoodIsekaiZ.Display
             visibleEmotionIndex = emotionIndex;
             emotionScale = 1f;
             emotionAlpha = 1f;
+            // Start only when Love is actually revealed, after the old face has faded out.
+            if (emotionIndex == EmotionObjectNames.Length - 1)
+            {
+                loveHearts?.Play();
+            }
+            else
+            {
+                loveHearts?.FadeOut();
+            }
         }
 
         private void Update()
@@ -265,6 +284,33 @@ namespace FoodIsekaiZ.Display
             return group != null ? group : target.AddComponent<CanvasGroup>();
         }
 
+        private void CreateLoveHearts(Image visualBody)
+        {
+            if (visualBody == null || emojiRoot.parent == null)
+            {
+                return;
+            }
+
+            GameObject prefabObject = Resources.Load<GameObject>("UI/NpcLoveHeartParticles");
+            NpcLoveHeartParticles prefab = prefabObject != null ? prefabObject.GetComponent<NpcLoveHeartParticles>() : null;
+            if (prefab != null)
+            {
+                loveHearts = Instantiate(prefab, emojiRoot.parent, false);
+            }
+            else
+            {
+                GameObject effectObject = new GameObject("NPC Love Hearts", typeof(RectTransform), typeof(CanvasRenderer));
+                effectObject.transform.SetParent(emojiRoot.parent, false);
+                loveHearts = effectObject.AddComponent<NpcLoveHeartParticles>();
+            }
+
+            loveHearts.gameObject.name = "NPC Love Hearts";
+            loveHearts.gameObject.layer = emojiRoot.gameObject.layer;
+            // Keep the hearts above the NPC body and below its emoji bubble.
+            loveHearts.transform.SetSiblingIndex(emojiRoot.GetSiblingIndex());
+            loveHearts.Initialize(visualBody);
+        }
+
         private static float PopScale(float progress, float start, float peak)
         {
             const float peakTime = 0.6f;
@@ -279,6 +325,7 @@ namespace FoodIsekaiZ.Display
         private void OnDisable()
         {
             Hide();
+            loveHearts?.Stop();
         }
 
         private void OnDestroy()
@@ -286,6 +333,10 @@ namespace FoodIsekaiZ.Display
             if (burst != null)
             {
                 Destroy(burst.gameObject);
+            }
+            if (loveHearts != null)
+            {
+                Destroy(loveHearts.gameObject);
             }
         }
     }

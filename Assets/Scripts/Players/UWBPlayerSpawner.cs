@@ -6,10 +6,8 @@ using UnityEngine;
 
 namespace FoodIsekaiZ.Players
 {
-    /// <summary>
-    /// สร้าง Player ทั้งหมดจาก array ใน Inspector ทำให้ไม่ต้องวาง Player01..04 ด้วยมือ
-    /// รองรับทั้งการใช้ prefab และการสร้างวงกลมเปล่าอัตโนมัติ
-    /// </summary>
+    // สร้าง Player ทั้งหมดจาก array ใน Inspector ทำให้ไม่ต้องวาง Player01..04 ด้วยมือ
+    // รองรับทั้งการใช้ prefab และการสร้างวงกลมเปล่าอัตโนมัติ
     public sealed class UWBPlayerSpawner : MonoBehaviour
     {
         [Serializable]
@@ -59,7 +57,7 @@ namespace FoodIsekaiZ.Players
 
         public IReadOnlyList<UWBPlayerController> SpawnedPlayers => spawnedPlayers;
 
-        /// <summary>คืนค่า true เมื่อ Spawner อยู่ใน standalone Simulation ของ UWBManager</summary>
+        // คืนค่า true เมื่อ Spawner อยู่ใน standalone Simulation ของ UWBManager
         public bool IsStandaloneSimulationMode => standaloneSimulationMode;
 
         private void Awake()

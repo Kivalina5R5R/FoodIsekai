@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Fortal.UWB
 {
-    /// <summary>One decoded NoopLoop LinkTrack UWB frame (TagFrame0 or AnchorFrame0).</summary>
+    // One decoded NoopLoop LinkTrack UWB frame (TagFrame0 or AnchorFrame0).
     public readonly struct NoopLoopPose
     {
         public NoopLoopPose(
@@ -33,14 +33,14 @@ namespace Fortal.UWB
         public byte Role { get; }
         public string FrameType { get; }
 
-        /// <summary>Raw NoopLoop protocol axis order (X, Y, Z), not Unity space. UWBManager applies the configured axis conversion.</summary>
+        // Raw NoopLoop protocol axis order (X, Y, Z), not Unity space. UWBManager applies the configured axis conversion.
         public Vector3 PositionMeters { get; }
         public float[] AnchorDistancesMeters { get; }
         public float Voltage { get; }
         public byte[] NodeIds { get; }
         public byte[] NodeRoles { get; }
 
-        /// <summary>Raw NoopLoop protocol axis order (X, Y, Z), same caveat as PositionMeters.</summary>
+        // Raw NoopLoop protocol axis order (X, Y, Z), same caveat as PositionMeters.
         public Vector3[] NodePositionsMeters { get; }
         public float[][] NodeAnchorDistancesMeters { get; }
     }

@@ -2,11 +2,9 @@ using UnityEngine;
 
 namespace Fortal.UWB
 {
-    /// <summary>
-    /// Attach to a follow-target GameObject. Registers itself with a <see cref="UWBManager"/> by
-    /// <see cref="tagId"/> and applies drift-free smoothing (low-pass filter + deadzone + SmoothDamp)
-    /// to the positions the manager resolves each frame.
-    /// </summary>
+    // Attach to a follow-target GameObject. Registers itself with a UWBManager by
+    // tagId and applies drift-free smoothing (low-pass filter + deadzone + SmoothDamp)
+    // to the positions the manager resolves each frame.
     public sealed class UWBTracker : MonoBehaviour
     {
         [Header("UWB Tag")]
@@ -85,7 +83,7 @@ namespace Fortal.UWB
             manager?.RemoveTag(this);
         }
 
-        /// <summary>Changes tagId and re-registers with the manager under the new key.</summary>
+        // Changes tagId and re-registers with the manager under the new key.
         public void SetTagId(int newTagId)
         {
             if (tagId == newTagId)
@@ -128,7 +126,7 @@ namespace Fortal.UWB
             transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref smoothVelocity, smoothTime);
         }
 
-        /// <summary>Called by the owning UWBManager whenever it resolves a fresh or predicted position for tagId.</summary>
+        // Called by the owning UWBManager whenever it resolves a fresh or predicted position for tagId.
         public void ApplyTrackedPosition(Vector3 positionMeters, float sampleAgeSeconds)
         {
             isTracking = true;
@@ -167,7 +165,7 @@ namespace Fortal.UWB
             lastAppliedPosition = positionMeters;
         }
 
-        /// <summary>Called by the owning UWBManager when this tag's data has gone stale.</summary>
+        // Called by the owning UWBManager when this tag's data has gone stale.
         public void SetOffline()
         {
             isTracking = false;

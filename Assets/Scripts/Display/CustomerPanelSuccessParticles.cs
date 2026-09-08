@@ -87,7 +87,7 @@ namespace FoodIsekaiZ.Display
             SetVerticesDirty();
         }
 
-        /// <inheritdoc />
+        // Stops the celebration when its graphic is disabled.
         protected override void OnDisable()
         {
             Stop();
@@ -111,7 +111,7 @@ namespace FoodIsekaiZ.Display
             SetVerticesDirty();
         }
 
-        /// <inheritdoc />
+        // Builds the celebration ring and particles for the current animation frame.
         protected override void OnPopulateMesh(VertexHelper vertexHelper)
         {
             vertexHelper.Clear();

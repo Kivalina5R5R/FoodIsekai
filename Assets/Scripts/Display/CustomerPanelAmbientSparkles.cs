@@ -45,7 +45,7 @@ namespace FoodIsekaiZ.Display
             SetVerticesDirty();
         }
 
-        /// <inheritdoc />
+        // Stops the sparkle animation when its graphic is disabled.
         protected override void OnDisable()
         {
             Stop();
@@ -63,7 +63,7 @@ namespace FoodIsekaiZ.Display
             SetVerticesDirty();
         }
 
-        /// <inheritdoc />
+        // Builds the visible sparkles around the order border.
         protected override void OnPopulateMesh(VertexHelper vertices)
         {
             vertices.Clear();

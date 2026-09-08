@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace FoodIsekaiZ.Display
 {
-    /// <summary>Reveals an entering NPC on the foreground layer while preserving its opaque rear image.</summary>
+    // Reveals an entering NPC on the foreground layer while preserving its opaque rear image.
     public sealed class NpcForegroundBlend : MonoBehaviour
     {
         private static readonly int ForegroundWeightId = Shader.PropertyToID("_ForegroundWeight");
@@ -19,19 +19,19 @@ namespace FoodIsekaiZ.Display
         private float rearLaneOffset;
         private float weight;
 
-        /// <summary>Gets the temporary foreground object used by the NPC slot sorting.</summary>
+        // Gets the temporary foreground object used by the NPC slot sorting.
         public GameObject ForegroundRoot => foregroundRoot != null ? foregroundRoot.gameObject : null;
 
-        /// <summary>Gets the distance from the destination where the forward step begins.</summary>
+        // Gets the distance from the destination where the forward step begins.
         public float ApproachStartDistance => approachStartDistance;
 
-        /// <summary>Gets the remaining vertical offset from the final standing baseline.</summary>
+        // Gets the remaining vertical offset from the final standing baseline.
         public float RearLaneOffset => foregroundRoot != null ? rearLaneOffset * (1f - weight) : 0f;
 
-        /// <summary>Gets how much of the foreground image is visible.</summary>
+        // Gets how much of the foreground image is visible.
         public float Weight => weight;
 
-        /// <summary>Creates a visual-only foreground copy using the live NPC's authored geometry.</summary>
+        // Creates a visual-only foreground copy using the live NPC's authored geometry.
         public void Initialize(RectTransform npcRoot, Image npcImage, Transform frontLayer,
             float startDistance, float laneOffset)
         {
@@ -89,7 +89,7 @@ namespace FoodIsekaiZ.Display
             }
         }
 
-        /// <summary>Blends in the foreground without fading the unoccluded body in the rear layer.</summary>
+        // Blends in the foreground without fading the unoccluded body in the rear layer.
         public void SetProgress(float progress)
         {
             weight = Mathf.Clamp01(progress);
@@ -106,7 +106,7 @@ namespace FoodIsekaiZ.Display
             }
         }
 
-        /// <summary>Keeps both images at the same animated pose, including their authored scale and flip.</summary>
+        // Keeps both images at the same animated pose, including their authored scale and flip.
         public void SynchronizePose()
         {
             if (foregroundRoot == null || sourceRoot == null || sourceVisual == null)
@@ -118,7 +118,7 @@ namespace FoodIsekaiZ.Display
             CopyPose(sourceVisual, foregroundVisual);
         }
 
-        /// <summary>Immediately hides and releases the temporary foreground image.</summary>
+        // Immediately hides and releases the temporary foreground image.
         public void Clear()
         {
             if (sourceImage != null && rearBlendMaterial != null)

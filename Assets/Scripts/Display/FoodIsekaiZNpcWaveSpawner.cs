@@ -13,7 +13,7 @@ using UnityEditor.SceneManagement;
 namespace FoodIsekaiZ.Display
 {
 
-    /// <summary>Coordinates the customer NPCs shown for each wave on the wall display.</summary>
+    // Coordinates the customer NPCs shown for each wave on the wall display.
     public sealed class FoodIsekaiZNpcWaveSpawner : MonoBehaviour
     {
         private const int DisplaySlotCount = 6;
@@ -1348,7 +1348,9 @@ namespace FoodIsekaiZ.Display
             }
 
             NpcEmojiPresentation presentation = instance.AddComponent<NpcEmojiPresentation>();
-            presentation.Initialize(emojiRoot, npcEmojiRandom.Next(0, 3));
+            Transform visualBody = FindNestedTransform(instance.transform, "Image");
+            presentation.Initialize(emojiRoot, npcEmojiRandom.Next(0, 3),
+                visualBody != null ? visualBody.GetComponent<Image>() : null);
             npcEmojiPresentations[slotIndex] = presentation;
         }
 

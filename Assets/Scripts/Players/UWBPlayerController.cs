@@ -256,7 +256,7 @@ namespace FoodIsekaiZ.Players
             FindAndRegisterManager();
         }
 
-        /// <summary>กำหนดว่าจะให้ Controller อ่านตำแหน่งจาก UWB หรือไม่</summary>
+        // กำหนดว่าจะให้ Controller อ่านตำแหน่งจาก UWB หรือไม่
         public void SetUwbTrackingEnabled(bool enabled)
         {
             if (useUwbTracking == enabled)
@@ -277,7 +277,7 @@ namespace FoodIsekaiZ.Players
             SetPlayerMarkerVisible(true);
         }
 
-        /// <summary>ตั้งตำแหน่งโลกของ Player สำหรับ standalone Simulation mode</summary>
+        // ตั้งตำแหน่งโลกของ Player สำหรับ standalone Simulation mode
         public void SetStandaloneWorldPosition(Vector2 worldPosition)
         {
             Vector3 targetPosition = new Vector3(worldPosition.x, floorHeight, worldPosition.y);

@@ -83,14 +83,14 @@ namespace FoodIsekaiZ.Display
             effect.localScale = authoredScale;
         }
 
-        /// <inheritdoc />
+        // Stops the emoji burst when its graphic is disabled.
         protected override void OnDisable()
         {
             Stop();
             base.OnDisable();
         }
 
-        /// <inheritdoc />
+        // Builds the expanding sparkles behind the emoji bubble.
         protected override void OnPopulateMesh(VertexHelper vertices)
         {
             vertices.Clear();
