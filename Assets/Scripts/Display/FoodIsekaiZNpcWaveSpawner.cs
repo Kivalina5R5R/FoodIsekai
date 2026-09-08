@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using FoodIsekaiZ.Gameplay;
 using UnityEngine;
+using UnityEngine.UI;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -62,6 +63,10 @@ namespace FoodIsekaiZ.Display
         [SerializeField, Range(0f, 100f)] private float maximumWalkingSpeedIncreasePercent = 40f;
         [Tooltip("Seconds for the final short step to slow from walking speed to a complete stop.")]
         [SerializeField, Min(0.05f)] private float arrivalStoppingSeconds = 0.28f;
+        [Tooltip("Distance from an inner T slot where the NPC steps forward, capped at 6% of the canvas width to keep it behind the preceding customer while passing. Blends during the stopping step and finishes before arrival.")]
+        [SerializeField, Range(0.01f, 0.06f)] private float foregroundApproachDistanceCanvasMultiplier = 0.06f;
+        [Tooltip("Vertical offset of the rear walking lane, in canvas pixels. Blends to zero as T2-T5 step forward without changing their final size or position.")]
+        [SerializeField, Min(0f)] private float foregroundApproachRearOffsetPixels = 18f;
         [Tooltip("Minimum horizontal gap in canvas widths between NPCs entering together from the same side. The nearer slot leads.")]
         [SerializeField, Min(0f)] private float pairedEntranceSpacingCanvasMultiplier = 0.14f;
         [Tooltip("Time in seconds an NPC remains at its assigned T slot before the food UI and timer are shown.")]
@@ -127,6 +132,7 @@ namespace FoodIsekaiZ.Display
         private readonly float[] npcApproachDurations = new float[DisplaySlotCount];
         private readonly bool[] npcApproachingAtSlots = new bool[DisplaySlotCount];
         private readonly NpcIdleBreathing[] npcIdleBreathing = new NpcIdleBreathing[DisplaySlotCount];
+        private readonly NpcForegroundBlend[] npcForegroundBlends = new NpcForegroundBlend[DisplaySlotCount];
         private readonly Vector2[] npcExitTargetPositions = new Vector2[DisplaySlotCount];
         private readonly float[] npcWalkingSpeedCanvasMultipliers = new float[DisplaySlotCount];
         private readonly float[] npcWalkPhases = new float[DisplaySlotCount];
@@ -426,7 +432,7 @@ namespace FoodIsekaiZ.Display
                 return false;
             }
 
-            // Keep every moving NPC behind settled NPCs until it reaches its slot.
+            // Start behind settled NPCs; inner slots step forward only near their destination.
             Transform instanceTransform = Instantiate(prefabTransform, movementLayer, false);
             GameObject instance = instanceTransform.gameObject;
             instance.name = prefabName;
@@ -450,6 +456,7 @@ namespace FoodIsekaiZ.Display
 
             spawnedNpcs[slotIndex] = instance;
             spawnedNpcPrefabs[slotIndex] = prefab;
+            BeginNpcForegroundApproach(slotIndex, instance.transform as RectTransform, visualBody, finalLayer);
             npcCustomerGenerations[slotIndex] = gameManager.GetCustomerSlot(slotIndex)?.CustomerGeneration ?? 0;
             IncreaseNpcPrefabPower(prefab);
             SortNpcLayerChildren(movementLayer);
@@ -481,7 +488,8 @@ namespace FoodIsekaiZ.Display
         {
             for (int i = 0; i < spawnedNpcs.Length; i++)
             {
-                if (spawnedNpcs[i] == instance)
+                if (spawnedNpcs[i] == instance ||
+                    (npcForegroundBlends[i] != null && npcForegroundBlends[i].ForegroundRoot == instance))
                 {
                     return i;
                 }
@@ -513,6 +521,13 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
+            // A customer can leave during entry. Keep its current lane height when cancelling the blend.
+            if (npcForegroundBlends[slotIndex] != null)
+            {
+                npcMovementPositions[slotIndex] += Vector2.up * npcForegroundBlends[slotIndex].RearLaneOffset;
+                ClearNpcForegroundApproach(slotIndex);
+            }
+
             float exitDistance = Mathf.Max(
                 1f,
                 canvasRect.rect.width * entranceDistanceCanvasMultiplier);
@@ -534,7 +549,7 @@ namespace FoodIsekaiZ.Display
                 npcExitTurnStartRotations[slotIndex] = npcRect.localRotation;
             }
 
-            MoveNpcToMovementLayer(slotIndex);
+            MoveNpcToExitLayer(slotIndex);
         }
 
         private bool AnimateNpcExitTurn(int slotIndex, RectTransform npcRect)
@@ -710,6 +725,7 @@ namespace FoodIsekaiZ.Display
                 }
             }
 
+            UpdateNpcForegroundApproach(slotIndex, nearTargetDistance);
             ApplyNpcWalkingPose(slotIndex, npcRect, previousPosition, movementSpeed, bobWeight);
         }
 
@@ -721,7 +737,76 @@ namespace FoodIsekaiZ.Display
             float distanceMoved = Vector2.Distance(previousPosition, npcMovementPositions[slotIndex]);
             npcWalkPhases[slotIndex] += distanceMoved / movementSpeed * walkingBobFrequency * Mathf.PI * 2f;
             float walkingBobOffset = (0.5f - 0.5f * Mathf.Cos(npcWalkPhases[slotIndex])) * walkingBobHeight * bobWeight;
-            npcRect.anchoredPosition = npcMovementPositions[slotIndex] + Vector2.up * walkingBobOffset;
+            NpcForegroundBlend foregroundBlend = npcForegroundBlends[slotIndex];
+            float laneOffset = foregroundBlend != null ? foregroundBlend.RearLaneOffset : 0f;
+            npcRect.anchoredPosition = npcMovementPositions[slotIndex] + Vector2.up * (walkingBobOffset + laneOffset);
+            foregroundBlend?.SynchronizePose();
+        }
+
+        private void BeginNpcForegroundApproach(int slotIndex, RectTransform npcRect,
+            RectTransform visualBody, Transform finalLayer)
+        {
+            // Prefabs authored to stay in the rear layer have no foreground handoff.
+            if (slotIndex <= 0 || slotIndex >= DisplaySlotCount - 1 || finalLayer != frontLayer ||
+                npcRect == null || visualBody == null)
+            {
+                return;
+            }
+
+            Image npcImage = visualBody.GetComponent<Image>();
+            RectTransform canvasRect = sideCanvas.GetComponent<RectTransform>();
+            if (npcImage == null || canvasRect == null)
+            {
+                return;
+            }
+
+            float canvasWidth = canvasRect.rect.width;
+            // Keep the forward step close to the destination, including scenes with the old
+            // 0.18 setting. A faster walking pace must not widen this zone into the preceding slot.
+            float startDistance = canvasWidth * Mathf.Clamp(foregroundApproachDistanceCanvasMultiplier, 0.01f, 0.06f);
+            NpcForegroundBlend blend = npcRect.gameObject.AddComponent<NpcForegroundBlend>();
+            blend.Initialize(npcRect, npcImage, frontLayer, startDistance,
+                Mathf.Max(0f, foregroundApproachRearOffsetPixels));
+            npcForegroundBlends[slotIndex] = blend;
+            npcRect.anchoredPosition += Vector2.up * blend.RearLaneOffset;
+            blend.SynchronizePose();
+            SortNpcLayerChildren(frontLayer);
+        }
+
+        private void UpdateNpcForegroundApproach(int slotIndex, float stoppingDistance)
+        {
+            NpcForegroundBlend blend = npcForegroundBlends[slotIndex];
+            if (blend == null)
+            {
+                return;
+            }
+
+            float remainingDistance = Vector2.Distance(npcMovementPositions[slotIndex], npcTargetPositions[slotIndex]);
+            // Use the braking step to finish the blend smoothly while there is still
+            // distance left to walk, rather than requiring an early foreground handoff.
+            float completionDistance = Mathf.Min(stoppingDistance * 0.2f, blend.ApproachStartDistance * 0.25f);
+            float progress = Mathf.Clamp01((blend.ApproachStartDistance - remainingDistance) /
+                Mathf.Max(0.0001f, blend.ApproachStartDistance - completionDistance));
+            blend.SetProgress(Mathf.SmoothStep(0f, 1f, progress));
+            if (progress >= 1f)
+            {
+                // The foreground image is already fully visible; replacing it now causes no layer pop at arrival.
+                MoveNpcToFinalLayer(slotIndex);
+                ClearNpcForegroundApproach(slotIndex);
+            }
+        }
+
+        private void ClearNpcForegroundApproach(int slotIndex)
+        {
+            NpcForegroundBlend blend = npcForegroundBlends[slotIndex];
+            npcForegroundBlends[slotIndex] = null;
+            if (blend == null)
+            {
+                return;
+            }
+
+            blend.Clear();
+            Destroy(blend);
         }
 
         private void BeginNpcFinalApproach(int slotIndex, float incomingSpeed, float stoppingDuration)
@@ -743,6 +828,7 @@ namespace FoodIsekaiZ.Display
             npcMovementPositions[slotIndex] = npcTargetPositions[slotIndex];
             npcWalkPhases[slotIndex] = 0f;
             MoveNpcToFinalLayer(slotIndex);
+            ClearNpcForegroundApproach(slotIndex);
             npcIdleBreathing[slotIndex]?.BeginIdle();
             npcUiShownAtSlots[slotIndex] = false;
             npcUiReadyTimes[slotIndex] = Time.time + Mathf.Max(0f, arrivalHoldDurationSeconds);
@@ -761,9 +847,10 @@ namespace FoodIsekaiZ.Display
             MoveNpcToLayer(slotIndex, finalLayer);
         }
 
-        private void MoveNpcToMovementLayer(int slotIndex)
+        private void MoveNpcToExitLayer(int slotIndex)
         {
-            MoveNpcToLayer(slotIndex, backLayer);
+            bool exitsFromOuterSlot = slotIndex == 0 || slotIndex == DisplaySlotCount - 1;
+            MoveNpcToLayer(slotIndex, exitsFromOuterSlot ? frontLayer : backLayer);
         }
 
         private void MoveNpcToLayer(int slotIndex, Transform targetLayer)
@@ -973,6 +1060,7 @@ namespace FoodIsekaiZ.Display
 
         private void DestroyNpcAtSlot(int slotIndex)
         {
+            ClearNpcForegroundApproach(slotIndex);
             GameObject instance = spawnedNpcs[slotIndex];
             spawnedNpcPrefabs[slotIndex] = null;
             npcIdleBreathing[slotIndex] = null;
@@ -1011,6 +1099,8 @@ namespace FoodIsekaiZ.Display
             entranceSpeedCanvasMultiplier = Mathf.Max(0.01f, entranceSpeedCanvasMultiplier);
             maximumWalkingSpeedIncreasePercent = Mathf.Clamp(maximumWalkingSpeedIncreasePercent, 0f, 100f);
             arrivalStoppingSeconds = Mathf.Max(0.05f, arrivalStoppingSeconds);
+            foregroundApproachDistanceCanvasMultiplier = Mathf.Clamp(foregroundApproachDistanceCanvasMultiplier, 0.01f, 0.06f);
+            foregroundApproachRearOffsetPixels = Mathf.Max(0f, foregroundApproachRearOffsetPixels);
             pairedEntranceSpacingCanvasMultiplier = Mathf.Max(0f, pairedEntranceSpacingCanvasMultiplier);
             arrivalHoldDurationSeconds = Mathf.Max(0f, arrivalHoldDurationSeconds);
             walkingBobHeight = Mathf.Max(0f, walkingBobHeight);
@@ -1154,13 +1244,16 @@ namespace FoodIsekaiZ.Display
                 return false;
             }
 
-            float authoredVerticalPosition = instanceRect.anchoredPosition.y;
+            // Match a manually placed NPC on the wall's lower edge. Prefab root Y
+            // values are old placement offsets; keep the visual child's authored
+            // size, scale and offset so its proportions remain unchanged.
+            float standingBaselineY = canvasRect.rect.yMin;
             Vector3 targetLocalPosition = canvasRect.InverseTransformPoint(target.position);
             instanceRect.anchorMin = new Vector2(0.5f, 0.5f);
             instanceRect.anchorMax = new Vector2(0.5f, 0.5f);
             instanceRect.anchoredPosition = new Vector2(
                 targetLocalPosition.x,
-                authoredVerticalPosition);
+                standingBaselineY);
             instanceRect.localRotation = Quaternion.identity;
             npcTargetPositions[slotIndex] = instanceRect.anchoredPosition;
             return true;
