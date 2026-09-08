@@ -73,10 +73,10 @@ namespace FoodIsekaiZ.Display
         [SerializeField, Min(0f)] private float arrivalHoldDurationSeconds = 1f;
 
         [Header("NPC Walking Motion")]
-        [Tooltip("Vertical distance in canvas pixels that an NPC bobs while walking.")]
-        [SerializeField, Min(0f)] private float walkingBobHeight = 4f;
+        [Tooltip("Vertical lift in canvas pixels per walking step. The entrance stride ends on a grounded step at the destination.")]
+        [SerializeField, Min(0f)] private float walkingBobHeight = 12f;
         [Tooltip("Number of up-and-down walking cycles per second.")]
-        [SerializeField, Min(0.1f)] private float walkingBobFrequency = 1.8f;
+        [SerializeField, Min(0.1f)] private float walkingBobFrequency = 2.2f;
 
         [Header("NPC Idle Breathing")]
         [Tooltip("Seconds for one gentle inhale and exhale while the NPC stands at its slot.")]
@@ -683,10 +683,19 @@ namespace FoodIsekaiZ.Display
         private void AnimateNpcArrival(int slotIndex, RectTransform npcRect,
             float movementSpeed, float stoppingDuration, float deltaSeconds)
         {
+            if (deltaSeconds <= 0f)
+            {
+                return;
+            }
+
             Vector2 previousPosition = npcMovementPositions[slotIndex];
+            // Count stride distance backwards from the destination's grounded pose.
+            // Every entrance then finishes its actual down-step at the target,
+            // rather than fading an arbitrary airborne pose down to the floor.
+            npcWalkPhases[slotIndex] = -Vector2.Distance(previousPosition, npcTargetPositions[slotIndex]) /
+                movementSpeed * walkingBobFrequency * Mathf.PI * 2f;
             float nearTargetDistance = 0.5f * movementSpeed * stoppingDuration;
             float remainingFrameSeconds = Mathf.Max(0f, deltaSeconds);
-            float bobWeight = 1f;
             if (!npcApproachingAtSlots[slotIndex])
             {
                 float distanceToTarget = Vector2.Distance(
@@ -716,7 +725,6 @@ namespace FoodIsekaiZ.Display
                 float easedProgress = 1f - remaining * remaining;
                 npcMovementPositions[slotIndex] = Vector2.Lerp(
                     npcApproachStartPositions[slotIndex], npcTargetPositions[slotIndex], easedProgress);
-                bobWeight = remaining;
                 if (progress >= 1f)
                 {
                     npcRect.anchoredPosition = npcTargetPositions[slotIndex];
@@ -726,7 +734,7 @@ namespace FoodIsekaiZ.Display
             }
 
             UpdateNpcForegroundApproach(slotIndex, nearTargetDistance);
-            ApplyNpcWalkingPose(slotIndex, npcRect, previousPosition, movementSpeed, bobWeight);
+            ApplyNpcWalkingPose(slotIndex, npcRect, previousPosition, movementSpeed, 1f);
         }
 
         private void ApplyNpcWalkingPose(int slotIndex, RectTransform npcRect,

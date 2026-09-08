@@ -15,12 +15,18 @@ namespace FoodIsekaiZ.Display
         [Tooltip("The order background defines the visual center without changing the panel pivot.")]
         [SerializeField] private RectTransform visualCenter;
         [SerializeField] private CustomerPanelSuccessParticles successParticlesPrefab;
+        [SerializeField] private CustomerPanelAmbientSparkles ambientSparklesPrefab;
 
         [Header("Entrance")]
         [SerializeField, Min(0.05f)] private float entranceDurationSeconds = 0.42f;
         [SerializeField, Range(0.1f, 1f)] private float entranceScale = 0.72f;
         [SerializeField, Min(0f)] private float entranceLiftPixels = 18f;
         [SerializeField, Range(0f, 0.2f)] private float entranceOvershoot = 0.06f;
+
+        [Header("Waiting For Food")]
+        [SerializeField, Min(0.5f)] private float idleCycleSeconds = 3.6f;
+        [SerializeField, Min(0f)] private float idleFloatPixels = 2f;
+        [SerializeField, Range(0f, 0.02f)] private float idleScaleAmount = 0.004f;
 
         [Header("Successful Order")]
         [SerializeField, Min(0.05f)] private float expandDurationSeconds = 0.18f;
@@ -29,6 +35,7 @@ namespace FoodIsekaiZ.Display
 
         private RectTransform panelRect;
         private CustomerPanelSuccessParticles successParticles;
+        private CustomerPanelAmbientSparkles ambientSparkles;
         private Vector3 authoredScale;
         private Vector3 authoredPosition;
         private Vector3 centerOffset;
@@ -57,6 +64,7 @@ namespace FoodIsekaiZ.Display
         public void Show()
         {
             Initialize();
+            EnsureAmbientSparkles();
             if (phase != MotionPhase.Hidden && gameObject.activeSelf)
             {
                 return;
@@ -69,6 +77,7 @@ namespace FoodIsekaiZ.Display
             phaseElapsedSeconds = 0f;
             gameObject.SetActive(true);
             ApplyMotion(entranceScale, -entranceLiftPixels, 0f);
+            ambientSparkles?.Play();
         }
 
         /// <summary>Expands and collapses the visible order, then emits its success particles once.</summary>
@@ -80,6 +89,7 @@ namespace FoodIsekaiZ.Display
             }
 
             expandStartScale = currentScale;
+            ambientSparkles?.Stop();
             expandStartLift = currentLift;
             expandStartAlpha = panelGroup.alpha;
             phase = MotionPhase.Expanding;
@@ -113,7 +123,7 @@ namespace FoodIsekaiZ.Display
 
         private void Update()
         {
-            if (phase == MotionPhase.Hidden || phase == MotionPhase.Visible)
+            if (phase == MotionPhase.Hidden)
             {
                 return;
             }
@@ -123,6 +133,9 @@ namespace FoodIsekaiZ.Display
             {
                 case MotionPhase.Entering:
                     AnimateEntrance();
+                    break;
+                case MotionPhase.Visible:
+                    AnimateIdle();
                     break;
                 case MotionPhase.Expanding:
                     AnimateExpansion();
@@ -145,8 +158,17 @@ namespace FoodIsekaiZ.Display
             if (progress >= 1f)
             {
                 phase = MotionPhase.Visible;
+                phaseElapsedSeconds = 0f;
                 RestoreAuthoredAppearance();
             }
+        }
+
+        private void AnimateIdle()
+        {
+            float cycle = phaseElapsedSeconds / Mathf.Max(0.5f, idleCycleSeconds) * Mathf.PI * 2f;
+            float breath = (1f - Mathf.Cos(cycle)) * 0.5f;
+            ApplyMotion(1f + breath * Mathf.Clamp(idleScaleAmount, 0f, 0.02f),
+                breath * Mathf.Max(0f, idleFloatPixels), authoredAlpha);
         }
 
         private void AnimateExpansion()
@@ -200,12 +222,40 @@ namespace FoodIsekaiZ.Display
             authoredPosition = panelRect.anchoredPosition3D;
             authoredAlpha = panelGroup.alpha;
             initialized = true;
+            EnsureAmbientSparkles();
+
             if (successParticlesPrefab != null)
             {
                 successParticles = Instantiate(successParticlesPrefab, panelRect.parent, false);
                 successParticles.name = $"{name} Success Particles";
                 successParticles.Stop();
             }
+        }
+
+        private void EnsureAmbientSparkles()
+        {
+            if (ambientSparkles != null || visualCenter == null)
+            {
+                return;
+            }
+
+            // An already-open scene can still have the old, empty prefab reference.
+            // Resources also keeps this fallback available in player builds.
+            CustomerPanelAmbientSparkles prefab = ambientSparklesPrefab;
+            if (prefab == null)
+            {
+                GameObject prefabAsset = Resources.Load<GameObject>("UI/CustomerPanelAmbientSparkles");
+                prefab = prefabAsset != null ? prefabAsset.GetComponent<CustomerPanelAmbientSparkles>() : null;
+            }
+            if (prefab == null)
+            {
+                return;
+            }
+
+            // Place only the new effect above the panel content; leave authored children in their order.
+            ambientSparkles = Instantiate(prefab, panelRect, false);
+            ambientSparkles.name = "Order Border Sparkles";
+            ambientSparkles.Initialize(visualCenter.GetComponent<UnityEngine.UI.Image>());
         }
 
         private void CacheVisualCenter()
@@ -246,11 +296,17 @@ namespace FoodIsekaiZ.Display
             phase = MotionPhase.Hidden;
             phaseElapsedSeconds = 0f;
             successParticles?.Stop();
+            ambientSparkles?.Stop();
             RestoreAuthoredAppearance();
         }
 
         private void OnDestroy()
         {
+            if (ambientSparkles != null)
+            {
+                Destroy(ambientSparkles.gameObject);
+            }
+
             if (successParticles != null)
             {
                 Destroy(successParticles.gameObject);
