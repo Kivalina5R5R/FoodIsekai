@@ -7864,18 +7864,18 @@ MonoBehaviour:
   npcPrefabFolder: Assets/Prefab
   npcPrefabNamePrefix: NPC
   entranceDistanceCanvasMultiplier: 0.75
-  entranceDurationSeconds: 1.5
-  nearTargetDistanceCanvasMultiplier: 0.15
-  nearTargetDurationSeconds: 2
+  entranceSpeedCanvasMultiplier: 0.264
+  maximumWalkingSpeedIncreasePercent: 40
+  arrivalStoppingSeconds: 0.28
+  pairedEntranceSpacingCanvasMultiplier: 0.14
   arrivalHoldDurationSeconds: 1
-  walkingBobHeight: 6
-  walkingBobFrequency: 4.5
+  walkingBobHeight: 4
+  walkingBobFrequency: 1.8
   maximumNpcSpawnsPerBatch: 2
   minimumInitialSpawnDelaySeconds: 0.35
   maximumInitialSpawnDelaySeconds: 1.1
   minimumBatchDelaySeconds: 2
   maximumBatchDelaySeconds: 3
-  exitDurationSeconds: 1.5
   exitTurnDurationSeconds: 0.3
   exitTurnLeanDegrees: 2.5
   exitTurnMinimumWidth: 0.78
