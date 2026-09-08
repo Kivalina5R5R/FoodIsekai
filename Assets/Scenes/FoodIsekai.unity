@@ -7861,6 +7861,9 @@ MonoBehaviour:
   - prefab: {fileID: 8851068066204854546, guid: fb6b9e9da1ed3f54fb431e2cc24a9119, type: 3}
     flipWhenEnteringFromLeft: 0
     flipWhenEnteringFromRight: 1
+  - prefab: {fileID: 8960863441655032488, guid: d374003baf77b4b4698cb0d956c3265b, type: 3}
+    flipWhenEnteringFromLeft: 1
+    flipWhenEnteringFromRight: 0
   npcPrefabFolder: Assets/Prefab
   npcPrefabNamePrefix: NPC
   entranceDistanceCanvasMultiplier: 0.75
