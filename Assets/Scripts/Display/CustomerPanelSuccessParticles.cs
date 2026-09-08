@@ -3,7 +3,6 @@ using UnityEngine.UI;
 
 namespace FoodIsekaiZ.Display
 {
-    /// <summary>Draws a reusable, one-shot celebration directly on its parent Canvas.</summary>
     [AddComponentMenu("Food Isekai Z/Display/Customer Panel Success Particles")]
     [RequireComponent(typeof(CanvasRenderer))]
     public sealed class CustomerPanelSuccessParticles : MaskableGraphic
@@ -33,10 +32,8 @@ namespace FoodIsekaiZ.Display
         private float elapsed;
         private bool isPlaying;
 
-        /// <summary>Gets whether this burst is still animating.</summary>
         public bool IsPlaying => isPlaying;
 
-        /// <summary>Starts a fresh burst, replacing any currently playing burst.</summary>
         public void Play()
         {
             int count = Mathf.Clamp(particleCount, 8, 64);
@@ -78,7 +75,6 @@ namespace FoodIsekaiZ.Display
             SetVerticesDirty();
         }
 
-        /// <summary>Clears every particle immediately and resets the playback clock.</summary>
         public void Stop()
         {
             if (!isPlaying && elapsed == 0f)

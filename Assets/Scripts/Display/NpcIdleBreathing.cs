@@ -12,6 +12,10 @@ namespace FoodIsekaiZ.Display
         private const float SettleCompression = 0.004f;
 
         private RectTransform body;
+        private RectTransform verticalFollower;
+        private Vector3 authoredFollowerPosition;
+        private float authoredFollowerLocalY;
+        private Vector3 followerBodyAnchor;
         private Vector3 authoredPosition;
         private Vector3 authoredScale;
         private Quaternion authoredRotation;
@@ -35,8 +39,9 @@ namespace FoodIsekaiZ.Display
         /// <param name="breathWidthAmount">Maximum fractional width expansion during an inhale.</param>
         /// <param name="transitionSeconds">Duration of the fade into or out of the breathing pose.</param>
         /// <param name="phaseOffset">Initial cycle offset in normalized cycles, wrapped into the zero-to-one range.</param>
+        /// <param name="verticalFollower">Optional visual that follows the body's breathing vertically at its authored attachment height.</param>
         public void Initialize(RectTransform visualBody, float breathCycleSeconds, float breathHeightAmount,
-            float breathWidthAmount, float transitionSeconds, float phaseOffset)
+            float breathWidthAmount, float transitionSeconds, float phaseOffset, RectTransform verticalFollower = null)
         {
             if (initialized || visualBody == null)
             {
@@ -47,6 +52,13 @@ namespace FoodIsekaiZ.Display
             authoredPosition = body.anchoredPosition3D;
             authoredScale = body.localScale;
             authoredRotation = body.localRotation;
+            this.verticalFollower = verticalFollower;
+            if (verticalFollower != null)
+            {
+                authoredFollowerPosition = verticalFollower.anchoredPosition3D;
+                authoredFollowerLocalY = verticalFollower.localPosition.y;
+                followerBodyAnchor = body.InverseTransformPoint(verticalFollower.position);
+            }
             Rect bodyRect = body.rect;
             groundedPoint = new Vector3(bodyRect.center.x,
                 authoredScale.y < 0f ? bodyRect.yMax : bodyRect.yMin, 0f);
@@ -124,6 +136,27 @@ namespace FoodIsekaiZ.Display
                 * Vector3.Scale(groundedPoint, authoredScale - animatedScale);
             body.localScale = animatedScale;
             body.anchoredPosition3D = authoredPosition + groundCompensation;
+            UpdateVerticalFollower();
+        }
+
+        private void UpdateVerticalFollower()
+        {
+            if (verticalFollower == null)
+            {
+                return;
+            }
+
+            // Follow the same point on the breathing body without stretching the emoji.
+            // Rebuild from the authored position so offsets never accumulate between frames.
+            Vector3 anchorPosition = body.TransformPoint(followerBodyAnchor);
+            if (verticalFollower.parent != null)
+            {
+                anchorPosition = verticalFollower.parent.InverseTransformPoint(anchorPosition);
+            }
+
+            Vector3 followerPosition = authoredFollowerPosition;
+            followerPosition.y += anchorPosition.y - authoredFollowerLocalY;
+            verticalFollower.anchoredPosition3D = followerPosition;
         }
 
         private void OnDisable()
@@ -145,6 +178,10 @@ namespace FoodIsekaiZ.Display
             body.anchoredPosition3D = authoredPosition;
             body.localScale = authoredScale;
             body.localRotation = authoredRotation;
+            if (verticalFollower != null)
+            {
+                verticalFollower.anchoredPosition3D = authoredFollowerPosition;
+            }
         }
     }
 }

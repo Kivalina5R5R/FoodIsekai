@@ -3,7 +3,6 @@ using UnityEngine.UI;
 
 namespace FoodIsekaiZ.Display
 {
-    /// <summary>Draws sparse looping sparkles along the order frame, outside its food and timer.</summary>
     [AddComponentMenu("Food Isekai Z/Display/Customer Panel Ambient Sparkles")]
     [RequireComponent(typeof(CanvasRenderer))]
     public sealed class CustomerPanelAmbientSparkles : MaskableGraphic
@@ -24,7 +23,6 @@ namespace FoodIsekaiZ.Display
         private float phaseOffset;
         private bool playing;
 
-        /// <summary>Binds the authored order image, including its aspect-preserved drawing bounds.</summary>
         public void Initialize(Image orderBorder)
         {
             borderImage = orderBorder;
@@ -33,7 +31,6 @@ namespace FoodIsekaiZ.Display
             Stop();
         }
 
-        /// <summary>Starts ambient twinkles; they never delay order completion or NPC departure.</summary>
         public void Play()
         {
             elapsed = 0f;
@@ -41,7 +38,6 @@ namespace FoodIsekaiZ.Display
             SetVerticesDirty();
         }
 
-        /// <summary>Immediately clears the ambient effect.</summary>
         public void Stop()
         {
             playing = false;

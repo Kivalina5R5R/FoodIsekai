@@ -1155,7 +1155,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -38, y: -59}
+  m_AnchoredPosition: {x: 0, y: -59}
   m_SizeDelta: {x: 60, y: 8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &164886412
@@ -1244,7 +1244,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -38, y: -59}
+  m_AnchoredPosition: {x: 0, y: -59}
   m_SizeDelta: {x: 60, y: 8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &170048473
@@ -2125,7 +2125,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.05, y: 0.3}
   m_AnchorMax: {x: 0.95, y: 0.96}
-  m_AnchoredPosition: {x: -38.000008, y: -34.1855}
+  m_AnchoredPosition: {x: 0, y: -34.1855}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &422844807
@@ -2235,11 +2235,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1210829978}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -14, y: 114.50003}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: -11, y: 114.50003}
   m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 1}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &448483751
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2267,7 +2267,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 10
     m_MaxSize: 40
-    m_Alignment: 3
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 1
@@ -4162,7 +4162,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -38, y: -59}
+  m_AnchoredPosition: {x: 0, y: -59}
   m_SizeDelta: {x: 60, y: 8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1066344560
@@ -5615,7 +5615,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.05, y: 0.3}
   m_AnchorMax: {x: 0.95, y: 0.96}
-  m_AnchoredPosition: {x: -37.999992, y: -34.1855}
+  m_AnchoredPosition: {x: 0, y: -34.1855}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1809678787
@@ -5817,7 +5817,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 37.1, y: -59}
+  m_AnchoredPosition: {x: 0, y: -59}
   m_SizeDelta: {x: 60, y: 8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1838018648
@@ -5905,7 +5905,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.05, y: 0.3}
   m_AnchorMax: {x: 0.95, y: 0.96}
-  m_AnchoredPosition: {x: 37.1, y: -39}
+  m_AnchoredPosition: {x: 0, y: -39}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1857898658
@@ -5980,7 +5980,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.05, y: 0.3}
   m_AnchorMax: {x: 0.95, y: 0.96}
-  m_AnchoredPosition: {x: -37.999954, y: -34.1855}
+  m_AnchoredPosition: {x: 0, y: -34.1855}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1902413828
@@ -7100,7 +7100,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.05, y: 0.3}
   m_AnchorMax: {x: 0.95, y: 0.96}
-  m_AnchoredPosition: {x: 37.09999, y: -39}
+  m_AnchoredPosition: {x: 0, y: -39}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2015000012
@@ -7176,7 +7176,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 37.1, y: -59}
+  m_AnchoredPosition: {x: 0, y: -59}
   m_SizeDelta: {x: 60, y: 8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2015000022
@@ -7490,7 +7490,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.05, y: 0.3}
   m_AnchorMax: {x: 0.95, y: 0.96}
-  m_AnchoredPosition: {x: 37.1, y: -39}
+  m_AnchoredPosition: {x: 0, y: -39}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2016000012
@@ -7566,7 +7566,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 37.1, y: -59}
+  m_AnchoredPosition: {x: 0, y: -59}
   m_SizeDelta: {x: 60, y: 8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2016000022
@@ -7870,10 +7870,16 @@ MonoBehaviour:
   entranceSpeedCanvasMultiplier: 0.264
   maximumWalkingSpeedIncreasePercent: 40
   arrivalStoppingSeconds: 0.28
+  foregroundApproachDistanceCanvasMultiplier: 0.06
+  foregroundApproachRearOffsetPixels: 18
   pairedEntranceSpacingCanvasMultiplier: 0.14
   arrivalHoldDurationSeconds: 1
   walkingBobHeight: 12
   walkingBobFrequency: 2.2
+  idleBreathingCycleSeconds: 3.6
+  idleBreathingHeight: 0.008
+  idleBreathingWidth: 0.0025
+  idleBreathingBlendSeconds: 0.45
   maximumNpcSpawnsPerBatch: 2
   minimumInitialSpawnDelaySeconds: 0.35
   maximumInitialSpawnDelaySeconds: 1.1
@@ -7922,7 +7928,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -38, y: -11}
+  m_AnchoredPosition: {x: 0, y: -11}
   m_SizeDelta: {x: 219.708, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2100000002
@@ -7997,7 +8003,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -38, y: -11}
+  m_AnchoredPosition: {x: 0, y: -11}
   m_SizeDelta: {x: 221.14398, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2100000012
@@ -8072,7 +8078,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -38, y: -11}
+  m_AnchoredPosition: {x: 0, y: -11}
   m_SizeDelta: {x: 221.14407, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2100000022
@@ -8147,7 +8153,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 37, y: -11}
+  m_AnchoredPosition: {x: 0, y: -11}
   m_SizeDelta: {x: 221.14401, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2100000032
@@ -8222,7 +8228,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 37, y: -11}
+  m_AnchoredPosition: {x: 0, y: -11}
   m_SizeDelta: {x: 221.14395, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2100000042
@@ -8297,7 +8303,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 37, y: -11}
+  m_AnchoredPosition: {x: 0, y: -11}
   m_SizeDelta: {x: 219.70805, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2100000052
@@ -8338,6 +8344,234 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2100000050}
   m_CullTransparentMesh: 1
+--- !u!225 &2131000000
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 690131568}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2131000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 690131568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ff4c07e1e8b465da2f6f094e89ce91c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelPresentation
+  panelGroup: {fileID: 2131000000}
+  visualCenter: {fileID: 2100000001}
+  successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
+  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
+  entranceDurationSeconds: 0.42
+  entranceScale: 0.72
+  entranceLiftPixels: 18
+  entranceOvershoot: 0.06
+  idleCycleSeconds: 3.6
+  idleFloatPixels: 2
+  idleScaleAmount: 0.004
+  expandDurationSeconds: 0.18
+  successScale: 1.18
+  collapseDurationSeconds: 0.24
+--- !u!225 &2131000010
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991298204}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2131000011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991298204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ff4c07e1e8b465da2f6f094e89ce91c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelPresentation
+  panelGroup: {fileID: 2131000010}
+  visualCenter: {fileID: 2100000011}
+  successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
+  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
+  entranceDurationSeconds: 0.42
+  entranceScale: 0.72
+  entranceLiftPixels: 18
+  entranceOvershoot: 0.06
+  idleCycleSeconds: 3.6
+  idleFloatPixels: 2
+  idleScaleAmount: 0.004
+  expandDurationSeconds: 0.18
+  successScale: 1.18
+  collapseDurationSeconds: 0.24
+--- !u!225 &2131000020
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 491305668}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2131000021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 491305668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ff4c07e1e8b465da2f6f094e89ce91c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelPresentation
+  panelGroup: {fileID: 2131000020}
+  visualCenter: {fileID: 2100000021}
+  successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
+  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
+  entranceDurationSeconds: 0.42
+  entranceScale: 0.72
+  entranceLiftPixels: 18
+  entranceOvershoot: 0.06
+  idleCycleSeconds: 3.6
+  idleFloatPixels: 2
+  idleScaleAmount: 0.004
+  expandDurationSeconds: 0.18
+  successScale: 1.18
+  collapseDurationSeconds: 0.24
+--- !u!225 &2131000030
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1376234882}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2131000031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1376234882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ff4c07e1e8b465da2f6f094e89ce91c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelPresentation
+  panelGroup: {fileID: 2131000030}
+  visualCenter: {fileID: 2100000031}
+  successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
+  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
+  entranceDurationSeconds: 0.42
+  entranceScale: 0.72
+  entranceLiftPixels: 18
+  entranceOvershoot: 0.06
+  idleCycleSeconds: 3.6
+  idleFloatPixels: 2
+  idleScaleAmount: 0.004
+  expandDurationSeconds: 0.18
+  successScale: 1.18
+  collapseDurationSeconds: 0.24
+--- !u!225 &2131000040
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015000000}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2131000041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ff4c07e1e8b465da2f6f094e89ce91c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelPresentation
+  panelGroup: {fileID: 2131000040}
+  visualCenter: {fileID: 2100000041}
+  successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
+  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
+  entranceDurationSeconds: 0.42
+  entranceScale: 0.72
+  entranceLiftPixels: 18
+  entranceOvershoot: 0.06
+  idleCycleSeconds: 3.6
+  idleFloatPixels: 2
+  idleScaleAmount: 0.004
+  expandDurationSeconds: 0.18
+  successScale: 1.18
+  collapseDurationSeconds: 0.24
+--- !u!225 &2131000050
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2016000000}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2131000051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2016000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ff4c07e1e8b465da2f6f094e89ce91c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelPresentation
+  panelGroup: {fileID: 2131000050}
+  visualCenter: {fileID: 2100000051}
+  successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
+  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
+  entranceDurationSeconds: 0.42
+  entranceScale: 0.72
+  entranceLiftPixels: 18
+  entranceOvershoot: 0.06
+  idleCycleSeconds: 3.6
+  idleFloatPixels: 2
+  idleScaleAmount: 0.004
+  expandDurationSeconds: 0.18
+  successScale: 1.18
+  collapseDurationSeconds: 0.24
 --- !u!1 &2144607757
 GameObject:
   m_ObjectHideFlags: 0
@@ -8563,213 +8797,3 @@ SceneRoots:
   - {fileID: 278790267}
   - {fileID: 536440275}
   - {fileID: 2144607759}
---- !u!225 &2131000000
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 690131568}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
---- !u!114 &2131000001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 690131568}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ff4c07e1e8b465da2f6f094e89ce91c, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelPresentation
-  panelGroup: {fileID: 2131000000}
-  visualCenter: {fileID: 2100000001}
-  successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
-  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
-  entranceDurationSeconds: 0.42
-  entranceScale: 0.72
-  entranceLiftPixels: 18
-  entranceOvershoot: 0.06
-  expandDurationSeconds: 0.18
-  successScale: 1.18
-  collapseDurationSeconds: 0.24
---- !u!225 &2131000010
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1991298204}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
---- !u!114 &2131000011
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1991298204}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ff4c07e1e8b465da2f6f094e89ce91c, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelPresentation
-  panelGroup: {fileID: 2131000010}
-  visualCenter: {fileID: 2100000011}
-  successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
-  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
-  entranceDurationSeconds: 0.42
-  entranceScale: 0.72
-  entranceLiftPixels: 18
-  entranceOvershoot: 0.06
-  expandDurationSeconds: 0.18
-  successScale: 1.18
-  collapseDurationSeconds: 0.24
---- !u!225 &2131000020
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 491305668}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
---- !u!114 &2131000021
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 491305668}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ff4c07e1e8b465da2f6f094e89ce91c, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelPresentation
-  panelGroup: {fileID: 2131000020}
-  visualCenter: {fileID: 2100000021}
-  successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
-  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
-  entranceDurationSeconds: 0.42
-  entranceScale: 0.72
-  entranceLiftPixels: 18
-  entranceOvershoot: 0.06
-  expandDurationSeconds: 0.18
-  successScale: 1.18
-  collapseDurationSeconds: 0.24
---- !u!225 &2131000030
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1376234882}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
---- !u!114 &2131000031
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1376234882}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ff4c07e1e8b465da2f6f094e89ce91c, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelPresentation
-  panelGroup: {fileID: 2131000030}
-  visualCenter: {fileID: 2100000031}
-  successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
-  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
-  entranceDurationSeconds: 0.42
-  entranceScale: 0.72
-  entranceLiftPixels: 18
-  entranceOvershoot: 0.06
-  expandDurationSeconds: 0.18
-  successScale: 1.18
-  collapseDurationSeconds: 0.24
---- !u!225 &2131000040
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2015000000}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
---- !u!114 &2131000041
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2015000000}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ff4c07e1e8b465da2f6f094e89ce91c, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelPresentation
-  panelGroup: {fileID: 2131000040}
-  visualCenter: {fileID: 2100000041}
-  successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
-  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
-  entranceDurationSeconds: 0.42
-  entranceScale: 0.72
-  entranceLiftPixels: 18
-  entranceOvershoot: 0.06
-  expandDurationSeconds: 0.18
-  successScale: 1.18
-  collapseDurationSeconds: 0.24
---- !u!225 &2131000050
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2016000000}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
---- !u!114 &2131000051
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2016000000}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ff4c07e1e8b465da2f6f094e89ce91c, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelPresentation
-  panelGroup: {fileID: 2131000050}
-  visualCenter: {fileID: 2100000051}
-  successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
-  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
-  entranceDurationSeconds: 0.42
-  entranceScale: 0.72
-  entranceLiftPixels: 18
-  entranceOvershoot: 0.06
-  expandDurationSeconds: 0.18
-  successScale: 1.18
-  collapseDurationSeconds: 0.24

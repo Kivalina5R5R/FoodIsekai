@@ -88,6 +88,12 @@ namespace FoodIsekaiZ.Display
         [Tooltip("Seconds to blend breathing in after arrival and out when leaving.")]
         [SerializeField, Min(0.01f)] private float idleBreathingBlendSeconds = 0.45f;
 
+        [Header("NPC Emoji")]
+        [Tooltip("Seconds after the food menu appears before the NPC emoji becomes visible.")]
+        [SerializeField, Min(0f)] private float emojiDelayAfterMenuSeconds = 0.5f;
+        [Tooltip("Seconds to show Angry at the assigned slot after an order expires, before the NPC starts leaving.")]
+        [SerializeField, Min(0f)] private float angryHoldDurationSeconds = 1.5f;
+
         [Header("NPC Spawn Schedule")]
         [Tooltip("Maximum number of NPCs allowed to start walking in one batch. The value is limited to 1 or 2.")]
         [SerializeField, Range(1, 2)] private int maximumNpcSpawnsPerBatch = 2;
@@ -133,6 +139,11 @@ namespace FoodIsekaiZ.Display
         private readonly bool[] npcApproachingAtSlots = new bool[DisplaySlotCount];
         private readonly NpcIdleBreathing[] npcIdleBreathing = new NpcIdleBreathing[DisplaySlotCount];
         private readonly NpcForegroundBlend[] npcForegroundBlends = new NpcForegroundBlend[DisplaySlotCount];
+        private readonly NpcEmojiPresentation[] npcEmojiPresentations = new NpcEmojiPresentation[DisplaySlotCount];
+        private readonly float[] npcEmojiReadyTimes = new float[DisplaySlotCount];
+        private readonly bool[] npcOrdersExpired = new bool[DisplaySlotCount];
+        private readonly float[] npcAngryUntilTimes = new float[DisplaySlotCount];
+        private System.Random npcEmojiRandom;
         private readonly Vector2[] npcExitTargetPositions = new Vector2[DisplaySlotCount];
         private readonly float[] npcWalkingSpeedCanvasMultipliers = new float[DisplaySlotCount];
         private readonly float[] npcWalkPhases = new float[DisplaySlotCount];
@@ -298,6 +309,7 @@ namespace FoodIsekaiZ.Display
             for (int slotIndex = 0; slotIndex < spawnedNpcs.Length; slotIndex++)
             {
                 ArenaSlot2D slot = gameManager.GetCustomerSlot(slotIndex);
+                UpdateNpcEmoji(slotIndex, slot);
                 // Completing keeps the NPC at its slot. The money becomes available
                 // after the success celebration, allowing the NPC to leave.
                 bool shouldHaveNpc = slot != null && slot.HasCustomer;
@@ -444,13 +456,15 @@ namespace FoodIsekaiZ.Display
 
             ApplyNpcEntranceOrientation(instance, slotIndex, prefab);
             PlaceNpcAtEntrance(instance, slotIndex);
+            InitializeNpcEmoji(instance, slotIndex);
             RectTransform visualBody = FindNestedTransform(instance.transform, "Image") as RectTransform;
             if (visualBody != null)
             {
                 NpcIdleBreathing breathing = instance.AddComponent<NpcIdleBreathing>();
                 breathing.Initialize(visualBody, idleBreathingCycleSeconds, idleBreathingHeight,
                     idleBreathingWidth, idleBreathingBlendSeconds,
-                    npcWalkPhases[slotIndex] / (Mathf.PI * 2f));
+                    npcWalkPhases[slotIndex] / (Mathf.PI * 2f),
+                    FindDirectChild(instance.transform, "Emoji") as RectTransform);
                 npcIdleBreathing[slotIndex] = breathing;
             }
 
@@ -508,6 +522,11 @@ namespace FoodIsekaiZ.Display
 
         private void BeginNpcExit(int slotIndex)
         {
+            if (IsNpcShowingAngryHold(slotIndex))
+            {
+                return;
+            }
+
             CustomerPanelPresentation presentation = customerPanelPresentations[slotIndex];
             if (presentation != null && presentation.IsCelebrating)
             {
@@ -538,6 +557,10 @@ namespace FoodIsekaiZ.Display
             npcArrivedAtSlots[slotIndex] = false;
             npcApproachingAtSlots[slotIndex] = false;
             npcIdleBreathing[slotIndex]?.EndIdle();
+            if (!npcOrdersExpired[slotIndex])
+            {
+                npcEmojiPresentations[slotIndex]?.Hide();
+            }
             npcUiShownAtSlots[slotIndex] = false;
             npcUiReadyTimes[slotIndex] = 0f;
             SetCustomerPanelVisible(slotIndex, false);
@@ -656,6 +679,17 @@ namespace FoodIsekaiZ.Display
                 if (npcExitingAtSlots[slotIndex])
                 {
                     AnimateNpcExit(slotIndex, movementSpeed);
+                    continue;
+                }
+
+                if (npcOrdersExpired[slotIndex])
+                {
+                    // The slot may already belong to the next generation. Keep its
+                    // timer/UI untouched while the expired NPC finishes showing Angry.
+                    if (!IsNpcShowingAngryHold(slotIndex))
+                    {
+                        BeginNpcExit(slotIndex);
+                    }
                     continue;
                 }
 
@@ -897,6 +931,7 @@ namespace FoodIsekaiZ.Display
         {
             npcUiShownAtSlots[slotIndex] = true;
             SetCustomerPanelVisible(slotIndex, true);
+            npcEmojiReadyTimes[slotIndex] = Time.time + Mathf.Max(0f, emojiDelayAfterMenuSeconds);
             StartCustomerTimerForSlot(slotIndex);
         }
 
@@ -1069,6 +1104,11 @@ namespace FoodIsekaiZ.Display
         private void DestroyNpcAtSlot(int slotIndex)
         {
             ClearNpcForegroundApproach(slotIndex);
+            npcEmojiPresentations[slotIndex]?.Hide();
+            npcEmojiPresentations[slotIndex] = null;
+            npcEmojiReadyTimes[slotIndex] = 0f;
+            npcOrdersExpired[slotIndex] = false;
+            npcAngryUntilTimes[slotIndex] = 0f;
             GameObject instance = spawnedNpcs[slotIndex];
             spawnedNpcPrefabs[slotIndex] = null;
             npcIdleBreathing[slotIndex] = null;
@@ -1117,6 +1157,8 @@ namespace FoodIsekaiZ.Display
             idleBreathingHeight = Mathf.Clamp(idleBreathingHeight, 0f, 0.03f);
             idleBreathingWidth = Mathf.Clamp(idleBreathingWidth, 0f, 0.02f);
             idleBreathingBlendSeconds = Mathf.Max(0.01f, idleBreathingBlendSeconds);
+            angryHoldDurationSeconds = Mathf.Max(0f, angryHoldDurationSeconds);
+            emojiDelayAfterMenuSeconds = Mathf.Max(0f, emojiDelayAfterMenuSeconds);
             maximumNpcSpawnsPerBatch = Mathf.Clamp(maximumNpcSpawnsPerBatch, 1, 2);
             minimumInitialSpawnDelaySeconds = Mathf.Max(0f, minimumInitialSpawnDelaySeconds);
             maximumInitialSpawnDelaySeconds = Mathf.Max(
@@ -1288,6 +1330,70 @@ namespace FoodIsekaiZ.Display
             npcUiReadyTimes[slotIndex] = 0f;
         }
 
+        private void InitializeNpcEmoji(GameObject instance, int slotIndex)
+        {
+            npcEmojiReadyTimes[slotIndex] = 0f;
+            npcOrdersExpired[slotIndex] = false;
+            npcAngryUntilTimes[slotIndex] = 0f;
+            Transform emojiRoot = FindDirectChild(instance.transform, "Emoji");
+            if (emojiRoot == null)
+            {
+                return;
+            }
+
+            if (npcEmojiRandom == null)
+            {
+                // Cosmetic moods must not change the gameplay food/spawn random sequence.
+                npcEmojiRandom = new System.Random(GetInstanceID());
+            }
+
+            NpcEmojiPresentation presentation = instance.AddComponent<NpcEmojiPresentation>();
+            presentation.Initialize(emojiRoot, npcEmojiRandom.Next(0, 3));
+            npcEmojiPresentations[slotIndex] = presentation;
+        }
+
+        private void UpdateNpcEmoji(int slotIndex, ArenaSlot2D slot)
+        {
+            NpcEmojiPresentation presentation = npcEmojiPresentations[slotIndex];
+            if (presentation == null || !npcArrivedAtSlots[slotIndex] || npcExitingAtSlots[slotIndex] ||
+                npcOrdersExpired[slotIndex] || slot == null ||
+                slot.CustomerGeneration != npcCustomerGenerations[slotIndex])
+            {
+                return;
+            }
+
+            if (!npcUiShownAtSlots[slotIndex] || Time.time < npcEmojiReadyTimes[slotIndex])
+            {
+                presentation.Hide();
+                return;
+            }
+
+            switch (slot.CustomerState)
+            {
+                case CustomerSlotState.WaitingForFood:
+                    if (slot.IsOrderNearTimeout)
+                    {
+                        presentation.ShowBad();
+                    }
+                    else
+                    {
+                        presentation.ShowInitialMood();
+                    }
+                    break;
+                case CustomerSlotState.Eating:
+                    presentation.ShowLove();
+                    break;
+                default:
+                    presentation.Hide();
+                    break;
+            }
+        }
+
+        private bool IsNpcShowingAngryHold(int slotIndex)
+        {
+            return npcOrdersExpired[slotIndex] && Time.time < npcAngryUntilTimes[slotIndex];
+        }
+
         private float SampleNpcWalkingSpeed()
         {
             float minimumSpeed = Mathf.Max(0.01f, entranceSpeedCanvasMultiplier);
@@ -1370,6 +1476,7 @@ namespace FoodIsekaiZ.Display
             if (subscribedGameManager != null)
             {
                 subscribedGameManager.CustomerFinishedEating += HandleCustomerFinishedEating;
+                subscribedGameManager.CustomerOrderExpired += HandleCustomerOrderExpired;
             }
         }
 
@@ -1378,6 +1485,7 @@ namespace FoodIsekaiZ.Display
             if (subscribedGameManager != null)
             {
                 subscribedGameManager.CustomerFinishedEating -= HandleCustomerFinishedEating;
+                subscribedGameManager.CustomerOrderExpired -= HandleCustomerOrderExpired;
             }
 
             subscribedGameManager = null;
@@ -1393,12 +1501,40 @@ namespace FoodIsekaiZ.Display
                     continue;
                 }
 
+                npcEmojiPresentations[i]?.Hide();
                 CustomerPanelPresentation presentation = customerPanelPresentations[i];
                 if (presentation != null)
                 {
                     presentation.Complete();
                     slot.WaitForMoneyPresentation(() => presentation == null || !presentation.IsCelebrating);
                 }
+                return;
+            }
+        }
+
+        private void HandleCustomerOrderExpired(ArenaSlot2D slot)
+        {
+            if (slot == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < spawnedNpcs.Length; i++)
+            {
+                if (gameManager.GetCustomerSlot(i) != slot || spawnedNpcs[i] == null ||
+                    !npcArrivedAtSlots[i] || npcExitingAtSlots[i] || npcOrdersExpired[i] ||
+                    npcCustomerGenerations[i] != slot.CustomerGeneration)
+                {
+                    continue;
+                }
+
+                // The event arrives before ClearCustomer; latch this NPC's reaction now.
+                npcOrdersExpired[i] = true;
+                npcAngryUntilTimes[i] = Time.time + Mathf.Max(0f, angryHoldDurationSeconds);
+                npcEmojiPresentations[i]?.ShowAngry();
+                npcUiShownAtSlots[i] = false;
+                npcUiReadyTimes[i] = 0f;
+                SetCustomerPanelVisible(i, false);
                 return;
             }
         }
