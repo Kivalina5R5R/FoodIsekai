@@ -3908,8 +3908,8 @@ MonoBehaviour:
   arrivalStoppingSeconds: 0.28
   pairedEntranceSpacingCanvasMultiplier: 0.14
   arrivalHoldDurationSeconds: 1
-  walkingBobHeight: 4
-  walkingBobFrequency: 1.8
+  walkingBobHeight: 12
+  walkingBobFrequency: 2.2
   idleBreathingCycleSeconds: 3.6
   idleBreathingHeight: 0.008
   idleBreathingWidth: 0.0025
@@ -4405,6 +4405,7 @@ MonoBehaviour:
   panelGroup: {fileID: 2131000000}
   visualCenter: {fileID: 2100000001}
   successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
+  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
   entranceDurationSeconds: 0.42
   entranceScale: 0.72
   entranceLiftPixels: 18
@@ -4439,6 +4440,7 @@ MonoBehaviour:
   panelGroup: {fileID: 2131000010}
   visualCenter: {fileID: 2100000011}
   successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
+  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
   entranceDurationSeconds: 0.42
   entranceScale: 0.72
   entranceLiftPixels: 18
@@ -4473,6 +4475,7 @@ MonoBehaviour:
   panelGroup: {fileID: 2131000020}
   visualCenter: {fileID: 2100000021}
   successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
+  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
   entranceDurationSeconds: 0.42
   entranceScale: 0.72
   entranceLiftPixels: 18
@@ -4507,6 +4510,7 @@ MonoBehaviour:
   panelGroup: {fileID: 2131000030}
   visualCenter: {fileID: 2100000031}
   successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
+  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
   entranceDurationSeconds: 0.42
   entranceScale: 0.72
   entranceLiftPixels: 18
@@ -4541,6 +4545,7 @@ MonoBehaviour:
   panelGroup: {fileID: 2131000040}
   visualCenter: {fileID: 2100000041}
   successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
+  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
   entranceDurationSeconds: 0.42
   entranceScale: 0.72
   entranceLiftPixels: 18
@@ -4575,6 +4580,7 @@ MonoBehaviour:
   panelGroup: {fileID: 2131000050}
   visualCenter: {fileID: 2100000051}
   successParticlesPrefab: {fileID: 1730420000000000004, guid: fae10ac23c704c14b236ecf3e64878f1, type: 3}
+  ambientSparklesPrefab: {fileID: 1730430000000000004, guid: b39d82afc36545e099a5a28d1be749cd, type: 3}
   entranceDurationSeconds: 0.42
   entranceScale: 0.72
   entranceLiftPixels: 18
