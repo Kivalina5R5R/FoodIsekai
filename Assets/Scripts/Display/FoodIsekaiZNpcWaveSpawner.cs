@@ -12,6 +12,7 @@ using UnityEditor.SceneManagement;
 namespace FoodIsekaiZ.Display
 {
 
+    /// <summary>Coordinates the customer NPCs shown for each wave on the wall display.</summary>
     public sealed class FoodIsekaiZNpcWaveSpawner : MonoBehaviour
     {
         private const int DisplaySlotCount = 6;
@@ -52,22 +53,25 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private string npcPrefabNamePrefix = DefaultNpcPrefabNamePrefix;
 
         [Header("NPC Entrance")]
-        [Tooltip("Distance outside the wall canvas from which each NPC starts walking.")]
+        [Tooltip("Entrance distance from the canvas center, in canvas widths. Also sets the reference travel distance for exits.")]
         [SerializeField, Min(0.1f)] private float entranceDistanceCanvasMultiplier = 0.75f;
-        [Tooltip("Time in seconds for an NPC to walk from its entrance point to its assigned T slot.")]
-        [SerializeField, Min(0.05f)] private float entranceDurationSeconds = 1.5f;
-        [Tooltip("Distance from the assigned T slot at which the NPC begins easing into a gentle stop.")]
-        [SerializeField, Min(0.01f)] private float nearTargetDistanceCanvasMultiplier = 0.15f;
-        [Tooltip("Pace of the final approach. The stopping curve matches the incoming walking speed and eases to zero without overshooting.")]
-        [SerializeField, Min(0.05f)] private float nearTargetDurationSeconds = 2f;
+        [InspectorName("Walking Speed Canvas Multiplier")]
+        [Tooltip("Minimum walking speed in canvas widths per second. Each NPC samples its own pace on spawn and keeps it for both entrance and exit.")]
+        [SerializeField, Min(0.01f)] private float entranceSpeedCanvasMultiplier = 0.264f;
+        [Tooltip("Maximum random increase above the walking speed, in percent. 40 gives each NPC a pace between 100% and 140% of the base speed.")]
+        [SerializeField, Range(0f, 100f)] private float maximumWalkingSpeedIncreasePercent = 40f;
+        [Tooltip("Seconds for the final short step to slow from walking speed to a complete stop.")]
+        [SerializeField, Min(0.05f)] private float arrivalStoppingSeconds = 0.28f;
+        [Tooltip("Minimum horizontal gap in canvas widths between NPCs entering together from the same side. The nearer slot leads.")]
+        [SerializeField, Min(0f)] private float pairedEntranceSpacingCanvasMultiplier = 0.14f;
         [Tooltip("Time in seconds an NPC remains at its assigned T slot before the food UI and timer are shown.")]
         [SerializeField, Min(0f)] private float arrivalHoldDurationSeconds = 1f;
 
         [Header("NPC Walking Motion")]
         [Tooltip("Vertical distance in canvas pixels that an NPC bobs while walking.")]
-        [SerializeField, Min(0f)] private float walkingBobHeight = 6f;
+        [SerializeField, Min(0f)] private float walkingBobHeight = 4f;
         [Tooltip("Number of up-and-down walking cycles per second.")]
-        [SerializeField, Min(0.1f)] private float walkingBobFrequency = 4.5f;
+        [SerializeField, Min(0.1f)] private float walkingBobFrequency = 1.8f;
 
         [Header("NPC Idle Breathing")]
         [Tooltip("Seconds for one gentle inhale and exhale while the NPC stands at its slot.")]
@@ -92,8 +96,6 @@ namespace FoodIsekaiZ.Display
         [SerializeField, Min(0.05f)] private float maximumBatchDelaySeconds = 3f;
 
         [Header("NPC Exit")]
-        [Tooltip("Time in seconds for an NPC to walk from its slot back beyond the side it entered from.")]
-        [SerializeField, Min(0.05f)] private float exitDurationSeconds = 1.5f;
         [Tooltip("Time in seconds for an NPC to turn around smoothly before leaving. The turn uses a 2D squash-and-flip motion.")]
         [SerializeField, Min(0f)] private float exitTurnDurationSeconds = 0.3f;
         [Tooltip("Small sideways lean in degrees used during the 2D turn.")]
@@ -123,10 +125,10 @@ namespace FoodIsekaiZ.Display
         private readonly Vector2[] npcApproachStartPositions = new Vector2[DisplaySlotCount];
         private readonly float[] npcApproachElapsedSeconds = new float[DisplaySlotCount];
         private readonly float[] npcApproachDurations = new float[DisplaySlotCount];
-        private readonly float[] npcApproachTangents = new float[DisplaySlotCount];
         private readonly bool[] npcApproachingAtSlots = new bool[DisplaySlotCount];
         private readonly NpcIdleBreathing[] npcIdleBreathing = new NpcIdleBreathing[DisplaySlotCount];
         private readonly Vector2[] npcExitTargetPositions = new Vector2[DisplaySlotCount];
+        private readonly float[] npcWalkingSpeedCanvasMultipliers = new float[DisplaySlotCount];
         private readonly float[] npcWalkPhases = new float[DisplaySlotCount];
         private readonly float[] npcExitTurnStartTimes = new float[DisplaySlotCount];
         private readonly Vector3[] npcExitTurnStartScales = new Vector3[DisplaySlotCount];
@@ -137,6 +139,7 @@ namespace FoodIsekaiZ.Display
         private readonly float[] npcUiReadyTimes = new float[DisplaySlotCount];
         private readonly int[] npcCustomerGenerations = new int[DisplaySlotCount];
         private readonly List<int> pendingSpawnSlots = new List<int>(DisplaySlotCount);
+        private readonly List<int> spawnBatchSlots = new List<int>(2);
         private readonly List<GameObject> npcPrefabPool = new List<GameObject>();
         private readonly List<Transform> sortedNpcLayerChildren = new List<Transform>(DisplaySlotCount);
         private readonly Dictionary<GameObject, int> npcPrefabPowerByPrefab =
@@ -339,12 +342,22 @@ namespace FoodIsekaiZ.Display
             int batchSize = Mathf.Min(
                 UnityEngine.Random.Range(1, maximumBatchSize + 1),
                 pendingSpawnSlots.Count);
-            int spawnedCount = 0;
+            spawnBatchSlots.Clear();
             for (int i = 0; i < batchSize; i++)
             {
                 int pendingIndex = UnityEngine.Random.Range(0, pendingSpawnSlots.Count);
                 int slotIndex = pendingSpawnSlots[pendingIndex];
                 pendingSpawnSlots.RemoveAt(pendingIndex);
+                spawnBatchSlots.Add(slotIndex);
+            }
+
+            // Send the nearer customer first when a pair shares an entrance,
+            // so the farther customer starts behind it even when their paces differ.
+            spawnBatchSlots.Sort((left, right) => GetNpcDepthOrder(right).CompareTo(GetNpcDepthOrder(left)));
+            int spawnedCount = 0;
+            for (int i = 0; i < spawnBatchSlots.Count; i++)
+            {
+                int slotIndex = spawnBatchSlots[i];
                 if (SpawnNpcAtSlot(slotIndex))
                 {
                     spawnedCount++;
@@ -562,7 +575,7 @@ namespace FoodIsekaiZ.Display
             return turnProgress >= 1f;
         }
 
-        private void AnimateNpcExit(int slotIndex, RectTransform canvasRect)
+        private void AnimateNpcExit(int slotIndex, float movementSpeed)
         {
             GameObject instance = spawnedNpcs[slotIndex];
             if (instance == null)
@@ -591,14 +604,11 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
-            float exitDistance = Mathf.Max(
-                1f,
-                canvasRect.rect.width * entranceDistanceCanvasMultiplier);
-            float exitSpeed = exitDistance / Mathf.Max(0.05f, exitDurationSeconds);
+            Vector2 previousPosition = npcMovementPositions[slotIndex];
             Vector2 exitPosition = Vector2.MoveTowards(
-                npcMovementPositions[slotIndex],
+                previousPosition,
                 npcExitTargetPositions[slotIndex],
-                exitSpeed * Time.deltaTime);
+                movementSpeed * Time.deltaTime);
             npcMovementPositions[slotIndex] = exitPosition;
             if (Vector2.Distance(exitPosition, npcExitTargetPositions[slotIndex]) <= 0.01f)
             {
@@ -607,10 +617,7 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
-            npcWalkPhases[slotIndex] +=
-                Time.deltaTime * walkingBobFrequency * Mathf.PI * 2f;
-            float walkingBobOffset = Mathf.Sin(npcWalkPhases[slotIndex]) * walkingBobHeight;
-            npcRect.anchoredPosition = exitPosition + Vector2.up * walkingBobOffset;
+            ApplyNpcWalkingPose(slotIndex, npcRect, previousPosition, movementSpeed, 1f);
         }
 
         private void AnimateNpcArrivals()
@@ -621,12 +628,7 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
-            float entranceDistance = Mathf.Max(
-                1f,
-                canvasRect.rect.width * entranceDistanceCanvasMultiplier);
-            float nearTargetDistance = Mathf.Max(
-                1f,
-                canvasRect.rect.width * nearTargetDistanceCanvasMultiplier);
+            float stoppingDuration = Mathf.Max(0.05f, arrivalStoppingSeconds);
             for (int slotIndex = 0; slotIndex < spawnedNpcs.Length; slotIndex++)
             {
                 if (spawnedNpcs[slotIndex] == null)
@@ -634,9 +636,11 @@ namespace FoodIsekaiZ.Display
                     continue;
                 }
 
+                float movementSpeed = Mathf.Max(1f,
+                    canvasRect.rect.width * npcWalkingSpeedCanvasMultipliers[slotIndex]);
                 if (npcExitingAtSlots[slotIndex])
                 {
-                    AnimateNpcExit(slotIndex, canvasRect);
+                    AnimateNpcExit(slotIndex, movementSpeed);
                     continue;
                 }
 
@@ -657,15 +661,16 @@ namespace FoodIsekaiZ.Display
                     continue;
                 }
 
-                AnimateNpcArrival(slotIndex, npcRect, entranceDistance, nearTargetDistance);
+                AnimateNpcArrival(slotIndex, npcRect, movementSpeed, stoppingDuration, Time.deltaTime);
             }
         }
 
         private void AnimateNpcArrival(int slotIndex, RectTransform npcRect,
-            float entranceDistance, float nearTargetDistance)
+            float movementSpeed, float stoppingDuration, float deltaSeconds)
         {
-            float movementSpeed = entranceDistance / Mathf.Max(0.05f, entranceDurationSeconds);
-            float remainingFrameSeconds = Time.deltaTime;
+            Vector2 previousPosition = npcMovementPositions[slotIndex];
+            float nearTargetDistance = 0.5f * movementSpeed * stoppingDuration;
+            float remainingFrameSeconds = Mathf.Max(0f, deltaSeconds);
             float bobWeight = 1f;
             if (!npcApproachingAtSlots[slotIndex])
             {
@@ -678,11 +683,10 @@ namespace FoodIsekaiZ.Display
                 npcMovementPositions[slotIndex] = Vector2.MoveTowards(
                     npcMovementPositions[slotIndex], npcTargetPositions[slotIndex],
                     movementSpeed * farWalkSeconds);
-                npcWalkPhases[slotIndex] += farWalkSeconds * walkingBobFrequency * Mathf.PI * 2f;
                 remainingFrameSeconds -= farWalkSeconds;
                 if (distanceToTarget - movementSpeed * farWalkSeconds <= nearTargetDistance + 0.01f)
                 {
-                    BeginNpcFinalApproach(slotIndex, entranceDistance, movementSpeed);
+                    BeginNpcFinalApproach(slotIndex, movementSpeed, stoppingDuration);
                 }
             }
 
@@ -691,17 +695,13 @@ namespace FoodIsekaiZ.Display
                 npcApproachElapsedSeconds[slotIndex] += remainingFrameSeconds;
                 float progress = Mathf.Clamp01(npcApproachElapsedSeconds[slotIndex] /
                     npcApproachDurations[slotIndex]);
-                float tangent = npcApproachTangents[slotIndex];
                 float remaining = 1f - progress;
-                // Cubic Hermite: match the walking velocity at the start, reach
-                // exactly zero at the end, and stay monotonic throughout.
-                float easedProgress = 1f - remaining * remaining * (1f + (2f - tangent) * progress);
+                // A short, constant deceleration preserves the incoming speed
+                // and reaches zero exactly, without a long easing tail.
+                float easedProgress = 1f - remaining * remaining;
                 npcMovementPositions[slotIndex] = Vector2.Lerp(
                     npcApproachStartPositions[slotIndex], npcTargetPositions[slotIndex], easedProgress);
-                bobWeight = 1f - Mathf.SmoothStep(0f, 1f, progress);
-                float strideSpeed = remaining * (tangent + (6f - 3f * tangent) * progress) / tangent;
-                npcWalkPhases[slotIndex] +=
-                    remainingFrameSeconds * walkingBobFrequency * Mathf.PI * 2f * Mathf.Lerp(0.3f, 1f, strideSpeed);
+                bobWeight = remaining;
                 if (progress >= 1f)
                 {
                     npcRect.anchoredPosition = npcTargetPositions[slotIndex];
@@ -710,23 +710,28 @@ namespace FoodIsekaiZ.Display
                 }
             }
 
-            float walkingBobOffset = Mathf.Sin(npcWalkPhases[slotIndex]) * walkingBobHeight * bobWeight;
+            ApplyNpcWalkingPose(slotIndex, npcRect, previousPosition, movementSpeed, bobWeight);
+        }
+
+        private void ApplyNpcWalkingPose(int slotIndex, RectTransform npcRect,
+            Vector2 previousPosition, float movementSpeed, float bobWeight)
+        {
+            // Use the same distance-driven, grounded gait in both directions,
+            // including the partial stopping step on arrival.
+            float distanceMoved = Vector2.Distance(previousPosition, npcMovementPositions[slotIndex]);
+            npcWalkPhases[slotIndex] += distanceMoved / movementSpeed * walkingBobFrequency * Mathf.PI * 2f;
+            float walkingBobOffset = (0.5f - 0.5f * Mathf.Cos(npcWalkPhases[slotIndex])) * walkingBobHeight * bobWeight;
             npcRect.anchoredPosition = npcMovementPositions[slotIndex] + Vector2.up * walkingBobOffset;
         }
 
-        private void BeginNpcFinalApproach(int slotIndex, float entranceDistance, float incomingSpeed)
+        private void BeginNpcFinalApproach(int slotIndex, float incomingSpeed, float stoppingDuration)
         {
             Vector2 startPosition = npcMovementPositions[slotIndex];
             float distance = Mathf.Max(0.0001f, Vector2.Distance(startPosition, npcTargetPositions[slotIndex]));
-            float nearTargetSpeed = entranceDistance / Mathf.Max(0.05f, nearTargetDurationSeconds);
-            // Tangents between 2 and 3 give a continuously decreasing speed.
-            // Bound the requested pace to keep this curve from speeding up or reversing.
-            float duration = Mathf.Clamp(2f * distance / nearTargetSpeed,
-                2f * distance / incomingSpeed, 3f * distance / incomingSpeed);
+            float duration = Mathf.Min(stoppingDuration, 2f * distance / incomingSpeed);
             npcApproachStartPositions[slotIndex] = startPosition;
             npcApproachElapsedSeconds[slotIndex] = 0f;
             npcApproachDurations[slotIndex] = duration;
-            npcApproachTangents[slotIndex] = incomingSpeed * duration / distance;
             npcApproachingAtSlots[slotIndex] = true;
         }
 
@@ -974,6 +979,7 @@ namespace FoodIsekaiZ.Display
             npcApproachingAtSlots[slotIndex] = false;
             npcMovementPositions[slotIndex] = Vector2.zero;
             npcExitTargetPositions[slotIndex] = Vector2.zero;
+            npcWalkingSpeedCanvasMultipliers[slotIndex] = 0f;
             npcWalkPhases[slotIndex] = 0f;
             npcArrivedAtSlots[slotIndex] = false;
             npcExitingAtSlots[slotIndex] = false;
@@ -1002,11 +1008,10 @@ namespace FoodIsekaiZ.Display
 
         private void ClampTimingSettings()
         {
-            entranceDurationSeconds = Mathf.Max(0.05f, entranceDurationSeconds);
-            nearTargetDistanceCanvasMultiplier = Mathf.Max(
-                0.01f,
-                nearTargetDistanceCanvasMultiplier);
-            nearTargetDurationSeconds = Mathf.Max(0.05f, nearTargetDurationSeconds);
+            entranceSpeedCanvasMultiplier = Mathf.Max(0.01f, entranceSpeedCanvasMultiplier);
+            maximumWalkingSpeedIncreasePercent = Mathf.Clamp(maximumWalkingSpeedIncreasePercent, 0f, 100f);
+            arrivalStoppingSeconds = Mathf.Max(0.05f, arrivalStoppingSeconds);
+            pairedEntranceSpacingCanvasMultiplier = Mathf.Max(0f, pairedEntranceSpacingCanvasMultiplier);
             arrivalHoldDurationSeconds = Mathf.Max(0f, arrivalHoldDurationSeconds);
             walkingBobHeight = Mathf.Max(0f, walkingBobHeight);
             walkingBobFrequency = Mathf.Max(0.1f, walkingBobFrequency);
@@ -1170,21 +1175,46 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
-            float entranceDistance = Mathf.Max(
-                1f,
-                canvasRect.rect.width * entranceDistanceCanvasMultiplier);
-            float direction = slotIndex < DisplaySlotCount / 2 ? -1f : 1f;
-            instanceRect.anchoredPosition = npcTargetPositions[slotIndex] +
-                new Vector2(direction * entranceDistance, 0f);
-            npcExitTargetPositions[slotIndex] =
-                npcTargetPositions[slotIndex] + new Vector2(direction * entranceDistance, 0f);
+            instanceRect.anchoredPosition = GetNpcEntrancePosition(slotIndex, canvasRect);
+            npcExitTargetPositions[slotIndex] = instanceRect.anchoredPosition;
             npcMovementPositions[slotIndex] = instanceRect.anchoredPosition;
+            npcWalkingSpeedCanvasMultipliers[slotIndex] = SampleNpcWalkingSpeed();
             npcWalkPhases[slotIndex] = UnityEngine.Random.Range(0f, Mathf.PI * 2f);
             npcApproachingAtSlots[slotIndex] = false;
             npcArrivedAtSlots[slotIndex] = false;
             npcExitingAtSlots[slotIndex] = false;
             npcUiShownAtSlots[slotIndex] = false;
             npcUiReadyTimes[slotIndex] = 0f;
+        }
+
+        private float SampleNpcWalkingSpeed()
+        {
+            float minimumSpeed = Mathf.Max(0.01f, entranceSpeedCanvasMultiplier);
+            float maximumIncrease = Mathf.Clamp(maximumWalkingSpeedIncreasePercent, 0f, 100f) * 0.01f;
+            return UnityEngine.Random.Range(minimumSpeed, minimumSpeed * (1f + maximumIncrease));
+        }
+
+        private Vector2 GetNpcEntrancePosition(int slotIndex, RectTransform canvasRect)
+        {
+            bool entersFromLeft = slotIndex < DisplaySlotCount / 2;
+            float direction = entersFromLeft ? -1f : 1f;
+            float entranceDistance = Mathf.Max(1f,
+                canvasRect.rect.width * Mathf.Max(0.5f, entranceDistanceCanvasMultiplier));
+            float entranceX = canvasRect.rect.center.x + direction * entranceDistance;
+            float spacing = canvasRect.rect.width * Mathf.Max(0f, pairedEntranceSpacingCanvasMultiplier);
+            for (int i = 0; i < spawnedNpcs.Length; i++)
+            {
+                if (i == slotIndex || spawnedNpcs[i] == null || npcArrivedAtSlots[i] ||
+                    npcExitingAtSlots[i] || (i < DisplaySlotCount / 2) != entersFromLeft)
+                {
+                    continue;
+                }
+
+                float followingX = npcMovementPositions[i].x + direction * spacing;
+                entranceX = entersFromLeft ? Mathf.Min(entranceX, followingX) : Mathf.Max(entranceX, followingX);
+            }
+
+            return new Vector2(entranceX, npcTargetPositions[slotIndex].y);
         }
 
         private void CacheCustomerPanels()
