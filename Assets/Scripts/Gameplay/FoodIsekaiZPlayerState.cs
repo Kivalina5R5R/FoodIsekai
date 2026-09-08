@@ -5,19 +5,24 @@ namespace FoodIsekaiZ.Gameplay
 {
     public sealed class FoodIsekaiZPlayerState : MonoBehaviour
     {
+        private const int MoneyCarryLimit = 50;
+
         [SerializeField] private UWBPlayerController trackedPlayer;
         [SerializeField, Min(1)] private int fallbackPlayerId = 1;
 
         [Header("Runtime (Read Only)")]
         [SerializeField] private FoodType heldFood = FoodType.None;
-        [SerializeField, Min(0)] private int carriedMoney;
+        [SerializeField, Range(0, MoneyCarryLimit)] private int carriedMoney;
 
         public int PlayerId => trackedPlayer != null ? trackedPlayer.PlayerId : fallbackPlayerId;
         public FoodType HeldFood => heldFood;
         public int CarriedMoney => carriedMoney;
+        /// <summary>Gets the maximum money this player can carry before visiting the bank.</summary>
+        public int MaximumCarriedMoney => MoneyCarryLimit;
 
         private void Awake()
         {
+            carriedMoney = Mathf.Clamp(carriedMoney, 0, MoneyCarryLimit);
             if (trackedPlayer == null)
             {
                 trackedPlayer = GetComponent<UWBPlayerController>();
@@ -65,9 +70,17 @@ namespace FoodIsekaiZ.Gameplay
             return true;
         }
 
-        public void AddMoney(int amount)
+        /// <summary>Accepts a complete money pile only when it fits within the player's carry limit.</summary>
+        /// <returns>True when the full positive amount was added; otherwise the balance stays unchanged.</returns>
+        public bool TryAddMoney(int amount)
         {
-            carriedMoney += Mathf.Max(0, amount);
+            if (amount <= 0 || amount > MoneyCarryLimit - carriedMoney)
+            {
+                return false;
+            }
+
+            carriedMoney += amount;
+            return true;
         }
 
         public int DepositAllMoney()

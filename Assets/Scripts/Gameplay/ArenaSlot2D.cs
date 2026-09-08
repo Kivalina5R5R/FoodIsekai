@@ -123,7 +123,12 @@ namespace FoodIsekaiZ.Gameplay
                 return;
             }
 
-            if (!playersTouchingWithCenter.Add(playerInstanceId))
+            bool centerJustEntered = playersTouchingWithCenter.Add(playerInstanceId);
+            // Money can appear after this player has already entered (for example, while
+            // waiting for the NPC to finish eating). Retry only collection while staying.
+            bool moneyCanBeCollected = slotType == ArenaSlotType.Customer &&
+                customerState == CustomerSlotState.MoneyAvailable && availableMoney > 0;
+            if (!centerJustEntered && !moneyCanBeCollected)
             {
                 return;
             }

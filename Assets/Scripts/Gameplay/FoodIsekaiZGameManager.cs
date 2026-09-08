@@ -628,13 +628,14 @@ namespace FoodIsekaiZ.Gameplay
                 return false;
             }
 
-            int collected = slot.CollectMoney();
-            if (collected <= 0)
+            // Reserve the entire pile in the wallet before clearing it from the floor.
+            // A full wallet leaves the money and customer slot available for another player.
+            if (!player.TryAddMoney(slot.AvailableMoney))
             {
                 return false;
             }
 
-            player.AddMoney(collected);
+            slot.CollectMoney();
             ScheduleCustomer(IndexOfCustomerSlot(slot));
             return true;
         }
