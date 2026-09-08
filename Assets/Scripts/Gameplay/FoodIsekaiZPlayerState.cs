@@ -17,7 +17,7 @@ namespace FoodIsekaiZ.Gameplay
         public int PlayerId => trackedPlayer != null ? trackedPlayer.PlayerId : fallbackPlayerId;
         public FoodType HeldFood => heldFood;
         public int CarriedMoney => carriedMoney;
-        /// <summary>Gets the maximum money this player can carry before visiting the bank.</summary>
+        // Gets the maximum money this player can carry before visiting the bank.
         public int MaximumCarriedMoney => MoneyCarryLimit;
 
         private void Awake()
@@ -29,11 +29,8 @@ namespace FoodIsekaiZ.Gameplay
             }
         }
 
-        /// <summary>
-        /// Picks up food from a food station, replacing any food currently held by the player.
-        /// </summary>
-        /// <param name="food">The food assigned to the station being interacted with.</param>
-        /// <returns><see langword="true"/> when a valid food was picked up.</returns>
+        // Picks up the food assigned to the station, replacing any food currently held by the player.
+        // Returns true when a valid food was picked up.
         public bool TryPickFood(FoodType food)
         {
             if (food < FoodType.Food1 || food > FoodType.Food5)
@@ -70,8 +67,8 @@ namespace FoodIsekaiZ.Gameplay
             return true;
         }
 
-        /// <summary>Accepts a complete money pile only when it fits within the player's carry limit.</summary>
-        /// <returns>True when the full positive amount was added; otherwise the balance stays unchanged.</returns>
+        // Accepts a complete money pile only when it fits within the player's carry limit.
+        // Returns true when the full positive amount was added; otherwise the balance stays unchanged.
         public bool TryAddMoney(int amount)
         {
             if (amount <= 0 || amount > MoneyCarryLimit - carriedMoney)

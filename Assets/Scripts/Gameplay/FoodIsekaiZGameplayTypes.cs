@@ -23,7 +23,7 @@ namespace FoodIsekaiZ.Gameplay
         WaitingForFood,
         Eating,
         MoneyAvailable,
-        /// <summary>The customer has finished eating and is waiting for the success presentation.</summary>
+        // The customer has finished eating and is waiting for the success presentation.
         Completing
     }
 

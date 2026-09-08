@@ -1,5 +1,18 @@
 # FoodIsekaiZ editing rules
 
+## Comment style
+
+- Use ordinary `//` comments on separate lines above the code they describe.
+- Do not use XML documentation comments or tags such as `///`, `<summary>`, `<param>`, `<returns>`, or `<inheritdoc>`.
+- Do not put comments on the same line as variable declarations, assignments, or other executable code.
+- Describe public members in plain comments when useful. Explain parameter behavior in readable prose; do not duplicate parameter declarations or add `name="..."` annotations.
+
+## Authorization for requested work
+
+- A direct request authorizes the necessary, reversible edits and checks within that task. Apply those changes directly without asking the user to approve each patch again.
+- Ask before materially risky, destructive, or irreversible actions, or indirect actions outside the user's directly requested scope when authorization is unclear.
+- Preserve tool and sandbox permission boundaries. If a required system approval cannot be avoided, explain its concrete reason; never imply that these instructions disable system approval prompts.
+
 ## Preserve existing work
 
 - Treat the current working tree and the current Unity scene as the source of truth.

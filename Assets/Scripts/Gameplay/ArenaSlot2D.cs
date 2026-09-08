@@ -49,12 +49,12 @@ namespace FoodIsekaiZ.Gameplay
         public ArenaSlotType SlotType => slotType;
         public FoodType StationFood => stationFood;
         public CustomerSlotState CustomerState => customerState;
-        /// <summary>Gets the incrementing identity of the customer currently assigned to this slot.</summary>
+        // Gets the incrementing identity of the customer currently assigned to this slot.
         public int CustomerGeneration => customerGeneration;
-        /// <summary>Whether a customer still occupies this slot, including its success presentation.</summary>
+        // Whether a customer still occupies this slot, including its success presentation.
         public bool HasCustomer => customerState == CustomerSlotState.WaitingForFood ||
             customerState == CustomerSlotState.Eating || customerState == CustomerSlotState.Completing;
-        /// <summary>Whether this completed order can expose its reward for collection.</summary>
+        // Whether this completed order can expose its reward for collection.
         public bool IsReadyToSpawnMoney => customerState == CustomerSlotState.Completing &&
             (isMoneyPresentationComplete == null || isMoneyPresentationComplete());
         public FoodType RequestedFood => requestedFood;
@@ -66,7 +66,7 @@ namespace FoodIsekaiZ.Gameplay
         public float OrderTimeNormalized => orderDurationSeconds > 0f
             ? Mathf.Clamp01(stateRemainingSeconds / orderDurationSeconds)
             : 0f;
-        /// <summary>Whether a running food order is in the same low-time window used by the floor warning.</summary>
+        // Whether a running food order is in the same low-time window used by the floor warning.
         public bool IsOrderNearTimeout => customerState == CustomerSlotState.WaitingForFood &&
             customerTimerStarted && OrderTimeNormalized > 0f && OrderTimeNormalized <= warningTimeNormalized;
         public int OrderReward => orderReward;
@@ -206,7 +206,7 @@ namespace FoodIsekaiZ.Gameplay
             RefreshVisuals();
         }
 
-        /// <summary>Starts the waiting-for-food timer when the customer's display presentation is visible.</summary>
+        // Starts the waiting-for-food timer when the customer's display presentation is visible.
         public bool StartCustomerTimer()
         {
             if (slotType != ArenaSlotType.Customer ||
@@ -262,7 +262,7 @@ namespace FoodIsekaiZ.Gameplay
             return stateRemainingSeconds <= 0f;
         }
 
-        /// <summary>Stops the eating timer and reserves the slot while its success presentation finishes.</summary>
+        // Stops the eating timer and reserves the slot while its success presentation finishes.
         public bool TryFinishEating()
         {
             if (customerState != CustomerSlotState.Eating || stateRemainingSeconds > 0f)
@@ -279,7 +279,7 @@ namespace FoodIsekaiZ.Gameplay
             return true;
         }
 
-        /// <summary>Defers this order's money until the supplied presentation condition is true.</summary>
+        // Defers this order's money until the supplied presentation condition is true.
         public void WaitForMoneyPresentation(Func<bool> isComplete)
         {
             if (customerState == CustomerSlotState.Completing)
@@ -288,7 +288,7 @@ namespace FoodIsekaiZ.Gameplay
             }
         }
 
-        /// <summary>Makes the completed order's reward visible and available to collect.</summary>
+        // Makes the completed order's reward visible and available to collect.
         public void SpawnMoney(int amount)
         {
             if (slotType != ArenaSlotType.Customer)

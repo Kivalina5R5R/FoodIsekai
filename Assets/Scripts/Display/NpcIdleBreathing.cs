@@ -2,8 +2,7 @@ using UnityEngine;
 
 namespace FoodIsekaiZ.Display
 {
-    /// <summary>Blends a gentle, grounded breathing pose onto an NPC's visual child.</summary>
-    /// <remarks>The spawner supplies the visual child; its movement root remains untouched.</remarks>
+
     [DisallowMultipleComponent]
     public sealed class NpcIdleBreathing : MonoBehaviour
     {
@@ -32,14 +31,6 @@ namespace FoodIsekaiZ.Display
         private bool idleRequested;
         private bool initialized;
 
-        /// <summary>Caches the visual child's authored pose and configures its temporary idle motion once.</summary>
-        /// <param name="visualBody">The NPC's image child; a missing child leaves this component inactive.</param>
-        /// <param name="breathCycleSeconds">Duration of one complete inhale and exhale in scaled seconds.</param>
-        /// <param name="breathHeightAmount">Maximum fractional height expansion during an inhale.</param>
-        /// <param name="breathWidthAmount">Maximum fractional width expansion during an inhale.</param>
-        /// <param name="transitionSeconds">Duration of the fade into or out of the breathing pose.</param>
-        /// <param name="phaseOffset">Initial cycle offset in normalized cycles, wrapped into the zero-to-one range.</param>
-        /// <param name="verticalFollower">Optional visual that follows the body's breathing vertically at its authored attachment height.</param>
         public void Initialize(RectTransform visualBody, float breathCycleSeconds, float breathHeightAmount,
             float breathWidthAmount, float transitionSeconds, float phaseOffset, RectTransform verticalFollower = null)
         {
@@ -70,7 +61,7 @@ namespace FoodIsekaiZ.Display
             initialized = true;
         }
 
-        /// <summary>Gently settles the visual body and fades in its repeating breathing motion.</summary>
+        // Gently settles the visual body and fades in its repeating breathing motion.
         public void BeginIdle()
         {
             if (!initialized || idleRequested)
@@ -84,7 +75,7 @@ namespace FoodIsekaiZ.Display
             settleElapsedSeconds = 0f;
         }
 
-        /// <summary>Fades the visual body back to its exact authored pose while its root may keep moving.</summary>
+        // Fades the visual body back to its exact authored pose while its root may keep moving.
         public void EndIdle()
         {
             if (!initialized || !idleRequested)

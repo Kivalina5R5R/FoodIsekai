@@ -6,10 +6,8 @@ using UnityEngine.UI;
 
 namespace FoodIsekaiZ.Display
 {
-    /// <summary>
-    /// Drives runtime values on the manually authored wall-display Canvas.
-    /// All wall layout, sizing, and visual hierarchy are edited directly in the Unity scene.
-    /// </summary>
+    // Drives runtime values on the manually authored wall-display Canvas.
+    // All wall layout, sizing, and visual hierarchy are edited directly in the Unity scene.
     public sealed class FoodIsekaiZSideDisplayLayout : MonoBehaviour
     {
         private const int CustomerPanelCapacity = 6;
@@ -62,7 +60,7 @@ namespace FoodIsekaiZ.Display
         private readonly bool[] customerDisplayInitialized = new bool[CustomerPanelCapacity];
         private readonly FoodType[] lastCustomerDisplayedFood = new FoodType[CustomerPanelCapacity];
 
-        /// <summary>Gets the manually authored wall-display Canvas.</summary>
+        // Gets the manually authored wall-display Canvas.
         public Canvas SideCanvas => sideCanvas;
 
         private void OnValidate()
@@ -299,14 +297,14 @@ namespace FoodIsekaiZ.Display
             }
         }
 
-        /// <summary>Refreshes the score and MVP labels from the game manager.</summary>
+        // Refreshes the score and MVP labels from the game manager.
         public void RefreshScoreDisplay()
         {
             MarkScoreDisplayDirty();
             FlushScoreDisplayUpdates();
         }
 
-        /// <summary>Refreshes the meal-wave labels from the game manager.</summary>
+        // Refreshes the meal-wave labels from the game manager.
         public void RefreshMealWaveDisplay()
         {
             MarkMealWaveDisplayDirty();

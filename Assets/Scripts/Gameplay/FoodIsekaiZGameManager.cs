@@ -149,9 +149,9 @@ namespace FoodIsekaiZ.Gameplay
         public event Action<int, int> PlayerScoreChanged;
         public event Action<int> TeamScoreChanged;
         public event Action<ArenaSlot2D, FoodType> CustomerRequestedFood;
-        /// <summary>Raised when eating ends, before the reward becomes visible or collectible.</summary>
+        // Raised when eating ends, before the reward becomes visible or collectible.
         public event Action<ArenaSlot2D, int> CustomerFinishedEating;
-        /// <summary>Raised when a completed order's money is visible and available to collect.</summary>
+        // Raised when a completed order's money is visible and available to collect.
         public event Action<ArenaSlot2D, int> CustomerMoneySpawned;
         public event Action<ArenaSlot2D> CustomerOrderExpired;
         public event Action MealWaveDisplayChanged;

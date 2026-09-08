@@ -3,11 +3,9 @@ using UnityEngine;
 
 namespace Fortal.UWB
 {
-    /// <summary>
-    /// Streaming decoder for the NoopLoop LinkTrack UWB serial protocol.
-    /// Feed raw bytes with <see cref="Push"/>; it recognizes TagFrame0 (single tag pose)
-    /// and AnchorFrame0 (full node list reported by one anchor) frames.
-    /// </summary>
+    // Streaming decoder for the NoopLoop LinkTrack UWB serial protocol.
+    // Feed raw bytes with Push; it recognizes TagFrame0 (single tag pose)
+    // and AnchorFrame0 (full node list reported by one anchor) frames.
     public sealed class NoopLoopFrameParser
     {
         public const byte FrameHeader = 0x55;

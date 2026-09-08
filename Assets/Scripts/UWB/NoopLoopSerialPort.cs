@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Fortal.UWB
 {
-    /// <summary>Minimal Win32 serial port reader used for the NoopLoop LinkTrack local anchor USB link.</summary>
+    // Minimal Win32 serial port reader used for the NoopLoop LinkTrack local anchor USB link.
     internal sealed class NoopLoopSerialPort : IDisposable
     {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
