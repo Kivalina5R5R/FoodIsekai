@@ -66,6 +66,9 @@ namespace FoodIsekaiZ.Gameplay
         public float OrderTimeNormalized => orderDurationSeconds > 0f
             ? Mathf.Clamp01(stateRemainingSeconds / orderDurationSeconds)
             : 0f;
+        /// <summary>Whether a running food order is in the same low-time window used by the floor warning.</summary>
+        public bool IsOrderNearTimeout => customerState == CustomerSlotState.WaitingForFood &&
+            customerTimerStarted && OrderTimeNormalized > 0f && OrderTimeNormalized <= warningTimeNormalized;
         public int OrderReward => orderReward;
         public int AvailableMoney => availableMoney;
 
@@ -345,9 +348,7 @@ namespace FoodIsekaiZ.Gameplay
                 return;
             }
 
-            bool nearTimeout = customerState == CustomerSlotState.WaitingForFood &&
-                OrderTimeNormalized > 0f && OrderTimeNormalized <= warningTimeNormalized;
-            bool alertPhase = nearTimeout && Mathf.Repeat(
+            bool alertPhase = IsOrderNearTimeout && Mathf.Repeat(
                 Time.unscaledTime * warningBlinkCyclesPerSecond,
                 1f) < 0.5f;
 

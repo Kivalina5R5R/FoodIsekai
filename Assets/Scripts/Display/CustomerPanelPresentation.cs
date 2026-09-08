@@ -2,8 +2,6 @@ using UnityEngine;
 
 namespace FoodIsekaiZ.Display
 {
-    /// <summary>Plays temporary customer-panel motion relative to its authored appearance.</summary>
-    /// <remarks>Unity constructs this component; the scene injects its references through serialized fields.</remarks>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(RectTransform), typeof(CanvasGroup))]
     public sealed class CustomerPanelPresentation : MonoBehaviour
@@ -49,10 +47,8 @@ namespace FoodIsekaiZ.Display
         private MotionPhase phase;
         private bool initialized;
 
-        /// <summary>Whether the completed order's content must remain visible during its exit motion.</summary>
         public bool IsCompleting => phase == MotionPhase.Expanding || phase == MotionPhase.Collapsing;
 
-        /// <summary>Whether the NPC must stay while the panel motion or its success particles are playing.</summary>
         public bool IsCelebrating => IsCompleting || (successParticles != null && successParticles.IsPlaying);
 
         private void Awake()
@@ -60,7 +56,6 @@ namespace FoodIsekaiZ.Display
             Initialize();
         }
 
-        /// <summary>Reveals the panel with a short rise, fade, and soft scale overshoot.</summary>
         public void Show()
         {
             Initialize();
@@ -80,7 +75,6 @@ namespace FoodIsekaiZ.Display
             ambientSparkles?.Play();
         }
 
-        /// <summary>Expands and collapses the visible order, then emits its success particles once.</summary>
         public void Complete()
         {
             if (!isActiveAndEnabled || IsCompleting || phase == MotionPhase.Hidden)
@@ -96,7 +90,6 @@ namespace FoodIsekaiZ.Display
             phaseElapsedSeconds = 0f;
         }
 
-        /// <summary>Hides immediately unless a successful order is finishing; force also clears particles.</summary>
         public void Hide(bool force = false)
         {
             Initialize();
