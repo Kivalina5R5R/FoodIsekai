@@ -118,16 +118,17 @@ floorXZ    = Lerp(arenaMin, arenaMax, normalized)
 
 ## 5. Dual display
 
-- ค่าจอที่พบจาก PaperArena Unity Game View profiles คือ Side `1536x435` และ Floor `2816x1280`
+- ความละเอียดจอจริงที่ยืนยันสำหรับ FoodIsekaiZ คือ Side/Wall `8192x2160` และ Floor `2816x1280`
 - `GameConfig.json` ของ PaperArena กำหนด logical grid ด้วย `MapWidth = 10`, `MapHeight = 10`, `gameTileUnit = 1`; ค่านี้ไม่ใช่อัตราส่วนกายภาพของจอพื้น
 - Floor layout ใช้ `11x5` world units ซึ่งมี aspect `2.2` ตรงกับ `2816:1280` เพื่อให้ภาพเต็มจอโดยไม่มีแถบดำซ้าย–ขวา ส่วน grid ภายในยังเป็น `10x10`
 - `UWBConfig.json` มี `UWBAnchorPositions` 4 จุด ค่าจะถูกอ่านตามลำดับเดียวกับ Anchor Device IDs; ไฟล์ runtime ที่ตรวจบนเครื่องปัจจุบันยังเป็น `(0,0,0)` ทั้ง 4 จุด จึงต้องใส่ค่าที่วัดจริงก่อนใช้ trilateration
 - Side Wall ถูกวางตั้งตรงตลอดขอบหลังของ Floor เพื่อให้ Scene preview เป็นรูปตัว L ตามการติดตั้งจริง (`Wall Matches Floor Width`)
-- CanvasScaler ใน Scene PaperArena เดิมใช้ reference resolution `1920x1080` ทั้งสอง Canvas แต่ FoodIsekaiZ Side preview ใช้ `1536x435` เพื่อจัด UI ตรงกับจอจริง
+- Side Canvas ใช้พื้นที่จัดวางและ reference resolution `1536x435` เป็นหน่วยของ UI ที่จัดวางไว้ ส่วนความละเอียดภาพขาออกของจอผนังคือ `8192x2160`; ไม่ต้องเปลี่ยนขนาด RectTransform ตามจำนวนพิกเซลของจอ
+- Side Canvas ใน `FoodIsekai.unity` ใช้ Dynamic Pixels Per Unit `16` เพื่อเพิ่มความละเอียดฟอนต์แบบ dynamic เมื่อขยายขึ้นจอผนัง โดยคงขนาดตัวอักษรและตำแหน่ง UI ที่จัดวางไว้
 - ต่อจอ Side และ Floor ให้ Windows เห็นเป็น Extended Desktop ก่อนเปิดเกม
 - `FloorCamera.targetDisplay = 0` และ Floor Canvas `targetDisplay = 0` (Unity Display 1 / FloorDisplay)
 - `SideCamera.targetDisplay = 1` และ Side Canvas `targetDisplay = 1` (Unity Display 2 / WallDisplay)
-- `DisplayManager` ใช้ Standalone primary output เป็นพื้น `2816x1280` และเรียก Display 2 เป็นกำแพงด้วย `1536x435`
+- `DisplayManager` ใช้ Standalone primary output เป็นพื้น `2816x1280` และเรียก Display 2 เป็นกำแพงด้วย `8192x2160`; ค่าเริ่มต้นในสคริปต์และค่าที่ serialize ใน `FoodIsekai.unity` กับ `Test.unity` ต้องตรงกัน
 - ใส่ `FoodIsekaiZSideDisplayLayout` บน `Map` และลาก Canvas `SideDisplay` เข้า `Wall Canvas`; สคริปต์จะอัปเดตเฉพาะค่าคะแนน/สถานะตอน Play และไม่สร้าง UI ใน Edit Mode
 - Camera ของ Floor ใช้ Orthographic อยู่ด้านบนแกน Y และมองลงพื้น XZ; แยก Culling Mask เช่น `SideView`/`FloorView` เพื่อไม่ให้ object ข้ามจอ
 - Multi-display ทำงานถูกต้องใน Standalone Player มากกว่า Game View ปกติ ให้ทดสอบด้วย Windows build และเลือก resolution ของแต่ละจอให้ตรง hardware

@@ -11,7 +11,9 @@ namespace FoodIsekaiZ.Display
     {
         private const int HeartSegments = 32;
         private const int MaximumHearts = 8;
-        private const float FadeInSeconds = 0.22f;
+        private const float FadeInSeconds = 0.12f;
+        private const float PopInSeconds = 0.36f;
+        private const float SpawnStaggerSeconds = 0.05f;
         private static readonly Vector2[] HeartOutline = CreateHeartOutline();
 
         [Header("Floating Hearts")]
@@ -40,7 +42,7 @@ namespace FoodIsekaiZ.Display
         private int spawnedHeartCount;
         private float elapsedSeconds;
         private float fadeElapsedSeconds;
-        private float fadeStartOpacity;
+        private float fadeStartSeconds;
         private bool playing;
         private bool fadingOut;
 
@@ -84,7 +86,7 @@ namespace FoodIsekaiZ.Display
 
             fadingOut = true;
             fadeElapsedSeconds = 0f;
-            fadeStartOpacity = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsedSeconds / FadeInSeconds));
+            fadeStartSeconds = elapsedSeconds;
         }
 
         // Clears the batch immediately when the NPC is disabled, destroyed, or rebound.
@@ -176,24 +178,33 @@ namespace FoodIsekaiZ.Display
             Vector2 up = upExtent.normalized;
             float minimumSize = Mathf.Clamp(sizeBodyHeightRange.x, 0.005f, 0.06f);
             float maximumSize = Mathf.Clamp(sizeBodyHeightRange.y, minimumSize, 0.08f);
-            float fadeIn = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsedSeconds / FadeInSeconds));
+            float entranceSeconds = fadingOut ? fadeStartSeconds : elapsedSeconds;
             float fadeOut = fadingOut
                 ? 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(fadeElapsedSeconds / Mathf.Max(0.1f, fadeOutSeconds)))
                 : 1f;
-            float fade = (fadingOut ? fadeStartOpacity : fadeIn) * fadeOut;
 
             for (int index = 0; index < spawnedHeartCount; index++)
             {
-                float swayAngle = swayPhases[index] + elapsedSeconds * Mathf.PI * 2f / swayPeriods[index];
+                float spawnDelay = index * SpawnStaggerSeconds;
+                float visibleSeconds = entranceSeconds - spawnDelay;
+                // Freeze entrance opacity on fade-out so waiting hearts never appear after Love ends.
+                if (visibleSeconds <= 0f)
+                {
+                    continue;
+                }
+
+                float ageSeconds = Mathf.Max(0f, elapsedSeconds - spawnDelay);
+                float fade = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(visibleSeconds / FadeInSeconds)) * fadeOut;
+                float swayAngle = swayPhases[index] + ageSeconds * Mathf.PI * 2f / swayPeriods[index];
                 float horizontal = spawnPositions[index].x + Mathf.Sin(swayAngle) * Mathf.Clamp(swayBodyWidth, 0f, 0.1f);
-                float height = spawnPositions[index].y + elapsedSeconds
+                float height = spawnPositions[index].y + ageSeconds
                     * Mathf.Clamp(riseBodyHeightPerSecond, 0.01f, 0.15f) * riseMultipliers[index];
                 // Height never wraps: these same hearts keep rising until the meal ends.
                 Vector2 sourcePosition = new Vector2(bounds.center.x + bounds.width * horizontal,
                     bounds.yMin + bounds.height * height);
                 Vector2 position = ToEffectPoint(source, sourcePosition);
                 float size = bodyHeight * Mathf.Lerp(minimumSize, maximumSize, sizeVariations[index])
-                    * Mathf.Lerp(0.82f, 1f, fadeIn);
+                    * EvaluatePopScale(ageSeconds);
                 float tilt = Mathf.Sin(swayAngle) * 0.14f;
                 Vector2 tiltedRight = right * Mathf.Cos(tilt) + up * Mathf.Sin(tilt);
                 Vector2 tiltedUp = up * Mathf.Cos(tilt) - right * Mathf.Sin(tilt);
@@ -207,6 +218,22 @@ namespace FoodIsekaiZ.Display
                 DrawHeart(vertices, position, size * 1.08f, tiltedRight, tiltedUp, outline, outline);
                 DrawHeart(vertices, position, size, tiltedRight, tiltedUp, highlight, rim);
             }
+        }
+
+        private static float EvaluatePopScale(float ageSeconds)
+        {
+            const float peakTime = 0.6f;
+            const float peakScale = 1.18f;
+            float progress = Mathf.Clamp01(ageSeconds / PopInSeconds);
+            if (progress < peakTime)
+            {
+                // Grow from zero with a quick lift that eases into a soft overshoot.
+                float inverse = 1f - progress / peakTime;
+                return peakScale * (1f - inverse * inverse * inverse);
+            }
+
+            float settle = Mathf.SmoothStep(0f, 1f, (progress - peakTime) / (1f - peakTime));
+            return Mathf.Lerp(peakScale, 1f, settle);
         }
 
         private void SampleHeartBatch()

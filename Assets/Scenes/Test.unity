@@ -1076,7 +1076,7 @@ MonoBehaviour:
   floorCanvases: []
   activateSecondDisplayOnAwake: 1
   applyPaperArenaResolutionsInStandalone: 1
-  sideDisplayResolution: {x: 1536, y: 435}
+  sideDisplayResolution: {x: 8192, y: 2160}
   floorDisplayResolution: {x: 2816, y: 1280}
   refreshRate: 60
   sideDisplayBackground: {r: 0.025, g: 0.035, b: 0.055, a: 1}
