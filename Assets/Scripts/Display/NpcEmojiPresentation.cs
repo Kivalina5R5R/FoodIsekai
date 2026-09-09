@@ -7,6 +7,10 @@ namespace FoodIsekaiZ.Display
     [DisallowMultipleComponent]
     public sealed class NpcEmojiPresentation : MonoBehaviour
     {
+        // Raised only for the first bubble entrance after this NPC is initialized.
+        public event System.Action PopupShown;
+        private bool popupShown;
+
         private const float EntranceSeconds = 0.4f;
         private const float ChangeOutSeconds = 0.1f;
         private const float ChangeInSeconds = 0.3f;
@@ -55,6 +59,7 @@ namespace FoodIsekaiZ.Display
                 Destroy(loveHearts.gameObject);
                 loveHearts = null;
             }
+            popupShown = false;
             this.emojiRoot = emojiRoot;
             this.initialMoodLevel = Mathf.Clamp(initialMoodLevel, 0, 2);
             bubbleGroup = null;
@@ -153,6 +158,11 @@ namespace FoodIsekaiZ.Display
                 emojiRoot.gameObject.SetActive(true);
                 ApplyBubbleMotion(0.45f, 0f);
                 burst?.Play(moodLevel, true);
+                if (!popupShown)
+                {
+                    popupShown = true;
+                    PopupShown?.Invoke();
+                }
                 return;
             }
 
