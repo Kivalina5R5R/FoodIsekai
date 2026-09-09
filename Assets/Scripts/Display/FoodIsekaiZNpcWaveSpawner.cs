@@ -14,7 +14,7 @@ namespace FoodIsekaiZ.Display
 {
 
     // Coordinates the customer NPCs shown for each wave on the wall display.
-    public sealed class FoodIsekaiZNpcWaveSpawner : MonoBehaviour
+    public sealed class FoodIsekaiZNpcWaveSpawner : MonoBehaviour, IWaveDepartureStatus
     {
         private const int DisplaySlotCount = 6;
         private const string BackLayerName = "NPCBackLayer";
@@ -87,6 +87,18 @@ namespace FoodIsekaiZ.Display
         [SerializeField, Range(0f, 0.02f)] private float idleBreathingWidth = 0.0025f;
         [Tooltip("Seconds to blend breathing in after arrival and out when leaving.")]
         [SerializeField, Min(0.01f)] private float idleBreathingBlendSeconds = 0.45f;
+
+        public bool HasNpcsInRestaurant
+        {
+            get
+            {
+                foreach (GameObject npc in spawnedNpcs) if (npc != null) return true;
+                return false;
+            }
+        }
+
+        public event System.Action OrderPanelShown;
+        public event System.Action EmojiShown;
 
         [Header("NPC Emoji")]
         [Tooltip("Seconds after the food menu appears before the NPC emoji becomes visible.")]
@@ -196,6 +208,7 @@ namespace FoodIsekaiZ.Display
             EnsureReferences();
             EnsureNpcLayers();
             CacheCustomerPanels();
+            SubscribeToCustomerEvents();
         }
 
 #if UNITY_EDITOR
@@ -236,7 +249,8 @@ namespace FoodIsekaiZ.Display
             }
 
             if (gameManager.UsesMealWaves &&
-                gameManager.CurrentMealWavePhase != MealWavePhase.Active)
+                gameManager.CurrentMealWavePhase != MealWavePhase.Active &&
+                gameManager.CurrentMealWavePhase != MealWavePhase.Clearing)
             {
                 ClearSpawnedNpcs();
                 activeWaveNumber = -1;
@@ -251,7 +265,7 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
-            if (activeWaveNumber != waveNumber)
+            if (activeWaveNumber != waveNumber && gameManager.CurrentMealWavePhase != MealWavePhase.Clearing)
             {
                 BeginWave(waveNumber);
             }
@@ -340,6 +354,8 @@ namespace FoodIsekaiZ.Display
                     pendingSpawnSlots.Add(slotIndex);
                 }
             }
+
+            if (gameManager.UsesMealWaves && gameManager.CurrentMealWavePhase == MealWavePhase.Clearing) return;
 
             if (pendingSpawnSlots.Count == 0 ||
                 Time.time < nextSpawnBatchTime ||
@@ -929,10 +945,12 @@ namespace FoodIsekaiZ.Display
 
         private void ShowNpcUi(int slotIndex)
         {
+            if (npcUiShownAtSlots[slotIndex]) return;
             npcUiShownAtSlots[slotIndex] = true;
             SetCustomerPanelVisible(slotIndex, true);
             npcEmojiReadyTimes[slotIndex] = Time.time + Mathf.Max(0f, emojiDelayAfterMenuSeconds);
             StartCustomerTimerForSlot(slotIndex);
+            OrderPanelShown?.Invoke();
         }
 
         private void StartCustomerTimerForSlot(int slotIndex)
@@ -1105,6 +1123,8 @@ namespace FoodIsekaiZ.Display
         {
             ClearNpcForegroundApproach(slotIndex);
             npcEmojiPresentations[slotIndex]?.Hide();
+            if (npcEmojiPresentations[slotIndex] != null)
+                npcEmojiPresentations[slotIndex].PopupShown -= HandleEmojiShown;
             npcEmojiPresentations[slotIndex] = null;
             npcEmojiReadyTimes[slotIndex] = 0f;
             npcOrdersExpired[slotIndex] = false;
@@ -1351,8 +1371,11 @@ namespace FoodIsekaiZ.Display
             Transform visualBody = FindNestedTransform(instance.transform, "Image");
             presentation.Initialize(emojiRoot, npcEmojiRandom.Next(0, 3),
                 visualBody != null ? visualBody.GetComponent<Image>() : null);
+            presentation.PopupShown += HandleEmojiShown;
             npcEmojiPresentations[slotIndex] = presentation;
         }
+
+        private void HandleEmojiShown() => EmojiShown?.Invoke();
 
         private void UpdateNpcEmoji(int slotIndex, ArenaSlot2D slot)
         {
@@ -1477,6 +1500,8 @@ namespace FoodIsekaiZ.Display
             subscribedGameManager = gameManager;
             if (subscribedGameManager != null)
             {
+                subscribedGameManager.RegisterDepartureStatus(this);
+                subscribedGameManager.MealWaveDisplayChanged += HandleWavePhaseChanged;
                 subscribedGameManager.CustomerFinishedEating += HandleCustomerFinishedEating;
                 subscribedGameManager.CustomerOrderExpired += HandleCustomerOrderExpired;
             }
@@ -1486,11 +1511,34 @@ namespace FoodIsekaiZ.Display
         {
             if (subscribedGameManager != null)
             {
+                subscribedGameManager.ReleaseDepartureStatus(this);
+                subscribedGameManager.MealWaveDisplayChanged -= HandleWavePhaseChanged;
                 subscribedGameManager.CustomerFinishedEating -= HandleCustomerFinishedEating;
                 subscribedGameManager.CustomerOrderExpired -= HandleCustomerOrderExpired;
             }
 
             subscribedGameManager = null;
+        }
+
+        private void HandleWavePhaseChanged()
+        {
+            if (gameManager == null || gameManager.CurrentMealWavePhase != MealWavePhase.Clearing) return;
+            for (int index = 0; index < spawnedNpcs.Length; index++)
+            {
+                if (spawnedNpcs[index] == null || npcExitingAtSlots[index]) continue;
+                ArenaSlot2D slot = gameManager.GetCustomerSlot(index);
+                if (slot != null && (slot.CustomerState == CustomerSlotState.Eating ||
+                    slot.CustomerState == CustomerSlotState.Completing)) continue;
+                // Customers who have already paid leave normally; unfinished customers leave Angry immediately.
+                if (slot == null || slot.CustomerState != CustomerSlotState.MoneyAvailable)
+                {
+                    npcOrdersExpired[index] = true;
+                    npcAngryUntilTimes[index] = 0f;
+                    npcEmojiPresentations[index]?.ShowAngry();
+                }
+                customerPanelPresentations[index]?.Hide(true);
+                BeginNpcExit(index);
+            }
         }
 
         private void HandleCustomerFinishedEating(ArenaSlot2D slot, int reward)

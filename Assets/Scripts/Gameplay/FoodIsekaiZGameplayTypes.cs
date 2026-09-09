@@ -32,6 +32,8 @@ namespace FoodIsekaiZ.Gameplay
         NotStarted,
         Active,
         Intermission,
-        Completed
+        Completed,
+        // Service has closed; eating customers and NPC departures still finish.
+        Clearing
     }
 }

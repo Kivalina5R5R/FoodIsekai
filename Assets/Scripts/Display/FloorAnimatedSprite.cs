@@ -17,6 +17,20 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private Vector2 spriteSize = new Vector2(108f, 108f);
         [SerializeField, Min(0f)] private float arcHeight = 24f;
 
+        [Header("Uncollected Money Reminder")]
+        [SerializeField, Min(1f)] private float reminderDelay = 6f;
+        [SerializeField, Min(1f)] private float reminderInterval = 5f;
+        [SerializeField, Min(0.1f)] private float reminderDuration = 0.95f;
+        [SerializeField, Range(0f, 0.5f)] private float reminderGrowth = 0.25f;
+        [SerializeField, Range(0f, 20f)] private float reminderShakeDegrees = 8f;
+        private float rewardAge;
+        private float ReminderPhase => (rewardAge - reminderDelay) % Mathf.Max(reminderInterval, reminderDuration + 0.1f);
+        private int ReminderCycle => rewardAge < reminderDelay ? -1 :
+            Mathf.FloorToInt((rewardAge - reminderDelay) / Mathf.Max(reminderInterval, reminderDuration + 0.1f));
+        // Raised once when a visible reward starts a new reminder shake.
+        public event System.Action ReminderStarted;
+        public bool IsReminding => motion == MotionKind.Reward && visible && rewardAge >= reminderDelay && ReminderPhase < reminderDuration;
+
         private Sprite currentSprite;
         private Vector2 start;
         private Vector2 destination;
@@ -24,7 +38,7 @@ namespace FoodIsekaiZ.Display
         private bool visible;
         private bool animating;
 
-        public bool IsAnimating => animating;
+        public bool IsAnimating => animating || IsReminding;
         public override Texture mainTexture => currentSprite != null ? currentSprite.texture : s_WhiteTexture;
 
         protected override void OnEnable()
@@ -70,6 +84,7 @@ namespace FoodIsekaiZ.Display
             visible = false;
             animating = false;
             elapsed = 0f;
+            rewardAge = 0f;
             SetVerticesDirty();
         }
 
@@ -77,6 +92,7 @@ namespace FoodIsekaiZ.Display
         {
             currentSprite = sprite;
             elapsed = 0f;
+            rewardAge = 0f;
             visible = true;
             animating = true;
             SetMaterialDirty();
@@ -90,10 +106,16 @@ namespace FoodIsekaiZ.Display
 
         private void Advance(float deltaTime)
         {
-            if (!animating || deltaTime <= 0f)
+            if (deltaTime <= 0f) return;
+            if (motion == MotionKind.Reward && visible)
             {
-                return;
+                bool wasReminding = IsReminding;
+                int previousCycle = ReminderCycle;
+                rewardAge += deltaTime;
+                if (IsReminding && ReminderCycle != previousCycle) ReminderStarted?.Invoke();
+                if (wasReminding || IsReminding) SetVerticesDirty();
             }
+            if (!animating) return;
 
             elapsed = Mathf.Min(elapsed + deltaTime, Mathf.Max(0.1f, duration));
             if (elapsed >= Mathf.Max(0.1f, duration))
@@ -128,6 +150,14 @@ namespace FoodIsekaiZ.Display
                 shadow = new Vector2(2f, -3f);
                 alpha = Mathf.Clamp01(age / 0.12f);
                 tilt = Mathf.Sin(age * Mathf.PI * 2f) * 0.065f * (1f - age);
+                if (IsReminding)
+                {
+                    float reminder = Mathf.Clamp01(ReminderPhase / Mathf.Max(0.1f, reminderDuration));
+                    float envelope = Mathf.Sin(reminder * Mathf.PI);
+                    scale *= 1f + reminderGrowth * envelope;
+                    tilt += Mathf.Sin(reminder * Mathf.PI * 6f) * reminderShakeDegrees * Mathf.Deg2Rad * envelope;
+                    center.y += envelope * 5f;
+                }
             }
             else
             {

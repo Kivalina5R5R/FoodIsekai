@@ -120,6 +120,7 @@ namespace FoodIsekaiZ.Gameplay
         [Header("Runtime (Read Only)")]
         [FormerlySerializedAs("teamBankedMoney")]
         [SerializeField] private int teamScore;
+        [SerializeField, Min(0)] private int servedOrderCount;
         [SerializeField, Min(0)] private int completedOrderCount;
         [SerializeField, Min(0)] private int expiredOrderCount;
         [SerializeField] private List<PlayerScoreRecord> playerScores = new List<PlayerScoreRecord>();
@@ -134,9 +135,12 @@ namespace FoodIsekaiZ.Gameplay
         private int lastNotifiedMealSecond = int.MinValue;
 
         private int totalBankedMoney;
+        private IWaveDepartureStatus departureStatus;
 
         public int TotalBankedMoney => totalBankedMoney;
         public int TeamScore => teamScore;
+        // Counts accepted deliveries, including NPCs still eating when a wave ends.
+        public int ServedOrderCount => servedOrderCount;
         public int CompletedOrderCount => completedOrderCount;
         public int ExpiredOrderCount => expiredOrderCount;
         public IReadOnlyList<ArenaSlot2D> CustomerSlots => customerSlots;
@@ -156,6 +160,7 @@ namespace FoodIsekaiZ.Gameplay
         public event Action<FoodIsekaiZPlayerState, ArenaSlot2D> FoodPickedUp;
         // Raised as soon as the requested food is accepted and the customer starts eating.
         public event Action<FoodIsekaiZPlayerState, ArenaSlot2D> FoodServed;
+        public event Action<FoodIsekaiZPlayerState, ArenaSlot2D> WrongFoodDiscarded;
         public event Action<ArenaSlot2D, FoodType> CustomerRequestedFood;
         // Raised when eating ends, before the reward becomes visible or collectible.
         public event Action<ArenaSlot2D, int> CustomerFinishedEating;
@@ -163,6 +168,14 @@ namespace FoodIsekaiZ.Gameplay
         public event Action<ArenaSlot2D, int> CustomerMoneySpawned;
         public event Action<ArenaSlot2D> CustomerOrderExpired;
         public event Action MealWaveDisplayChanged;
+
+        // The display registers its departure status; gameplay also works without a display.
+        public void RegisterDepartureStatus(IWaveDepartureStatus status) => departureStatus = status;
+
+        public void ReleaseDepartureStatus(IWaveDepartureStatus status)
+        {
+            if (ReferenceEquals(departureStatus, status)) departureStatus = null;
+        }
 
         private void Start()
         {
@@ -223,7 +236,12 @@ namespace FoodIsekaiZ.Gameplay
                 TickMealWave(Time.deltaTime);
             }
 
-            // Earned rewards may still finish their presentation as intermission begins.
+            if (useMealWaves && mealWavePhase == MealWavePhase.Clearing)
+            {
+                TickWaveClearance(Time.deltaTime);
+                return;
+            }
+
             TickCompletedCustomerMoney();
             if (useMealWaves && mealWaveFlowStarted && mealWavePhase != MealWavePhase.Active)
             {
@@ -297,10 +315,15 @@ namespace FoodIsekaiZ.Gameplay
 
             if (useMealWaves &&
                 mealWavePhase != MealWavePhase.Active &&
-                mealWavePhase != MealWavePhase.Intermission)
+                mealWavePhase != MealWavePhase.Intermission &&
+                mealWavePhase != MealWavePhase.Clearing)
             {
                 return false;
             }
+
+            if (useMealWaves && mealWavePhase == MealWavePhase.Clearing &&
+                slot.SlotType != ArenaSlotType.MoneyDeposit &&
+                slot.CustomerState != CustomerSlotState.MoneyAvailable) return false;
 
             switch (slot.SlotType)
             {
@@ -368,13 +391,34 @@ namespace FoodIsekaiZ.Gameplay
 
         private void EndCurrentWave()
         {
+            customerFlowStarted = false;
+            nextCustomerSpawnTimes = Array.Empty<float>();
+            mealWavePhase = MealWavePhase.Clearing;
+            mealPhaseRemainingSeconds = 0f;
+            lastNotifiedMealSecond = int.MinValue;
+            // Let the display identify unfinished customers before their orders are cleared.
+            NotifyMealWaveDisplayIfNeeded(true);
+            if (customerSlots == null) return;
+            foreach (ArenaSlot2D slot in customerSlots)
+                if (slot != null && slot.CustomerState == CustomerSlotState.WaitingForFood) slot.ClearCustomer();
+        }
+
+        private void TickWaveClearance(float deltaTime)
+        {
+            TickCustomerStates(deltaTime);
+            TickCompletedCustomerMoney();
+            if (customerSlots != null)
+                foreach (ArenaSlot2D slot in customerSlots)
+                    if (slot != null && (slot.CustomerState == CustomerSlotState.Eating ||
+                        slot.CustomerState == CustomerSlotState.Completing)) return;
+            if (departureStatus != null && departureStatus.HasNpcsInRestaurant) return;
+
             if (currentWaveIndex >= TotalWaveCount - 1)
             {
                 CompleteMealWaves();
                 return;
             }
 
-            PauseCustomerFlowAndKeepAvailableMoney();
             mealWavePhase = MealWavePhase.Intermission;
             mealPhaseRemainingSeconds = Mathf.Max(0f, intermissionDurationSeconds);
             lastNotifiedMealSecond = int.MinValue;
@@ -393,25 +437,6 @@ namespace FoodIsekaiZ.Gameplay
             mealPhaseRemainingSeconds = 0f;
             lastNotifiedMealSecond = int.MinValue;
             NotifyMealWaveDisplayIfNeeded(true);
-        }
-
-        private void PauseCustomerFlowAndKeepAvailableMoney()
-        {
-            customerFlowStarted = false;
-            if (customerSlots != null)
-            {
-                for (int i = 0; i < customerSlots.Length; i++)
-                {
-                    ArenaSlot2D slot = customerSlots[i];
-                    if (slot != null && slot.CustomerState != CustomerSlotState.MoneyAvailable &&
-                        slot.CustomerState != CustomerSlotState.Completing)
-                    {
-                        slot.ClearCustomer();
-                    }
-                }
-            }
-
-            nextCustomerSpawnTimes = Array.Empty<float>();
         }
 
         private void StopCustomerFlowAndClearSlots()
@@ -624,7 +649,9 @@ namespace FoodIsekaiZ.Gameplay
 
                 if (player.HeldFood != slot.RequestedFood)
                 {
-                    return player.TryDiscardHeldFood();
+                    if (!player.TryDiscardHeldFood()) return false;
+                    WrongFoodDiscarded?.Invoke(player, slot);
+                    return true;
                 }
 
                 if (!slot.TryBeginEating(eatingDurationSeconds) ||
@@ -633,6 +660,7 @@ namespace FoodIsekaiZ.Gameplay
                     return false;
                 }
 
+                servedOrderCount++;
                 AddPlayerAndTeamScore(player.PlayerId, correctServeScore);
                 FoodServed?.Invoke(player, slot);
                 return true;

@@ -6,6 +6,9 @@ namespace FoodIsekaiZ.Display
     [RequireComponent(typeof(RectTransform), typeof(CanvasGroup))]
     public sealed class CustomerPanelPresentation : MonoBehaviour
     {
+        // Raised when the success particle burst begins after the order collapse.
+        public event System.Action SuccessParticlesPlayed;
+
         private enum MotionPhase { Hidden, Entering, Visible, Expanding, Collapsing }
 
         [Header("Scene References")]
@@ -195,6 +198,7 @@ namespace FoodIsekaiZ.Display
             {
                 successParticles.transform.position = burstPosition;
                 successParticles.Play();
+                SuccessParticlesPlayed?.Invoke();
             }
         }
 

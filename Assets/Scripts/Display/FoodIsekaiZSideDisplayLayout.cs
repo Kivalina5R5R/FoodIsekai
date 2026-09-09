@@ -38,6 +38,7 @@ namespace FoodIsekaiZ.Display
         private Text scoreText;
         private Text mvpText;
         private Text mealWaveTimerText;
+        private GameObject mealWaveFrame;
         private Text intermissionCountdownText;
         private Text uwbStatusText;
         private readonly Image[] customerStatusImages = new Image[CustomerPanelCapacity];
@@ -120,26 +121,28 @@ namespace FoodIsekaiZ.Display
 
             for (int i = 0; i < customerStatusImages.Length; i++)
             {
-                // Preserve the served food and timer until the success collapse has finished,
-                // even when another player collects the money in the same frame.
-                if (customerPanelPresentations[i] != null && customerPanelPresentations[i].IsCompleting)
-                {
-                    continue;
-                }
-
                 Image statusImage = customerStatusImages[i];
                 Slider timerSlider = customerTimerSliders[i];
                 if (gameManager != null &&
-                    gameManager.CurrentMealWavePhase == MealWavePhase.Intermission)
+                    (gameManager.CurrentMealWavePhase == MealWavePhase.Intermission ||
+                     gameManager.CurrentMealWavePhase == MealWavePhase.Completed))
                 {
                     SetCustomerFoodImage(i, FoodType.None);
                     customerDisplayInitialized[i] = false;
-                    SetCustomerPanelVisible(i, false);
+                    if (customerPanelPresentations[i] != null) customerPanelPresentations[i].Hide(true);
+                    else SetCustomerPanelVisible(i, false);
                     if (timerSlider != null)
                     {
                         timerSlider.gameObject.SetActive(false);
                     }
 
+                    continue;
+                }
+
+                // Preserve the served food and timer until the success collapse has finished,
+                // even when another player collects the money in the same frame.
+                if (customerPanelPresentations[i] != null && customerPanelPresentations[i].IsCompleting)
+                {
                     continue;
                 }
 
@@ -343,11 +346,11 @@ namespace FoodIsekaiZ.Display
                 {
                     if (gameManager != null && gameManager.TryGetMvp(out int playerId, out int playerScore))
                     {
-                        mvpText.text = $"MVP  P{playerId}  {FormatScore(playerScore)}";
+                        mvpText.text = $"P{playerId}  {FormatScore(playerScore)}";
                     }
                     else
                     {
-                        mvpText.text = "MVP  --  0000";
+                        mvpText.text = "--  0000";
                     }
                 }
 
@@ -357,52 +360,30 @@ namespace FoodIsekaiZ.Display
 
         private void FlushMealWaveDisplayUpdate()
         {
-            if (!mealWaveDisplayDirty)
-            {
-                return;
-            }
-
+            UpdateMealWaveFrameVisibility();
+            if (!mealWaveDisplayDirty) return;
             mealWaveDisplayDirty = false;
-            if (mealWaveTimerText == null || intermissionCountdownText == null)
+            if (intermissionCountdownText != null) intermissionCountdownText.gameObject.SetActive(false);
+            if (mealWaveTimerText == null) return;
+            int seconds = gameManager != null && gameManager.UsesMealWaves
+                ? Mathf.Max(0, Mathf.CeilToInt(gameManager.MealPhaseRemainingSeconds)) : 0;
+            mealWaveTimerText.text = FormatClock(seconds);
+        }
+
+        // Derive the frame from the live timer hierarchy, including already-open scenes without a new reference.
+        // Visibility is enforced independently of dirty text and the intermission panel controller.
+        private void UpdateMealWaveFrameVisibility()
+        {
+            if (mealWaveFrame == null && mealWaveTimerText != null)
             {
-                return;
+                Transform parent = mealWaveTimerText.transform.parent;
+                if (parent != null && parent.GetComponent<Image>() != null) mealWaveFrame = parent.gameObject;
             }
-
-            if (gameManager == null || !gameManager.UsesMealWaves)
-            {
-                mealWaveTimerText.text = string.Empty;
-                intermissionCountdownText.gameObject.SetActive(false);
-                return;
-            }
-
-            int seconds = Mathf.Max(0, Mathf.CeilToInt(gameManager.MealPhaseRemainingSeconds));
-            switch (gameManager.CurrentMealWavePhase)
-            {
-                case MealWavePhase.Active:
-                    mealWaveTimerText.text =
-                        $"{gameManager.CurrentWaveName}  {FormatClock(seconds)}  " +
-                        $"({gameManager.CurrentWaveNumber}/{gameManager.TotalWaveCount})";
-                    intermissionCountdownText.gameObject.SetActive(false);
-                    break;
-
-                case MealWavePhase.Intermission:
-                    mealWaveTimerText.text = "BREAK TIME";
-                    intermissionCountdownText.text =
-                        $"NEXT  {gameManager.NextWaveName}\n{seconds}";
-                    intermissionCountdownText.gameObject.SetActive(true);
-                    break;
-
-                case MealWavePhase.Completed:
-                    mealWaveTimerText.text = "ALL MEALS COMPLETE";
-                    intermissionCountdownText.text = "SERVICE COMPLETE";
-                    intermissionCountdownText.gameObject.SetActive(true);
-                    break;
-
-                default:
-                    mealWaveTimerText.text = "READY";
-                    intermissionCountdownText.gameObject.SetActive(false);
-                    break;
-            }
+            if (mealWaveFrame == null) return;
+            bool hideTimer = gameManager != null && gameManager.UsesMealWaves &&
+                (gameManager.CurrentMealWavePhase == MealWavePhase.Intermission ||
+                 gameManager.CurrentMealWavePhase == MealWavePhase.Clearing);
+            if (mealWaveFrame.activeSelf == hideTimer) mealWaveFrame.SetActive(!hideTimer);
         }
 
         private void SubscribeToGameEvents()
@@ -622,6 +603,7 @@ namespace FoodIsekaiZ.Display
             scoreText = GetManualComponent<Text>(root, "TeamScore");
             mvpText = GetManualComponent<Text>(root, "MVPScore");
             mealWaveTimerText = GetManualComponent<Text>(root, "MealWaveTimer");
+            mealWaveFrame = null;
             intermissionCountdownText = GetManualComponent<Text>(root, "MealIntermissionCountdown");
             uwbStatusText = GetManualComponent<Text>(root, "UWBStatus");
 

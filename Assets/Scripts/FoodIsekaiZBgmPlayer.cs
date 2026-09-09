@@ -17,16 +17,17 @@ namespace FoodIsekaiZ.Audio
         [Tooltip("เปิดเพื่อวนเพลงซ้ำ ปิดเพื่อเล่นเพลงครั้งเดียว")]
         [SerializeField] private bool loop = true;
 
-        [SerializeField, Range(0f, 1f)] private float volume = 1f;
+        [SerializeField, Range(0f, 1f)] private float volume = 0.18f;
 
-        private AudioSource audioSource;
+        [SerializeField] private AudioSource audioSource;
 
         private void Awake()
         {
-            audioSource = GetComponent<AudioSource>();
+            ResolveAudioSource();
             if (audioSource == null)
             {
-                audioSource = gameObject.AddComponent<AudioSource>();
+                Debug.LogError("Assign the dedicated BGM AudioSource; effect voices must remain independent.", this);
+                return;
             }
 
             ConfigureAudioSource();
@@ -39,12 +40,16 @@ namespace FoodIsekaiZ.Audio
 
         private void OnValidate()
         {
-            if (audioSource == null)
-            {
-                audioSource = GetComponent<AudioSource>();
-            }
+            ResolveAudioSource();
 
             ConfigureAudioSource();
+        }
+
+        private void ResolveAudioSource()
+        {
+            if (audioSource != null) return;
+            AudioSource[] candidates = GetComponents<AudioSource>();
+            if (candidates.Length == 1) audioSource = candidates[0];
         }
 
         private void ConfigureAudioSource()
