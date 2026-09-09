@@ -149,9 +149,20 @@ namespace FoodIsekaiZ.Gameplay
                 return;
             }
 
-            if (mesh == null)
+            if (filter.sharedMesh == null || filter.sharedMesh.hideFlags == HideFlags.HideAndDontSave)
             {
-                mesh = CreateManualMesh(target.name, size);
+                if (mesh == null)
+                {
+                    mesh = CreateManualMesh(target.name, size);
+                }
+
+                filter.sharedMesh = mesh;
+            }
+
+            // Persistent materials own their appearance and property blocks in the Scene.
+            if (renderer.sharedMaterial != null && renderer.sharedMaterial.hideFlags != HideFlags.HideAndDontSave)
+            {
+                return;
             }
 
             if (material == null)
@@ -159,15 +170,7 @@ namespace FoodIsekaiZ.Gameplay
                 material = CreateManualMaterial(target.name, color);
             }
 
-            if (filter.sharedMesh == null || filter.sharedMesh.hideFlags == HideFlags.HideAndDontSave)
-            {
-                filter.sharedMesh = mesh;
-            }
-
-            if (renderer.sharedMaterial == null || renderer.sharedMaterial.hideFlags == HideFlags.HideAndDontSave)
-            {
-                renderer.sharedMaterial = material;
-            }
+            renderer.sharedMaterial = material;
 
             if (manualVisualProperties == null)
             {

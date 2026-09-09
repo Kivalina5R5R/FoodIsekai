@@ -44,6 +44,7 @@ namespace FoodIsekaiZ.Display
         private readonly Image[] customerPanelBackgrounds = new Image[CustomerPanelCapacity];
         private readonly CustomerPanelPresentation[] customerPanelPresentations =
             new CustomerPanelPresentation[CustomerPanelCapacity];
+        private readonly TavernTimerGraphic[] customerTimerGraphics = new TavernTimerGraphic[CustomerPanelCapacity];
         private readonly Slider[] customerTimerSliders = new Slider[CustomerPanelCapacity];
         private readonly Image[] customerTimerFills = new Image[CustomerPanelCapacity];
         private readonly Vector2[] authoredCustomerStatusPositions =
@@ -184,6 +185,7 @@ namespace FoodIsekaiZ.Display
                         {
                             timerSlider.gameObject.SetActive(true);
                             timerSlider.SetValueWithoutNotify(slot.StateTimeNormalized);
+                            customerTimerGraphics[i]?.SetState(slot.StateTimeNormalized, slot.CustomerState == CustomerSlotState.Eating);
                         }
 
                         break;
@@ -635,6 +637,7 @@ namespace FoodIsekaiZ.Display
                 customerPanelPresentations[i] = panel.GetComponent<CustomerPanelPresentation>();
                 customerStatusImages[i] = GetManualComponent<Image>(panel, "Status");
                 customerTimerSliders[i] = GetManualComponent<Slider>(panel, "OrderTimer");
+                customerTimerGraphics[i] = GetManualComponent<TavernTimerGraphic>(panel, "OrderTimer");
                 customerTimerFills[i] = GetManualComponent<Image>(panel, "OrderTimer/FillArea/Fill");
                 if (customerStatusImages[i] != null)
                 {
