@@ -29,11 +29,11 @@ namespace FoodIsekaiZ.Gameplay
             }
         }
 
-        // Picks up the food assigned to the station, replacing any food currently held by the player.
-        // Returns true when a valid food was picked up.
+        // Picks up a different station food, replacing the food currently held by this player.
+        // Returns false for invalid food or the same food already held.
         public bool TryPickFood(FoodType food)
         {
-            if (food < FoodType.Food1 || food > FoodType.Food5)
+            if (food < FoodType.Food1 || food > FoodType.Food5 || heldFood == food)
             {
                 return false;
             }
