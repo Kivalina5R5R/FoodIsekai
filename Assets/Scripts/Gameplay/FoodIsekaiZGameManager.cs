@@ -133,6 +133,9 @@ namespace FoodIsekaiZ.Gameplay
         private bool mealWaveFlowStarted;
         private int lastNotifiedMealSecond = int.MinValue;
 
+        private int totalBankedMoney;
+
+        public int TotalBankedMoney => totalBankedMoney;
         public int TeamScore => teamScore;
         public int CompletedOrderCount => completedOrderCount;
         public int ExpiredOrderCount => expiredOrderCount;
@@ -145,9 +148,14 @@ namespace FoodIsekaiZ.Gameplay
         public string CurrentWaveName => GetWaveDisplayName(currentWaveIndex);
         public string NextWaveName => GetWaveDisplayName(currentWaveIndex + 1);
 
+        public event Action<FoodIsekaiZPlayerState, ArenaSlot2D, int> PlayerMoneyCollected;
         public event Action<int, int> PlayerMoneyDeposited;
         public event Action<int, int> PlayerScoreChanged;
         public event Action<int> TeamScoreChanged;
+        // Raised only after a station has successfully placed food in the player's hands.
+        public event Action<FoodIsekaiZPlayerState, ArenaSlot2D> FoodPickedUp;
+        // Raised as soon as the requested food is accepted and the customer starts eating.
+        public event Action<FoodIsekaiZPlayerState, ArenaSlot2D> FoodServed;
         public event Action<ArenaSlot2D, FoodType> CustomerRequestedFood;
         // Raised when eating ends, before the reward becomes visible or collectible.
         public event Action<ArenaSlot2D, int> CustomerFinishedEating;
@@ -297,7 +305,13 @@ namespace FoodIsekaiZ.Gameplay
             switch (slot.SlotType)
             {
                 case ArenaSlotType.FoodStation:
-                    return player.TryPickFood(slot.StationFood);
+                    if (!player.TryPickFood(slot.StationFood))
+                    {
+                        return false;
+                    }
+
+                    FoodPickedUp?.Invoke(player, slot);
+                    return true;
 
                 case ArenaSlotType.MoneyDeposit:
                     return TryDepositMoney(player);
@@ -620,6 +634,7 @@ namespace FoodIsekaiZ.Gameplay
                 }
 
                 AddPlayerAndTeamScore(player.PlayerId, correctServeScore);
+                FoodServed?.Invoke(player, slot);
                 return true;
             }
 
@@ -635,7 +650,9 @@ namespace FoodIsekaiZ.Gameplay
                 return false;
             }
 
+            int collected = slot.AvailableMoney;
             slot.CollectMoney();
+            PlayerMoneyCollected?.Invoke(player, slot, collected);
             ScheduleCustomer(IndexOfCustomerSlot(slot));
             return true;
         }
@@ -648,6 +665,7 @@ namespace FoodIsekaiZ.Gameplay
                 return false;
             }
 
+            totalBankedMoney += deposited;
             AddPlayerAndTeamScore(player.PlayerId, bankDepositScore);
             PlayerMoneyDeposited?.Invoke(player.PlayerId, deposited);
             return true;

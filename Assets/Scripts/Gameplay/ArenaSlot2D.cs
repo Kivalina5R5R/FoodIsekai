@@ -333,14 +333,15 @@ namespace FoodIsekaiZ.Gameplay
 
         private void RefreshVisuals()
         {
+            bool hasCollectibleMoney = customerState == CustomerSlotState.MoneyAvailable && availableMoney > 0;
             if (moneyVisual != null)
             {
-                moneyVisual.SetActive(customerState == CustomerSlotState.MoneyAvailable && availableMoney > 0);
+                moneyVisual.SetActive(hasCollectibleMoney);
             }
 
             if (statusLabel != null && slotType == ArenaSlotType.Customer)
             {
-                statusLabel.text = GetShortSlotId();
+                statusLabel.gameObject.SetActive(!hasCollectibleMoney);
             }
 
             RefreshFloorWarningAppearance();
@@ -383,6 +384,17 @@ namespace FoodIsekaiZ.Gameplay
                 slotVisualProperties = new MaterialPropertyBlock();
             }
 
+            Material material = slotRenderer.sharedMaterial;
+            if (material != null && material.HasProperty("_WarningAmount") && material.HasProperty("_Visibility"))
+            {
+                // The material owns its colors; runtime supplies only customer state.
+                slotRenderer.GetPropertyBlock(slotVisualProperties);
+                slotVisualProperties.SetFloat("_WarningAmount", alertPhase ? 1f : 0f);
+                slotVisualProperties.SetFloat("_Visibility", HasCustomer ? 1f : noCustomerSlotAlpha);
+                slotRenderer.SetPropertyBlock(slotVisualProperties);
+                return;
+            }
+
             Color blockColor = alertPhase ? warningBlockColor : normalBlockColor;
             if (!HasCustomer)
             {
@@ -415,17 +427,6 @@ namespace FoodIsekaiZ.Gameplay
             }
 
             return material.renderQueue >= (int)UnityEngine.Rendering.RenderQueue.Transparent;
-        }
-
-        private string GetShortSlotId()
-        {
-            if (!string.IsNullOrEmpty(slotId) && slotId.StartsWith("CustomerSlot"))
-            {
-                string number = slotId.Substring("CustomerSlot".Length).TrimStart('0');
-                return $"C{(string.IsNullOrEmpty(number) ? "1" : number)}";
-            }
-
-            return slotId;
         }
 
 #if UNITY_EDITOR
