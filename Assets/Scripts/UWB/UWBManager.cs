@@ -25,6 +25,7 @@ namespace Fortal.UWB
         {
             public UWBTracker tracker;
             public int externalConsumers;
+            public readonly AdaptiveUwbPosition response = new AdaptiveUwbPosition();
             public bool hasPose;
             public bool hasUwbPosition;
             public Vector3 latestPositionMeters;
@@ -157,9 +158,28 @@ namespace Fortal.UWB
 
         private readonly Dictionary<int, TrackedTag> tags = new Dictionary<int, TrackedTag>();
         private readonly object poseLock = new object();
-        private readonly NoopLoopFrameParser parser = new NoopLoopFrameParser();
-        private readonly Queue<NoopLoopPose> pendingPoses = new Queue<NoopLoopPose>();
-        private readonly List<NoopLoopPose> posesForMainThread = new List<NoopLoopPose>(32);
+        private NoopLoopFrameParser parser = new NoopLoopFrameParser();
+        private readonly Queue<TimedPose> pendingPoses = new Queue<TimedPose>();
+        private struct TimedPose
+        {
+            public NoopLoopPose pose;
+            public double receivedAt;
+        }
+
+        private static double ReceiveClock => (double)System.Diagnostics.Stopwatch.GetTimestamp() / System.Diagnostics.Stopwatch.Frequency;
+        private double protocolReceivedAt = -999;
+        private double usableReceivedAt = -999;
+        private double processingSampleTime;
+        private float processingSampleAge;
+
+        [Header("Low latency tracking")]
+        [SerializeField] private bool adaptiveTracking = true;
+        [SerializeField, Range(0f, 0.1f)] private float adaptiveDeadband = 0.03f;
+        [SerializeField, Range(0.02f, 0.5f)] private float maxQueuedPoseAgeSeconds = 0.1f;
+        public bool UsesAdaptiveTracking => adaptiveTracking && smoothTagPosition;
+        public int DroppedStaleFrames { get; private set; }
+        public int DroppedOverflowFrames { get; private set; }
+        private readonly List<TimedPose> posesForMainThread = new List<TimedPose>(32);
         private readonly Dictionary<int, Vector2> simulatedPhysicalPositions = new Dictionary<int, Vector2>();
         private readonly Vector3[] trilaterationPoints = new Vector3[AnchorCount];
         private readonly float[] trilaterationDistances = new float[AnchorCount];
@@ -317,8 +337,11 @@ namespace Fortal.UWB
                 return;
             }
 
+            ResetTracking();
+            parser = new NoopLoopFrameParser();
             lock (poseLock)
             {
+                protocolReceivedAt = usableReceivedAt = -999;
                 pendingPoses.Clear();
                 observedParsedFrameCount = parsedFrameCount;
                 observedUsableFrameCount = usableFrameCount;
@@ -356,7 +379,9 @@ namespace Fortal.UWB
                     Debug.Log($"[UWBManager] UDP listening: {udpListenAddress}:{udpListenPort}", this);
                 }
 
-                readThread = new Thread(ReadLoop)
+                NoopLoopSerialPort openedPort = serialPort;
+                UdpClient openedUdp = udpClient;
+                readThread = new Thread(() => ReadLoop(openedPort, openedUdp))
                 {
                     IsBackground = true,
                     Name = "NoopLoop UWB Reader"
@@ -391,6 +416,9 @@ namespace Fortal.UWB
         private void CloseTransport()
         {
             keepReading = false;
+            ResetTracking();
+            lock (poseLock) { pendingPoses.Clear(); }
+            isConnected = isReceivingProtocolFrames = isReceivingFrames = false;
 
             // Close UDP ก่อน Join เพื่อปลุก Receive() ที่กำลัง block อยู่
             if (udpClient != null)
@@ -401,7 +429,12 @@ namespace Fortal.UWB
 
             if (readThread != null)
             {
-                readThread.Join(200);
+                if (!readThread.Join(200))
+                {
+                    // The reader owns its handle until it has actually stopped.
+                    isConnected = isReceivingProtocolFrames = isReceivingFrames = false;
+                    return;
+                }
                 readThread = null;
             }
 
@@ -422,6 +455,7 @@ namespace Fortal.UWB
                 serialPort = null;
             }
 
+            lock (poseLock) { pendingPoses.Clear(); }
             isConnected = false;
             isReceivingProtocolFrames = false;
             isReceivingFrames = false;
@@ -435,51 +469,72 @@ namespace Fortal.UWB
             }
         }
 
-        private void ReadLoop()
+        private void ReadLoop(NoopLoopSerialPort openedPort, UdpClient openedUdp)
         {
-            while (keepReading)
+            try
             {
-                try
+                while (keepReading)
                 {
-                    if (transportMode == UWBTransportMode.Serial)
+                    try
                     {
-                        int value = serialPort.ReadByte();
-                        if (value >= 0)
+                        if (transportMode == UWBTransportMode.Serial)
                         {
-                            PushProtocolByte((byte)value);
+                            int value = openedPort.ReadByte();
+                            if (value >= 0 && keepReading)
+                            {
+                                PushProtocolByte((byte)value);
+                            }
+                        }
+                        else
+                        {
+                            IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
+                            byte[] datagram = openedUdp.Receive(ref sender);
+                            for (int i = 0; i < datagram.Length && keepReading; i++)
+                            {
+                                PushProtocolByte(datagram[i]);
+                            }
                         }
                     }
-                    else
+                    catch (TimeoutException)
                     {
-                        IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
-                        byte[] datagram = udpClient.Receive(ref sender);
-                        for (int i = 0; i < datagram.Length; i++)
+                    }
+                    catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TimedOut)
+                    {
+                    }
+                    catch (SocketException) when (!keepReading)
+                    {
+                    }
+                    catch (ObjectDisposedException) when (!keepReading)
+                    {
+                    }
+                    catch (Exception ex)
+                    {
+                        lock (poseLock)
                         {
-                            PushProtocolByte(datagram[i]);
+                            threadStatus = $"Read stopped: {ex.Message}";
                         }
-                    }
-                }
-                catch (TimeoutException)
-                {
-                }
-                catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TimedOut)
-                {
-                }
-                catch (SocketException) when (!keepReading)
-                {
-                }
-                catch (ObjectDisposedException) when (!keepReading)
-                {
-                }
-                catch (Exception ex)
-                {
-                    lock (poseLock)
-                    {
-                        threadStatus = $"Read stopped: {ex.Message}";
-                    }
 
-                    keepReading = false;
+                        keepReading = false;
+                    }
                 }
+            }
+            finally
+            {
+                openedPort?.Dispose();
+                keepReading = false;
+                lock (poseLock) { pendingPoses.Clear(); }
+            }
+        }
+
+        private void ResetTracking()
+        {
+            foreach (TrackedTag tag in tags.Values)
+            {
+                tag.hasPose = tag.hasUwbPosition = tag.hasMeasuredPosition = false;
+                tag.pendingJumpFrames = tag.positionFrameHistoryCount = tag.positionFrameHistoryWriteIndex = 0;
+                tag.trackingVelocityMetersPerSecond = Vector3.zero;
+                tag.response.Reset();
+                tag.tracker?.SetOffline();
             }
         }
 
@@ -494,16 +549,19 @@ namespace Fortal.UWB
             lock (poseLock)
             {
                 parsedFrameCount++;
+                protocolReceivedAt = ReceiveClock;
                 if (usable)
                 {
                     usableFrameCount++;
+                    usableReceivedAt = protocolReceivedAt;
 
                     if (pendingPoses.Count >= 256)
                     {
                         pendingPoses.Dequeue();
+                        DroppedOverflowFrames++;
                     }
 
-                    pendingPoses.Enqueue(pose);
+                    pendingPoses.Enqueue(new TimedPose { pose = pose, receivedAt = protocolReceivedAt });
                 }
 
                 threadStatus = usable ? $"{pose.FrameType} OK: T{pose.Id}" : "AnchorFrame0 OK, waiting for Tag";
@@ -639,7 +697,13 @@ namespace Fortal.UWB
             {
                 while (pendingPoses.Count > 0)
                 {
-                    posesForMainThread.Add(pendingPoses.Dequeue());
+                    TimedPose queued = pendingPoses.Dequeue();
+                    if (ReceiveClock - queued.receivedAt > maxQueuedPoseAgeSeconds)
+                    {
+                        DroppedStaleFrames++;
+                        continue;
+                    }
+                    posesForMainThread.Add(queued);
                 }
 
                 isConnected = keepReading &&
@@ -649,13 +713,13 @@ namespace Fortal.UWB
                 if (observedParsedFrameCount != parsedFrameCount)
                 {
                     observedParsedFrameCount = parsedFrameCount;
-                    lastProtocolFrameTime = Time.unscaledTime;
+                    lastProtocolFrameTime = Time.unscaledTime - (float)(ReceiveClock - protocolReceivedAt);
                 }
 
                 if (observedUsableFrameCount != usableFrameCount)
                 {
                     observedUsableFrameCount = usableFrameCount;
-                    lastUsableFrameTime = Time.unscaledTime;
+                    lastUsableFrameTime = Time.unscaledTime - (float)(ReceiveClock - usableReceivedAt);
                 }
 
                 receivedFrameCount = parsedFrameCount;
@@ -673,7 +737,13 @@ namespace Fortal.UWB
 
             for (int i = 0; i < posesForMainThread.Count; i++)
             {
-                ApplyPoseToRegisteredTags(posesForMainThread[i]);
+                TimedPose timed = posesForMainThread[i];
+                processingSampleTime = timed.receivedAt;
+                processingSampleAge = Mathf.Max(0f, (float)(ReceiveClock - timed.receivedAt));
+                if (processingSampleAge <= maxQueuedPoseAgeSeconds)
+                {
+                    ApplyPoseToRegisteredTags(timed.pose);
+                }
             }
 
             PredictTagsDuringSignalGap();
@@ -944,6 +1014,13 @@ namespace Fortal.UWB
                     continue;
                 }
 
+                if (UsesAdaptiveTracking)
+                {
+                    entry.latestPositionMeters = ApplyPlayerHeightPolicy(entry.response.Present(now));
+                    entry.tracker?.ApplyTrackedPosition(entry.latestPositionMeters, age);
+                    continue;
+                }
+
                 if (maxTrackingPredictionSeconds <= 0f || age <= 0.01f || age > maxTrackingPredictionSeconds)
                 {
                     if (age > maxTrackingPredictionSeconds)
@@ -1012,9 +1089,25 @@ namespace Fortal.UWB
 
         private void UpdateTrackedTagFromPose(TrackedTag target, NoopLoopPose tagPose)
         {
+            Vector3 raw = tagPose.PositionMeters;
+            if (!float.IsFinite(raw.x) || !float.IsFinite(raw.y) || !float.IsFinite(raw.z))
+            {
+                return;
+            }
+            // A returning tag starts from its new calibrated position, not old velocity/history.
+            if (Time.unscaledTime - target.latestPoseTime > 0.25f)
+            {
+                target.hasPose = target.hasUwbPosition = target.hasMeasuredPosition = false;
+                target.pendingJumpFrames = target.positionFrameHistoryCount = 0;
+                target.response.Reset();
+            }
             Vector3 resolvedPosition = ResolveTagPosition(tagPose, target);
+            if (!float.IsFinite(resolvedPosition.x) || !float.IsFinite(resolvedPosition.y) || !float.IsFinite(resolvedPosition.z))
+            {
+                return;
+            }
 
-            float now = Time.unscaledTime;
+            float now = Time.unscaledTime - processingSampleAge;
             if (target.hasUwbPosition)
             {
                 float sampleDt = Mathf.Max(0.001f, now - target.lastUwbSampleTime);
@@ -1042,7 +1135,10 @@ namespace Fortal.UWB
             target.latestPositionMeters = resolvedPosition;
             target.latestPoseTime = now;
 
-            target.tracker?.ApplyTrackedPosition(resolvedPosition, 0f);
+            if (!UsesAdaptiveTracking)
+            {
+                target.tracker?.ApplyTrackedPosition(resolvedPosition, processingSampleAge);
+            }
         }
 
         private Vector3 ResolveTagPosition(NoopLoopPose pose, TrackedTag target)
@@ -1085,13 +1181,24 @@ namespace Fortal.UWB
 
                     position = Vector3.MoveTowards(target.lastUwbPositionMeters, position, maxTrackingRecoveryStepMeters);
                 }
+                else
+                {
+                    target.pendingJumpFrames = 0;
+                }
             }
             else
             {
                 target.pendingJumpFrames = 0;
             }
 
-            position = SmoothTagPositionValue(position, target);
+            position = ApplyPlayerHeightPolicy(position);
+            if (!float.IsFinite(position.x) || !float.IsFinite(position.y) || !float.IsFinite(position.z))
+            {
+                return position;
+            }
+            position = UsesAdaptiveTracking
+                ? target.response.Sample(position, processingSampleTime, Time.unscaledTime, adaptiveDeadband)
+                : SmoothTagPositionValue(position, target);
             return ApplyPlayerHeightPolicy(position);
         }
 

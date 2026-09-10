@@ -35,7 +35,6 @@ namespace Fortal.UWB
         private Vector3 smoothVelocity;
         private Vector3 lastAppliedPosition;
         private bool hasFirstData;
-        private float metersToWorldScale = 1f;
 
         private void OnEnable()
         {
@@ -64,7 +63,6 @@ namespace Fortal.UWB
                 return;
             }
 
-            metersToWorldScale = config.metersToWorldScale;
             FoodIsekaiZ.Configuration.UWBTrackingSettings tracking = config.tracking;
             if (tracking == null)
             {
@@ -117,7 +115,7 @@ namespace Fortal.UWB
                 manager?.AddTag(this);
             }
 
-            if (!hasFirstData)
+            if (!hasFirstData || !isTracking || (manager != null && manager.UsesAdaptiveTracking))
             {
                 return;
             }
@@ -132,8 +130,18 @@ namespace Fortal.UWB
             isTracking = true;
             ageSeconds = sampleAgeSeconds;
 
-            // Convert real-world meters into game-world units before any smoothing/deadzone logic.
-            positionMeters *= metersToWorldScale;
+            // The manager has already applied axis conversion, offset and world scale.
+            if (manager != null && manager.UsesAdaptiveTracking)
+            {
+                velocity = hasFirstData
+                    ? (positionMeters - lastAppliedPosition) / Mathf.Max(Time.unscaledDeltaTime, 0.0001f)
+                    : Vector3.zero;
+                filteredPosition = targetPosition = lastAppliedPosition = positionMeters;
+                transform.position = positionMeters;
+                smoothVelocity = Vector3.zero;
+                hasFirstData = true;
+                return;
+            }
 
             if (!hasFirstData)
             {
@@ -169,6 +177,8 @@ namespace Fortal.UWB
         public void SetOffline()
         {
             isTracking = false;
+            hasFirstData = false;
+            smoothVelocity = velocity = Vector3.zero;
         }
     }
 }

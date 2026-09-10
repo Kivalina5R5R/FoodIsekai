@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 
 namespace Fortal.UWB
 {
-    // Minimal Win32 serial port reader used for the NoopLoop LinkTrack local anchor USB link.
     internal sealed class NoopLoopSerialPort : IDisposable
     {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
@@ -16,7 +15,8 @@ namespace Fortal.UWB
         private IntPtr handle = InvalidHandleValue;
         private readonly string portName;
         private readonly int baudRate;
-        private readonly byte[] oneByte = new byte[1];
+        private readonly byte[] readBuffer = new byte[4096];
+        private int readOffset, readCount;
 
         public NoopLoopSerialPort(string portName, int baudRate)
         {
@@ -40,36 +40,42 @@ namespace Fortal.UWB
                 ThrowLastWin32Error($"Could not open {portName}");
             }
 
-            Dcb dcb = new Dcb();
-            dcb.DCBlength = Marshal.SizeOf<Dcb>();
-            if (!GetCommState(handle, ref dcb))
+            try
             {
-                ThrowLastWin32Error($"Could not read serial settings for {portName}");
-            }
+                Dcb dcb = new Dcb();
+                dcb.DCBlength = Marshal.SizeOf<Dcb>();
+                if (!GetCommState(handle, ref dcb))
+                {
+                    ThrowLastWin32Error($"Could not read serial settings for {portName}");
+                }
 
-            if (!BuildCommDCB($"baud={baudRate} parity=N data=8 stop=1", ref dcb))
-            {
-                ThrowLastWin32Error($"Could not build serial settings for {portName}");
-            }
+                if (!BuildCommDCB($"baud={baudRate} parity=N data=8 stop=1", ref dcb))
+                {
+                    ThrowLastWin32Error($"Could not build serial settings for {portName}");
+                }
 
-            if (!SetCommState(handle, ref dcb))
-            {
-                ThrowLastWin32Error($"Could not apply serial settings for {portName}");
-            }
+                if (!SetCommState(handle, ref dcb))
+                {
+                    ThrowLastWin32Error($"Could not apply serial settings for {portName}");
+                }
 
-            CommTimeouts timeouts = new CommTimeouts
-            {
-                ReadIntervalTimeout = 1,
-                ReadTotalTimeoutConstant = 20,
-                ReadTotalTimeoutMultiplier = 0,
-                WriteTotalTimeoutConstant = 20,
-                WriteTotalTimeoutMultiplier = 0
-            };
+                // Return buffered bytes now, or wake as soon as the first byte arrives.
+                CommTimeouts timeouts = new CommTimeouts
+                {
+                    ReadIntervalTimeout = uint.MaxValue,
+                    ReadTotalTimeoutConstant = 20,
+                    ReadTotalTimeoutMultiplier = uint.MaxValue,
+                    WriteTotalTimeoutConstant = 20,
+                    WriteTotalTimeoutMultiplier = 0
+                };
 
-            if (!SetCommTimeouts(handle, ref timeouts))
-            {
-                ThrowLastWin32Error($"Could not apply serial timeouts for {portName}");
+                if (!SetCommTimeouts(handle, ref timeouts))
+                {
+                    ThrowLastWin32Error($"Could not apply serial timeouts for {portName}");
+                }
+                readOffset = readCount = 0;
             }
+            catch { Dispose(); throw; }
         }
 
         public int ReadByte()
@@ -79,12 +85,16 @@ namespace Fortal.UWB
                 return -1;
             }
 
-            if (!ReadFile(handle, oneByte, 1, out uint bytesRead, IntPtr.Zero))
+            if (readOffset >= readCount)
             {
-                ThrowLastWin32Error($"Could not read from {portName}");
+                // Return available bytes immediately rather than making one native
+                // call for each byte of a high-baud-rate frame.
+                if (!ReadFile(handle, readBuffer, (uint)readBuffer.Length, out uint bytesRead, IntPtr.Zero))
+                    ThrowLastWin32Error($"Could not read from {portName}");
+                readOffset = 0; readCount = (int)bytesRead;
+                if (readCount == 0) return -1;
             }
-
-            return bytesRead == 1 ? oneByte[0] : -1;
+            return readBuffer[readOffset++];
         }
 
         public void Dispose()
@@ -162,7 +172,7 @@ namespace Fortal.UWB
 
         public void Open()
         {
-            throw new PlatformNotSupportedException("NoopLoop UWB serial link currently supports Windows Editor/Player only.");
+            throw new PlatformNotSupportedException("LinkTrack serial demo currently supports Windows Editor/Player only.");
         }
 
         public int ReadByte()
