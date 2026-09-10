@@ -9,7 +9,7 @@ namespace FoodIsekaiZ.Display
         // Raised when the success particle burst begins after the order collapse.
         public event System.Action SuccessParticlesPlayed;
 
-        private enum MotionPhase { Hidden, Entering, Visible, Expanding, Collapsing }
+        private enum MotionPhase { Hidden, Entering, Visible, Expanding, Collapsing, Dismissing }
 
         [Header("Scene References")]
         [SerializeField] private CanvasGroup panelGroup;
@@ -34,6 +34,9 @@ namespace FoodIsekaiZ.Display
         [SerializeField, Range(1f, 1.5f)] private float successScale = 1.18f;
         [SerializeField, Min(0.05f)] private float collapseDurationSeconds = 0.24f;
 
+        [Header("Expired Order")]
+        [SerializeField, Min(0.05f)] private float dismissDurationSeconds = 0.4f;
+
         private RectTransform panelRect;
         private CustomerPanelSuccessParticles successParticles;
         private CustomerPanelAmbientSparkles ambientSparkles;
@@ -51,6 +54,7 @@ namespace FoodIsekaiZ.Display
         private bool initialized;
 
         public bool IsCompleting => phase == MotionPhase.Expanding || phase == MotionPhase.Collapsing;
+        public bool IsDismissing => phase == MotionPhase.Dismissing;
 
         public bool IsCelebrating => IsCompleting || (successParticles != null && successParticles.IsPlaying);
 
@@ -93,10 +97,26 @@ namespace FoodIsekaiZ.Display
             phaseElapsedSeconds = 0f;
         }
 
+        // Fades and shrinks the expired order from its current animated pose.
+        public void Dismiss()
+        {
+            if (!isActiveAndEnabled || IsDismissing || IsCompleting || phase == MotionPhase.Hidden)
+            {
+                return;
+            }
+
+            expandStartScale = currentScale;
+            expandStartLift = currentLift;
+            expandStartAlpha = panelGroup.alpha;
+            ambientSparkles?.Stop();
+            phase = MotionPhase.Dismissing;
+            phaseElapsedSeconds = 0f;
+        }
+
         public void Hide(bool force = false)
         {
             Initialize();
-            if (!force && IsCompleting)
+            if (!force && (IsCompleting || IsDismissing))
             {
                 return;
             }
@@ -138,6 +158,13 @@ namespace FoodIsekaiZ.Display
                     break;
                 case MotionPhase.Collapsing:
                     AnimateCollapse();
+                    break;
+                case MotionPhase.Dismissing:
+                    float progress = Mathf.Clamp01(phaseElapsedSeconds / Mathf.Max(0.05f, dismissDurationSeconds));
+                    float eased = Mathf.SmoothStep(0f, 1f, progress);
+                    ApplyMotion(Mathf.Lerp(expandStartScale, 0.65f, eased),
+                        Mathf.Lerp(expandStartLift, -entranceLiftPixels, eased), expandStartAlpha * (1f - eased));
+                    if (progress >= 1f) Hide(true);
                     break;
             }
         }

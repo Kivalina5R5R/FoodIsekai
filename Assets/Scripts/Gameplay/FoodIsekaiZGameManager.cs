@@ -153,6 +153,8 @@ namespace FoodIsekaiZ.Gameplay
         public string NextWaveName => GetWaveDisplayName(currentWaveIndex + 1);
 
         public event Action<FoodIsekaiZPlayerState, ArenaSlot2D, int> PlayerMoneyCollected;
+        // Raised when a positive money pile cannot fit in this player's wallet.
+        public event Action<FoodIsekaiZPlayerState, ArenaSlot2D> PlayerMoneyCollectionBlocked;
         public event Action<int, int> PlayerMoneyDeposited;
         public event Action<int, int> PlayerScoreChanged;
         public event Action<int> TeamScoreChanged;
@@ -675,6 +677,10 @@ namespace FoodIsekaiZ.Gameplay
             // A full wallet leaves the money and customer slot available for another player.
             if (!player.TryAddMoney(slot.AvailableMoney))
             {
+                if (slot.AvailableMoney > 0)
+                {
+                    PlayerMoneyCollectionBlocked?.Invoke(player, slot);
+                }
                 return false;
             }
 

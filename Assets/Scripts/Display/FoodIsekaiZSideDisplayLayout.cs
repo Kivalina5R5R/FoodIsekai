@@ -123,6 +123,12 @@ namespace FoodIsekaiZ.Display
             {
                 Image statusImage = customerStatusImages[i];
                 Slider timerSlider = customerTimerSliders[i];
+                // Keep the expired order intact until its exit animation finishes.
+                if (customerPanelPresentations[i] != null && customerPanelPresentations[i].IsDismissing)
+                {
+                    continue;
+                }
+
                 if (gameManager != null &&
                     (gameManager.CurrentMealWavePhase == MealWavePhase.Intermission ||
                      gameManager.CurrentMealWavePhase == MealWavePhase.Completed))

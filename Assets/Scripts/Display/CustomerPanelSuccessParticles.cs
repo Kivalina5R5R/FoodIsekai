@@ -31,11 +31,19 @@ namespace FoodIsekaiZ.Display
         private System.Random random;
         private float elapsed;
         private bool isPlaying;
+        private bool isRejection;
+        private bool isWalletFull;
+        [Header("Wrong Food")]
+        [SerializeField] private Color rejectionSealColor = new Color(0.57f, 0.23f, 0.18f, 1f);
+        [SerializeField, Range(0.2f, 0.6f)] private float rejectionSizeRatio = 0.35f;
+        [SerializeField, Min(0.1f)] private float rejectionDuration = 1.1f;
 
         public bool IsPlaying => isPlaying;
 
         public void Play()
         {
+            isRejection = false;
+            isWalletFull = false;
             int count = Mathf.Clamp(particleCount, 8, 64);
             if (particles == null || particles.Length != count)
             {
@@ -75,6 +83,23 @@ namespace FoodIsekaiZ.Display
             SetVerticesDirty();
         }
 
+        // Plays a small wax-seal rejection badge within the authored floor effect bounds.
+        public void PlayRejection()
+        {
+            elapsed = 0f;
+            isRejection = true;
+            isWalletFull = false;
+            isPlaying = true;
+            SetVerticesDirty();
+        }
+
+        // Uses an exclamation glyph on the same seal as the wrong-order cross.
+        public void PlayWalletFull()
+        {
+            PlayRejection();
+            isWalletFull = true;
+        }
+
         public void Stop()
         {
             if (!isPlaying && elapsed == 0f)
@@ -102,7 +127,7 @@ namespace FoodIsekaiZ.Display
             }
 
             elapsed += Time.deltaTime;
-            if (elapsed >= Mathf.Max(0.1f, duration) + 0.06f)
+            if (elapsed >= Mathf.Max(0.1f, isRejection ? rejectionDuration : duration) + 0.06f)
             {
                 Stop();
                 return;
@@ -115,6 +140,12 @@ namespace FoodIsekaiZ.Display
         protected override void OnPopulateMesh(VertexHelper vertexHelper)
         {
             vertexHelper.Clear();
+            if (isPlaying && isRejection)
+            {
+                DrawRejection(vertexHelper);
+                return;
+            }
+
             if (!isPlaying || particles == null)
             {
                 return;
@@ -147,6 +178,81 @@ namespace FoodIsekaiZ.Display
                 tint.a *= fadeIn * fadeOut;
                 DrawParticle(vertexHelper, position, size,
                     particle.Rotation + elapsed * particle.Spin, tint, particle.IsStar);
+            }
+        }
+
+        private void DrawRejection(VertexHelper vertexHelper)
+        {
+            float age = Mathf.Clamp01(elapsed / Mathf.Max(0.1f, rejectionDuration));
+            float entrance = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(age / 0.16f));
+            float fade = entrance * (1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.65f, 1f, age)));
+            float radius = Mathf.Max(12f, ringRadius * Mathf.Clamp(rejectionSizeRatio, 0.2f, 0.6f)) *
+                Mathf.Lerp(0.9f, 1f, entrance);
+            float tilt = Mathf.Sin(Mathf.Clamp01(age / 0.35f) * Mathf.PI * 2f) *
+                0.09f * (1f - Mathf.Clamp01(age / 0.35f));
+            Vector2 center = Vector2.up * radius * 0.12f * Mathf.SmoothStep(0f, 1f, age);
+            Color seal = rejectionSealColor * color;
+            seal.a *= fade;
+            Color rim = goldColor * color;
+            rim.a *= fade;
+            Color ink = creamColor * color;
+            ink.a *= fade;
+            Color shadow = new Color(0.16f, 0.08f, 0.05f, 0.28f * fade * color.a);
+            DrawDisc(vertexHelper, center + Vector2.down * radius * 0.12f, radius * 1.04f, shadow);
+            DrawDisc(vertexHelper, center, radius, rim);
+            DrawDisc(vertexHelper, center, radius * 0.89f, seal);
+            if (isWalletFull)
+            {
+                Color warningInk = ink;
+                float width = radius * 0.075f;
+                Vector2 upright = new Vector2(-Mathf.Sin(tilt), Mathf.Cos(tilt));
+                Vector2 sideways = new Vector2(upright.y, -upright.x) * width;
+                Vector2 top = center + upright * radius * 0.44f;
+                Vector2 bottom = center - upright * radius * 0.06f;
+                int first = vertexHelper.currentVertCount;
+                AddVertex(vertexHelper, bottom - sideways, warningInk);
+                AddVertex(vertexHelper, top - sideways, warningInk);
+                AddVertex(vertexHelper, top + sideways, warningInk);
+                AddVertex(vertexHelper, bottom + sideways, warningInk);
+                vertexHelper.AddTriangle(first, first + 1, first + 2);
+                vertexHelper.AddTriangle(first, first + 2, first + 3);
+                DrawDisc(vertexHelper, top, width, warningInk);
+                DrawDisc(vertexHelper, bottom, width, warningInk);
+                DrawDisc(vertexHelper, center - upright * radius * 0.36f, width * 1.15f, warningInk);
+                return;
+            }
+            for (int diagonal = 0; diagonal < 2; diagonal++)
+            {
+                float angle = (diagonal == 0 ? Mathf.PI * 0.25f : -Mathf.PI * 0.25f) + tilt;
+                Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                float halfWidth = radius * 0.075f;
+                Vector2 normal = new Vector2(-direction.y, direction.x) * halfWidth;
+                Vector2 end = direction * radius * 0.42f;
+                int first = vertexHelper.currentVertCount;
+                AddVertex(vertexHelper, center - end - normal, ink);
+                AddVertex(vertexHelper, center - end + normal, ink);
+                AddVertex(vertexHelper, center + end + normal, ink);
+                AddVertex(vertexHelper, center + end - normal, ink);
+                vertexHelper.AddTriangle(first, first + 1, first + 2);
+                vertexHelper.AddTriangle(first, first + 2, first + 3);
+                DrawDisc(vertexHelper, center - end, halfWidth, ink);
+                DrawDisc(vertexHelper, center + end, halfWidth, ink);
+            }
+        }
+
+        private static void DrawDisc(VertexHelper vertexHelper, Vector2 center, float radius, Color tint)
+        {
+            int first = vertexHelper.currentVertCount;
+            AddVertex(vertexHelper, center, tint);
+            for (int index = 0; index < RingSegments; index++)
+            {
+                float angle = index * Mathf.PI * 2f / RingSegments;
+                AddVertex(vertexHelper, center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius, tint);
+            }
+
+            for (int index = 0; index < RingSegments; index++)
+            {
+                vertexHelper.AddTriangle(first, first + (index + 1) % RingSegments + 1, first + index + 1);
             }
         }
 
