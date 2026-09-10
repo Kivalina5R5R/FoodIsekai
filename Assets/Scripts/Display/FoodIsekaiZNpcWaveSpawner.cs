@@ -105,6 +105,8 @@ namespace FoodIsekaiZ.Display
         [SerializeField, Min(0f)] private float emojiDelayAfterMenuSeconds = 0.5f;
         [Tooltip("Seconds to show Angry at the assigned slot after an order expires, before the NPC starts leaving.")]
         [SerializeField, Min(0f)] private float angryHoldDurationSeconds = 1.5f;
+        [Tooltip("Seconds to show Angry after a player delivers the wrong food.")]
+        [SerializeField, Min(0f)] private float wrongFoodReactionDurationSeconds = 1.25f;
 
         [Header("NPC Spawn Schedule")]
         [Tooltip("Maximum number of NPCs allowed to start walking in one batch. The value is limited to 1 or 2.")]
@@ -155,6 +157,7 @@ namespace FoodIsekaiZ.Display
         private readonly float[] npcEmojiReadyTimes = new float[DisplaySlotCount];
         private readonly bool[] npcOrdersExpired = new bool[DisplaySlotCount];
         private readonly float[] npcAngryUntilTimes = new float[DisplaySlotCount];
+        private readonly float[] npcWrongFoodReactionUntilTimes = new float[DisplaySlotCount];
         private System.Random npcEmojiRandom;
         private readonly Vector2[] npcExitTargetPositions = new Vector2[DisplaySlotCount];
         private readonly float[] npcWalkingSpeedCanvasMultipliers = new float[DisplaySlotCount];
@@ -1129,6 +1132,7 @@ namespace FoodIsekaiZ.Display
             npcEmojiReadyTimes[slotIndex] = 0f;
             npcOrdersExpired[slotIndex] = false;
             npcAngryUntilTimes[slotIndex] = 0f;
+            npcWrongFoodReactionUntilTimes[slotIndex] = 0f;
             GameObject instance = spawnedNpcs[slotIndex];
             spawnedNpcPrefabs[slotIndex] = null;
             npcIdleBreathing[slotIndex] = null;
@@ -1178,6 +1182,7 @@ namespace FoodIsekaiZ.Display
             idleBreathingWidth = Mathf.Clamp(idleBreathingWidth, 0f, 0.02f);
             idleBreathingBlendSeconds = Mathf.Max(0.01f, idleBreathingBlendSeconds);
             angryHoldDurationSeconds = Mathf.Max(0f, angryHoldDurationSeconds);
+            wrongFoodReactionDurationSeconds = Mathf.Max(0f, wrongFoodReactionDurationSeconds);
             emojiDelayAfterMenuSeconds = Mathf.Max(0f, emojiDelayAfterMenuSeconds);
             maximumNpcSpawnsPerBatch = Mathf.Clamp(maximumNpcSpawnsPerBatch, 1, 2);
             minimumInitialSpawnDelaySeconds = Mathf.Max(0f, minimumInitialSpawnDelaySeconds);
@@ -1355,6 +1360,7 @@ namespace FoodIsekaiZ.Display
             npcEmojiReadyTimes[slotIndex] = 0f;
             npcOrdersExpired[slotIndex] = false;
             npcAngryUntilTimes[slotIndex] = 0f;
+            npcWrongFoodReactionUntilTimes[slotIndex] = 0f;
             Transform emojiRoot = FindDirectChild(instance.transform, "Emoji");
             if (emojiRoot == null)
             {
@@ -1390,6 +1396,12 @@ namespace FoodIsekaiZ.Display
             if (!npcUiShownAtSlots[slotIndex] || Time.time < npcEmojiReadyTimes[slotIndex])
             {
                 presentation.Hide();
+                return;
+            }
+
+            if (Time.time < npcWrongFoodReactionUntilTimes[slotIndex])
+            {
+                presentation.ShowAngry();
                 return;
             }
 
@@ -1504,6 +1516,7 @@ namespace FoodIsekaiZ.Display
                 subscribedGameManager.MealWaveDisplayChanged += HandleWavePhaseChanged;
                 subscribedGameManager.CustomerFinishedEating += HandleCustomerFinishedEating;
                 subscribedGameManager.CustomerOrderExpired += HandleCustomerOrderExpired;
+                subscribedGameManager.WrongFoodDiscarded += HandleWrongFoodDiscarded;
             }
         }
 
@@ -1515,9 +1528,33 @@ namespace FoodIsekaiZ.Display
                 subscribedGameManager.MealWaveDisplayChanged -= HandleWavePhaseChanged;
                 subscribedGameManager.CustomerFinishedEating -= HandleCustomerFinishedEating;
                 subscribedGameManager.CustomerOrderExpired -= HandleCustomerOrderExpired;
+                subscribedGameManager.WrongFoodDiscarded -= HandleWrongFoodDiscarded;
             }
 
             subscribedGameManager = null;
+        }
+
+        private void HandleWrongFoodDiscarded(FoodIsekaiZPlayerState player, ArenaSlot2D slot)
+        {
+            if (slot == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < spawnedNpcs.Length; i++)
+            {
+                if (gameManager.GetCustomerSlot(i) != slot || spawnedNpcs[i] == null ||
+                    !npcArrivedAtSlots[i] || npcExitingAtSlots[i] || npcOrdersExpired[i] ||
+                    npcCustomerGenerations[i] != slot.CustomerGeneration)
+                {
+                    continue;
+                }
+
+                npcWrongFoodReactionUntilTimes[i] = Time.time +
+                    Mathf.Max(0f, wrongFoodReactionDurationSeconds);
+                npcEmojiPresentations[i]?.ShowAngry();
+                return;
+            }
         }
 
         private void HandleWavePhaseChanged()
@@ -1584,6 +1621,7 @@ namespace FoodIsekaiZ.Display
                 npcEmojiPresentations[i]?.ShowAngry();
                 npcUiShownAtSlots[i] = false;
                 npcUiReadyTimes[i] = 0f;
+                customerPanelPresentations[i]?.Dismiss();
                 SetCustomerPanelVisible(i, false);
                 return;
             }
