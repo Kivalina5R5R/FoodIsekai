@@ -18,6 +18,7 @@ namespace FoodIsekaiZ.Display
     {
         private const int DisplaySlotCount = 6;
         private const string BackLayerName = "NPCBackLayer";
+        private const string MiddleLayerName = "NPCMiddleLayer";
         private const string FrontLayerName = "NPCFrontLayer";
         private const string DefaultNpcPrefabFolder = "Assets/Prefab";
         private const string DefaultNpcPrefabNamePrefix = "NPC";
@@ -137,6 +138,7 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private FoodIsekaiZGameManager gameManager;
         [Tooltip("Optional containers. Leave empty to let the system create the layers automatically.")]
         [SerializeField] private Transform backLayer;
+        [SerializeField] private Transform middleLayer;
         [SerializeField] private Transform frontLayer;
 
         private readonly GameObject[] spawnedNpcs = new GameObject[DisplaySlotCount];
@@ -428,7 +430,7 @@ namespace FoodIsekaiZ.Display
         private bool SpawnNpcAtSlot(int slotIndex)
         {
             SetCustomerPanelVisible(slotIndex, false);
-            GameObject prefab = DrawNextNpcPrefab();
+            GameObject prefab = DrawNextNpcPrefab(slotIndex);
             if (prefab == null)
             {
                 return false;
@@ -453,7 +455,7 @@ namespace FoodIsekaiZ.Display
                 return false;
             }
 
-            Transform finalLayer = IsBackLayerPrefabName(prefabName) ? backLayer : frontLayer;
+            Transform finalLayer = GetNpcFinalLayer(prefabName);
             Transform movementLayer = backLayer;
             if (finalLayer == null || movementLayer == null)
             {
@@ -807,8 +809,9 @@ namespace FoodIsekaiZ.Display
         private void BeginNpcForegroundApproach(int slotIndex, RectTransform npcRect,
             RectTransform visualBody, Transform finalLayer)
         {
-            // Prefabs authored to stay in the rear layer have no foreground handoff.
-            if (slotIndex <= 0 || slotIndex >= DisplaySlotCount - 1 || finalLayer != frontLayer ||
+            // Rear NPCs remain behind; the other tiers blend into their own destination layer.
+            if (slotIndex <= 0 || slotIndex >= DisplaySlotCount - 1 || finalLayer == backLayer ||
+                finalLayer == null ||
                 npcRect == null || visualBody == null)
             {
                 return;
@@ -826,12 +829,12 @@ namespace FoodIsekaiZ.Display
             // 0.18 setting. A faster walking pace must not widen this zone into the preceding slot.
             float startDistance = canvasWidth * Mathf.Clamp(foregroundApproachDistanceCanvasMultiplier, 0.01f, 0.06f);
             NpcForegroundBlend blend = npcRect.gameObject.AddComponent<NpcForegroundBlend>();
-            blend.Initialize(npcRect, npcImage, frontLayer, startDistance,
+            blend.Initialize(npcRect, npcImage, finalLayer, startDistance,
                 Mathf.Max(0f, foregroundApproachRearOffsetPixels));
             npcForegroundBlends[slotIndex] = blend;
             npcRect.anchoredPosition += Vector2.up * blend.RearLaneOffset;
             blend.SynchronizePose();
-            SortNpcLayerChildren(frontLayer);
+            SortNpcLayerChildren(finalLayer);
         }
 
         private void UpdateNpcForegroundApproach(int slotIndex, float stoppingDistance)
@@ -904,7 +907,7 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
-            Transform finalLayer = IsBackLayerPrefabName(instance.name) ? backLayer : frontLayer;
+            Transform finalLayer = GetNpcFinalLayer(instance.name);
             MoveNpcToLayer(slotIndex, finalLayer);
         }
 
@@ -962,7 +965,7 @@ namespace FoodIsekaiZ.Display
             slot?.StartCustomerTimer();
         }
 
-        private GameObject DrawNextNpcPrefab()
+        private GameObject DrawNextNpcPrefab(int slotIndex)
         {
             int lowestPower = int.MaxValue;
             int lowestPowerPrefabCount = 0;
@@ -970,7 +973,7 @@ namespace FoodIsekaiZ.Display
             for (int i = 0; i < npcPrefabPool.Count; i++)
             {
                 GameObject prefab = npcPrefabPool[i];
-                if (!IsUsableNpcPrefab(prefab) || IsNpcPrefabInUse(prefab))
+                if (!CanSpawnNpcPrefabAtSlot(prefab, slotIndex))
                 {
                     continue;
                 }
@@ -1003,7 +1006,7 @@ namespace FoodIsekaiZ.Display
             for (int i = 0; i < npcPrefabPool.Count; i++)
             {
                 GameObject prefab = npcPrefabPool[i];
-                if (!IsUsableNpcPrefab(prefab) || IsNpcPrefabInUse(prefab))
+                if (!CanSpawnNpcPrefabAtSlot(prefab, slotIndex))
                 {
                     continue;
                 }
@@ -1023,6 +1026,24 @@ namespace FoodIsekaiZ.Display
             }
 
             return null;
+        }
+
+        private bool CanSpawnNpcPrefabAtSlot(GameObject prefab, int slotIndex)
+        {
+            if (!IsUsableNpcPrefab(prefab) || IsNpcPrefabInUse(prefab))
+            {
+                return false;
+            }
+
+            return !IsBackLayerPrefabName(prefab.name) ||
+                (!IsBackLayerNpcAtSlot(slotIndex - 1) && !IsBackLayerNpcAtSlot(slotIndex + 1));
+        }
+
+        private bool IsBackLayerNpcAtSlot(int slotIndex)
+        {
+            // Entering and departing NPCs still reserve their slot until their instance is removed.
+            return slotIndex >= 0 && slotIndex < spawnedNpcs.Length &&
+                spawnedNpcs[slotIndex] != null && IsBackLayerPrefabName(spawnedNpcs[slotIndex].name);
         }
 
         private int GetNpcPrefabPower(GameObject prefab)
@@ -1319,9 +1340,8 @@ namespace FoodIsekaiZ.Display
                 return false;
             }
 
-            // Match a manually placed NPC on the wall's lower edge. Prefab root Y
-            // values are old placement offsets; keep the visual child's authored
-            // size, scale and offset so its proportions remain unchanged.
+            // The prefab's body and emoji offsets reserve space between the HUD and menu.
+            // Keep the moving root on the lower edge so those authored offsets remain intact.
             float standingBaselineY = canvasRect.rect.yMin;
             Vector3 targetLocalPosition = canvasRect.InverseTransformPoint(target.position);
             instanceRect.anchorMin = new Vector2(0.5f, 0.5f);
@@ -1373,7 +1393,11 @@ namespace FoodIsekaiZ.Display
                 npcEmojiRandom = new System.Random(GetInstanceID());
             }
 
-            NpcEmojiPresentation presentation = instance.AddComponent<NpcEmojiPresentation>();
+            NpcEmojiPresentation presentation = instance.GetComponent<NpcEmojiPresentation>();
+            if (presentation == null)
+            {
+                presentation = instance.AddComponent<NpcEmojiPresentation>();
+            }
             Transform visualBody = FindNestedTransform(instance.transform, "Image");
             presentation.Initialize(emojiRoot, npcEmojiRandom.Next(0, 3),
                 visualBody != null ? visualBody.GetComponent<Image>() : null);
@@ -1653,10 +1677,16 @@ namespace FoodIsekaiZ.Display
 
             Transform canvasTransform = sideCanvas.transform;
             backLayer = backLayer != null ? backLayer : FindDirectChild(canvasTransform, BackLayerName);
+            middleLayer = middleLayer != null ? middleLayer : FindDirectChild(canvasTransform, MiddleLayerName);
             frontLayer = frontLayer != null ? frontLayer : FindDirectChild(canvasTransform, FrontLayerName);
             if (backLayer == null)
             {
                 backLayer = CreateLayer(canvasTransform, BackLayerName);
+            }
+
+            if (middleLayer == null)
+            {
+                middleLayer = CreateLayer(canvasTransform, MiddleLayerName);
             }
 
             if (frontLayer == null)
@@ -1665,6 +1695,7 @@ namespace FoodIsekaiZ.Display
             }
 
             ConfigureLayerRectTransform(backLayer);
+            ConfigureLayerRectTransform(middleLayer);
             ConfigureLayerRectTransform(frontLayer);
             SetLayerOrder(canvasTransform);
         }
@@ -1699,7 +1730,8 @@ namespace FoodIsekaiZ.Display
             int menuIndex = FindDisplayContentIndex(canvasTransform);
             int maxIndex = Mathf.Max(0, canvasTransform.childCount - 1);
             backLayer.SetSiblingIndex(Mathf.Clamp(menuIndex, 0, maxIndex));
-            frontLayer.SetSiblingIndex(Mathf.Clamp(menuIndex + 1, 0, maxIndex));
+            middleLayer.SetSiblingIndex(Mathf.Clamp(menuIndex + 1, 0, maxIndex));
+            frontLayer.SetSiblingIndex(Mathf.Clamp(menuIndex + 2, 0, maxIndex));
         }
 
         private int FindDisplayContentIndex(Transform canvasTransform)
@@ -1708,7 +1740,7 @@ namespace FoodIsekaiZ.Display
             for (int i = 0; i < canvasTransform.childCount; i++)
             {
                 Transform child = canvasTransform.GetChild(i);
-                if (child == backLayer || child == frontLayer)
+                if (child == backLayer || child == middleLayer || child == frontLayer)
                 {
                     continue;
                 }
@@ -1738,6 +1770,7 @@ namespace FoodIsekaiZ.Display
                 Transform child = children[i];
                 if (child == sideCanvas.transform ||
                     child.IsChildOf(backLayer) ||
+                    child.IsChildOf(middleLayer) ||
                     child.IsChildOf(frontLayer) ||
                     !IsLegacyNpcName(child.name))
                 {
@@ -1763,6 +1796,24 @@ namespace FoodIsekaiZ.Display
             }
 
             return index > 3;
+        }
+
+        private Transform GetNpcFinalLayer(string prefabName)
+        {
+            if (IsBackLayerPrefabName(prefabName))
+            {
+                return backLayer;
+            }
+
+            // Accept the current LizMan asset's duplicated dot as well as the intended suffix.
+            if (!string.IsNullOrWhiteSpace(prefabName) &&
+                (prefabName.EndsWith("-0.5", StringComparison.OrdinalIgnoreCase) ||
+                 prefabName.EndsWith("-0..5", StringComparison.OrdinalIgnoreCase)))
+            {
+                return middleLayer;
+            }
+
+            return frontLayer;
         }
 
         private static bool IsBackLayerPrefabName(string prefabName)

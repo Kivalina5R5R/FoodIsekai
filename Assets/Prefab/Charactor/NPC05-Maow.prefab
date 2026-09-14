@@ -159,6 +159,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1238230730589367551}
+  - component: {fileID: 900000000000000001}
   m_Layer: 0
   m_Name: NPC05-Maow
   m_TagString: Untagged
@@ -187,6 +188,19 @@ RectTransform:
   m_AnchoredPosition: {x: 396, y: -163}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &900000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2185585169733752568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7508e2f441014f639365a98301b783d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.NpcEmojiPresentation
+  angryBodySprite: {fileID: 21300000, guid: 567b7a4ae43da604aa7308bee1b74ffb, type: 3}
 --- !u!1 &4344674986421934997
 GameObject:
   m_ObjectHideFlags: 0
@@ -364,15 +378,15 @@ RectTransform:
   m_GameObject: {fileID: 5097508309279527605}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.26, y: 0.26, z: 0.26}
+  m_LocalScale: {x: 0.338876, y: 0.338876, z: 0.338876}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1238230730589367551}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 988, y: 2245}
+  m_AnchoredPosition: {x: 0, y: -5.184}
+  m_SizeDelta: {x: 2400, y: 2400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1403291256965903830
 CanvasRenderer:
@@ -602,7 +616,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 84.9, y: 252.5}
+  m_AnchoredPosition: {x: 94.4, y: 228.9}
   m_SizeDelta: {x: 275, y: 296}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8935592311622105931
