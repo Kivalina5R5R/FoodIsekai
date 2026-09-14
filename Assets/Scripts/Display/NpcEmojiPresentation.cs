@@ -11,6 +11,12 @@ namespace FoodIsekaiZ.Display
         public event System.Action PopupShown;
         private bool popupShown;
 
+        [SerializeField] private Sprite angryBodySprite;
+        private Image bodyImage;
+        private Sprite normalBodySprite;
+        private NpcAngerEffect angerEffect;
+        private bool bodyIsAngry;
+
         private const float EntranceSeconds = 0.4f;
         private const float ChangeOutSeconds = 0.1f;
         private const float ChangeInSeconds = 0.3f;
@@ -48,6 +54,8 @@ namespace FoodIsekaiZ.Display
         public void Initialize(Transform emojiRoot, int initialMoodLevel, Image visualBody = null)
         {
             Hide();
+            bodyImage = visualBody;
+            normalBodySprite = bodyImage != null ? bodyImage.sprite : null;
             if (burst != null)
             {
                 Destroy(burst.gameObject);
@@ -59,6 +67,11 @@ namespace FoodIsekaiZ.Display
                 Destroy(loveHearts.gameObject);
                 loveHearts = null;
             }
+            if (angerEffect != null)
+            {
+                Destroy(angerEffect.gameObject);
+                angerEffect = null;
+            }
             popupShown = false;
             this.emojiRoot = emojiRoot;
             this.initialMoodLevel = Mathf.Clamp(initialMoodLevel, 0, 2);
@@ -68,8 +81,10 @@ namespace FoodIsekaiZ.Display
                 authoredBubbleScale = emojiRoot.localScale;
                 bubbleGroup = GetOrAddGroup(emojiRoot.gameObject);
                 authoredBubbleAlpha = bubbleGroup.alpha;
+                ConfigureOverlayCanvas(emojiRoot.gameObject, 30000);
                 CreateBurst(emojiRoot as RectTransform);
                 CreateLoveHearts(visualBody);
+                CreateAngerEffect(visualBody);
             }
 
             for (int index = 0; index < emotionObjects.Length; index++)
@@ -104,6 +119,7 @@ namespace FoodIsekaiZ.Display
         }
         public void Hide()
         {
+            SetBodyEmotion(false);
             visibleEmotionIndex = -1;
             requestedEmotionIndex = -1;
             changePhase = ChangePhase.None;
@@ -186,6 +202,7 @@ namespace FoodIsekaiZ.Display
             }
 
             visibleEmotionIndex = emotionIndex;
+            SetBodyEmotion(emotionIndex == 0);
             emotionScale = 1f;
             emotionAlpha = 1f;
             // Start only when Love is actually revealed, after the old face has faded out.
@@ -197,6 +214,29 @@ namespace FoodIsekaiZ.Display
             {
                 loveHearts?.FadeOut();
             }
+        }
+
+        private void SetBodyEmotion(bool angry)
+        {
+            if (bodyIsAngry != angry)
+            {
+                bodyIsAngry = angry;
+                if (angry)
+                {
+                    angerEffect?.Play();
+                }
+                else
+                {
+                    angerEffect?.Stop();
+                }
+            }
+
+            if (bodyImage == null)
+            {
+                return;
+            }
+
+            bodyImage.sprite = angry && angryBodySprite != null ? angryBodySprite : normalBodySprite;
         }
 
         private void Update()
@@ -286,6 +326,43 @@ namespace FoodIsekaiZ.Display
             effectObject.transform.SetSiblingIndex(bubble.GetSiblingIndex());
             burst = effectObject.AddComponent<NpcEmojiBurstGraphic>();
             burst.Initialize(bubble);
+            ConfigureOverlayCanvas(effectObject, 29999);
+        }
+
+        private void CreateAngerEffect(Image visualBody)
+        {
+            if (visualBody == null)
+            {
+                return;
+            }
+
+            GameObject effectObject = new GameObject("NPC Anger Effect", typeof(RectTransform), typeof(CanvasRenderer));
+            effectObject.layer = visualBody.gameObject.layer;
+            effectObject.transform.SetParent(visualBody.transform, false);
+            RectTransform effectRect = (RectTransform)effectObject.transform;
+            effectRect.anchorMin = Vector2.zero;
+            effectRect.anchorMax = Vector2.one;
+            effectRect.offsetMin = Vector2.zero;
+            effectRect.offsetMax = Vector2.zero;
+            angerEffect = effectObject.AddComponent<NpcAngerEffect>();
+            ConfigureOverlayCanvas(effectObject, 29998);
+            angerEffect.Stop();
+        }
+
+        private static void ConfigureOverlayCanvas(GameObject target, int sortingOrder)
+        {
+            Canvas parentCanvas = target.transform.parent.GetComponentInParent<Canvas>(true);
+            Canvas overlay = target.GetComponent<Canvas>();
+            if (overlay == null)
+            {
+                overlay = target.AddComponent<Canvas>();
+            }
+
+            // Nested canvases retain the authored transform and NPC animation inheritance.
+            // Only the bubble and its effects bypass the NPC body's depth tier.
+            overlay.overrideSorting = true;
+            overlay.sortingLayerID = parentCanvas != null ? parentCanvas.sortingLayerID : 0;
+            overlay.sortingOrder = sortingOrder;
         }
 
         private static CanvasGroup GetOrAddGroup(GameObject target)
@@ -340,6 +417,10 @@ namespace FoodIsekaiZ.Display
 
         private void OnDestroy()
         {
+            if (angerEffect != null)
+            {
+                Destroy(angerEffect.gameObject);
+            }
             if (burst != null)
             {
                 Destroy(burst.gameObject);

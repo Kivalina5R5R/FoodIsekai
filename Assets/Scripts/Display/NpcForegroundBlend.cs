@@ -10,6 +10,7 @@ namespace FoodIsekaiZ.Display
         private RectTransform sourceRoot;
         private RectTransform sourceVisual;
         private Image sourceImage;
+        private Image foregroundImage;
         private Material originalMaterial;
         private Material rearBlendMaterial;
         private RectTransform foregroundRoot;
@@ -60,7 +61,7 @@ namespace FoodIsekaiZ.Display
             foregroundVisual.SetParent(foregroundRoot, false);
             CopyRect(sourceVisual, foregroundVisual);
 
-            Image foregroundImage = imageObject.GetComponent<Image>();
+            foregroundImage = imageObject.GetComponent<Image>();
             foregroundImage.sprite = npcImage.sprite;
             foregroundImage.overrideSprite = npcImage.overrideSprite;
             foregroundImage.material = npcImage.material;
@@ -116,6 +117,8 @@ namespace FoodIsekaiZ.Display
 
             CopyPose(sourceRoot, foregroundRoot);
             CopyPose(sourceVisual, foregroundVisual);
+            foregroundImage.sprite = sourceImage.sprite;
+            foregroundImage.overrideSprite = sourceImage.overrideSprite;
         }
 
         // Immediately hides and releases the temporary foreground image.
@@ -139,6 +142,7 @@ namespace FoodIsekaiZ.Display
 
             foregroundRoot = null;
             foregroundVisual = null;
+            foregroundImage = null;
             foregroundOpacity = null;
             sourceRoot = null;
             sourceVisual = null;
