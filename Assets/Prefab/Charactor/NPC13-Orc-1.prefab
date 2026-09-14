@@ -467,7 +467,7 @@ GameObject:
   - component: {fileID: 5974351686706372491}
   - component: {fileID: 900000000000000001}
   m_Layer: 0
-  m_Name: NPC13-Orc
+  m_Name: NPC13-Orc-1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

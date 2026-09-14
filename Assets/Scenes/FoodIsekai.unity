@@ -15797,6 +15797,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2026140001}
   - {fileID: 2026100004}
   - {fileID: 2026100038}
   m_Father: {fileID: 1210829978}
@@ -18025,16 +18026,20 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MealPhasePanels
   gameManager: {fileID: 101588415}
-  breakPanel: {fileID: 2026100003}
+  breakPanel: {fileID: 2026140002}
   resultsPanel: {fileID: 2026100037}
-  nextMealText: {fileID: 2026100015}
-  countdownText: {fileID: 2026100023}
+  nextMealText: {fileID: 0}
+  countdownText: {fileID: 0}
   resultScoreText: {fileID: 2026100057}
   resultMvpText: {fileID: 2026100113}
   servedText: {fileID: 2026100081}
   missedText: {fileID: 2026100089}
   bankedText: {fileID: 2026100105}
   mealsText: {fileID: 2026100061}
+  breakScoreText: {fileID: 2026140003}
+  breakMvpText: {fileID: 2026140004}
+  breakCountdownText: {fileID: 2026140005}
+  breakNextMealText: {fileID: 2026140006}
 --- !u!114 &2026100200
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18055,6 +18060,77 @@ MonoBehaviour:
   - {fileID: 2026094088}
   - {fileID: 2026094102}
   soundPlayer: {fileID: 2026098024}
+--- !u!1001 &2026140000
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2026100002}
+    m_Modifications:
+    - target: {fileID: 1115865024530375447, guid: 4921ca0d1bfb3ee48b47502a84c21ee7, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4921ca0d1bfb3ee48b47502a84c21ee7, type: 3}
+--- !u!224 &2026140001 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2105094828598427845, guid: 4921ca0d1bfb3ee48b47502a84c21ee7, type: 3}
+  m_PrefabInstance: {fileID: 2026140000}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2026140002 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1115865024530375447, guid: 4921ca0d1bfb3ee48b47502a84c21ee7, type: 3}
+  m_PrefabInstance: {fileID: 2026140000}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2026140003 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5343805609324531573, guid: 4921ca0d1bfb3ee48b47502a84c21ee7, type: 3}
+  m_PrefabInstance: {fileID: 2026140000}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!114 &2026140004 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6703465052950187236, guid: 4921ca0d1bfb3ee48b47502a84c21ee7, type: 3}
+  m_PrefabInstance: {fileID: 2026140000}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!114 &2026140005 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5409898120157983122, guid: 4921ca0d1bfb3ee48b47502a84c21ee7, type: 3}
+  m_PrefabInstance: {fileID: 2026140000}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!114 &2026140006 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2125505159247167437, guid: 4921ca0d1bfb3ee48b47502a84c21ee7, type: 3}
+  m_PrefabInstance: {fileID: 2026140000}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
