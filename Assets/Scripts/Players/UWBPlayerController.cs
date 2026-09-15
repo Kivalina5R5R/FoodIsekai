@@ -31,6 +31,7 @@ namespace FoodIsekaiZ.Players
         [SerializeField, Min(0.0001f)] private float sceneViewDragThreshold = 0.002f;
 
         [Header("Floor Player Marker")]
+        [SerializeField] private GameObject authoredMarker;
         [Tooltip("Diameter of the circular marker in world units.")]
         [SerializeField, Min(0.1f)] private float markerWorldWidth = 1f;
         [FormerlySerializedAs("markerWhiteGapScale")]
@@ -386,6 +387,11 @@ namespace FoodIsekaiZ.Players
 
         private void EnsurePlayerMarker()
         {
+            if (authoredMarker != null)
+            {
+                return;
+            }
+
             CacheRequiredComponents();
             if (circleRenderer == null)
             {
@@ -473,6 +479,11 @@ namespace FoodIsekaiZ.Players
 
         private void ApplyPlayerMarkerColor()
         {
+            if (authoredMarker != null)
+            {
+                return;
+            }
+
             if (circleRenderer != null)
             {
                 circleRenderer.color = playerColor;
@@ -486,6 +497,12 @@ namespace FoodIsekaiZ.Players
 
         private void SetPlayerMarkerVisible(bool visible)
         {
+            if (authoredMarker != null)
+            {
+                authoredMarker.SetActive(visible);
+                return;
+            }
+
             if (circleRenderer != null)
             {
                 circleRenderer.enabled = visible;

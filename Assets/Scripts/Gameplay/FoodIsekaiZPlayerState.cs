@@ -30,10 +30,10 @@ namespace FoodIsekaiZ.Gameplay
         }
 
         // Picks up a different station food, replacing the food currently held by this player.
-        // Returns false for invalid food or the same food already held.
+        // Returns false while carrying money, for invalid food or the same food already held.
         public bool TryPickFood(FoodType food)
         {
-            if (food < FoodType.Food1 || food > FoodType.Food5 || heldFood == food)
+            if (carriedMoney > 0 || food < FoodType.Food1 || food > FoodType.Food5 || heldFood == food)
             {
                 return false;
             }
@@ -67,11 +67,11 @@ namespace FoodIsekaiZ.Gameplay
             return true;
         }
 
-        // Accepts a complete money pile only when it fits within the player's carry limit.
+        // Accepts a complete money pile only with no food held and enough wallet capacity.
         // Returns true when the full positive amount was added; otherwise the balance stays unchanged.
         public bool TryAddMoney(int amount)
         {
-            if (amount <= 0 || amount > MoneyCarryLimit - carriedMoney)
+            if (heldFood != FoodType.None || amount <= 0 || amount > MoneyCarryLimit - carriedMoney)
             {
                 return false;
             }

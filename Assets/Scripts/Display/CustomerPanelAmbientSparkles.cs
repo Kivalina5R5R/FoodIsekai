@@ -18,10 +18,31 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private Color goldColor = new Color(1f, 0.68f, 0.18f, 1f);
         [SerializeField] private Color creamColor = new Color(1f, 0.98f, 0.85f, 1f);
 
-        private Image borderImage;
+        [Header("Authored Border")]
+        [SerializeField] private Image borderImage;
+        [SerializeField] private bool playOnEnable;
+        [SerializeField] private bool useUnscaledTime;
+        [SerializeField] private bool includeBottomEdge;
+
         private float elapsed;
+        private float burstElapsed = -1f;
         private float phaseOffset;
         private bool playing;
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            phaseOffset = Mathf.Repeat((GetInstanceID() % 997) * 0.618034f, 1f);
+            if (playOnEnable && Application.isPlaying) Play();
+        }
+
+        // Adds a brief constellation of the same four-point stars at the report's expansion peak.
+        public void Pulse()
+        {
+            burstElapsed = 0f;
+            playing = true;
+            SetVerticesDirty();
+        }
 
         public void Initialize(Image orderBorder)
         {
@@ -42,6 +63,7 @@ namespace FoodIsekaiZ.Display
         {
             playing = false;
             elapsed = 0f;
+            burstElapsed = -1f;
             SetVerticesDirty();
         }
 
@@ -54,12 +76,18 @@ namespace FoodIsekaiZ.Display
 
         private void Update()
         {
-            if (!playing || Time.deltaTime <= 0f)
+            float deltaTime = useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
+            if (!playing || deltaTime <= 0f)
             {
                 return;
             }
 
-            elapsed += Time.deltaTime;
+            elapsed += deltaTime;
+            if (burstElapsed >= 0f)
+            {
+                burstElapsed += deltaTime;
+                if (burstElapsed >= 0.8f) burstElapsed = -1f;
+            }
             SetVerticesDirty();
         }
 
@@ -89,10 +117,14 @@ namespace FoodIsekaiZ.Display
                 float variation = Mathf.Repeat(index * 0.754878f + generation * 0.56984f + phaseOffset, 1f);
                 float edgePosition = Mathf.Lerp(0.25f, 0.8f, variation);
                 Vector2 position;
-                int edge = (index + generation) % 3;
+                int edge = (index + generation) % (includeBottomEdge ? 4 : 3);
                 if (edge == 0)
                 {
                     position = new Vector2(Mathf.Lerp(bounds.xMin, bounds.xMax, edgePosition), bounds.yMax + borderOutset);
+                }
+                else if (edge == 3)
+                {
+                    position = new Vector2(Mathf.Lerp(bounds.xMin, bounds.xMax, edgePosition), bounds.yMin - borderOutset);
                 }
                 else
                 {
@@ -109,6 +141,30 @@ namespace FoodIsekaiZ.Display
                 center.a *= pulse * pulse * opacity;
                 tip.a *= pulse * pulse * opacity * 0.85f;
                 DrawGlow(vertices, localPosition, size * 1.8f, tip);
+                DrawStar(vertices, localPosition, size, center, tip);
+            }
+            DrawPeakBurst(vertices, bounds);
+        }
+
+        private void DrawPeakBurst(VertexHelper vertices, Rect bounds)
+        {
+            if (burstElapsed < 0f) return;
+            float pulse = Mathf.Sin(Mathf.Clamp01(burstElapsed / 0.8f) * Mathf.PI);
+            // Eight stationary glints hug the border rather than spraying across the report text.
+            for (int index = 0; index < 8; index++)
+            {
+                int edge = index % 4;
+                float along = index < 4 ? 0.28f : 0.72f;
+                Vector2 position = edge < 2
+                    ? new Vector2(Mathf.Lerp(bounds.xMin, bounds.xMax, along), edge == 0 ? bounds.yMax : bounds.yMin)
+                    : new Vector2(edge == 2 ? bounds.xMin : bounds.xMax, Mathf.Lerp(bounds.yMin, bounds.yMax, along));
+                Vector3 localPosition = rectTransform.InverseTransformPoint(borderImage.rectTransform.TransformPoint(position));
+                float size = Mathf.Max(0.5f, sizeRange.y) * 1.45f * pulse;
+                Color center = creamColor * color;
+                Color tip = goldColor * color;
+                center.a *= pulse * opacity;
+                tip.a *= pulse * opacity;
+                DrawGlow(vertices, localPosition, size * 2f, tip);
                 DrawStar(vertices, localPosition, size, center, tip);
             }
         }
