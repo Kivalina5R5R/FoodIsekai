@@ -16,6 +16,17 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private GameObject moneyVisual;
         [SerializeField] private TMP_Text moneyAmount;
 
+        private int displayedPlayerId = -1;
+        private FoodType displayedFood = (FoodType)(-1);
+        private int displayedMoney = -1;
+
+        private void OnEnable()
+        {
+            displayedPlayerId = -1;
+            displayedFood = (FoodType)(-1);
+            displayedMoney = -1;
+        }
+
         private void LateUpdate()
         {
             if (playerState == null)
@@ -23,14 +34,34 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
-            int plateIndex = Mathf.Clamp(playerState.PlayerId - 1, 0, playerPlates.Length - 1);
-            for (int i = 0; i < playerPlates.Length; i++)
+            if (displayedPlayerId != playerState.PlayerId)
             {
-                playerPlates[i].SetActive(i == plateIndex);
+                displayedPlayerId = playerState.PlayerId;
+                int plateIndex = Mathf.Clamp(displayedPlayerId - 1, 0, playerPlates.Length - 1);
+                for (int i = 0; i < playerPlates.Length; i++)
+                {
+                    playerPlates[i].SetActive(i == plateIndex);
+                }
+                playerName.text = $"PLAYER {displayedPlayerId}";
             }
 
-            playerName.text = $"PLAYER {playerState.PlayerId}";
-            int foodIndex = (int)playerState.HeldFood - 1;
+            if (displayedFood != playerState.HeldFood)
+            {
+                displayedFood = playerState.HeldFood;
+                RefreshFood();
+            }
+
+            if (displayedMoney != playerState.CarriedMoney)
+            {
+                displayedMoney = playerState.CarriedMoney;
+                moneyVisual.SetActive(displayedMoney > 0);
+                moneyAmount.text = displayedMoney > 0 ? displayedMoney.ToString() : string.Empty;
+            }
+        }
+
+        private void RefreshFood()
+        {
+            int foodIndex = (int)displayedFood - 1;
             bool hasFood = foodIndex >= 0 && foodIndex < foodSprites.Length;
             foodImage.enabled = hasFood;
             if (hasFood)
@@ -38,9 +69,6 @@ namespace FoodIsekaiZ.Display
                 foodImage.sprite = foodSprites[foodIndex];
             }
 
-            int money = playerState.CarriedMoney;
-            moneyVisual.SetActive(money > 0);
-            moneyAmount.text = money > 0 ? money.ToString() : string.Empty;
         }
     }
 }

@@ -106,7 +106,7 @@ namespace FoodIsekaiZ.Display
         [SerializeField, Min(0f)] private float emojiDelayAfterMenuSeconds = 0.5f;
         [Tooltip("Seconds to show Angry at the assigned slot after an order expires, before the NPC starts leaving.")]
         [SerializeField, Min(0f)] private float angryHoldDurationSeconds = 1.5f;
-        [Tooltip("Seconds to show Angry after a player delivers the wrong food.")]
+        [Tooltip("Seconds to show Emoji 007 after a player delivers the wrong food.")]
         [SerializeField, Min(0f)] private float wrongFoodReactionDurationSeconds = 1.25f;
 
         [Header("NPC Spawn Schedule")]
@@ -1425,7 +1425,7 @@ namespace FoodIsekaiZ.Display
 
             if (Time.time < npcWrongFoodReactionUntilTimes[slotIndex])
             {
-                presentation.ShowAngry();
+                presentation.ShowWrongFood();
                 return;
             }
 
@@ -1576,7 +1576,7 @@ namespace FoodIsekaiZ.Display
 
                 npcWrongFoodReactionUntilTimes[i] = Time.time +
                     Mathf.Max(0f, wrongFoodReactionDurationSeconds);
-                npcEmojiPresentations[i]?.ShowAngry();
+                npcEmojiPresentations[i]?.ShowWrongFood();
                 return;
             }
         }

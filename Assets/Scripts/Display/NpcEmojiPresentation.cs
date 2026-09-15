@@ -21,10 +21,11 @@ namespace FoodIsekaiZ.Display
         private const float ChangeOutSeconds = 0.1f;
         private const float ChangeInSeconds = 0.3f;
         private enum ChangePhase { None, Out, In }
+        private enum Emotion { Angry, Bad, Normal, Smile, Fun, Love, WrongFood }
 
         private static readonly string[] EmotionObjectNames =
         {
-            "Angry", "Bad", "Normal", "Smile", "Fun", "Love"
+            "Angry", "Bad", "Normal", "Smile", "Fun", "Love", "WrongFood"
         };
 
         private readonly GameObject[] emotionObjects = new GameObject[EmotionObjectNames.Length];
@@ -101,21 +102,28 @@ namespace FoodIsekaiZ.Display
 
         public void ShowInitialMood()
         {
-            ShowMood(initialMoodLevel);
+            ShowEmotion((Emotion)((int)Emotion.Normal + initialMoodLevel));
         }
 
         public void ShowBad()
         {
-            ShowMood(-1);
+            ShowEmotion(Emotion.Bad);
         }
 
         public void ShowAngry()
         {
-            ShowMood(-2);
+            ShowEmotion(Emotion.Angry);
+        }
+
+        // Wrong deliveries use Emoji 007 while keeping the normal NPC body.
+        public void ShowWrongFood()
+        {
+            SetBodyEmotion(false);
+            ShowEmotion(Emotion.WrongFood);
         }
         public void ShowLove()
         {
-            ShowMood(3);
+            ShowEmotion(Emotion.Love);
         }
         public void Hide()
         {
@@ -151,9 +159,9 @@ namespace FoodIsekaiZ.Display
             }
         }
 
-        private void ShowMood(int moodLevel)
+        private void ShowEmotion(Emotion emotion)
         {
-            int emotionIndex = moodLevel + 2;
+            int emotionIndex = (int)emotion;
             if (emojiRoot == null || emotionObjects[emotionIndex] == null)
             {
                 Hide();
@@ -173,7 +181,7 @@ namespace FoodIsekaiZ.Display
                 changePhase = ChangePhase.None;
                 emojiRoot.gameObject.SetActive(true);
                 ApplyBubbleMotion(0.45f, 0f);
-                burst?.Play(moodLevel, true);
+                burst?.Play(emotionIndex - (int)Emotion.Normal, true);
                 if (!popupShown)
                 {
                     popupShown = true;
@@ -202,11 +210,11 @@ namespace FoodIsekaiZ.Display
             }
 
             visibleEmotionIndex = emotionIndex;
-            SetBodyEmotion(emotionIndex == 0);
+            SetBodyEmotion(emotionIndex == (int)Emotion.Angry);
             emotionScale = 1f;
             emotionAlpha = 1f;
             // Start only when Love is actually revealed, after the old face has faded out.
-            if (emotionIndex == EmotionObjectNames.Length - 1)
+            if (emotionIndex == (int)Emotion.Love)
             {
                 loveHearts?.Play();
             }
@@ -265,7 +273,7 @@ namespace FoodIsekaiZ.Display
                         SetVisibleEmotion(requestedEmotionIndex);
                         changeElapsed -= ChangeOutSeconds;
                         changePhase = ChangePhase.In;
-                        burst?.Play(requestedEmotionIndex - 2, false);
+                        burst?.Play(requestedEmotionIndex - (int)Emotion.Normal, false);
                     }
                 }
 

@@ -2408,7 +2408,6 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.ReportPanelTransition
   canvasGroup: {fileID: 2026160001}
-  particles: []
   borderSparkles: {fileID: 2026180004}
   enterDuration: 0.65
   exitDuration: 0.9

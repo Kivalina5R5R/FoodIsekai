@@ -652,8 +652,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FoodIsekaiZSideDisplayLayout
   sideCanvas: {fileID: 1595694067}
-  sideCamera: {fileID: 875458886}
-  arenaLayout: {fileID: 278790268}
   gameManager: {fileID: 101588415}
   uwbManager: {fileID: 101588412}
   playerSpawner: {fileID: 0}
@@ -663,10 +661,6 @@ MonoBehaviour:
   - {fileID: 8509481359095788191, guid: ef617645423f8e84fad897a79d0cf066, type: 3}
   - {fileID: 555535091426612794, guid: 65d714a18685c83468607714988a82fa, type: 3}
   - {fileID: 3973883399956200782, guid: d84647faa1effdf41af301b81d9d6f5a, type: 3}
-  backgroundImage: {fileID: 44333749}
-  backgroundImageTint: {r: 1, g: 1, b: 1, a: 1}
-  accentColor: {r: 0.1, g: 0.85, b: 1, a: 1}
-  moneyColor: {r: 1, g: 0.82, b: 0.15, a: 1}
 --- !u!1 &385200951
 GameObject:
   m_ObjectHideFlags: 0
@@ -1277,8 +1271,6 @@ MonoBehaviour:
   breakPanel: {fileID: 0}
   resultsPanel: {fileID: 2026150002}
   playerSpawner: {fileID: 0}
-  nextMealText: {fileID: 0}
-  countdownText: {fileID: 0}
   breakScoreText: {fileID: 0}
   breakMvpText: {fileID: 0}
   breakCountdownText: {fileID: 0}

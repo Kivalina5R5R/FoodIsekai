@@ -1,50 +1,51 @@
 using System;
 using System.Collections.Generic;
-using FoodIsekaiZ.Gameplay;
 using Fortal.UWB;
 using UnityEngine;
 
 namespace FoodIsekaiZ.Players
 {
-    // สร้าง Player ทั้งหมดจาก array ใน Inspector ทำให้ไม่ต้องวาง Player01..04 ด้วยมือ
-    // รองรับทั้งการใช้ prefab และการสร้างวงกลมเปล่าอัตโนมัติ
+    // Spawns the authored player prefab using the configured UWB identities.
     public sealed class UWBPlayerSpawner : MonoBehaviour
     {
         [Serializable]
         public sealed class PlayerDefinition
         {
-            public bool enabled = true;
-            [Min(1)] public int playerId = 1;
-            [Min(0)] public int tagId = 1;
-            public Color color = Color.cyan;
+            [SerializeField] private bool enabled = true;
+            [SerializeField, Min(1)] private int playerId = 1;
+            [SerializeField, Min(0)] private int tagId = 1;
             [Tooltip("ตำแหน่ง X/Z เริ่มต้นก่อน UWB frame แรก และใช้เป็นจุดเกิดใน standalone Simulation (Vector2.y คือ world Z)")]
-            public Vector2 initialPosition;
+            [SerializeField] private Vector2 initialPosition;
 
-            public PlayerDefinition(int playerId, int tagId, Color color)
+            public bool Enabled => enabled;
+            public int PlayerId => playerId;
+            public int TagId => tagId;
+            public Vector2 InitialPosition => initialPosition;
+
+            public PlayerDefinition(int playerId, int tagId)
             {
                 this.playerId = playerId;
                 this.tagId = tagId;
-                this.color = color;
             }
         }
 
         [Header("Player Template")]
-        [Tooltip("ไม่ใส่ก็ได้ Script จะสร้าง GameObject วงกลมพร้อม component ที่จำเป็นให้เอง")]
+        [Tooltip("Required authored player prefab, including its plate and inventory display.")]
         [SerializeField] private UWBPlayerController playerPrefab;
         [SerializeField] private Transform playerParent;
         [SerializeField] private bool spawnOnStart = true;
 
         [Header("Player Size")]
-        [Tooltip("ขนาดโดยรวมของ Player ทุกตัว รวม marker และ collider")]
+        [Tooltip("ขนาดโดยรวมของ Player ทุกตัว รวมจานและ collider")]
         [SerializeField, Min(0.05f)] private float playerScale = 1f;
 
         [Header("Player ID / UWB Tag Mapping")]
         [SerializeField] private PlayerDefinition[] players =
         {
-            new PlayerDefinition(1, 1, Color.cyan),
-            new PlayerDefinition(2, 2, Color.magenta),
-            new PlayerDefinition(3, 3, Color.yellow),
-            new PlayerDefinition(4, 4, Color.green)
+            new PlayerDefinition(1, 1),
+            new PlayerDefinition(2, 2),
+            new PlayerDefinition(3, 3),
+            new PlayerDefinition(4, 4)
         };
 
         [Header("Serial Presence")]
@@ -113,6 +114,12 @@ namespace FoodIsekaiZ.Players
                 return;
             }
 
+            if (playerPrefab == null)
+            {
+                Debug.LogError("[UWBPlayerSpawner] Assign the authored player prefab before spawning.", this);
+                return;
+            }
+
             ClearSpawnedPlayers();
 
             if (players == null)
@@ -125,33 +132,28 @@ namespace FoodIsekaiZ.Players
             for (int i = 0; i < players.Length; i++)
             {
                 PlayerDefinition definition = players[i];
-                if (definition == null || !definition.enabled)
+                if (definition == null || !definition.Enabled)
                 {
                     continue;
                 }
 
                 UWBPlayerController controller = CreatePlayer(targetParent);
                 controller.SetUwbTrackingEnabled(useUwbTracking);
-                controller.Configure(definition.playerId, definition.tagId, definition.color);
+                controller.Configure(definition.PlayerId, definition.TagId);
                 if (useUwbTracking)
                 {
                     controller.transform.localPosition = new Vector3(
-                        definition.initialPosition.x,
+                        definition.InitialPosition.x,
                         0.12f,
-                        definition.initialPosition.y);
+                        definition.InitialPosition.y);
                 }
                 else
                 {
                     // ใช้ตำแหน่งเริ่มต้นเดิมเพื่อให้ผู้เล่นเรียงถัดกันบนเส้นกลางสนาม
-                    controller.SetStandaloneWorldPosition(definition.initialPosition);
+                    controller.SetStandaloneWorldPosition(definition.InitialPosition);
                 }
 
                 controller.SetPlayerScale(playerScale);
-
-                if (controller.GetComponent<FoodIsekaiZPlayerState>() == null)
-                {
-                    controller.gameObject.AddComponent<FoodIsekaiZPlayerState>();
-                }
 
                 controller.gameObject.SetActive(true);
                 if (useUwbTracking)
@@ -180,19 +182,9 @@ namespace FoodIsekaiZ.Players
 
         private UWBPlayerController CreatePlayer(Transform targetParent)
         {
-            if (playerPrefab != null)
-            {
-                UWBPlayerController instance = Instantiate(playerPrefab, targetParent);
-                instance.gameObject.SetActive(false);
-                return instance;
-            }
-
-            GameObject playerObject = new GameObject("UWBPlayer");
-            playerObject.SetActive(false);
-            playerObject.transform.SetParent(targetParent, false);
-
-            // RequireComponent ของ controller จะเพิ่ม Rigidbody, SphereCollider และ Renderer ให้ครบ
-            return playerObject.AddComponent<UWBPlayerController>();
+            UWBPlayerController instance = Instantiate(playerPrefab, targetParent);
+            instance.gameObject.SetActive(false);
+            return instance;
         }
 
         private void ClearSpawnedPlayers()
@@ -260,19 +252,19 @@ namespace FoodIsekaiZ.Players
             for (int i = 0; i < players.Length; i++)
             {
                 PlayerDefinition definition = players[i];
-                if (definition == null || !definition.enabled)
+                if (definition == null || !definition.Enabled)
                 {
                     continue;
                 }
 
-                if (!playerIds.Add(definition.playerId))
+                if (!playerIds.Add(definition.PlayerId))
                 {
-                    Debug.LogWarning($"[UWBPlayerSpawner] Player ID {definition.playerId} ซ้ำกัน", this);
+                    Debug.LogWarning($"[UWBPlayerSpawner] Player ID {definition.PlayerId} ซ้ำกัน", this);
                 }
 
-                if (!tagIds.Add(definition.tagId))
+                if (!tagIds.Add(definition.TagId))
                 {
-                    Debug.LogWarning($"[UWBPlayerSpawner] Tag ID {definition.tagId} ซ้ำกัน", this);
+                    Debug.LogWarning($"[UWBPlayerSpawner] Tag ID {definition.TagId} ซ้ำกัน", this);
                 }
             }
         }
