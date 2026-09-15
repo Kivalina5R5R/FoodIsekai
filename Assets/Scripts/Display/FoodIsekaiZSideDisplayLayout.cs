@@ -16,8 +16,6 @@ namespace FoodIsekaiZ.Display
         [Header("Manual Wall Display (T1-T6)")]
         [Tooltip("Canvas authored in the scene. Edit its children directly; this component never creates or removes them.")]
         [SerializeField] private Canvas sideCanvas;
-        [SerializeField] private Camera sideCamera;
-        [SerializeField] private FoodIsekaiZArenaLayout arenaLayout;
         [SerializeField] private FoodIsekaiZGameManager gameManager;
         [SerializeField] private UWBManager uwbManager;
         [SerializeField] private UWBPlayerSpawner playerSpawner;
@@ -25,16 +23,6 @@ namespace FoodIsekaiZ.Display
         [Header("Customer Food Prefabs")]
         [Tooltip("Food prefabs used as the customer order icons, ordered Food1 through Food5.")]
         [SerializeField] private GameObject[] foodPrefabs = new GameObject[5];
-
-        [Header("Wall Background")]
-        [Tooltip("Optional Image used as the wall-display background. Assign a Sprite in its Source Image field.")]
-        [SerializeField] private Image backgroundImage;
-        [Tooltip("Tint applied when the background Image has a Sprite assigned. White keeps the source image colors unchanged.")]
-        [SerializeField] private Color backgroundImageTint = Color.white;
-
-        [Header("Runtime Colors")]
-        [SerializeField] private Color accentColor = new Color(0.1f, 0.85f, 1f, 1f);
-        [SerializeField] private Color moneyColor = new Color(1f, 0.82f, 0.15f, 1f);
 
         private TMP_Text scoreText;
         private TMP_Text mvpText;
@@ -47,7 +35,6 @@ namespace FoodIsekaiZ.Display
             new CustomerPanelPresentation[CustomerPanelCapacity];
         private readonly TavernTimerGraphic[] customerTimerGraphics = new TavernTimerGraphic[CustomerPanelCapacity];
         private readonly Slider[] customerTimerSliders = new Slider[CustomerPanelCapacity];
-        private readonly Image[] customerTimerFills = new Image[CustomerPanelCapacity];
         private readonly Vector2[] authoredCustomerStatusPositions =
             new Vector2[CustomerPanelCapacity];
         private FoodIsekaiZGameManager subscribedGameManager;
@@ -64,13 +51,6 @@ namespace FoodIsekaiZ.Display
 
         // Gets the manually authored wall-display Canvas.
         public Canvas SideCanvas => sideCanvas;
-
-        private void OnValidate()
-        {
-            // Scene-authored layout and styling are intentionally left untouched here.
-            // Unity calls OnValidate when scripts reload, so changing UI properties from
-            // this method would overwrite values edited manually in the Scene view.
-        }
 
         private void Awake()
         {
@@ -340,7 +320,7 @@ namespace FoodIsekaiZ.Display
                 if (scoreText != null)
                 {
                     int score = gameManager != null ? gameManager.TeamScore : 0;
-                    scoreText.text = FormatScore(score);
+                    scoreText.text = score.ToString();
                 }
 
                 teamScoreDisplayDirty = false;
@@ -352,7 +332,7 @@ namespace FoodIsekaiZ.Display
                 {
                     if (gameManager != null && gameManager.TryGetMvp(out int playerId, out int playerScore))
                     {
-                        mvpText.text = $"P{playerId}  {FormatScore(playerScore)}";
+                        mvpText.text = $"P{playerId}  {playerScore.ToString()}";
                     }
                     else
                     {
@@ -559,11 +539,6 @@ namespace FoodIsekaiZ.Display
             return value.Length <= maxLength ? value : value.Substring(0, maxLength - 3) + "...";
         }
 
-        private static string FormatScore(int score)
-        {
-            return score.ToString();
-        }
-
         private static string FormatClock(int totalSeconds)
         {
             totalSeconds = Mathf.Max(0, totalSeconds);
@@ -582,11 +557,6 @@ namespace FoodIsekaiZ.Display
             }
 
             Transform root = sideCanvas.transform;
-            if (backgroundImage == null)
-            {
-                backgroundImage = GetManualComponent<Image>(root, "Background");
-            }
-
             scoreText = GetManualComponent<TMP_Text>(root, "TeamScore");
             mvpText = GetManualComponent<TMP_Text>(root, "MVPScore");
             mealWaveTimerText = GetManualComponent<TMP_Text>(root, "MealWaveTimer");
@@ -606,7 +576,6 @@ namespace FoodIsekaiZ.Display
                 customerStatusImages[i] = GetManualComponent<Image>(panel, "Status");
                 customerTimerSliders[i] = GetManualComponent<Slider>(panel, "OrderTimer");
                 customerTimerGraphics[i] = GetManualComponent<TavernTimerGraphic>(panel, "OrderTimer");
-                customerTimerFills[i] = GetManualComponent<Image>(panel, "OrderTimer/FillArea/Fill");
                 if (customerStatusImages[i] != null)
                 {
                     authoredCustomerStatusPositions[i] =
@@ -682,24 +651,6 @@ namespace FoodIsekaiZ.Display
 
         private void EnsureReferences()
         {
-            if (sideCamera == null)
-            {
-                Camera[] cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
-                for (int i = 0; i < cameras.Length; i++)
-                {
-                    if (cameras[i].name.Contains("Side"))
-                    {
-                        sideCamera = cameras[i];
-                        break;
-                    }
-                }
-            }
-
-            if (arenaLayout == null)
-            {
-                arenaLayout = FindAnyObjectByType<FoodIsekaiZArenaLayout>();
-            }
-
             if (gameManager == null)
             {
                 gameManager = FindAnyObjectByType<FoodIsekaiZGameManager>();

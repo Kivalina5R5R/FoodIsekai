@@ -7,7 +7,6 @@ namespace FoodIsekaiZ.Display
     public sealed class ReportPanelTransition : MonoBehaviour
     {
         [SerializeField] private CanvasGroup canvasGroup;
-        [SerializeField] private CustomerPanelSuccessParticles[] particles;
         [SerializeField] private CustomerPanelAmbientSparkles borderSparkles;
         [SerializeField] private CanvasGroup backgroundGroup;
         [SerializeField] private RectTransform animatedContent;
@@ -56,7 +55,7 @@ namespace FoodIsekaiZ.Display
             {
                 if (!gameObject.activeSelf) canvasGroup.alpha = 0f;
                 gameObject.SetActive(true);
-                PlayParticles();
+                PulseBorderStars();
 
                 yield return Animate(1f, visible ? 1f : 0f, visible ? enterDuration : exitDuration);
             }
@@ -87,21 +86,14 @@ namespace FoodIsekaiZ.Display
             float expandFraction = visible ? 0.65f : 0.25f;
             // Reach full opacity and the oversized pose before emitting the burst.
             yield return Animate(peakScale, 1f, duration * expandFraction);
-            PlayParticles();
+            PulseBorderStars();
             yield return Animate(visible ? 1f : 0f, visible ? 1f : 0f,
                 duration * (1f - expandFraction));
         }
 
-        private void PlayParticles()
+        private void PulseBorderStars()
         {
             if (borderSparkles != null) borderSparkles.Pulse();
-            if (particles != null)
-            {
-                foreach (CustomerPanelSuccessParticles particle in particles)
-                {
-                    if (particle != null) particle.Play();
-                }
-            }
         }
 
         private IEnumerator Animate(float targetScale, float targetAlpha, float duration)

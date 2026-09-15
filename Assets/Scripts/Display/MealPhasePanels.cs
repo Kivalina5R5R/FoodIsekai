@@ -4,7 +4,6 @@ using FoodIsekaiZ.Gameplay;
 using FoodIsekaiZ.Players;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace FoodIsekaiZ.Display
 {
@@ -16,8 +15,6 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private GameObject resultsPanel;
         [SerializeField] private UWBPlayerSpawner playerSpawner;
         [SerializeField] private TopHudVisibility topHudVisibility;
-        [SerializeField] private Text nextMealText;
-        [SerializeField] private Text countdownText;
         [SerializeField] private TMP_Text breakScoreText;
         [SerializeField] private TMP_Text breakMvpText;
         [SerializeField] private TMP_Text breakCountdownText;
@@ -144,8 +141,6 @@ namespace FoodIsekaiZ.Display
                 if (breakCountdownText != null)
                     breakCountdownText.text = Mathf.Max(0, Mathf.CeilToInt(gameManager.MealPhaseRemainingSeconds)).ToString("00");
                 if (breakNextMealText != null) breakNextMealText.text = $"NEXT {gameManager.NextWaveName}";
-                if (nextMealText != null) nextMealText.text = $"NEXT  {gameManager.NextWaveName}";
-                if (countdownText != null) countdownText.text = Mathf.Max(0, Mathf.CeilToInt(gameManager.MealPhaseRemainingSeconds)).ToString("00");
             }
             if (exclusivePanel != null) HideOtherUi(exclusivePanel);
             if (complete) RefreshResults();
