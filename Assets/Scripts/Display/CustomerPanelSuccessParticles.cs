@@ -10,6 +10,7 @@ namespace FoodIsekaiZ.Display
         [Header("Burst")]
         [SerializeField, Range(8, 64)] private int particleCount = 28;
         [SerializeField, Min(0.1f)] private float duration = 0.75f;
+        [SerializeField] private bool useUnscaledTime;
         [SerializeField, Min(0f)] private float startRadius = 12f;
         [SerializeField, Min(0f)] private float travelDistance = 110f;
         [SerializeField, Min(0f)] private float downwardDrift = 34f;
@@ -121,12 +122,13 @@ namespace FoodIsekaiZ.Display
 
         private void Update()
         {
-            if (!isPlaying || Time.deltaTime <= 0f)
+            float deltaTime = useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
+            if (!isPlaying || deltaTime <= 0f)
             {
                 return;
             }
 
-            elapsed += Time.deltaTime;
+            elapsed += deltaTime;
             if (elapsed >= Mathf.Max(0.1f, isRejection ? rejectionDuration : duration) + 0.06f)
             {
                 Stop();

@@ -2,6 +2,9 @@ Shader "FoodIsekaiZ/Floor/Tavern Pad"
 {
     Properties
     {
+        _Artwork ("Table artwork", 2D) = "white" {}
+        _UseArtwork ("Use table artwork", Float) = 0
+        _ArtworkScale ("Table artwork scale", Range(0.1,1)) = 1
         _BaseColor ("Panel tint", Color) = (1,1,1,1)
         _CenterColor ("Panel center", Color) = (0.24,0.075,0.085,1)
         _EdgeColor ("Panel edge", Color) = (0.11,0.025,0.03,1)
@@ -31,6 +34,9 @@ Shader "FoodIsekaiZ/Floor/Tavern Pad"
             #pragma target 3.0
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
+            TEXTURE2D(_Artwork);
+            SAMPLER(sampler_Artwork);
+
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseColor;
                 float4 _CenterColor;
@@ -43,6 +49,8 @@ Shader "FoodIsekaiZ/Floor/Tavern Pad"
                 float _Style;
                 float _WarningAmount;
                 float _Visibility;
+                float _UseArtwork;
+                float _ArtworkScale;
             CBUFFER_END
 
             struct Attributes
@@ -60,6 +68,11 @@ Shader "FoodIsekaiZ/Floor/Tavern Pad"
             Varyings Vert(Attributes input)
             {
                 Varyings output;
+                // Scale the rendered table around its center without changing its trigger.
+                if (_UseArtwork > 0.5)
+                {
+                    input.positionOS.xz *= _ArtworkScale;
+                }
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 output.uv = input.uv;
                 return output;
@@ -79,6 +92,15 @@ Shader "FoodIsekaiZ/Floor/Tavern Pad"
 
             half4 Frag(Varyings input) : SV_Target
             {
+                // Authored table images include their own border and number.
+                // Preserve the same gameplay warning and visibility controls as the procedural pads.
+                if (_UseArtwork > 0.5)
+                {
+                    half4 artwork = SAMPLE_TEXTURE2D(_Artwork, sampler_Artwork, input.uv);
+                    artwork.rgb = lerp(artwork.rgb, _AlertColor.rgb, saturate(_WarningAmount) * 0.35);
+                    return half4(artwork.rgb * _BaseColor.rgb, artwork.a * _BaseColor.a * _Visibility);
+                }
+
                 float2 p = (input.uv - 0.5) * float2(_Aspect, 1);
                 float2 halfSize = float2(_Aspect * 0.5 - 0.018, 0.477);
                 float aa = max(fwidth(p.y), 0.0005);

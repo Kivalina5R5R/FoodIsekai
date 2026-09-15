@@ -668,7 +668,7 @@ namespace FoodIsekaiZ.Gameplay
                 return true;
             }
 
-            if (slot.CustomerState != CustomerSlotState.MoneyAvailable)
+            if (slot.CustomerState != CustomerSlotState.MoneyAvailable || player.HeldFood != FoodType.None)
             {
                 return false;
             }
