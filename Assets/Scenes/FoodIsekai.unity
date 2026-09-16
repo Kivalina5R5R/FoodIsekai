@@ -10277,6 +10277,7 @@ MonoBehaviour:
   showRing: 1
   ringRadius: 64
   ringWidth: 3.5
+  rejectionSprite: {fileID: 0}
   rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
   rejectionSizeRatio: 0.35
   rejectionDuration: 1.1
@@ -10400,6 +10401,7 @@ MonoBehaviour:
   showRing: 1
   ringRadius: 64
   ringWidth: 3.5
+  rejectionSprite: {fileID: 0}
   rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
   rejectionSizeRatio: 0.35
   rejectionDuration: 1.1
@@ -10523,6 +10525,7 @@ MonoBehaviour:
   showRing: 1
   ringRadius: 64
   ringWidth: 3.5
+  rejectionSprite: {fileID: 0}
   rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
   rejectionSizeRatio: 0.35
   rejectionDuration: 1.1
@@ -10646,6 +10649,7 @@ MonoBehaviour:
   showRing: 1
   ringRadius: 64
   ringWidth: 3.5
+  rejectionSprite: {fileID: 0}
   rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
   rejectionSizeRatio: 0.35
   rejectionDuration: 1.1
@@ -10769,6 +10773,7 @@ MonoBehaviour:
   showRing: 1
   ringRadius: 64
   ringWidth: 3.5
+  rejectionSprite: {fileID: 0}
   rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
   rejectionSizeRatio: 0.35
   rejectionDuration: 1.1
@@ -19880,7 +19885,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -37}
+  m_AnchoredPosition: {x: 2, y: -37}
   m_SizeDelta: {x: 102, y: 26}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2026200632
