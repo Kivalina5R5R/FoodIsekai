@@ -136,6 +136,7 @@ MonoBehaviour:
   - {fileID: 2400}
   playerName: {fileID: 2503}
   foodImage: {fileID: 2603}
+  drinkImage: {fileID: 3103}
   foodSprites:
   - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
   - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
@@ -144,6 +145,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
   moneyVisual: {fileID: 2700}
   moneyAmount: {fileID: 2903}
+  foodAppearEffect: {fileID: 2604}
+  drinkAppearEffect: {fileID: 3104}
+  moneyAppearEffect: {fileID: 2804}
 --- !u!1 &2000
 GameObject:
   m_ObjectHideFlags: 0
@@ -173,12 +177,14 @@ RectTransform:
   m_LocalScale: {x: 0.012, y: 0.012, z: 0.012}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 3001}
   - {fileID: 2101}
   - {fileID: 2201}
   - {fileID: 2301}
   - {fileID: 2401}
   - {fileID: 2501}
   - {fileID: 2601}
+  - {fileID: 3101}
   - {fileID: 2701}
   m_Father: {fileID: 1001}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -222,7 +228,7 @@ GameObject:
   - component: {fileID: 2102}
   - component: {fileID: 2103}
   m_Layer: 0
-  m_Name: Player 1 Plate
+  m_Name: Player 1 Nameplate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -244,8 +250,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 160, y: 134}
+  m_AnchoredPosition: {x: 0, y: 72}
+  m_SizeDelta: {x: 150, y: 39.49}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2102
 CanvasRenderer:
@@ -275,7 +281,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5c25aa84699f73d478fd7677e23b830a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a6192d1c159914e4ebbf6d548d14cef2, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -297,7 +303,7 @@ GameObject:
   - component: {fileID: 2202}
   - component: {fileID: 2203}
   m_Layer: 0
-  m_Name: Player 2 Plate
+  m_Name: Player 2 Nameplate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -319,8 +325,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 160, y: 134}
+  m_AnchoredPosition: {x: 0, y: 72}
+  m_SizeDelta: {x: 150, y: 39.49}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2202
 CanvasRenderer:
@@ -350,7 +356,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 38ae51e8b2f497f49823e437b2caea19, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3cf3dca5dbf3f444d82ff938a43d510d, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -372,7 +378,7 @@ GameObject:
   - component: {fileID: 2302}
   - component: {fileID: 2303}
   m_Layer: 0
-  m_Name: Player 3 Plate
+  m_Name: Player 3 Nameplate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -394,8 +400,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 160, y: 134}
+  m_AnchoredPosition: {x: 0, y: 72}
+  m_SizeDelta: {x: 150, y: 39.49}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2302
 CanvasRenderer:
@@ -425,7 +431,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 0620bcd910fb2764b98c94d735bbe42f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ec6240c3aaaa921489a08bec27d6f604, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -447,7 +453,7 @@ GameObject:
   - component: {fileID: 2402}
   - component: {fileID: 2403}
   m_Layer: 0
-  m_Name: Player 4 Plate
+  m_Name: Player 4 Nameplate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -469,8 +475,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 160, y: 134}
+  m_AnchoredPosition: {x: 0, y: 72}
+  m_SizeDelta: {x: 150, y: 39.49}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2402
 CanvasRenderer:
@@ -500,7 +506,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 158066c6b4415fb4b9522271228465cc, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 03ae2be1c3d3b414da3417811fa64bd0, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -544,8 +550,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 51}
-  m_SizeDelta: {x: 105, y: 22}
+  m_AnchoredPosition: {x: 0, y: 72}
+  m_SizeDelta: {x: 100, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2502
 CanvasRenderer:
@@ -568,7 +574,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12, g: 0.08, b: 0.06, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -584,8 +590,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279170079
-  m_fontColor: {r: 0.12, g: 0.08, b: 0.06, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -602,8 +608,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 21
+  m_fontSizeBase: 21
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -658,6 +664,7 @@ GameObject:
   - component: {fileID: 2601}
   - component: {fileID: 2602}
   - component: {fileID: 2603}
+  - component: {fileID: 2604}
   m_Layer: 0
   m_Name: Held Food
   m_TagString: Untagged
@@ -681,8 +688,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -14}
-  m_SizeDelta: {x: 137, y: 91}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 210, y: 210}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2602
 CanvasRenderer:
@@ -770,6 +777,7 @@ GameObject:
   - component: {fileID: 2801}
   - component: {fileID: 2802}
   - component: {fileID: 2803}
+  - component: {fileID: 2804}
   m_Layer: 0
   m_Name: Coins
   m_TagString: Untagged
@@ -793,8 +801,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -7}
-  m_SizeDelta: {x: 106, y: 76}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 110.5, y: 85}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2802
 CanvasRenderer:
@@ -851,7 +859,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2901
 RectTransform:
   m_ObjectHideFlags: 0
@@ -971,3 +979,193 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &3000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3001}
+  - component: {fileID: 3002}
+  - component: {fileID: 3003}
+  m_Layer: 0
+  m_Name: Player Background
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3001
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3000}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 160, y: 160}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &3002
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3000}
+  m_CullTransparentMesh: 1
+--- !u!114 &3003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 077ec63ce3eed15419de53e496d99774, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &3100
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3101}
+  - component: {fileID: 3102}
+  - component: {fileID: 3103}
+  - component: {fileID: 3104}
+  m_Layer: 0
+  m_Name: Held Drink
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3101
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3100}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 178.5, y: 178.5}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &3102
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3100}
+  m_CullTransparentMesh: 1
+--- !u!114 &3103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3100}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b63bf88e6564ec2af4f00be85428cae, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.InventoryAppearEffect
+  duration: 0.32
+--- !u!114 &2804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b63bf88e6564ec2af4f00be85428cae, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.InventoryAppearEffect
+  duration: 0.32
+--- !u!114 &3104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b63bf88e6564ec2af4f00be85428cae, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.InventoryAppearEffect
+  duration: 0.32

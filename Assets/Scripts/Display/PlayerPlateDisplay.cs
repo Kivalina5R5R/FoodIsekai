@@ -12,9 +12,13 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private GameObject[] playerPlates;
         [SerializeField] private TMP_Text playerName;
         [SerializeField] private Image foodImage;
+        [SerializeField] private Image drinkImage;
         [SerializeField] private Sprite[] foodSprites;
         [SerializeField] private GameObject moneyVisual;
         [SerializeField] private TMP_Text moneyAmount;
+        [SerializeField] private InventoryAppearEffect foodAppearEffect;
+        [SerializeField] private InventoryAppearEffect drinkAppearEffect;
+        [SerializeField] private InventoryAppearEffect moneyAppearEffect;
 
         private int displayedPlayerId = -1;
         private FoodType displayedFood = (FoodType)(-1);
@@ -53,9 +57,14 @@ namespace FoodIsekaiZ.Display
 
             if (displayedMoney != playerState.CarriedMoney)
             {
+                bool receivedMoney = playerState.CarriedMoney > displayedMoney && playerState.CarriedMoney > 0;
                 displayedMoney = playerState.CarriedMoney;
                 moneyVisual.SetActive(displayedMoney > 0);
                 moneyAmount.text = displayedMoney > 0 ? displayedMoney.ToString() : string.Empty;
+                if (receivedMoney)
+                {
+                    moneyAppearEffect?.Play();
+                }
             }
         }
 
@@ -63,12 +72,23 @@ namespace FoodIsekaiZ.Display
         {
             int foodIndex = (int)displayedFood - 1;
             bool hasFood = foodIndex >= 0 && foodIndex < foodSprites.Length;
-            foodImage.enabled = hasFood;
-            if (hasFood)
+            bool showDrink = hasFood && displayedFood == FoodType.Food5 && drinkImage != null;
+            foodImage.enabled = hasFood && !showDrink;
+            if (drinkImage != null)
+            {
+                drinkImage.enabled = showDrink;
+            }
+
+            if (hasFood && !showDrink)
             {
                 foodImage.sprite = foodSprites[foodIndex];
             }
 
+            if (hasFood)
+            {
+                InventoryAppearEffect effect = showDrink ? drinkAppearEffect : foodAppearEffect;
+                effect?.Play();
+            }
         }
     }
 }
