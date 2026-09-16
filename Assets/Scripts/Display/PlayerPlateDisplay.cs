@@ -33,7 +33,7 @@ namespace FoodIsekaiZ.Display
 
         private void LateUpdate()
         {
-            if (playerState == null)
+            if (playerState == null || playerState.PlayerId <= 0)
             {
                 return;
             }

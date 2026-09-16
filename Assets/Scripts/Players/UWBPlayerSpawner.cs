@@ -34,6 +34,8 @@ namespace FoodIsekaiZ.Players
         [SerializeField] private UWBPlayerController playerPrefab;
         [SerializeField] private Transform playerParent;
         [SerializeField] private bool spawnOnStart = true;
+        [Tooltip("Spawn unassigned tag markers; the ready phase chooses Player 1-4 before gameplay.")]
+        [SerializeField] private bool selectPlayerNumberBeforeGameplay;
 
         [Header("Player Size")]
         [Tooltip("ขนาดโดยรวมของ Player ทุกตัว รวมจานและ collider")]
@@ -55,11 +57,22 @@ namespace FoodIsekaiZ.Players
         private readonly List<UWBPlayerController> spawnedPlayers = new List<UWBPlayerController>();
         private UWBManager uwbManager;
         private bool standaloneSimulationMode;
+        private HashSet<int> roundTagIds;
 
         public IReadOnlyList<UWBPlayerController> SpawnedPlayers => spawnedPlayers;
+        public bool SelectsPlayerNumberBeforeGameplay => selectPlayerNumberBeforeGameplay;
 
         // คืนค่า true เมื่อ Spawner อยู่ใน standalone Simulation ของ UWBManager
         public bool IsStandaloneSimulationMode => standaloneSimulationMode;
+
+        // Excluded tags stay hidden even if their serial signal arrives after the roster locks.
+        public void LockRoundParticipants(IReadOnlyList<UWBPlayerController> participants)
+        {
+            roundTagIds = new HashSet<int>();
+            for (int i = 0; i < participants.Count; i++) roundTagIds.Add(participants[i].TagId);
+            foreach (var player in spawnedPlayers)
+                if (player != null && !roundTagIds.Contains(player.TagId)) player.gameObject.SetActive(false);
+        }
 
         private void Awake()
         {
@@ -121,6 +134,7 @@ namespace FoodIsekaiZ.Players
             }
 
             ClearSpawnedPlayers();
+            roundTagIds = null;
 
             if (players == null)
             {
@@ -139,7 +153,14 @@ namespace FoodIsekaiZ.Players
 
                 UWBPlayerController controller = CreatePlayer(targetParent);
                 controller.SetUwbTrackingEnabled(useUwbTracking);
-                controller.Configure(definition.PlayerId, definition.TagId);
+                if (selectPlayerNumberBeforeGameplay)
+                {
+                    controller.ConfigureUnassignedTag(definition.TagId);
+                }
+                else
+                {
+                    controller.Configure(definition.PlayerId, definition.TagId);
+                }
                 if (useUwbTracking)
                 {
                     controller.transform.localPosition = new Vector3(
@@ -228,6 +249,12 @@ namespace FoodIsekaiZ.Players
                 UWBPlayerController player = spawnedPlayers[i];
                 if (player == null)
                 {
+                    continue;
+                }
+
+                if (roundTagIds != null && !roundTagIds.Contains(player.TagId))
+                {
+                    if (player.gameObject.activeSelf) player.gameObject.SetActive(false);
                     continue;
                 }
 

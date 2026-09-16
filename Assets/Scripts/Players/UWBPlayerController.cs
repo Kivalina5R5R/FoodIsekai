@@ -10,7 +10,7 @@ namespace FoodIsekaiZ.Players
     public sealed class UWBPlayerController : MonoBehaviour
     {
         [Header("Identity")]
-        [SerializeField, Min(1)] private int playerId = 1;
+        [SerializeField, Min(0)] private int playerId = 1;
         [SerializeField, Min(0)] private int tagId = 1;
 
         [Header("UWB")]
@@ -30,6 +30,7 @@ namespace FoodIsekaiZ.Players
 
         [Header("Player Plate")]
         [SerializeField] private GameObject authoredMarker;
+        [SerializeField] private GameObject selectionMarker;
 
         [Header("Runtime (Read Only)")]
         [SerializeField] private bool isTracking;
@@ -42,11 +43,37 @@ namespace FoodIsekaiZ.Players
         private Vector3 lastControllerPosition;
         private Vector3 baseLocalScale = Vector3.one;
         private bool baseScaleCaptured;
+        private bool selectingPlayerNumber;
+        private bool selectionMarkerVisible;
 
         public int PlayerId => playerId;
         public int TagId => tagId;
         public bool IsTracking => isTracking;
         public float SampleAgeSeconds => sampleAgeSeconds;
+        public bool IsAvailableForSelection => isActiveAndEnabled && (!useUwbTracking || isTracking);
+
+        // A tag keeps its tracking controller but has no gameplay identity until it chooses a number.
+        public void ConfigureUnassignedTag(int newTagId)
+        {
+            playerId = 0;
+            selectingPlayerNumber = true;
+            selectionMarkerVisible = false;
+            SetTagId(newTagId);
+            gameObject.name = $"Unassigned_Tag{tagId}";
+            SetPlayerMarkerVisible(true);
+        }
+
+        public void ShowSelectionMarker(bool visible)
+        {
+            selectionMarkerVisible = visible;
+            SetPlayerMarkerVisible(!useUwbTracking || isTracking);
+        }
+
+        public void EnterGameplay()
+        {
+            selectingPlayerNumber = false;
+            SetPlayerMarkerVisible(!useUwbTracking || isTracking);
+        }
 
         private void Awake()
         {
@@ -262,9 +289,15 @@ namespace FoodIsekaiZ.Players
 
         private void SetPlayerMarkerVisible(bool visible)
         {
-            if (authoredMarker != null && authoredMarker.activeSelf != visible)
+            bool showPlate = visible && !selectingPlayerNumber;
+            if (authoredMarker != null && authoredMarker.activeSelf != showPlate)
             {
-                authoredMarker.SetActive(visible);
+                authoredMarker.SetActive(showPlate);
+            }
+            bool showCircle = visible && selectingPlayerNumber && selectionMarkerVisible;
+            if (selectionMarker != null && selectionMarker.activeSelf != showCircle)
+            {
+                selectionMarker.SetActive(showCircle);
             }
         }
 

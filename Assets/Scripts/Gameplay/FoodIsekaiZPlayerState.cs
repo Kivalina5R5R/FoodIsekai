@@ -67,15 +67,16 @@ namespace FoodIsekaiZ.Gameplay
             return true;
         }
 
-        // Accepts a complete money pile only with no food held and enough wallet capacity.
-        // Returns true when the full positive amount was added; otherwise the balance stays unchanged.
+        // Collecting a valid money pile replaces held food when the full amount fits in the wallet.
+        // A rejected pickup preserves both held food and the current balance.
         public bool TryAddMoney(int amount)
         {
-            if (heldFood != FoodType.None || amount <= 0 || amount > MoneyCarryLimit - carriedMoney)
+            if (amount <= 0 || amount > MoneyCarryLimit - carriedMoney)
             {
                 return false;
             }
 
+            heldFood = FoodType.None;
             carriedMoney += amount;
             return true;
         }
