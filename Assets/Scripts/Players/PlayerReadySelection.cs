@@ -16,6 +16,7 @@ namespace FoodIsekaiZ.Players
         [SerializeField] private GameObject[] gameplayObjects;
         [SerializeField, Min(0.1f)] private float holdSeconds = 2f;
         [SerializeField] private UnityEvent onAllPlayersReady = new UnityEvent();
+        [SerializeField] private ReadyPhaseGuide readyGuide;
 
         private PlayerNumberSelection selection;
         private bool selectionRequested;
@@ -84,6 +85,7 @@ namespace FoodIsekaiZ.Players
             {
                 if (players[p] == null || !players[p].IsAvailableForSelection) return;
             }
+            if (readyGuide != null && !readyGuide.TryFinish()) return;
             completed = true;
             if (readyRoot != null) readyRoot.SetActive(false);
             for (int p = 0; p < players.Count; p++) players[p].EnterGameplay();

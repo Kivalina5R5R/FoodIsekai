@@ -1254,7 +1254,7 @@ namespace FoodIsekaiZ.Display
                 }
 
                 GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-                if (prefab != null)
+                if (IsUsableNpcPrefab(prefab))
                 {
                     discoveredPrefabs.Add(prefab);
                 }
@@ -1831,7 +1831,7 @@ namespace FoodIsekaiZ.Display
 
             try
             {
-                return prefab.transform != null;
+                return prefab.transform != null && prefab.GetComponent<NpcGuidePresentation>() == null;
             }
             catch (MissingReferenceException)
             {

@@ -18,7 +18,9 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private WallBlockTransitionGraphic transition;
         [SerializeField, Min(1f)] private float prepareTimeoutSeconds = 15f;
         [Tooltip("Start covering the video this many seconds before its playback reaches the end.")]
-        [SerializeField, Min(0f)] private float transitionLeadSeconds = 0.5f;
+        [SerializeField, Min(0f)] private float transitionLeadSeconds = 0.7f;
+        [SerializeField] private GameObject floorBackground;
+        [SerializeField] private GameObject introFloorBackground;
         [SerializeField] private UnityEvent onFinished = new UnityEvent();
 
         private bool videoEnded;
@@ -26,11 +28,20 @@ namespace FoodIsekaiZ.Display
         private bool finished;
         private bool started;
         private bool quitting;
+        private bool floorSwapped;
+        private bool originalFloorActive;
 
         public bool IsFinished => finished;
 
         private void Awake()
         {
+            if (floorBackground != null && introFloorBackground != null)
+            {
+                originalFloorActive = floorBackground.activeSelf;
+                floorSwapped = true;
+                floorBackground.SetActive(false);
+                introFloorBackground.SetActive(true);
+            }
             if (overlay != null) overlay.alpha = 1f;
             if (videoImage != null) videoImage.enabled = false;
             if (videoBackdrop != null) videoBackdrop.SetActive(true);
@@ -126,6 +137,7 @@ namespace FoodIsekaiZ.Display
         private void HandleVideoEnded(VideoPlayer source)
         {
             videoEnded = true;
+            RestoreFloor();
         }
 
         private void HandleVideoError(VideoPlayer source, string message)
@@ -136,11 +148,13 @@ namespace FoodIsekaiZ.Display
         private void FailVideo(string message)
         {
             videoFailed = true;
+            RestoreFloor();
             Debug.LogWarning($"[WallIntroVideoSequence] {message} Continuing to the game.", this);
         }
 
         private void Finish()
         {
+            RestoreFloor();
             if (finished) return;
             finished = true;
             if (overlay != null) overlay.alpha = 0f;
@@ -155,6 +169,7 @@ namespace FoodIsekaiZ.Display
 
         private void OnDisable()
         {
+            RestoreFloor();
             StopAllCoroutines();
             if (videoPlayer != null)
             {
@@ -164,6 +179,14 @@ namespace FoodIsekaiZ.Display
             }
             if (videoImage != null) videoImage.texture = null;
             if (started && !quitting) Finish();
+        }
+
+        private void RestoreFloor()
+        {
+            if (!floorSwapped) return;
+            floorSwapped = false;
+            if (introFloorBackground != null) introFloorBackground.SetActive(false);
+            if (floorBackground != null) floorBackground.SetActive(originalFloorActive);
         }
     }
 }

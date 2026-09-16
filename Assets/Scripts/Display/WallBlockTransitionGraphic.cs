@@ -9,10 +9,10 @@ namespace FoodIsekaiZ.Display
     {
         [SerializeField, Min(1)] private int columns = 11;
         [SerializeField, Min(1)] private int rows = 4;
-        [SerializeField, Min(0.01f)] private float darkenDuration = 1f;
-        [SerializeField, Min(0.01f)] private float tileFadeDuration = 0.08f;
-        [SerializeField, Min(0.01f)] private float revealDuration = 1f;
-        [SerializeField, Min(0.01f)] private float revealFadeDuration = 0.16f;
+        [SerializeField, Min(0.01f)] private float darkenDuration = 0.7f;
+        [SerializeField, Min(0.01f)] private float tileFadeDuration = 0.056f;
+        [SerializeField, Min(0.01f)] private float revealDuration = 0.7f;
+        [SerializeField, Min(0.01f)] private float revealFadeDuration = 0.112f;
 
         private float elapsed;
         private bool revealing;
