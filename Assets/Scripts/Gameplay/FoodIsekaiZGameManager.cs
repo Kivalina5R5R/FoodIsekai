@@ -84,6 +84,8 @@ namespace FoodIsekaiZ.Gameplay
 
         [Header("Customer Spawning")]
         [SerializeField] private bool startCustomersOnPlay = true;
+        [Tooltip("Wait for the scene startup sequence before starting customers or accepting interactions.")]
+        [SerializeField] private bool waitForStartup;
         [SerializeField, Range(0, CustomerSlotCapacity)] private int initialActiveCustomers = CustomerSlotCapacity;
         [SerializeField, Range(1, CustomerSlotCapacity)] private int maximumActiveCustomers = CustomerSlotCapacity;
 
@@ -132,6 +134,9 @@ namespace FoodIsekaiZ.Gameplay
         private readonly FoodOrderGenerator foodOrderGenerator = new FoodOrderGenerator();
         private bool customerFlowStarted;
         private bool mealWaveFlowStarted;
+        private bool startupReleased;
+
+        public bool IsWaitingForStartup => waitForStartup && !startupReleased;
         private int lastNotifiedMealSecond = int.MinValue;
 
         private int totalBankedMoney;
@@ -182,7 +187,7 @@ namespace FoodIsekaiZ.Gameplay
         private void Start()
         {
             ValidateSlotLayout();
-            if (!startCustomersOnPlay)
+            if (!startCustomersOnPlay || IsWaitingForStartup)
             {
                 return;
             }
@@ -200,9 +205,17 @@ namespace FoodIsekaiZ.Gameplay
             }
         }
 
+        // Called once the intro has fully revealed the game; repeated calls are harmless.
+        public void ReleaseStartup()
+        {
+            if (startupReleased) return;
+            startupReleased = true;
+            EnsureCustomerFlowStarted();
+        }
+
         public void EnsureCustomerFlowStarted()
         {
-            if (!Application.isPlaying || !startCustomersOnPlay)
+            if (!Application.isPlaying || !startCustomersOnPlay || IsWaitingForStartup)
             {
                 return;
             }
@@ -233,6 +246,8 @@ namespace FoodIsekaiZ.Gameplay
 
         private void Update()
         {
+            if (IsWaitingForStartup) return;
+
             if (useMealWaves && mealWaveFlowStarted)
             {
                 TickMealWave(Time.deltaTime);
@@ -262,6 +277,8 @@ namespace FoodIsekaiZ.Gameplay
         [ContextMenu("Start / Restart 3 Meal Waves")]
         public void StartMealWaveFlow()
         {
+            if (IsWaitingForStartup) return;
+
             EnsureMealWaveConfiguration();
             mealWaveFlowStarted = true;
             currentWaveIndex = 0;
@@ -271,6 +288,8 @@ namespace FoodIsekaiZ.Gameplay
         [ContextMenu("Start / Restart Customer Flow")]
         public void StartCustomerFlow()
         {
+            if (IsWaitingForStartup) return;
+
             if (customerSlots == null)
             {
                 customerSlots = Array.Empty<ArenaSlot2D>();
@@ -310,7 +329,7 @@ namespace FoodIsekaiZ.Gameplay
 
         public bool TryInteract(FoodIsekaiZPlayerState player, ArenaSlot2D slot)
         {
-            if (player == null || slot == null)
+            if (IsWaitingForStartup || player == null || slot == null)
             {
                 return false;
             }

@@ -13,6 +13,7 @@ namespace FoodIsekaiZ.Audio
 
         [Tooltip("เริ่มเล่นเพลงอัตโนมัติเมื่อกด Play")]
         [SerializeField] private bool playOnStart = true;
+        [SerializeField] private bool waitForStartup;
 
         [Tooltip("เปิดเพื่อวนเพลงซ้ำ ปิดเพื่อเล่นเพลงครั้งเดียว")]
         [SerializeField] private bool loop = true;
@@ -32,7 +33,16 @@ namespace FoodIsekaiZ.Audio
 
             ConfigureAudioSource();
 
-            if (playOnStart && bgmClip != null)
+            if (playOnStart && !waitForStartup && bgmClip != null)
+            {
+                audioSource.Play();
+            }
+        }
+
+        // Connected to the scene intro completion event so video audio plays on its own.
+        public void ReleaseStartup()
+        {
+            if (playOnStart && audioSource != null && bgmClip != null && !audioSource.isPlaying)
             {
                 audioSource.Play();
             }
