@@ -21067,12 +21067,13 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.WallIntroVideoSequence
   videoPlayer: {fileID: 2096100005}
-  introClip: {fileID: 32900000, guid: f225e328370a18a4bae61ec551606a11, type: 3}
+  introClip: {fileID: 32900000, guid: d3cc4865f44b40d0abfd5b61a313fb85, type: 3}
   videoImage: {fileID: 2096100023}
   videoBackdrop: {fileID: 2096100010}
   overlay: {fileID: 2096100003}
   transition: {fileID: 2096100033}
   prepareTimeoutSeconds: 15
+  transitionLeadSeconds: 0.5
   onFinished:
     m_PersistentCalls:
       m_Calls:
@@ -21108,7 +21109,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2096100000}
   m_Enabled: 1
-  m_VideoClip: {fileID: 32900000, guid: f225e328370a18a4bae61ec551606a11, type: 3}
+  m_VideoClip: {fileID: 32900000, guid: d3cc4865f44b40d0abfd5b61a313fb85, type: 3}
   m_TargetCamera: {fileID: 0}
   m_TargetTexture: {fileID: 0}
   m_TargetMaterialRenderer: {fileID: 0}

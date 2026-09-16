@@ -17,6 +17,8 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private CanvasGroup overlay;
         [SerializeField] private WallBlockTransitionGraphic transition;
         [SerializeField, Min(1f)] private float prepareTimeoutSeconds = 15f;
+        [Tooltip("Start covering the video this many seconds before its playback reaches the end.")]
+        [SerializeField, Min(0f)] private float transitionLeadSeconds = 0.5f;
         [SerializeField] private UnityEvent onFinished = new UnityEvent();
 
         private bool videoEnded;
@@ -77,9 +79,11 @@ namespace FoodIsekaiZ.Display
                 FailVideo("Timed out while preparing the intro.");
             }
 
+            Coroutine coverRoutine = null;
             if (!videoFailed)
             {
                 videoPlayer.Play();
+                double transitionStartTime = System.Math.Max(0d, introClip.length - transitionLeadSeconds);
                 double playbackDeadline = Time.realtimeSinceStartupAsDouble +
                     introClip.length + prepareTimeoutSeconds;
                 while (!videoEnded && !videoFailed)
@@ -88,6 +92,11 @@ namespace FoodIsekaiZ.Display
                     {
                         videoImage.texture = videoPlayer.texture;
                         videoImage.enabled = true;
+                    }
+                    // Use the video's playback position so loading delays do not advance the transition.
+                    if (coverRoutine == null && videoPlayer.frame >= 0 && videoPlayer.time >= transitionStartTime)
+                    {
+                        coverRoutine = StartCoroutine(transition.Cover());
                     }
                     if (Time.realtimeSinceStartupAsDouble >= playbackDeadline)
                     {
@@ -99,7 +108,14 @@ namespace FoodIsekaiZ.Display
                 videoPlayer.Pause();
             }
 
-            yield return transition.Cover();
+            if (coverRoutine != null)
+            {
+                yield return coverRoutine;
+            }
+            else
+            {
+                yield return transition.Cover();
+            }
             videoBackdrop.SetActive(false);
             videoPlayer.Stop();
             videoImage.texture = null;
