@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Fortal.UWB;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 namespace FoodIsekaiZ.Gameplay
@@ -135,6 +138,7 @@ namespace FoodIsekaiZ.Gameplay
         private bool customerFlowStarted;
         private bool mealWaveFlowStarted;
         private bool startupReleased;
+        private UWBManager simulationModeSource;
 
         public bool IsWaitingForStartup => waitForStartup && !startupReleased;
         private int lastNotifiedMealSecond = int.MinValue;
@@ -161,6 +165,8 @@ namespace FoodIsekaiZ.Gameplay
         // Raised when a positive money pile cannot fit in this player's wallet.
         public event Action<FoodIsekaiZPlayerState, ArenaSlot2D> PlayerMoneyCollectionBlocked;
         public event Action<int, int> PlayerMoneyDeposited;
+        // Carries both transaction endpoints for directional bank feedback.
+        public event Action<FoodIsekaiZPlayerState, ArenaSlot2D, int> PlayerMoneyDelivered;
         public event Action<int, int> PlayerScoreChanged;
         public event Action<int> TeamScoreChanged;
         // Raised only after a station has successfully placed food in the player's hands.
@@ -186,6 +192,7 @@ namespace FoodIsekaiZ.Gameplay
 
         private void Start()
         {
+            simulationModeSource = FindAnyObjectByType<UWBManager>();
             ValidateSlotLayout();
             if (!startCustomersOnPlay || IsWaitingForStartup)
             {
@@ -247,6 +254,7 @@ namespace FoodIsekaiZ.Gameplay
         private void Update()
         {
             if (IsWaitingForStartup) return;
+            if (HandleSimulationShortcut()) return;
 
             if (useMealWaves && mealWaveFlowStarted)
             {
@@ -272,6 +280,35 @@ namespace FoodIsekaiZ.Gameplay
 
             TickCustomerStates(Time.deltaTime);
             SpawnReadyCustomers();
+        }
+
+        private bool HandleSimulationShortcut()
+        {
+            if (simulationModeSource == null || !simulationModeSource.IsSimulationMode ||
+                !useMealWaves || Keyboard.current == null || !Keyboard.current.nKey.wasPressedThisFrame)
+            {
+                return false;
+            }
+
+            if (mealWavePhase == MealWavePhase.Completed)
+            {
+                Scene restartScene = SceneManager.GetActiveScene();
+                // Include a System object persisted by an earlier script version in the scene unload.
+                if (gameObject.scene != restartScene)
+                {
+                    SceneManager.MoveGameObjectToScene(transform.root.gameObject, restartScene);
+                }
+
+                // Reload the whole round so scores, players, and the startup sequence reset together.
+                SceneManager.LoadScene(restartScene.path);
+                return true;
+            }
+
+            if (!mealWaveFlowStarted) return false;
+
+            // Preserve earned scores and use the normal final report notification.
+            CompleteMealWaves();
+            return true;
         }
 
         [ContextMenu("Start / Restart 3 Meal Waves")]
@@ -327,6 +364,42 @@ namespace FoodIsekaiZ.Gameplay
             }
         }
 
+        // Finds the nearest currently valid destination for the player's inventory on the floor plane.
+        public bool TryGetDeliveryTarget(FoodIsekaiZPlayerState player, out ArenaSlot2D target)
+        {
+            target = null;
+            if (IsWaitingForStartup || player == null || player.PlayerId <= 0) return false;
+            if (useMealWaves && mealWavePhase != MealWavePhase.Active &&
+                mealWavePhase != MealWavePhase.Intermission && mealWavePhase != MealWavePhase.Clearing)
+                return false;
+
+            bool deliveringMoney = player.CarriedMoney > 0;
+            if (!deliveringMoney && (player.HeldFood == FoodType.None ||
+                (useMealWaves && mealWavePhase == MealWavePhase.Clearing))) return false;
+
+            ArenaSlot2D[] candidates = deliveringMoney ? stationSlots : customerSlots;
+            if (candidates == null) return false;
+            float nearestDistanceSquared = float.PositiveInfinity;
+            foreach (ArenaSlot2D candidate in candidates)
+            {
+                if (candidate == null || !candidate.isActiveAndEnabled) continue;
+                if (deliveringMoney)
+                {
+                    if (candidate.SlotType != ArenaSlotType.MoneyDeposit) continue;
+                }
+                else if (candidate.SlotType != ArenaSlotType.Customer ||
+                    !candidate.IsOrderRevealed ||
+                    candidate.RequestedFood != player.HeldFood) continue;
+
+                Vector3 offset = candidate.transform.position - player.transform.position;
+                float distanceSquared = offset.x * offset.x + offset.z * offset.z;
+                if (distanceSquared >= nearestDistanceSquared) continue;
+                nearestDistanceSquared = distanceSquared;
+                target = candidate;
+            }
+            return target != null;
+        }
+
         public bool TryInteract(FoodIsekaiZPlayerState player, ArenaSlot2D slot)
         {
             if (IsWaitingForStartup || player == null || slot == null)
@@ -358,7 +431,7 @@ namespace FoodIsekaiZ.Gameplay
                     return true;
 
                 case ArenaSlotType.MoneyDeposit:
-                    return TryDepositMoney(player);
+                    return TryDepositMoney(player, slot);
 
                 case ArenaSlotType.Customer:
                     return TryInteractWithCustomer(player, slot);
@@ -710,7 +783,7 @@ namespace FoodIsekaiZ.Gameplay
             return true;
         }
 
-        private bool TryDepositMoney(FoodIsekaiZPlayerState player)
+        private bool TryDepositMoney(FoodIsekaiZPlayerState player, ArenaSlot2D bank)
         {
             int deposited = player.DepositAllMoney();
             if (deposited <= 0)
@@ -721,6 +794,7 @@ namespace FoodIsekaiZ.Gameplay
             totalBankedMoney += deposited;
             AddPlayerAndTeamScore(player.PlayerId, bankDepositScore);
             PlayerMoneyDeposited?.Invoke(player.PlayerId, deposited);
+            PlayerMoneyDelivered?.Invoke(player, bank, deposited);
             return true;
         }
 

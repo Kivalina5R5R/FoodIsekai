@@ -38,6 +38,7 @@ namespace FoodIsekaiZ.Display
             speed = Mathf.Max(1f, canvasWidth * walkingSpeedCanvasMultiplier);
             HasExited = false;
             groundedPosition = start;
+            if (breathing != null) breathing.EndIdle();
             if (poseBlend != null) poseBlend.ShowWalking();
             entrance = StartCoroutine(Walk(start, destination, false));
         }
@@ -52,22 +53,23 @@ namespace FoodIsekaiZ.Display
         {
             yield return AnimateDialogue(false);
             if (breathing != null) breathing.EndIdle();
-            if (poseBlend != null) yield return poseBlend.BlendTo(true);
             var rect = (RectTransform)transform;
             Vector3 startScale = rect.localScale;
             Quaternion startRotation = rect.localRotation;
             float direction = Mathf.Sign(destination.x - groundedPosition.x);
             float elapsed = 0f;
-            // Match the customers' 0.3-second turn: compress, flip halfway, then recover.
-            while (elapsed < 0.3f)
+            const float turnSeconds = 0.3f;
+            // Match the customer turn: a shallow squash and midpoint flip, never an edge-on collapse.
+            while (elapsed < turnSeconds)
             {
                 elapsed += Time.unscaledDeltaTime;
-                float t = Mathf.Clamp01(elapsed / 0.3f);
+                float t = Mathf.Clamp01(elapsed / turnSeconds);
                 float collapse = Mathf.Sin(t * Mathf.PI);
-                float eased = Mathf.SmoothStep(0f, 1f, collapse);
+                float easedCollapse = Mathf.SmoothStep(0f, 1f, collapse);
+                if (poseBlend != null) poseBlend.SetWalkingWeight(Mathf.SmoothStep(0f, 1f, t));
                 Vector3 scale = startScale;
-                scale.x *= Mathf.Lerp(1f, 0.78f, eased) * (t < .5f ? 1f : -1f);
-                scale.y *= 1f + 0.02f * eased;
+                scale.x *= Mathf.Lerp(1f, 0.78f, easedCollapse) * (t < 0.5f ? 1f : -1f);
+                scale.y *= 1f + 0.02f * easedCollapse;
                 rect.localScale = scale;
                 rect.localRotation = startRotation * Quaternion.Euler(0f, 0f, collapse * 2.5f * direction);
                 rect.anchoredPosition = groundedPosition + Vector2.up * (collapse * 2f);
@@ -83,7 +85,8 @@ namespace FoodIsekaiZ.Display
         {
             var rect = (RectTransform)transform;
             float distance = Vector2.Distance(start, destination);
-            float stopDistance = exiting ? 0f : Mathf.Min(distance, .5f * speed * arrivalStoppingSeconds);
+            float arrivalSeconds = Mathf.Max(arrivalStoppingSeconds, poseBlend != null ? poseBlend.FadeSeconds : 0f);
+            float stopDistance = exiting ? 0f : Mathf.Min(distance, .5f * speed * arrivalSeconds);
             float cruiseSeconds = (distance - stopDistance) / speed;
             float stopSeconds = stopDistance * 2f / speed;
             float duration = cruiseSeconds + stopSeconds;
@@ -104,6 +107,16 @@ namespace FoodIsekaiZ.Display
                 // Match customer stride: remaining distance grounds the final step at the destination.
                 float phase = -(distance - travelled) / speed * walkingBobFrequency * Mathf.PI * 2f;
                 float bob = (.5f - .5f * Mathf.Cos(phase)) * walkingBobHeight;
+                // Ease into the first stride instead of jumping up immediately after the turn.
+                bob *= Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / 0.2f));
+                if (!exiting && elapsed >= cruiseSeconds)
+                {
+                    float settle = Mathf.SmoothStep(0f, 1f,
+                        stopSeconds > 0f ? (elapsed - cruiseSeconds) / stopSeconds : 1f);
+                    bob *= 1f - settle;
+                    if (poseBlend != null) poseBlend.SetWalkingWeight(1f - settle);
+                    if (breathing != null) breathing.BeginIdle();
+                }
                 rect.anchoredPosition = groundedPosition + Vector2.up * bob;
                 yield return null;
             }
@@ -115,7 +128,7 @@ namespace FoodIsekaiZ.Display
                 gameObject.SetActive(false);
                 yield break;
             }
-            if (poseBlend != null) yield return poseBlend.BlendTo(false);
+            if (poseBlend != null) poseBlend.SetWalkingWeight(0f);
             if (breathing != null) breathing.BeginIdle();
             yield return AnimateDialogue(true);
             entrance = null;

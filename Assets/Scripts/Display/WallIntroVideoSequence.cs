@@ -21,6 +21,7 @@ namespace FoodIsekaiZ.Display
         [SerializeField, Min(0f)] private float transitionLeadSeconds = 0.7f;
         [SerializeField] private GameObject floorBackground;
         [SerializeField] private GameObject introFloorBackground;
+        [SerializeField] private UnityEvent onCovered = new UnityEvent();
         [SerializeField] private UnityEvent onFinished = new UnityEvent();
 
         private bool videoEnded;
@@ -30,6 +31,7 @@ namespace FoodIsekaiZ.Display
         private bool quitting;
         private bool floorSwapped;
         private bool originalFloorActive;
+        private bool coveredReleased;
 
         public bool IsFinished => finished;
 
@@ -115,7 +117,7 @@ namespace FoodIsekaiZ.Display
                     }
                     yield return null;
                 }
-                // Keep the final decoded frame visible until all black tiles have covered it.
+                // Keep the final decoded frame visible until the curtain fully covers it.
                 videoPlayer.Pause();
             }
 
@@ -130,6 +132,9 @@ namespace FoodIsekaiZ.Display
             videoBackdrop.SetActive(false);
             videoPlayer.Stop();
             videoImage.texture = null;
+            ReleaseCovered();
+            // Let Ready build behind the closed curtain before revealing it.
+            yield return null;
             yield return transition.Reveal();
             Finish();
         }
@@ -157,9 +162,17 @@ namespace FoodIsekaiZ.Display
             RestoreFloor();
             if (finished) return;
             finished = true;
+            ReleaseCovered();
             if (overlay != null) overlay.alpha = 0f;
             if (transition != null) transition.Hide();
             onFinished.Invoke();
+        }
+
+        private void ReleaseCovered()
+        {
+            if (coveredReleased) return;
+            coveredReleased = true;
+            onCovered.Invoke();
         }
 
         private void OnApplicationQuit()

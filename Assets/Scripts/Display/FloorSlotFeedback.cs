@@ -14,13 +14,14 @@ namespace FoodIsekaiZ.Display
 
         private void OnEnable()
         {
-            if (gameManager == null || slot == null || burst == null)
+            if (gameManager == null || slot == null)
             {
                 return;
             }
 
-            gameManager.FoodPickedUp += HandleInteraction;
-            gameManager.FoodServed += HandleInteraction;
+            gameManager.FoodPickedUp += HandlePickup;
+            gameManager.FoodServed += HandleDelivery;
+            if (foodMotion != null) foodMotion.FoodArrived += HandleFoodArrived;
             gameManager.WrongFoodDiscarded += HandleWrongFood;
             gameManager.PlayerMoneyCollectionBlocked += HandleWalletFull;
         }
@@ -29,8 +30,8 @@ namespace FoodIsekaiZ.Display
         {
             if (gameManager != null)
             {
-                gameManager.FoodPickedUp -= HandleInteraction;
-                gameManager.FoodServed -= HandleInteraction;
+                gameManager.FoodPickedUp -= HandlePickup;
+                gameManager.FoodServed -= HandleDelivery;
                 gameManager.WrongFoodDiscarded -= HandleWrongFood;
                 gameManager.PlayerMoneyCollectionBlocked -= HandleWalletFull;
             }
@@ -43,6 +44,7 @@ namespace FoodIsekaiZ.Display
 
             if (foodMotion != null)
             {
+                foodMotion.FoodArrived -= HandleFoodArrived;
                 foodMotion.Stop();
             }
         }
@@ -73,17 +75,26 @@ namespace FoodIsekaiZ.Display
             burst.PlayRejection();
         }
 
-        private void HandleInteraction(FoodIsekaiZPlayerState player, ArenaSlot2D interactedSlot)
+        private void HandlePickup(FoodIsekaiZPlayerState player, ArenaSlot2D interactedSlot)
         {
-            if (interactedSlot == slot && burst != null && burst.isActiveAndEnabled)
-            {
+            if (interactedSlot != slot || player == null) return;
+            foodMotion?.PlayFood(slot.StationFood, player.transform, false);
+        }
+
+        private void HandleDelivery(FoodIsekaiZPlayerState player, ArenaSlot2D interactedSlot)
+        {
+            if (interactedSlot != slot || player == null) return;
+            if (foodMotion != null && foodMotion.isActiveAndEnabled)
+                foodMotion.PlayFood(slot.RequestedFood, player.transform, true);
+            else
+                HandleFoodArrived();
+        }
+
+        private void HandleFoodArrived()
+        {
+            // Only delivery celebrates at the destination; pickup travels into the player's plate.
+            if (slot != null && slot.SlotType == ArenaSlotType.Customer && burst != null && burst.isActiveAndEnabled)
                 burst.Play();
-                if (foodMotion != null && player != null)
-                {
-                    FoodType food = slot.SlotType == ArenaSlotType.FoodStation ? slot.StationFood : slot.RequestedFood;
-                    foodMotion.PlayFood(food, player.transform.position);
-                }
-            }
         }
     }
 }

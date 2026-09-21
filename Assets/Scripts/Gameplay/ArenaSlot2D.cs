@@ -58,6 +58,8 @@ namespace FoodIsekaiZ.Gameplay
         public bool IsReadyToSpawnMoney => customerState == CustomerSlotState.Completing &&
             (isMoneyPresentationComplete == null || isMoneyPresentationComplete());
         public FoodType RequestedFood => requestedFood;
+        // The NPC presentation starts this timer only when its order panel is shown.
+        public bool IsOrderRevealed => customerState == CustomerSlotState.WaitingForFood && customerTimerStarted;
         public float StateRemainingSeconds => stateRemainingSeconds;
         public float StateTimeNormalized => stateDurationSeconds > 0f
             ? Mathf.Clamp01(stateRemainingSeconds / stateDurationSeconds)

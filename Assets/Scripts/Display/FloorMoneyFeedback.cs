@@ -16,7 +16,7 @@ namespace FoodIsekaiZ.Display
             if (gameManager == null) return;
             gameManager.CustomerMoneySpawned += HandlePayout;
             gameManager.PlayerMoneyCollected += HandleCollection;
-            gameManager.PlayerMoneyDeposited += HandleDeposit;
+            gameManager.PlayerMoneyDelivered += HandleDeposit;
             bankPurse?.SetBalance(gameManager.TotalBankedMoney);
         }
 
@@ -26,7 +26,7 @@ namespace FoodIsekaiZ.Display
             {
                 gameManager.CustomerMoneySpawned -= HandlePayout;
                 gameManager.PlayerMoneyCollected -= HandleCollection;
-                gameManager.PlayerMoneyDeposited -= HandleDeposit;
+                gameManager.PlayerMoneyDelivered -= HandleDeposit;
             }
             coinBurst?.Stop();
         }
@@ -41,12 +41,12 @@ namespace FoodIsekaiZ.Display
             if (source == slot && amount > 0) coinBurst?.Play(true, player.transform.position);
         }
 
-        private void HandleDeposit(int playerId, int amount)
+        private void HandleDeposit(FoodIsekaiZPlayerState player, ArenaSlot2D bank, int amount)
         {
-            if (bankPurse == null || amount <= 0) return;
+            if (bank != slot || player == null || bankPurse == null || amount <= 0) return;
             bankPurse.SetBalance(gameManager.TotalBankedMoney);
             bankPurse.Pulse();
-            coinBurst?.Play(false, bankPurse.transform.position);
+            coinBurst?.PlayTransfer(player.transform.position, bankPurse.transform.position);
         }
     }
 }

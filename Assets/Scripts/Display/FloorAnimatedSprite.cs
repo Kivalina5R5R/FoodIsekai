@@ -37,6 +37,11 @@ namespace FoodIsekaiZ.Display
         private float elapsed;
         private bool visible;
         private bool animating;
+        private Transform pickupTarget;
+        private bool delivering;
+
+        // Raised when a temporary food illustration reaches its destination.
+        public event System.Action FoodArrived;
 
         public bool IsAnimating => animating || IsReminding;
         public override Texture mainTexture => currentSprite != null ? currentSprite.texture : s_WhiteTexture;
@@ -56,25 +61,22 @@ namespace FoodIsekaiZ.Display
             base.OnDisable();
         }
 
-        // Projects the player's floor position into this fixed canvas and starts a bounded handoff arc.
-        public void PlayFood(FoodType food, Vector3 playerPosition)
+        // A pickup follows the plate; a delivery leaves the player's position at handoff time.
+        public void PlayFood(FoodType food, Transform player, bool delivery)
         {
             int index = (int)food - (int)FoodType.Food1;
-            if (motion == MotionKind.Reward || foodSprites == null || index < 0 ||
+            if (player == null || motion == MotionKind.Reward || foodSprites == null || index < 0 ||
                 index >= foodSprites.Length || foodSprites[index] == null)
             {
                 return;
             }
 
-            Vector3 localPlayer = transform.InverseTransformPoint(playerPosition);
-            Vector2 playerAnchor = Vector2.ClampMagnitude(new Vector2(localPlayer.x, localPlayer.y), 85f);
-            if (playerAnchor.sqrMagnitude < 22f * 22f)
-            {
-                playerAnchor = new Vector2(0f, motion == MotionKind.Pickup ? 52f : -52f);
-            }
-
-            start = motion == MotionKind.Pickup ? Vector2.zero : playerAnchor;
-            destination = motion == MotionKind.Pickup ? playerAnchor : Vector2.zero;
+            Vector3 localPlayer = transform.InverseTransformPoint(player.position);
+            Vector2 playerAnchor = new Vector2(localPlayer.x, localPlayer.y);
+            delivering = delivery;
+            pickupTarget = delivery ? null : player;
+            start = delivery ? playerAnchor : Vector2.zero;
+            destination = delivery ? Vector2.zero : playerAnchor;
             Begin(foodSprites[index]);
         }
 
@@ -85,6 +87,7 @@ namespace FoodIsekaiZ.Display
             animating = false;
             elapsed = 0f;
             rewardAge = 0f;
+            pickupTarget = null;
             SetVerticesDirty();
         }
 
@@ -117,11 +120,19 @@ namespace FoodIsekaiZ.Display
             }
             if (!animating) return;
 
+            if (pickupTarget != null)
+            {
+                Vector3 localPlayer = transform.InverseTransformPoint(pickupTarget.position);
+                destination = new Vector2(localPlayer.x, localPlayer.y);
+            }
+
             elapsed = Mathf.Min(elapsed + deltaTime, Mathf.Max(0.1f, duration));
             if (elapsed >= Mathf.Max(0.1f, duration))
             {
                 animating = false;
                 visible = motion == MotionKind.Reward;
+                pickupTarget = null;
+                if (motion != MotionKind.Reward) FoodArrived?.Invoke();
             }
 
             SetVerticesDirty();
@@ -161,7 +172,7 @@ namespace FoodIsekaiZ.Display
             }
             else
             {
-                bool pickup = motion == MotionKind.Pickup;
+                bool pickup = !delivering;
                 float travel = pickup ? Mathf.InverseLerp(0.14f, 0.94f, age) : Mathf.Clamp01(age / 0.7f);
                 float ease = 1f - Mathf.Pow(1f - travel, 3f);
                 Vector2 ground = Vector2.Lerp(start, destination, ease);
@@ -172,7 +183,7 @@ namespace FoodIsekaiZ.Display
                     : 0.82f + 0.22f * Mathf.Sin(travel * Mathf.PI * 0.5f)
                         + Mathf.Sin(Mathf.InverseLerp(0.7f, 1f, age) * Mathf.PI) * 0.1f;
                 alpha = Mathf.Clamp01(age / 0.07f) * (1f - Mathf.SmoothStep(0f, 1f,
-                    Mathf.InverseLerp(pickup ? 0.66f : 0.76f, 1f, age)));
+                    Mathf.InverseLerp(0.94f, 1f, age)));
                 tilt = Mathf.Sin(travel * Mathf.PI) * (pickup ? -0.13f : 0.11f);
             }
 

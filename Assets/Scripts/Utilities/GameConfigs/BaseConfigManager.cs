@@ -20,12 +20,13 @@ namespace FoodIsekaiZ.Configuration
         {
             if (Instance != null)
             {
-                Destroy(gameObject);
+                Destroy(this);
                 return;
             }
 
             Instance = (TManager)this;
-            DontDestroyOnLoad(gameObject);
+            // Keep configuration scene-local: this object can also host gameplay components.
+            // A scene reload must recreate those components and their scene references.
 
             if (string.IsNullOrEmpty(fileName))
                 fileName = DefaultFileName;

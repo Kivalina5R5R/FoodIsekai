@@ -41,6 +41,10 @@ namespace FoodIsekaiZ.Players
         [Tooltip("ขนาดโดยรวมของ Player ทุกตัว รวมจานและ collider")]
         [SerializeField, Min(0.05f)] private float playerScale = 1f;
 
+        [Header("Simulation")]
+        [Tooltip("จำนวนผู้เล่นจำลอง 1-4 คน ใช้รายการที่ Enabled ใน Players ตามลำดับ มีผลตอน Spawn / เริ่มเกมใหม่ เฉพาะโหมด Simulation")]
+        [SerializeField, Range(1, 4)] private int simulationPlayerCount = 4;
+
         [Header("Player ID / UWB Tag Mapping")]
         [SerializeField] private PlayerDefinition[] players =
         {
@@ -145,6 +149,11 @@ namespace FoodIsekaiZ.Players
             bool useUwbTracking = !standaloneSimulationMode;
             for (int i = 0; i < players.Length; i++)
             {
+                if (standaloneSimulationMode && spawnedPlayers.Count >= Mathf.Clamp(simulationPlayerCount, 1, 4))
+                {
+                    break;
+                }
+
                 PlayerDefinition definition = players[i];
                 if (definition == null || !definition.Enabled)
                 {
@@ -183,6 +192,11 @@ namespace FoodIsekaiZ.Players
                 }
 
                 spawnedPlayers.Add(controller);
+            }
+
+            if (standaloneSimulationMode && spawnedPlayers.Count < Mathf.Clamp(simulationPlayerCount, 1, 4))
+            {
+                Debug.LogWarning("[UWBPlayerSpawner] จำนวนรายการ Players ที่ Enabled ไม่พอกับ Simulation Player Count", this);
             }
         }
 

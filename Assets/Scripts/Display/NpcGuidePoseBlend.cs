@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,33 +9,17 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private Image standingImage;
         [SerializeField] private Image walkingImage;
         [SerializeField, Min(0.01f)] private float fadeSeconds = 0.35f;
-        private float walkingWeight = 1f;
+        public float FadeSeconds => Mathf.Max(0.01f, fadeSeconds);
 
         public void ShowWalking()
         {
-            walkingWeight = 1f;
-            Apply();
+            SetWalkingWeight(1f);
         }
 
-        public IEnumerator BlendTo(bool walking)
+        // The movement timeline supplies an eased weight so pose changes overlap motion.
+        public void SetWalkingWeight(float weight)
         {
-            float from = walkingWeight;
-            float target = walking ? 1f : 0f;
-            float elapsed = 0f;
-            while (elapsed < fadeSeconds)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / fadeSeconds));
-                walkingWeight = Mathf.Lerp(from, target, t);
-                Apply();
-                yield return null;
-            }
-            walkingWeight = target;
-            Apply();
-        }
-
-        private void Apply()
-        {
+            float walkingWeight = Mathf.Clamp01(weight);
             if (standingImage != null) standingImage.canvasRenderer.SetAlpha(1f - walkingWeight);
             if (walkingImage != null) walkingImage.canvasRenderer.SetAlpha(walkingWeight);
         }
