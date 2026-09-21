@@ -79,6 +79,8 @@ namespace FoodIsekaiZ.Display
         {
             if (interactedSlot != slot || player == null) return;
             foodMotion?.PlayFood(slot.StationFood, player.transform, false);
+            if (foodMotion != null && foodMotion.isActiveAndEnabled && foodMotion.IsAnimating)
+                player.GetComponentInChildren<PlayerPlateDisplay>(true)?.WaitForPickup(foodMotion);
         }
 
         private void HandleDelivery(FoodIsekaiZPlayerState player, ArenaSlot2D interactedSlot)

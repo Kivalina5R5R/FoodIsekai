@@ -17,8 +17,18 @@ namespace FoodIsekaiZ.Display
         private float closure;
         private bool visible;
 
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            if (Application.isPlaying) return;
+            closure = 1f;
+            visible = true;
+            SetVerticesDirty();
+        }
+
         public IEnumerator Cover()
         {
+            gameObject.SetActive(true);
             yield return Animate(1f, darkenDuration);
         }
 
@@ -34,6 +44,7 @@ namespace FoodIsekaiZ.Display
             visible = false;
             closure = 0f;
             SetVerticesDirty();
+            gameObject.SetActive(false);
         }
 
         private IEnumerator Animate(float target, float duration)

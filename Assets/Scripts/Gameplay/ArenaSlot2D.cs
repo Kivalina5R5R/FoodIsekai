@@ -14,6 +14,10 @@ namespace FoodIsekaiZ.Gameplay
         [SerializeField] private FoodType stationFood = FoodType.None;
         [SerializeField] private FoodIsekaiZGameManager gameManager;
 
+        [Header("Food Pickup")]
+        [SerializeField, Range(0f, 0.8f)] private float foodPickupRadiusAllowance = 0.65f;
+        [SerializeField, Min(0f)] private float foodPickupHoldSeconds = 0.12f;
+
         [Header("Optional Visuals")]
         [SerializeField] private GameObject moneyVisual;
         [SerializeField] private TextMesh statusLabel;
@@ -44,6 +48,7 @@ namespace FoodIsekaiZ.Gameplay
         private Renderer slotRenderer;
         private BoxCollider slotTrigger;
         private readonly HashSet<int> playersTouchingWithCenter = new HashSet<int>();
+        private readonly Dictionary<int, float> foodOverlapStartedAt = new Dictionary<int, float>();
 
         public string SlotId => slotId;
         public ArenaSlotType SlotType => slotType;
@@ -102,16 +107,24 @@ namespace FoodIsekaiZ.Gameplay
             if (player != null)
             {
                 playersTouchingWithCenter.Remove(player.GetInstanceID());
+                foodOverlapStartedAt.Remove(player.GetInstanceID());
             }
         }
 
         private void OnDisable()
         {
             playersTouchingWithCenter.Clear();
+            foodOverlapStartedAt.Clear();
         }
 
         private void TryInteractWhenPlayerCenterEnters(Collider other)
         {
+            // Leave entry unconsumed so a player standing here can interact after the page opens.
+            if (gameManager != null && gameManager.IsPhasePresentationPaused)
+            {
+                foodOverlapStartedAt.Clear();
+                return;
+            }
             FoodIsekaiZPlayerState player = other.GetComponentInParent<FoodIsekaiZPlayerState>();
             if (player == null)
             {
@@ -119,10 +132,24 @@ namespace FoodIsekaiZ.Gameplay
             }
 
             int playerInstanceId = player.GetInstanceID();
-            if (!ContainsPlayerCenter(player.transform.position))
+            bool inRange = slotType == ArenaSlotType.FoodStation
+                ? HasFoodPickupOverlap(player.transform.position, other)
+                : ContainsPlayerCenter(player.transform.position);
+            if (!inRange)
             {
                 playersTouchingWithCenter.Remove(playerInstanceId);
+                foodOverlapStartedAt.Remove(playerInstanceId);
                 return;
+            }
+
+            if (slotType == ArenaSlotType.FoodStation)
+            {
+                if (!foodOverlapStartedAt.TryGetValue(playerInstanceId, out float enteredAt))
+                {
+                    enteredAt = Time.time;
+                    foodOverlapStartedAt.Add(playerInstanceId, enteredAt);
+                }
+                if (Time.time - enteredAt < foodPickupHoldSeconds) return;
             }
 
             bool centerJustEntered = playersTouchingWithCenter.Add(playerInstanceId);
@@ -154,6 +181,22 @@ namespace FoodIsekaiZ.Gameplay
             Vector3 halfSize = slotTrigger.size * 0.5f;
             return Mathf.Abs(localPoint.x) < halfSize.x &&
                 Mathf.Abs(localPoint.z) < halfSize.z;
+        }
+
+        // Require meaningful penetration of the player's collider, including at station corners.
+        private bool HasFoodPickupOverlap(Vector3 playerCenter, Collider playerCollider)
+        {
+            if (ContainsPlayerCenter(playerCenter)) return true;
+            if (slotTrigger == null || !(playerCollider is SphereCollider sphere)) return false;
+            Vector3 scale = sphere.transform.lossyScale;
+            float radius = sphere.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
+            float allowance = radius * Mathf.Clamp(foodPickupRadiusAllowance, 0f, 0.8f);
+            Vector3 local = slotTrigger.transform.InverseTransformPoint(playerCenter) - slotTrigger.center;
+            Vector3 half = slotTrigger.size * 0.5f;
+            Vector3 outside = new Vector3(Mathf.Max(0f, Mathf.Abs(local.x) - half.x), 0f,
+                Mathf.Max(0f, Mathf.Abs(local.z) - half.z));
+            Vector3 worldOutside = slotTrigger.transform.TransformVector(outside);
+            return worldOutside.sqrMagnitude <= allowance * allowance;
         }
 
         public void Configure(

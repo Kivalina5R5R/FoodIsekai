@@ -21,6 +21,10 @@ namespace FoodIsekaiZ.Display
         [SerializeField, Min(0f)] private float transitionLeadSeconds = 0.7f;
         [SerializeField] private GameObject floorBackground;
         [SerializeField] private GameObject introFloorBackground;
+        [SerializeField] private VideoPlayer floorVideoPlayer;
+        [SerializeField] private RawImage floorVideoImage;
+        [SerializeField] private CanvasGroup floorVideoOverlay;
+        [SerializeField, Min(0f)] private float floorFadeSeconds = 0.9f;
         [SerializeField] private UnityEvent onCovered = new UnityEvent();
         [SerializeField] private UnityEvent onFinished = new UnityEvent();
 
@@ -32,6 +36,10 @@ namespace FoodIsekaiZ.Display
         private bool floorSwapped;
         private bool originalFloorActive;
         private bool coveredReleased;
+        private bool floorVideoFailed;
+
+        private bool IsFloorPreparing => floorVideoPlayer != null && floorVideoImage != null &&
+            !floorVideoFailed && !floorVideoPlayer.isPrepared;
 
         public bool IsFinished => finished;
 
@@ -48,6 +56,8 @@ namespace FoodIsekaiZ.Display
             if (videoImage != null) videoImage.enabled = false;
             if (videoBackdrop != null) videoBackdrop.SetActive(true);
             if (transition != null) transition.Hide();
+            if (floorVideoImage != null) floorVideoImage.enabled = false;
+            if (floorVideoOverlay != null) floorVideoOverlay.alpha = 1f;
         }
 
         private IEnumerator Start()
@@ -79,10 +89,11 @@ namespace FoodIsekaiZ.Display
             }
             videoPlayer.loopPointReached += HandleVideoEnded;
             videoPlayer.errorReceived += HandleVideoError;
+            PrepareFloorVideo();
             videoPlayer.Prepare();
 
             double deadline = Time.realtimeSinceStartupAsDouble + prepareTimeoutSeconds;
-            while (!videoPlayer.isPrepared && !videoFailed && Time.realtimeSinceStartupAsDouble < deadline)
+            while ((!videoPlayer.isPrepared || IsFloorPreparing) && !videoFailed && Time.realtimeSinceStartupAsDouble < deadline)
             {
                 yield return null;
             }
@@ -91,11 +102,15 @@ namespace FoodIsekaiZ.Display
             {
                 FailVideo("Timed out while preparing the intro.");
             }
+            if (IsFloorPreparing) HandleFloorVideoError(floorVideoPlayer, "Timed out while preparing Fit.");
 
             Coroutine coverRoutine = null;
+            Coroutine floorRevealRoutine = null;
             if (!videoFailed)
             {
                 videoPlayer.Play();
+                if (floorVideoPlayer != null && floorVideoImage != null && !floorVideoFailed && floorVideoPlayer.isPrepared)
+                    floorVideoPlayer.Play();
                 double transitionStartTime = System.Math.Max(0d, introClip.length - transitionLeadSeconds);
                 double playbackDeadline = Time.realtimeSinceStartupAsDouble +
                     introClip.length + prepareTimeoutSeconds;
@@ -106,10 +121,16 @@ namespace FoodIsekaiZ.Display
                         videoImage.texture = videoPlayer.texture;
                         videoImage.enabled = true;
                     }
+                    if (floorVideoPlayer != null && floorVideoImage != null && !floorVideoFailed && floorVideoPlayer.texture != null)
+                    {
+                        floorVideoImage.texture = floorVideoPlayer.texture;
+                        floorVideoImage.enabled = true;
+                    }
                     // Use the video's playback position so loading delays do not advance the transition.
                     if (coverRoutine == null && videoPlayer.frame >= 0 && videoPlayer.time >= transitionStartTime)
                     {
                         coverRoutine = StartCoroutine(transition.Cover());
+                        floorRevealRoutine = StartCoroutine(RevealFloor());
                     }
                     if (Time.realtimeSinceStartupAsDouble >= playbackDeadline)
                     {
@@ -119,6 +140,7 @@ namespace FoodIsekaiZ.Display
                 }
                 // Keep the final decoded frame visible until the curtain fully covers it.
                 videoPlayer.Pause();
+                if (floorVideoPlayer != null && !floorVideoFailed) floorVideoPlayer.Pause();
             }
 
             if (coverRoutine != null)
@@ -127,6 +149,7 @@ namespace FoodIsekaiZ.Display
             }
             else
             {
+                floorRevealRoutine = StartCoroutine(RevealFloor());
                 yield return transition.Cover();
             }
             videoBackdrop.SetActive(false);
@@ -136,13 +159,63 @@ namespace FoodIsekaiZ.Display
             // Let Ready build behind the closed curtain before revealing it.
             yield return null;
             yield return transition.Reveal();
+            if (floorRevealRoutine != null) yield return floorRevealRoutine;
             Finish();
+        }
+
+        private IEnumerator RevealFloor()
+        {
+            if (!floorSwapped) yield break;
+            if (floorVideoOverlay == null || floorVideoImage == null || !floorVideoImage.enabled ||
+                !originalFloorActive || floorFadeSeconds <= 0f)
+            {
+                RestoreFloor();
+                yield break;
+            }
+
+            // Reveal the authored wood beneath the video without changing its tint or layout.
+            floorBackground.SetActive(true);
+            float elapsed = 0f;
+            while (elapsed < floorFadeSeconds && floorSwapped)
+            {
+                float progress = Mathf.Clamp01(elapsed / floorFadeSeconds);
+                floorVideoOverlay.alpha = 1f - Mathf.SmoothStep(0f, 1f, progress);
+                yield return null;
+                elapsed += Time.unscaledDeltaTime;
+            }
+            RestoreFloor();
         }
 
         private void HandleVideoEnded(VideoPlayer source)
         {
             videoEnded = true;
+        }
+
+        private void PrepareFloorVideo()
+        {
+            if (floorVideoPlayer == null || floorVideoImage == null) return;
+            floorVideoPlayer.playOnAwake = false;
+            floorVideoPlayer.isLooping = false;
+            floorVideoPlayer.waitForFirstFrame = true;
+            floorVideoPlayer.skipOnDrop = true;
+            floorVideoPlayer.renderMode = VideoRenderMode.APIOnly;
+            floorVideoPlayer.timeUpdateMode = VideoTimeUpdateMode.UnscaledGameTime;
+            // The wall intro owns audio; the matching floor clip must not double it.
+            floorVideoPlayer.audioOutputMode = VideoAudioOutputMode.None;
+            floorVideoPlayer.errorReceived += HandleFloorVideoError;
+            if (floorVideoPlayer.clip == null)
+            {
+                HandleFloorVideoError(floorVideoPlayer, "Assign the floor intro clip.");
+                return;
+            }
+            floorVideoPlayer.Prepare();
+        }
+
+        private void HandleFloorVideoError(VideoPlayer source, string message)
+        {
+            floorVideoFailed = true;
             RestoreFloor();
+            Debug.LogWarning($"[WallIntroVideoSequence] Floor video: {message}", this);
         }
 
         private void HandleVideoError(VideoPlayer source, string message)
@@ -153,7 +226,6 @@ namespace FoodIsekaiZ.Display
         private void FailVideo(string message)
         {
             videoFailed = true;
-            RestoreFloor();
             Debug.LogWarning($"[WallIntroVideoSequence] {message} Continuing to the game.", this);
         }
 
@@ -196,6 +268,17 @@ namespace FoodIsekaiZ.Display
 
         private void RestoreFloor()
         {
+            if (floorVideoOverlay != null) floorVideoOverlay.alpha = 0f;
+            if (floorVideoPlayer != null)
+            {
+                floorVideoPlayer.errorReceived -= HandleFloorVideoError;
+                floorVideoPlayer.Stop();
+            }
+            if (floorVideoImage != null)
+            {
+                floorVideoImage.texture = null;
+                floorVideoImage.enabled = false;
+            }
             if (!floorSwapped) return;
             floorSwapped = false;
             if (introFloorBackground != null) introFloorBackground.SetActive(false);

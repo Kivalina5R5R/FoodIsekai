@@ -244,6 +244,8 @@ namespace FoodIsekaiZ.Display
             lastNpcSpawnBatchSize = 0;
         }
 
+        private float presentationTime;
+
         private void Update()
         {
             EnsureReferences();
@@ -252,6 +254,10 @@ namespace FoodIsekaiZ.Display
             {
                 return;
             }
+
+            // Start the new wave's arrivals only after the menu transition has revealed the restaurant.
+            if (gameManager.IsPhasePresentationPaused) return;
+            presentationTime += Time.deltaTime;
 
             if (gameManager.UsesMealWaves &&
                 gameManager.CurrentMealWavePhase != MealWavePhase.Active &&
@@ -285,7 +291,7 @@ namespace FoodIsekaiZ.Display
             BuildAvailablePrefabPool();
             activeWaveNumber = waveNumber;
             lastNpcSpawnBatchSize = 0;
-            nextSpawnBatchTime = Time.time + GetRandomDelay(
+            nextSpawnBatchTime = presentationTime + GetRandomDelay(
                 minimumInitialSpawnDelaySeconds,
                 maximumInitialSpawnDelaySeconds);
         }
@@ -363,7 +369,7 @@ namespace FoodIsekaiZ.Display
             if (gameManager.UsesMealWaves && gameManager.CurrentMealWavePhase == MealWavePhase.Clearing) return;
 
             if (pendingSpawnSlots.Count == 0 ||
-                Time.time < nextSpawnBatchTime ||
+                presentationTime < nextSpawnBatchTime ||
                 HasNpcEntrancesInProgress())
             {
                 return;
@@ -406,7 +412,7 @@ namespace FoodIsekaiZ.Display
             if (spawnedCount > 0)
             {
                 lastNpcSpawnBatchSize = spawnedCount;
-                nextSpawnBatchTime = Time.time + GetRandomDelay(
+                nextSpawnBatchTime = presentationTime + GetRandomDelay(
                     minimumBatchDelaySeconds,
                     maximumBatchDelaySeconds);
             }
@@ -588,7 +594,7 @@ namespace FoodIsekaiZ.Display
             RectTransform npcRect = spawnedNpcs[slotIndex].GetComponent<RectTransform>();
             if (npcRect != null)
             {
-                npcExitTurnStartTimes[slotIndex] = Time.time;
+                npcExitTurnStartTimes[slotIndex] = presentationTime;
                 npcExitTurnStartScales[slotIndex] = npcRect.localScale;
                 npcExitTurnStartRotations[slotIndex] = npcRect.localRotation;
             }
@@ -611,7 +617,7 @@ namespace FoodIsekaiZ.Display
             }
 
             float turnProgress = Mathf.Clamp01(
-                (Time.time - npcExitTurnStartTimes[slotIndex]) / turnDuration);
+                (presentationTime - npcExitTurnStartTimes[slotIndex]) / turnDuration);
             float collapseProgress = Mathf.Sin(turnProgress * Mathf.PI);
             float easedCollapseProgress = Mathf.SmoothStep(0f, 1f, collapseProgress);
             float widthRatio = Mathf.Lerp(
@@ -655,7 +661,7 @@ namespace FoodIsekaiZ.Display
             {
                 float turnLift = Mathf.Sin(
                     Mathf.Clamp01(
-                        (Time.time - npcExitTurnStartTimes[slotIndex]) /
+                        (presentationTime - npcExitTurnStartTimes[slotIndex]) /
                         Mathf.Max(0.05f, exitTurnDurationSeconds)) * Mathf.PI) *
                     Mathf.Max(0f, exitTurnLiftPixels);
                 npcRect.anchoredPosition = npcMovementPositions[slotIndex] +
@@ -716,7 +722,7 @@ namespace FoodIsekaiZ.Display
 
                 if (npcArrivedAtSlots[slotIndex])
                 {
-                    if (!npcUiShownAtSlots[slotIndex] && Time.time >= npcUiReadyTimes[slotIndex])
+                    if (!npcUiShownAtSlots[slotIndex] && presentationTime >= npcUiReadyTimes[slotIndex])
                     {
                         ShowNpcUi(slotIndex);
                     }
@@ -895,7 +901,7 @@ namespace FoodIsekaiZ.Display
             ClearNpcForegroundApproach(slotIndex);
             npcIdleBreathing[slotIndex]?.BeginIdle();
             npcUiShownAtSlots[slotIndex] = false;
-            npcUiReadyTimes[slotIndex] = Time.time + Mathf.Max(0f, arrivalHoldDurationSeconds);
+            npcUiReadyTimes[slotIndex] = presentationTime + Mathf.Max(0f, arrivalHoldDurationSeconds);
             SetCustomerPanelVisible(slotIndex, false);
         }
 
@@ -954,7 +960,7 @@ namespace FoodIsekaiZ.Display
             if (npcUiShownAtSlots[slotIndex]) return;
             npcUiShownAtSlots[slotIndex] = true;
             SetCustomerPanelVisible(slotIndex, true);
-            npcEmojiReadyTimes[slotIndex] = Time.time + Mathf.Max(0f, emojiDelayAfterMenuSeconds);
+            npcEmojiReadyTimes[slotIndex] = presentationTime + Mathf.Max(0f, emojiDelayAfterMenuSeconds);
             StartCustomerTimerForSlot(slotIndex);
             OrderPanelShown?.Invoke();
         }
@@ -1417,13 +1423,13 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
-            if (!npcUiShownAtSlots[slotIndex] || Time.time < npcEmojiReadyTimes[slotIndex])
+            if (!npcUiShownAtSlots[slotIndex] || presentationTime < npcEmojiReadyTimes[slotIndex])
             {
                 presentation.Hide();
                 return;
             }
 
-            if (Time.time < npcWrongFoodReactionUntilTimes[slotIndex])
+            if (presentationTime < npcWrongFoodReactionUntilTimes[slotIndex])
             {
                 presentation.ShowWrongFood();
                 return;
@@ -1452,7 +1458,7 @@ namespace FoodIsekaiZ.Display
 
         private bool IsNpcShowingAngryHold(int slotIndex)
         {
-            return npcOrdersExpired[slotIndex] && Time.time < npcAngryUntilTimes[slotIndex];
+            return npcOrdersExpired[slotIndex] && presentationTime < npcAngryUntilTimes[slotIndex];
         }
 
         private float SampleNpcWalkingSpeed()
@@ -1574,7 +1580,7 @@ namespace FoodIsekaiZ.Display
                     continue;
                 }
 
-                npcWrongFoodReactionUntilTimes[i] = Time.time +
+                npcWrongFoodReactionUntilTimes[i] = presentationTime +
                     Mathf.Max(0f, wrongFoodReactionDurationSeconds);
                 npcEmojiPresentations[i]?.ShowWrongFood();
                 return;
@@ -1641,7 +1647,7 @@ namespace FoodIsekaiZ.Display
 
                 // The event arrives before ClearCustomer; latch this NPC's reaction now.
                 npcOrdersExpired[i] = true;
-                npcAngryUntilTimes[i] = Time.time + Mathf.Max(0f, angryHoldDurationSeconds);
+                npcAngryUntilTimes[i] = presentationTime + Mathf.Max(0f, angryHoldDurationSeconds);
                 npcEmojiPresentations[i]?.ShowAngry();
                 npcUiShownAtSlots[i] = false;
                 npcUiReadyTimes[i] = 0f;

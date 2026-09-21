@@ -39,6 +39,7 @@ namespace FoodIsekaiZ.Display
         private bool animating;
         private Transform pickupTarget;
         private bool delivering;
+        public int PlaybackVersion { get; private set; }
 
         // Raised when a temporary food illustration reaches its destination.
         public event System.Action FoodArrived;
@@ -93,6 +94,7 @@ namespace FoodIsekaiZ.Display
 
         private void Begin(Sprite sprite)
         {
+            PlaybackVersion++;
             currentSprite = sprite;
             elapsed = 0f;
             rewardAge = 0f;

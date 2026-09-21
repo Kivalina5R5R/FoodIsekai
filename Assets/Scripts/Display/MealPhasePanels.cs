@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using FoodIsekaiZ.Gameplay;
@@ -15,6 +16,7 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private GameObject resultsPanel;
         [SerializeField] private UWBPlayerSpawner playerSpawner;
         [SerializeField] private TopHudVisibility topHudVisibility;
+        [SerializeField] private MealMenuTransition menuTransition;
         [SerializeField] private TMP_Text breakScoreText;
         [SerializeField] private TMP_Text breakMvpText;
         [SerializeField] private TMP_Text breakCountdownText;
@@ -29,6 +31,10 @@ namespace FoodIsekaiZ.Display
         private GameObject exclusivePanel;
         private GameObject requestedPanel;
         private Coroutine transition;
+        private Coroutine pendingCover;
+        private Action coveredPhaseChange;
+        private MealWavePhase previousPhase = MealWavePhase.NotStarted;
+        private int previousWave = -1;
 
         private void Awake()
         {
@@ -97,6 +103,7 @@ namespace FoodIsekaiZ.Display
             if (gameManager != null)
             {
                 gameManager.MealWaveDisplayChanged += Refresh;
+                if (menuTransition != null) gameManager.MealTransitionRequested += CoverBeforePhaseChange;
                 gameManager.TeamScoreChanged += ScoreChanged;
                 gameManager.PlayerScoreChanged += PlayerChanged;
                 gameManager.PlayerMoneyDeposited += PlayerChanged;
@@ -106,8 +113,14 @@ namespace FoodIsekaiZ.Display
 
         private void OnDisable()
         {
+            if (pendingCover != null) StopCoroutine(pendingCover);
+            pendingCover = null;
             if (transition != null) StopCoroutine(transition);
             transition = null;
+            menuTransition?.Hide();
+            gameManager?.SetPhasePresentationPaused(false);
+            previousPhase = MealWavePhase.NotStarted;
+            previousWave = -1;
             requestedPanel = null;
             exclusivePanel = null;
             topHudVisibility?.SetReportVisible(false);
@@ -115,12 +128,33 @@ namespace FoodIsekaiZ.Display
             if (gameManager != null)
             {
                 gameManager.MealWaveDisplayChanged -= Refresh;
+                gameManager.MealTransitionRequested -= CoverBeforePhaseChange;
                 gameManager.TeamScoreChanged -= ScoreChanged;
                 gameManager.PlayerScoreChanged -= PlayerChanged;
                 gameManager.PlayerMoneyDeposited -= PlayerChanged;
             }
             breakPanel?.SetActive(false);
             resultsPanel?.SetActive(false);
+            Action finishPendingChange = coveredPhaseChange;
+            coveredPhaseChange = null;
+            finishPendingChange?.Invoke();
+        }
+
+        private void CoverBeforePhaseChange(string heading, Action changePhase)
+        {
+            if (transition != null) StopCoroutine(transition);
+            transition = null;
+            coveredPhaseChange = changePhase;
+            pendingCover = StartCoroutine(CoverPendingPhase(heading));
+        }
+
+        private IEnumerator CoverPendingPhase(string heading)
+        {
+            if (menuTransition != null) yield return menuTransition.Cover(heading);
+            Action changePhase = coveredPhaseChange;
+            coveredPhaseChange = null;
+            pendingCover = null;
+            changePhase?.Invoke();
         }
 
         private void ScoreChanged(int value) => Refresh();
@@ -131,6 +165,15 @@ namespace FoodIsekaiZ.Display
             bool enabledWaves = gameManager != null && gameManager.UsesMealWaves;
             bool intermission = enabledWaves && gameManager.CurrentMealWavePhase == MealWavePhase.Intermission;
             bool complete = enabledWaves && gameManager.CurrentMealWavePhase == MealWavePhase.Completed;
+            bool active = enabledWaves && gameManager.CurrentMealWavePhase == MealWavePhase.Active;
+            bool phaseChanged = enabledWaves && (previousPhase != gameManager.CurrentMealWavePhase ||
+                previousWave != gameManager.CurrentWaveNumber);
+            bool showMenu = menuTransition != null && phaseChanged && (active || intermission || complete);
+            if (enabledWaves)
+            {
+                previousPhase = gameManager.CurrentMealWavePhase;
+                previousWave = gameManager.CurrentWaveNumber;
+            }
             GameObject nextExclusivePanel = complete ? resultsPanel : intermission ? breakPanel : null;
             if (intermission)
             {
@@ -144,15 +187,18 @@ namespace FoodIsekaiZ.Display
             }
             if (exclusivePanel != null) HideOtherUi(exclusivePanel);
             if (complete) RefreshResults();
-            if (requestedPanel == nextExclusivePanel) return;
+            if (requestedPanel == nextExclusivePanel && !showMenu) return;
             requestedPanel = nextExclusivePanel;
-            topHudVisibility?.SetReportVisible(nextExclusivePanel != null || exclusivePanel != null);
             if (transition != null) StopCoroutine(transition);
-            transition = StartCoroutine(TransitionTo(nextExclusivePanel));
+            string heading = complete ? "SERVICE RESULTS" : intermission ? "SERVICE BREAK" :
+                gameManager != null ? gameManager.CurrentWaveName : string.Empty;
+            transition = StartCoroutine(TransitionTo(nextExclusivePanel, showMenu, heading));
         }
 
-        private IEnumerator TransitionTo(GameObject nextPanel)
+        private IEnumerator TransitionTo(GameObject nextPanel, bool showMenu, string heading)
         {
+            gameManager?.SetPhasePresentationPaused(showMenu);
+            if (showMenu) yield return menuTransition.Cover(heading);
             if (exclusivePanel != null && exclusivePanel != nextPanel)
             {
                 yield return FadePanel(exclusivePanel, false);
@@ -166,6 +212,9 @@ namespace FoodIsekaiZ.Display
                 HideOtherUi(nextPanel);
                 yield return FadePanel(nextPanel, true);
             }
+            if (showMenu) yield return menuTransition.Reveal();
+            else menuTransition?.Hide();
+            gameManager?.SetPhasePresentationPaused(false);
             transition = null;
         }
 

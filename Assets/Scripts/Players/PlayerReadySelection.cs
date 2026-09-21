@@ -22,6 +22,7 @@ namespace FoodIsekaiZ.Players
         private bool selectionRequested;
         private bool completed;
         private bool configurationFailed;
+        private bool readyShown;
         private readonly List<UWBPlayerController> roundPlayers = new List<UWBPlayerController>();
         private readonly HashSet<int> observedTags = new HashSet<int>();
         private float rosterChangedAt;
@@ -47,6 +48,12 @@ namespace FoodIsekaiZ.Players
         {
             if (!selectionRequested || completed || configurationFailed) return;
             if (selection == null && !TryInitialize()) return;
+
+            if (!readyShown)
+            {
+                if (readyGuide != null && readyGuide.isActiveAndEnabled && !readyGuide.IsReadyForSelection) return;
+                ShowReady();
+            }
 
             var players = roundPlayers;
             for (int z = 0; z < activeZones.Length; z++)
@@ -166,14 +173,19 @@ namespace FoodIsekaiZ.Players
                 rect.anchoredPosition = position;
             }
             playerSpawner.LockRoundParticipants(roundPlayers);
-            readyRoot.SetActive(true);
             for (int i = 0; i < roundPlayers.Count; i++) roundPlayers[i].ShowSelectionMarker(true);
+            return true;
+        }
+
+        private void ShowReady()
+        {
+            readyShown = true;
+            readyRoot.SetActive(true);
             for (int i = 0; i < activeZones.Length; i++)
             {
                 activeZones[i].PlayEntrance(i);
                 activeZones[i].ShowProgress(0f, null, false);
             }
-            return true;
         }
 
         private void SetGameplayVisible(bool visible)

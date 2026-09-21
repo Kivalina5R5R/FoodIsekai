@@ -21,6 +21,7 @@ namespace FoodIsekaiZ.Display
         private Vector3 dialogueScale;
 
         public bool HasExited { get; private set; }
+        public bool HasOpenedDialogue { get; private set; }
 
         private void Awake()
         {
@@ -37,6 +38,7 @@ namespace FoodIsekaiZ.Display
             if (dialogue != null) dialogue.SetActive(false);
             speed = Mathf.Max(1f, canvasWidth * walkingSpeedCanvasMultiplier);
             HasExited = false;
+            HasOpenedDialogue = false;
             groundedPosition = start;
             if (breathing != null) breathing.EndIdle();
             if (poseBlend != null) poseBlend.ShowWalking();
@@ -131,6 +133,7 @@ namespace FoodIsekaiZ.Display
             if (poseBlend != null) poseBlend.SetWalkingWeight(0f);
             if (breathing != null) breathing.BeginIdle();
             yield return AnimateDialogue(true);
+            HasOpenedDialogue = true;
             entrance = null;
         }
 

@@ -23,6 +23,25 @@ namespace FoodIsekaiZ.Display
         private int displayedPlayerId = -1;
         private FoodType displayedFood = (FoodType)(-1);
         private int displayedMoney = -1;
+        private FloorAnimatedSprite pendingPickup;
+        private int pendingPlaybackVersion;
+        private FoodType pendingFood;
+
+        // Hide the held illustration until this specific pickup flight finishes or is interrupted.
+        public void WaitForPickup(FloorAnimatedSprite motion)
+        {
+            pendingPickup = motion;
+            pendingPlaybackVersion = motion.PlaybackVersion;
+            pendingFood = playerState.HeldFood;
+            displayedFood = (FoodType)(-1);
+            foodImage.enabled = false;
+            if (drinkImage != null) drinkImage.enabled = false;
+        }
+
+        private void OnDisable()
+        {
+            pendingPickup = null;
+        }
 
         private void OnEnable()
         {
@@ -49,7 +68,11 @@ namespace FoodIsekaiZ.Display
                 playerName.text = $"PLAYER {displayedPlayerId}";
             }
 
-            if (displayedFood != playerState.HeldFood)
+            bool waitingForPickup = pendingPickup != null && pendingPickup.isActiveAndEnabled &&
+                pendingPickup.PlaybackVersion == pendingPlaybackVersion && pendingPickup.IsAnimating &&
+                playerState.HeldFood == pendingFood;
+            if (!waitingForPickup) pendingPickup = null;
+            if (!waitingForPickup && displayedFood != playerState.HeldFood)
             {
                 displayedFood = playerState.HeldFood;
                 RefreshFood();
@@ -87,7 +110,7 @@ namespace FoodIsekaiZ.Display
             if (hasFood)
             {
                 InventoryAppearEffect effect = showDrink ? drinkAppearEffect : foodAppearEffect;
-                effect?.Play();
+                effect?.PlayGrow();
             }
         }
     }

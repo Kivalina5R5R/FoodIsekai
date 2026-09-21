@@ -7,24 +7,35 @@ namespace FoodIsekaiZ.Display
     public sealed class ReadyPhaseGuide : MonoBehaviour
     {
         [SerializeField] private PlayerReadySelection selection;
+        [SerializeField] private MealMenuTransition menuTransition;
         [InspectorName("NPC Guide Player Prefab")]
         [SerializeField] private NpcGuidePresentation guidePrefab;
         [SerializeField, Range(0f, 1f)] private float standingWidthFraction = 0.55f;
         private NpcGuidePresentation instance;
         private bool spawned;
         private bool exitRequested;
+        private bool coverRequested;
         private Vector2 exitPosition;
+
+        public bool IsReadyForSelection => guidePrefab == null ||
+            (instance != null && instance.HasOpenedDialogue);
 
         // Ready selection waits for this departure before releasing gameplay.
         public bool TryFinish()
         {
-            if (instance == null || !instance.gameObject.activeInHierarchy) return true;
             if (!exitRequested)
             {
                 exitRequested = true;
-                instance.WalkOut(exitPosition);
+                if (instance != null) instance.WalkOut(exitPosition);
             }
-            return instance.HasExited;
+            bool departed = instance == null || !instance.gameObject.activeInHierarchy || instance.HasExited;
+            if (!departed) return false;
+            if (!coverRequested)
+            {
+                coverRequested = true;
+                if (menuTransition != null) StartCoroutine(menuTransition.Cover("BREAKFAST"));
+            }
+            return menuTransition == null || menuTransition.IsCovered;
         }
 
         private void LateUpdate()

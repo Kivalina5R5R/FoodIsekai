@@ -11,13 +11,22 @@ namespace FoodIsekaiZ.Display
 
         private float elapsed;
         private bool playing;
+        private bool smoothGrowth;
 
         // Restarts the appearance when an item is received, including additional money.
         public void Play()
         {
+            smoothGrowth = false;
             elapsed = 0f;
             playing = true;
             graphic.SetVerticesDirty();
+        }
+
+        // Food grows gently from a small serving after its pickup flight reaches the plate.
+        public void PlayGrow()
+        {
+            Play();
+            smoothGrowth = true;
         }
 
         protected override void OnDisable()
@@ -52,6 +61,7 @@ namespace FoodIsekaiZ.Display
             float progress = Mathf.Clamp01(elapsed / Mathf.Max(0.05f, duration));
             float back = progress - 1f;
             float scale = 1f + 0.35f * (2.7f * back * back * back + 1.7f * back * back);
+            if (smoothGrowth) scale = Mathf.Lerp(0.15f, 1f, Mathf.SmoothStep(0f, 1f, progress));
             float opacity = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(progress / 0.3f));
             Vector3 center = graphic.rectTransform.rect.center;
             UIVertex vertex = default;

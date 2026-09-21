@@ -138,6 +138,12 @@ namespace FoodIsekaiZ.Gameplay
         private bool customerFlowStarted;
         private bool mealWaveFlowStarted;
         private bool startupReleased;
+        private bool phasePresentationPaused;
+        private bool phaseChangePending;
+        public bool IsPhasePresentationPaused => phasePresentationPaused;
+
+        // Holds gameplay timers and interactions while the authored phase transition covers the wall.
+        public void SetPhasePresentationPaused(bool paused) => phasePresentationPaused = paused;
         private UWBManager simulationModeSource;
 
         public bool IsWaitingForStartup => waitForStartup && !startupReleased;
@@ -181,6 +187,25 @@ namespace FoodIsekaiZ.Gameplay
         public event Action<ArenaSlot2D, int> CustomerMoneySpawned;
         public event Action<ArenaSlot2D> CustomerOrderExpired;
         public event Action MealWaveDisplayChanged;
+        // The presentation calls the completion action once the previous screen is fully covered.
+        public event Action<string, Action> MealTransitionRequested;
+
+        private void ChangeMealBehindCover(string heading, Action changePhase)
+        {
+            if (phaseChangePending) return;
+            if (MealTransitionRequested == null)
+            {
+                changePhase();
+                return;
+            }
+            phaseChangePending = true;
+            phasePresentationPaused = true;
+            MealTransitionRequested.Invoke(heading, () =>
+            {
+                phaseChangePending = false;
+                changePhase();
+            });
+        }
 
         // The display registers its departure status; gameplay also works without a display.
         public void RegisterDepartureStatus(IWaveDepartureStatus status) => departureStatus = status;
@@ -255,11 +280,13 @@ namespace FoodIsekaiZ.Gameplay
         {
             if (IsWaitingForStartup) return;
             if (HandleSimulationShortcut()) return;
+            if (phasePresentationPaused) return;
 
             if (useMealWaves && mealWaveFlowStarted)
             {
                 TickMealWave(Time.deltaTime);
             }
+            if (phasePresentationPaused) return;
 
             if (useMealWaves && mealWavePhase == MealWavePhase.Clearing)
             {
@@ -402,7 +429,7 @@ namespace FoodIsekaiZ.Gameplay
 
         public bool TryInteract(FoodIsekaiZPlayerState player, ArenaSlot2D slot)
         {
-            if (IsWaitingForStartup || player == null || slot == null)
+            if (IsWaitingForStartup || phasePresentationPaused || player == null || slot == null)
             {
                 return false;
             }
@@ -476,11 +503,14 @@ namespace FoodIsekaiZ.Gameplay
                 return;
             }
 
-            mealWavePhase = MealWavePhase.Active;
-            mealPhaseRemainingSeconds = Mathf.Max(1f, waveDurationSeconds);
-            lastNotifiedMealSecond = int.MinValue;
-            StartCustomerFlow();
-            NotifyMealWaveDisplayIfNeeded(true);
+            ChangeMealBehindCover(CurrentWaveName, () =>
+            {
+                mealWavePhase = MealWavePhase.Active;
+                mealPhaseRemainingSeconds = Mathf.Max(1f, waveDurationSeconds);
+                lastNotifiedMealSecond = int.MinValue;
+                StartCustomerFlow();
+                NotifyMealWaveDisplayIfNeeded(true);
+            });
         }
 
         private void EndCurrentWave()
@@ -513,24 +543,31 @@ namespace FoodIsekaiZ.Gameplay
                 return;
             }
 
-            mealWavePhase = MealWavePhase.Intermission;
-            mealPhaseRemainingSeconds = Mathf.Max(0f, intermissionDurationSeconds);
-            lastNotifiedMealSecond = int.MinValue;
-            NotifyMealWaveDisplayIfNeeded(true);
-            if (mealPhaseRemainingSeconds <= 0f)
+            if (intermissionDurationSeconds <= 0f)
             {
                 currentWaveIndex++;
                 BeginCurrentWave();
+                return;
             }
+            ChangeMealBehindCover("SERVICE BREAK", () =>
+            {
+                mealWavePhase = MealWavePhase.Intermission;
+                mealPhaseRemainingSeconds = Mathf.Max(0f, intermissionDurationSeconds);
+                lastNotifiedMealSecond = int.MinValue;
+                NotifyMealWaveDisplayIfNeeded(true);
+            });
         }
 
         private void CompleteMealWaves()
         {
-            StopCustomerFlowAndClearSlots();
-            mealWavePhase = MealWavePhase.Completed;
-            mealPhaseRemainingSeconds = 0f;
-            lastNotifiedMealSecond = int.MinValue;
-            NotifyMealWaveDisplayIfNeeded(true);
+            ChangeMealBehindCover("SERVICE RESULTS", () =>
+            {
+                StopCustomerFlowAndClearSlots();
+                mealWavePhase = MealWavePhase.Completed;
+                mealPhaseRemainingSeconds = 0f;
+                lastNotifiedMealSecond = int.MinValue;
+                NotifyMealWaveDisplayIfNeeded(true);
+            });
         }
 
         private void StopCustomerFlowAndClearSlots()
