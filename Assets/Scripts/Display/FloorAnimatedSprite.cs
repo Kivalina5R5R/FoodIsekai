@@ -12,6 +12,7 @@ namespace FoodIsekaiZ.Display
 
         [SerializeField] private MotionKind motion;
         [SerializeField] private Sprite[] foodSprites;
+        [SerializeField] private MealFoodDisplay mealFoodDisplay;
         [SerializeField] private Sprite rewardSprite;
         [SerializeField, Min(0.1f)] private float duration = 0.85f;
         [SerializeField] private Vector2 spriteSize = new Vector2(108f, 108f);
@@ -66,8 +67,9 @@ namespace FoodIsekaiZ.Display
         public void PlayFood(FoodType food, Transform player, bool delivery)
         {
             int index = (int)food - (int)FoodType.Food1;
-            if (player == null || motion == MotionKind.Reward || foodSprites == null || index < 0 ||
-                index >= foodSprites.Length || foodSprites[index] == null)
+            Sprite sprite = mealFoodDisplay != null ? mealFoodDisplay.GetSprite(food)
+                : foodSprites != null && index >= 0 && index < foodSprites.Length ? foodSprites[index] : null;
+            if (player == null || motion == MotionKind.Reward || sprite == null)
             {
                 return;
             }
@@ -78,7 +80,7 @@ namespace FoodIsekaiZ.Display
             pickupTarget = delivery ? null : player;
             start = delivery ? playerAnchor : Vector2.zero;
             destination = delivery ? Vector2.zero : playerAnchor;
-            Begin(foodSprites[index]);
+            Begin(sprite);
         }
 
         // Clears transient geometry when feedback is disabled or a reward is collected.

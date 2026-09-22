@@ -14,6 +14,7 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private Image foodImage;
         [SerializeField] private Image drinkImage;
         [SerializeField] private Sprite[] foodSprites;
+        [SerializeField] private MealFoodDisplay mealFoodDisplay;
         [SerializeField] private GameObject moneyVisual;
         [SerializeField] private TMP_Text moneyAmount;
         [SerializeField] private InventoryAppearEffect foodAppearEffect;
@@ -23,9 +24,17 @@ namespace FoodIsekaiZ.Display
         private int displayedPlayerId = -1;
         private FoodType displayedFood = (FoodType)(-1);
         private int displayedMoney = -1;
+        private int displayedMeal = -1;
         private FloorAnimatedSprite pendingPickup;
         private int pendingPlaybackVersion;
         private FoodType pendingFood;
+
+        // The spawner supplies the scene meal display to each prefab instance.
+        public void BindMealDisplay(MealFoodDisplay display)
+        {
+            mealFoodDisplay = display;
+            displayedMeal = -1;
+        }
 
         // Hide the held illustration until this specific pickup flight finishes or is interrupted.
         public void WaitForPickup(FloorAnimatedSprite motion)
@@ -72,8 +81,10 @@ namespace FoodIsekaiZ.Display
                 pendingPickup.PlaybackVersion == pendingPlaybackVersion && pendingPickup.IsAnimating &&
                 playerState.HeldFood == pendingFood;
             if (!waitingForPickup) pendingPickup = null;
-            if (!waitingForPickup && displayedFood != playerState.HeldFood)
+            int meal = mealFoodDisplay != null ? mealFoodDisplay.MealIndex : 0;
+            if (!waitingForPickup && (displayedFood != playerState.HeldFood || displayedMeal != meal))
             {
+                displayedMeal = meal;
                 displayedFood = playerState.HeldFood;
                 RefreshFood();
             }
@@ -94,17 +105,20 @@ namespace FoodIsekaiZ.Display
         private void RefreshFood()
         {
             int foodIndex = (int)displayedFood - 1;
-            bool hasFood = foodIndex >= 0 && foodIndex < foodSprites.Length;
+            Sprite sprite = mealFoodDisplay != null ? mealFoodDisplay.GetSprite(displayedFood)
+                : foodSprites != null && foodIndex >= 0 && foodIndex < foodSprites.Length ? foodSprites[foodIndex] : null;
+            bool hasFood = sprite != null;
             bool showDrink = hasFood && displayedFood == FoodType.Food5 && drinkImage != null;
             foodImage.enabled = hasFood && !showDrink;
             if (drinkImage != null)
             {
                 drinkImage.enabled = showDrink;
+                if (showDrink) drinkImage.sprite = sprite;
             }
 
             if (hasFood && !showDrink)
             {
-                foodImage.sprite = foodSprites[foodIndex];
+                foodImage.sprite = sprite;
             }
 
             if (hasFood)

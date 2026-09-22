@@ -1004,6 +1004,7 @@ GameObject:
   - component: {fileID: 2009000104}
   - component: {fileID: 150189155}
   - component: {fileID: 150189154}
+  - component: {fileID: 2026092330}
   m_Layer: 0
   m_Name: FoodImage
   m_TagString: Untagged
@@ -1022,7 +1023,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2026092332}
   m_Father: {fileID: 2026200401}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1050,7 +1052,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -1797,6 +1799,7 @@ GameObject:
   - component: {fileID: 278790267}
   - component: {fileID: 278790269}
   - component: {fileID: 278790268}
+  - component: {fileID: 2026092201}
   m_Layer: 0
   m_Name: Map
   m_TagString: Untagged
@@ -1862,6 +1865,7 @@ MonoBehaviour:
   - {fileID: 8509481359095788191, guid: ef617645423f8e84fad897a79d0cf066, type: 3}
   - {fileID: 555535091426612794, guid: 65d714a18685c83468607714988a82fa, type: 3}
   - {fileID: 3973883399956200782, guid: d84647faa1effdf41af301b81d9d6f5a, type: 3}
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!1 &314790729
 GameObject:
   m_ObjectHideFlags: 0
@@ -2229,7 +2233,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -3147,6 +3151,7 @@ GameObject:
   - component: {fileID: 2009000101}
   - component: {fileID: 601154644}
   - component: {fileID: 601154643}
+  - component: {fileID: 2026092300}
   m_Layer: 0
   m_Name: FoodImage
   m_TagString: Untagged
@@ -3165,7 +3170,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2026092302}
   m_Father: {fileID: 2026200101}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -3193,7 +3199,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -3223,6 +3229,7 @@ GameObject:
   - component: {fileID: 2009000105}
   - component: {fileID: 641138596}
   - component: {fileID: 641138595}
+  - component: {fileID: 2026092340}
   m_Layer: 0
   m_Name: FoodImage
   m_TagString: Untagged
@@ -3241,7 +3248,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2026092342}
   m_Father: {fileID: 2026200501}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -3269,7 +3277,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -3376,6 +3384,7 @@ GameObject:
   - component: {fileID: 2009000103}
   - component: {fileID: 765133987}
   - component: {fileID: 765133986}
+  - component: {fileID: 2026092320}
   m_Layer: 0
   m_Name: FoodImage
   m_TagString: Untagged
@@ -3394,7 +3403,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2026092322}
   m_Father: {fileID: 2026200301}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -3422,7 +3432,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -5807,6 +5817,7 @@ GameObject:
   - component: {fileID: 2009000102}
   - component: {fileID: 1670426088}
   - component: {fileID: 1670426087}
+  - component: {fileID: 2026092310}
   m_Layer: 0
   m_Name: FoodImage
   m_TagString: Untagged
@@ -5825,7 +5836,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2026092312}
   m_Father: {fileID: 2026200201}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -5853,7 +5865,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -6198,7 +6210,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -6492,7 +6504,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -6567,7 +6579,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -7817,7 +7829,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -8209,7 +8221,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -9660,6 +9672,7 @@ GameObject:
   - component: {fileID: 2026091048}
   - component: {fileID: 2026091047}
   - component: {fileID: 2026091046}
+  - component: {fileID: 2026092350}
   m_Layer: 0
   m_Name: Bank Coin Pouch
   m_TagString: Untagged
@@ -9678,7 +9691,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2026092352}
   m_Father: {fileID: 2026200601}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -11180,11 +11194,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 0
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.82
   spriteSize: {x: 115, y: 115}
@@ -11194,6 +11208,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094003
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11285,11 +11300,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 0
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.82
   spriteSize: {x: 115, y: 115}
@@ -11299,6 +11314,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094008
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11390,11 +11406,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 0
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.82
   spriteSize: {x: 115, y: 115}
@@ -11404,6 +11420,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094013
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11495,11 +11512,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 0
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.82
   spriteSize: {x: 115, y: 115}
@@ -11509,6 +11526,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094018
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11600,11 +11618,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 0
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.82
   spriteSize: {x: 115, y: 115}
@@ -11614,6 +11632,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094023
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11705,11 +11724,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 1
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.95
   spriteSize: {x: 115, y: 115}
@@ -11719,6 +11738,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094028
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11810,11 +11830,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 2
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.48
   spriteSize: {x: 98, y: 65}
@@ -11824,6 +11844,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094033
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12019,11 +12040,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 1
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.95
   spriteSize: {x: 115, y: 115}
@@ -12033,6 +12054,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094042
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12124,11 +12146,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 2
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.48
   spriteSize: {x: 98, y: 65}
@@ -12138,6 +12160,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094047
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12333,11 +12356,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 1
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.95
   spriteSize: {x: 115, y: 115}
@@ -12347,6 +12370,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094056
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12438,11 +12462,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 2
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.48
   spriteSize: {x: 98, y: 65}
@@ -12452,6 +12476,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094061
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12647,11 +12672,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 1
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.95
   spriteSize: {x: 115, y: 115}
@@ -12661,6 +12686,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094070
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12752,11 +12778,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 2
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.48
   spriteSize: {x: 98, y: 65}
@@ -12766,6 +12792,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094075
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12961,11 +12988,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 1
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.95
   spriteSize: {x: 115, y: 115}
@@ -12975,6 +13002,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094084
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -13066,11 +13094,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 2
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.48
   spriteSize: {x: 98, y: 65}
@@ -13080,6 +13108,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094089
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -13275,11 +13304,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 1
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.95
   spriteSize: {x: 115, y: 115}
@@ -13289,6 +13318,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094098
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -13380,11 +13410,11 @@ MonoBehaviour:
       m_Calls: []
   motion: 2
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   rewardSprite: {fileID: 21300000, guid: 975c67a090b641578f54b9c3da37213d, type: 3}
   duration: 0.48
   spriteSize: {x: 98, y: 65}
@@ -13394,6 +13424,7 @@ MonoBehaviour:
   reminderDuration: 0.95
   reminderGrowth: 0.25
   reminderShakeDegrees: 8
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!222 &2026094103
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -20418,8 +20449,8 @@ RectTransform:
   - {fileID: 2096100031}
   m_Father: {fileID: 44333748}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: -0.037037037, y: 0}
+  m_AnchorMax: {x: 1.037037037, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -21477,6 +21508,7 @@ MonoBehaviour:
     tagId: 9
     initialPosition: {x: 3.3, y: -1.65}
   disableOfflinePlayersInSerial: 1
+  mealFoodDisplay: {fileID: 2026092201}
 --- !u!4 &2144607759
 Transform:
   m_ObjectHideFlags: 0
@@ -23687,6 +23719,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 2026092201}
+        m_TargetAssemblyTypeName: FoodIsekaiZ.Display.MealFoodDisplay, Assembly-CSharp
+        m_MethodName: RevealAfterGuide
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument:
+          m_BoolArgument: 0
+        m_CallState: 2
   readyGuide: {fileID: 2161050002}
 --- !u!114 &2161030000
 MonoBehaviour:
@@ -24050,7 +24094,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2161070001, guid: 35365464b71d4dd7b07143ec186841c0, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: -0.037037037
       objectReference: {fileID: 0}
     - target: {fileID: 2161070001, guid: 35365464b71d4dd7b07143ec186841c0, type: 3}
       propertyPath: m_AnchorMin.y
@@ -24058,7 +24102,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2161070001, guid: 35365464b71d4dd7b07143ec186841c0, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 1
+      value: 1.037037037
       objectReference: {fileID: 0}
     - target: {fileID: 2161070001, guid: 35365464b71d4dd7b07143ec186841c0, type: 3}
       propertyPath: m_AnchorMax.y
@@ -24243,6 +24287,670 @@ VideoPlayer:
   m_WaitForFirstFrame: 1
   m_FrameReadyEventEnabled: 0
   m_VideoShaders: []
+--- !u!114 &2026092201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 278790266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5be5ec1117744400bc38967dd2195318, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MealFoodDisplay
+  gameManager: {fileID: 101588415}
+  menuTransition: {fileID: 2161070003}
+  breakfastSprites:
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+  lunchSprites:
+  - {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+  - {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+  - {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+  - {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+  - {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+  dinnerSprites:
+  - {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+  - {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+  - {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+  - {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+  - {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+  stationImages:
+  - {fileID: 601154643}
+  - {fileID: 1670426087}
+  - {fileID: 765133986}
+  - {fileID: 150189154}
+  - {fileID: 641138595}
+  stationTransitions:
+  - {fileID: 2026092300}
+  - {fileID: 2026092310}
+  - {fileID: 2026092320}
+  - {fileID: 2026092330}
+  - {fileID: 2026092340}
+  bankPurse: {fileID: 2026091046}
+  bankTransition: {fileID: 2026092350}
+--- !u!114 &2026092300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 601154641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96dc79c0b6b34f16b8b5f9157532abc5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MealFoodSwapEffect
+  foodImage: {fileID: 601154643}
+  revealParticles: {fileID: 2026092304}
+  anticipationSeconds: 0.16
+  shrinkSeconds: 0.22
+  growSeconds: 0.28
+  settleSeconds: 0.2
+  outgoingScale: 1.16
+  incomingScale: 1.24
+--- !u!1 &2026092301
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2026092302}
+  - component: {fileID: 2026092303}
+  - component: {fileID: 2026092304}
+  m_Layer: 0
+  m_Name: Menu Reveal Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2026092302
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092301}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 601154642}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 200}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &2026092303
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092301}
+  m_CullTransparentMesh: 1
+--- !u!114 &2026092304
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092301}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 0
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 18
+  duration: 0.65
+  useUnscaledTime: 1
+  startRadius: 28
+  travelDistance: 44
+  downwardDrift: 10
+  particleSizeRange: {x: 2.5, y: 5.5}
+  starRatio: 0.8
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.87, b: 0.48, a: 1}
+  showRing: 1
+  ringRadius: 48
+  ringWidth: 1.5
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!114 &2026092310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1670426085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96dc79c0b6b34f16b8b5f9157532abc5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MealFoodSwapEffect
+  foodImage: {fileID: 1670426087}
+  revealParticles: {fileID: 2026092314}
+  anticipationSeconds: 0.16
+  shrinkSeconds: 0.22
+  growSeconds: 0.28
+  settleSeconds: 0.2
+  outgoingScale: 1.16
+  incomingScale: 1.24
+--- !u!1 &2026092311
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2026092312}
+  - component: {fileID: 2026092313}
+  - component: {fileID: 2026092314}
+  m_Layer: 0
+  m_Name: Menu Reveal Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2026092312
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092311}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1670426086}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 200}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &2026092313
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092311}
+  m_CullTransparentMesh: 1
+--- !u!114 &2026092314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 0
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 18
+  duration: 0.65
+  useUnscaledTime: 1
+  startRadius: 28
+  travelDistance: 44
+  downwardDrift: 10
+  particleSizeRange: {x: 2.5, y: 5.5}
+  starRatio: 0.8
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.87, b: 0.48, a: 1}
+  showRing: 1
+  ringRadius: 48
+  ringWidth: 1.5
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!114 &2026092320
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 765133984}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96dc79c0b6b34f16b8b5f9157532abc5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MealFoodSwapEffect
+  foodImage: {fileID: 765133986}
+  revealParticles: {fileID: 2026092324}
+  anticipationSeconds: 0.16
+  shrinkSeconds: 0.22
+  growSeconds: 0.28
+  settleSeconds: 0.2
+  outgoingScale: 1.16
+  incomingScale: 1.24
+--- !u!1 &2026092321
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2026092322}
+  - component: {fileID: 2026092323}
+  - component: {fileID: 2026092324}
+  m_Layer: 0
+  m_Name: Menu Reveal Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2026092322
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092321}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 765133985}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 200}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &2026092323
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092321}
+  m_CullTransparentMesh: 1
+--- !u!114 &2026092324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 0
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 18
+  duration: 0.65
+  useUnscaledTime: 1
+  startRadius: 28
+  travelDistance: 44
+  downwardDrift: 10
+  particleSizeRange: {x: 2.5, y: 5.5}
+  starRatio: 0.8
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.87, b: 0.48, a: 1}
+  showRing: 1
+  ringRadius: 48
+  ringWidth: 1.5
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!114 &2026092330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 150189152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96dc79c0b6b34f16b8b5f9157532abc5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MealFoodSwapEffect
+  foodImage: {fileID: 150189154}
+  revealParticles: {fileID: 2026092334}
+  anticipationSeconds: 0.16
+  shrinkSeconds: 0.22
+  growSeconds: 0.28
+  settleSeconds: 0.2
+  outgoingScale: 1.16
+  incomingScale: 1.24
+--- !u!1 &2026092331
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2026092332}
+  - component: {fileID: 2026092333}
+  - component: {fileID: 2026092334}
+  m_Layer: 0
+  m_Name: Menu Reveal Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2026092332
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092331}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 150189153}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 200}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &2026092333
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092331}
+  m_CullTransparentMesh: 1
+--- !u!114 &2026092334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092331}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 0
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 18
+  duration: 0.65
+  useUnscaledTime: 1
+  startRadius: 28
+  travelDistance: 44
+  downwardDrift: 10
+  particleSizeRange: {x: 2.5, y: 5.5}
+  starRatio: 0.8
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.87, b: 0.48, a: 1}
+  showRing: 1
+  ringRadius: 48
+  ringWidth: 1.5
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!114 &2026092340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641138593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96dc79c0b6b34f16b8b5f9157532abc5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MealFoodSwapEffect
+  foodImage: {fileID: 641138595}
+  revealParticles: {fileID: 2026092344}
+  anticipationSeconds: 0.16
+  shrinkSeconds: 0.22
+  growSeconds: 0.28
+  settleSeconds: 0.2
+  outgoingScale: 1.16
+  incomingScale: 1.24
+--- !u!1 &2026092341
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2026092342}
+  - component: {fileID: 2026092343}
+  - component: {fileID: 2026092344}
+  m_Layer: 0
+  m_Name: Menu Reveal Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2026092342
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092341}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 641138594}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 200}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &2026092343
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092341}
+  m_CullTransparentMesh: 1
+--- !u!114 &2026092344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 0
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 18
+  duration: 0.65
+  useUnscaledTime: 1
+  startRadius: 28
+  travelDistance: 44
+  downwardDrift: 10
+  particleSizeRange: {x: 2.5, y: 5.5}
+  starRatio: 0.8
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.87, b: 0.48, a: 1}
+  showRing: 1
+  ringRadius: 48
+  ringWidth: 1.5
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!114 &2026092350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026091044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96dc79c0b6b34f16b8b5f9157532abc5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MealFoodSwapEffect
+  foodImage: {fileID: 2026091046}
+  revealParticles: {fileID: 2026092354}
+  anticipationSeconds: 0.16
+  shrinkSeconds: 0.22
+  growSeconds: 0.28
+  settleSeconds: 0.2
+  outgoingScale: 1.16
+  incomingScale: 1.24
+--- !u!1 &2026092351
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2026092352}
+  - component: {fileID: 2026092353}
+  - component: {fileID: 2026092354}
+  m_Layer: 0
+  m_Name: Bank Reveal Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2026092352
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092351}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2026091045}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 200}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &2026092353
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092351}
+  m_CullTransparentMesh: 1
+--- !u!114 &2026092354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026092351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 0
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 18
+  duration: 0.65
+  useUnscaledTime: 1
+  startRadius: 28
+  travelDistance: 44
+  downwardDrift: 10
+  particleSizeRange: {x: 2.5, y: 5.5}
+  starRatio: 0.8
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.87, b: 0.48, a: 1}
+  showRing: 1
+  ringRadius: 48
+  ringWidth: 1.5
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

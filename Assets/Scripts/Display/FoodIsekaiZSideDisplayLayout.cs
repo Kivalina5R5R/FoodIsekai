@@ -23,6 +23,7 @@ namespace FoodIsekaiZ.Display
         [Header("Customer Food Prefabs")]
         [Tooltip("Food prefabs used as the customer order icons, ordered Food1 through Food5.")]
         [SerializeField] private GameObject[] foodPrefabs = new GameObject[5];
+        [SerializeField] private MealFoodDisplay mealFoodDisplay;
 
         private TMP_Text scoreText;
         private TMP_Text mvpText;
@@ -43,6 +44,7 @@ namespace FoodIsekaiZ.Display
         private bool mealWaveDisplayDirty = true;
         private bool uwbStatusDisplayInitialized;
         private int lastUwbDisplayMode = -1;
+        private int displayedMeal = -1;
         private int lastUwbAgeTenths = int.MinValue;
         private bool lastUwbSimulationMode;
         private string lastUwbStatus;
@@ -98,6 +100,12 @@ namespace FoodIsekaiZ.Display
         private void UpdateRealtimeText()
         {
             UpdateUwbStatusText();
+            int meal = mealFoodDisplay != null ? mealFoodDisplay.MealIndex : 0;
+            if (displayedMeal != meal)
+            {
+                displayedMeal = meal;
+                System.Array.Clear(customerDisplayInitialized, 0, customerDisplayInitialized.Length);
+            }
 
             for (int i = 0; i < customerStatusImages.Length; i++)
             {
@@ -429,12 +437,13 @@ namespace FoodIsekaiZ.Display
             }
 
             statusImage.sprite = GetFoodSprite(food);
-            ApplyFoodBottomAlignment(index, statusImage);
+            if (mealFoodDisplay == null) ApplyFoodBottomAlignment(index, statusImage);
             statusImage.enabled = statusImage.sprite != null;
         }
 
         private Sprite GetFoodSprite(FoodType food)
         {
+            if (mealFoodDisplay != null) return mealFoodDisplay.GetSprite(food);
             int foodIndex = (int)food - (int)FoodType.Food1;
             if (foodPrefabs == null || foodIndex < 0 || foodIndex >= foodPrefabs.Length)
             {

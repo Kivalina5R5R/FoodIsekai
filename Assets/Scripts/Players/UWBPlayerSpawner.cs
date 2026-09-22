@@ -1,3 +1,4 @@
+using FoodIsekaiZ.Display;
 using System;
 using System.Collections.Generic;
 using Fortal.UWB;
@@ -33,6 +34,7 @@ namespace FoodIsekaiZ.Players
         [Tooltip("Required authored player prefab, including its plate and inventory display.")]
         [SerializeField] private UWBPlayerController playerPrefab;
         [SerializeField] private Transform playerParent;
+        [SerializeField] private MealFoodDisplay mealFoodDisplay;
         [SerializeField] private bool spawnOnStart = true;
         [Tooltip("Spawn unassigned tag markers; the ready phase chooses Player 1-4 before gameplay.")]
         [SerializeField] private bool selectPlayerNumberBeforeGameplay;
@@ -218,6 +220,7 @@ namespace FoodIsekaiZ.Players
         private UWBPlayerController CreatePlayer(Transform targetParent)
         {
             UWBPlayerController instance = Instantiate(playerPrefab, targetParent);
+            instance.GetComponentInChildren<PlayerPlateDisplay>(true)?.BindMealDisplay(mealFoodDisplay);
             instance.gameObject.SetActive(false);
             return instance;
         }

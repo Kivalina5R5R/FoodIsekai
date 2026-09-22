@@ -55,6 +55,7 @@ namespace FoodIsekaiZ.Display
         {
             yield return AnimateDialogue(false);
             if (breathing != null) breathing.EndIdle();
+            yield return BlendPose(1f);
             var rect = (RectTransform)transform;
             Vector3 startScale = rect.localScale;
             Quaternion startRotation = rect.localRotation;
@@ -68,7 +69,6 @@ namespace FoodIsekaiZ.Display
                 float t = Mathf.Clamp01(elapsed / turnSeconds);
                 float collapse = Mathf.Sin(t * Mathf.PI);
                 float easedCollapse = Mathf.SmoothStep(0f, 1f, collapse);
-                if (poseBlend != null) poseBlend.SetWalkingWeight(Mathf.SmoothStep(0f, 1f, t));
                 Vector3 scale = startScale;
                 scale.x *= Mathf.Lerp(1f, 0.78f, easedCollapse) * (t < 0.5f ? 1f : -1f);
                 scale.y *= 1f + 0.02f * easedCollapse;
@@ -87,7 +87,7 @@ namespace FoodIsekaiZ.Display
         {
             var rect = (RectTransform)transform;
             float distance = Vector2.Distance(start, destination);
-            float arrivalSeconds = Mathf.Max(arrivalStoppingSeconds, poseBlend != null ? poseBlend.FadeSeconds : 0f);
+            float arrivalSeconds = Mathf.Max(0.05f, arrivalStoppingSeconds);
             float stopDistance = exiting ? 0f : Mathf.Min(distance, .5f * speed * arrivalSeconds);
             float cruiseSeconds = (distance - stopDistance) / speed;
             float stopSeconds = stopDistance * 2f / speed;
@@ -116,8 +116,6 @@ namespace FoodIsekaiZ.Display
                     float settle = Mathf.SmoothStep(0f, 1f,
                         stopSeconds > 0f ? (elapsed - cruiseSeconds) / stopSeconds : 1f);
                     bob *= 1f - settle;
-                    if (poseBlend != null) poseBlend.SetWalkingWeight(1f - settle);
-                    if (breathing != null) breathing.BeginIdle();
                 }
                 rect.anchoredPosition = groundedPosition + Vector2.up * bob;
                 yield return null;
@@ -130,11 +128,29 @@ namespace FoodIsekaiZ.Display
                 gameObject.SetActive(false);
                 yield break;
             }
-            if (poseBlend != null) poseBlend.SetWalkingWeight(0f);
+            yield return BlendPose(0f);
             if (breathing != null) breathing.BeginIdle();
             yield return AnimateDialogue(true);
             HasOpenedDialogue = true;
             entrance = null;
+        }
+
+        // Finish changing pose at the grounded position before starting the next action.
+        private IEnumerator BlendPose(float targetWeight)
+        {
+            if (poseBlend == null) yield break;
+            float from = poseBlend.WalkingWeight;
+            if (Mathf.Approximately(from, targetWeight)) yield break;
+            float elapsed = 0f;
+            float duration = poseBlend.FadeSeconds;
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+                poseBlend.SetWalkingWeight(Mathf.Lerp(from, targetWeight, progress));
+                yield return null;
+            }
+            poseBlend.SetWalkingWeight(targetWeight);
         }
 
         private IEnumerator AnimateDialogue(bool show)

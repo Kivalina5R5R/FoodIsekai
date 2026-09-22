@@ -140,11 +140,11 @@ MonoBehaviour:
   foodImage: {fileID: 2603}
   drinkImage: {fileID: 3103}
   foodSprites:
-  - {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
-  - {fileID: 21300000, guid: 8e4af757cbf171247b66235ef3414c77, type: 3}
-  - {fileID: 21300000, guid: 44014d20e989d1242ab11b1bcf245d22, type: 3}
-  - {fileID: 21300000, guid: fadcb57d34848c141a860d2f95628d87, type: 3}
-  - {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  - {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+  - {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+  - {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+  - {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+  - {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   moneyVisual: {fileID: 2700}
   moneyAmount: {fileID: 2903}
   foodAppearEffect: {fileID: 2604}
@@ -722,7 +722,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 142391c9c8dff994c85bef3b30fec61e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -1123,7 +1123,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 60785b23e00c18041a006b6ab4a6ac40, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1

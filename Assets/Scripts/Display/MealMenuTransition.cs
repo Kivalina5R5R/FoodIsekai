@@ -28,6 +28,10 @@ namespace FoodIsekaiZ.Display
         private Vector2 headingRestPosition;
         private bool headingPositionCached;
         public bool IsCovered => visible && Mathf.Approximately(offset, 0f);
+        // Includes the cover, title hold, and reveal until the page is fully hidden.
+        public bool IsVisible => visible && gameObject.activeInHierarchy;
+        // Raised while the page still covers the scene, before every phase reveal.
+        public event System.Action RevealStarting;
         public override Texture mainTexture => pageArtwork != null ? pageArtwork.texture : base.mainTexture;
 
         protected override void OnEnable()
@@ -87,6 +91,7 @@ namespace FoodIsekaiZ.Display
 
         public IEnumerator Reveal()
         {
+            RevealStarting?.Invoke();
             if (titleHoldSeconds > 0f) yield return new WaitForSecondsRealtime(titleHoldSeconds);
             yield return Slide(1f, revealSeconds);
             Hide();
