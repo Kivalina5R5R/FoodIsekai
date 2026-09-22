@@ -312,7 +312,8 @@ namespace FoodIsekaiZ.Gameplay
         private bool HandleSimulationShortcut()
         {
             if (simulationModeSource == null || !simulationModeSource.IsSimulationMode ||
-                !useMealWaves || Keyboard.current == null || !Keyboard.current.nKey.wasPressedThisFrame)
+                !useMealWaves || phasePresentationPaused || Keyboard.current == null ||
+                !Keyboard.current.nKey.wasPressedThisFrame)
             {
                 return false;
             }
@@ -333,8 +334,15 @@ namespace FoodIsekaiZ.Gameplay
 
             if (!mealWaveFlowStarted) return false;
 
-            // Preserve earned scores and use the normal final report notification.
-            CompleteMealWaves();
+            // Skip directly to the next meal while preserving scores and the normal transition.
+            if (currentWaveIndex >= TotalWaveCount - 1)
+            {
+                CompleteMealWaves();
+                return true;
+            }
+
+            currentWaveIndex++;
+            BeginCurrentWave();
             return true;
         }
 

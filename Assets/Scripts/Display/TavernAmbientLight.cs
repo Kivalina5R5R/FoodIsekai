@@ -39,6 +39,10 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private Color dustColor = new Color(1f, 0.94f, 0.76f, 0.3f);
         [SerializeField, Range(0, 24)] private int dustPerWindow = 10;
         [SerializeField, Range(0f, 0.02f)] private float beamSway = 0.004f;
+        [SerializeField, Range(0, 80)] private int ambientParticleCount;
+        [SerializeField] private Color ambientParticleColor = new Color(1f, 0.93f, 0.73f, 0.35f);
+        [SerializeField] private Vector2 ambientParticleRadius = new Vector2(0.7f, 1.5f);
+        [SerializeField, Min(0.001f)] private float ambientParticleSpeed = 0.025f;
         private float nextRefresh;
 
         private void Update()
@@ -62,6 +66,7 @@ namespace FoodIsekaiZ.Display
                     DrawWindow(mesh, area, windows[i], i, time);
                 }
             }
+            DrawAmbientParticles(mesh, area, time);
             if (lamps == null) return;
             foreach (LampLight lamp in lamps)
             {
@@ -82,8 +87,8 @@ namespace FoodIsekaiZ.Display
             Vector2 start = ToLocal(area, window.Source);
             Vector2 end = ToLocal(area, window.End);
             end.x += Mathf.Sin(time * 0.18f + index * 1.7f) * beamSway * area.width;
-            Vector2 path = end - start;
-            Vector2 across = new Vector2(-path.y, path.x).normalized;
+            // Keep the beam's top edge level with the window sill, even for an angled ray.
+            Vector2 across = Vector2.right;
             int first = mesh.currentVertCount;
             for (int row = 0; row <= rows; row++)
             {
@@ -122,6 +127,26 @@ namespace FoodIsekaiZ.Display
         private static Vector2 ToLocal(Rect area, Vector2 normalized)
         {
             return area.min + Vector2.Scale(area.size, normalized);
+        }
+
+        private void DrawAmbientParticles(VertexHelper mesh, Rect area, float time)
+        {
+            for (int i = 0; i < ambientParticleCount; i++)
+            {
+                float seed = (i + 1) * 0.618034f;
+                float life = Mathf.Repeat(seed + time * ambientParticleSpeed *
+                    Mathf.Lerp(0.7f, 1.3f, Mathf.Repeat(seed * 3.17f, 1f)), 1f);
+                float x = Mathf.Lerp(0.18f, 0.82f, Mathf.Repeat(seed * 7.31f, 1f));
+                x += Mathf.Sin(time * 0.23f + seed * 19f) * 0.008f;
+                float y = Mathf.Lerp(0.12f, 0.78f, life);
+                Color tint = ambientParticleColor;
+                // Fade at both ends so wrapping particles never pop into view.
+                tint.a *= Mathf.Pow(Mathf.Sin(life * Mathf.PI), 2f);
+                tint.a *= 0.8f + 0.2f * Mathf.Sin(time * 0.9f + seed * 23f);
+                float radius = Mathf.Lerp(ambientParticleRadius.x, ambientParticleRadius.y,
+                    Mathf.Repeat(seed * 5.73f, 1f)) * area.height / 435f;
+                DrawGlow(mesh, ToLocal(area, new Vector2(x, y)), Vector2.one * radius, tint);
+            }
         }
 
         private static void DrawGlow(VertexHelper mesh, Vector2 center, Vector2 radius, Color tint)

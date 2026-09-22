@@ -128,8 +128,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 44333748}
-  - component: {fileID: 44333750}
-  - component: {fileID: 44333749}
+  - component: {fileID: 2161330000}
   m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
@@ -149,7 +148,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2161060001}
+  - {fileID: 2161340001}
   - {fileID: 2161070001}
   - {fileID: 2096100001}
   m_Father: {fileID: 1595694064}
@@ -165,7 +164,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 44333747}
+  m_GameObject: {fileID: 2161340000}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
@@ -179,7 +178,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 43895152f50ebaf479b433afda3d1f87, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d44e8d6fa682c2d46af277fb59315b91, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -195,7 +194,7 @@ CanvasRenderer:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 44333747}
+  m_GameObject: {fileID: 2161340000}
   m_CullTransparentMesh: 1
 --- !u!1 &57849070
 GameObject:
@@ -23926,7 +23925,7 @@ GameObject:
   - component: {fileID: 2161060003}
   - component: {fileID: 2161060004}
   m_Layer: 0
-  m_Name: Tavern Ambient Light
+  m_Name: Morning Ambient Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23944,7 +23943,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 44333748}
+  m_Father: {fileID: 2161340001}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -23980,36 +23979,40 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   windows:
-  - source: {x: 0.323, y: 0.6}
-    end: {x: 0.405, y: 0.06}
-    widths: {x: 0.032, y: 0.105}
-  - source: {x: 0.491, y: 0.62}
-    end: {x: 0.575, y: 0.04}
-    widths: {x: 0.048, y: 0.13}
-  - source: {x: 0.663, y: 0.6}
-    end: {x: 0.745, y: 0.07}
-    widths: {x: 0.032, y: 0.105}
+  - source: {x: 0.346, y: 0.44}
+    end: {x: 0.346, y: 0.02}
+    widths: {x: 0.055, y: 0.095}
+  - source: {x: 0.513, y: 0.44}
+    end: {x: 0.513, y: 0.02}
+    widths: {x: 0.085, y: 0.13}
+  - source: {x: 0.683, y: 0.44}
+    end: {x: 0.683, y: 0.02}
+    widths: {x: 0.055, y: 0.095}
   lamps:
-  - position: {x: 0.25, y: 0.884}
-    radius: {x: 0.026, y: 0.095}
-    tint: {r: 1, g: 0.68, b: 0.27, a: 0.15}
+  - position: {x: 0.272, y: 0.881}
+    radius: {x: 0.026, y: 0.0962}
+    tint: {r: 1, g: 0.70, b: 0.32, a: 0.07}
     phase: 0.3
-  - position: {x: 0.39, y: 0.748}
-    radius: {x: 0.02, y: 0.08}
-    tint: {r: 1, g: 0.72, b: 0.34, a: 0.13}
+  - position: {x: 0.411, y: 0.739}
+    radius: {x: 0.02, y: 0.074}
+    tint: {r: 1, g: 0.70, b: 0.32, a: 0.07}
     phase: 2.1
-  - position: {x: 0.733, y: 0.885}
-    radius: {x: 0.026, y: 0.095}
-    tint: {r: 1, g: 0.68, b: 0.27, a: 0.15}
+  - position: {x: 0.754, y: 0.883}
+    radius: {x: 0.026, y: 0.0962}
+    tint: {r: 1, g: 0.70, b: 0.32, a: 0.07}
     phase: 4.8
-  - position: {x: 0.249, y: 0.66}
-    radius: {x: 0.013, y: 0.055}
-    tint: {r: 0.43, g: 0.81, b: 1, a: 0.1}
+  - position: {x: 0.27, y: 0.656}
+    radius: {x: 0.013, y: 0.0481}
+    tint: {r: 0.43, g: 0.81, b: 1, a: 0.0455}
     phase: 6.2
-  sunlight: {r: 1, g: 0.89, b: 0.62, a: 0.085}
-  dustColor: {r: 1, g: 0.94, b: 0.76, a: 0.3}
-  dustPerWindow: 10
-  beamSway: 0.004
+  sunlight: {r: 1, g: 0.83, b: 0.53, a: 0.12}
+  dustColor: {r: 1, g: 0.91, b: 0.68, a: 0.26}
+  dustPerWindow: 16
+  beamSway: 0
+  ambientParticleCount: 36
+  ambientParticleColor: {r: 1, g: 0.90, b: 0.65, a: 0.42}
+  ambientParticleRadius: {x: 0.9, y: 1.8}
+  ambientParticleSpeed: 0.022
 --- !u!223 &2161060004
 Canvas:
   m_ObjectHideFlags: 0
@@ -24251,3 +24254,336 @@ SceneRoots:
   - {fileID: 2144607759}
   - {fileID: 2026098017}
   - {fileID: 1275446546}
+--- !u!1 &2161300000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2161300001}
+  - component: {fileID: 2161300003}
+  - component: {fileID: 2161300002}
+  m_Layer: 0
+  m_Name: BGFoodNight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &2161300001
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2161300000}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2161340001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2161300002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2161300000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 74fb978ea5510984e9d2a974303fc6c5, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &2161300003
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2161300000}
+  m_CullTransparentMesh: 1
+--- !u!1 &2161310000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2161310001}
+  - component: {fileID: 2161310002}
+  - component: {fileID: 2161310003}
+  m_Layer: 0
+  m_Name: Lunch Ambient Light
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &2161310001
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2161310000}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2161340001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &2161310002
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2161310000}
+  m_CullTransparentMesh: 1
+--- !u!114 &2161310003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2161310000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a319e0c696094fe4a3b66b2ba8b87222, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.TavernAmbientLight
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  windows:
+  - source: {x: 0.346, y: 0.44}
+    end: {x: 0.346, y: 0.02}
+    widths: {x: 0.055, y: 0.095}
+  - source: {x: 0.513, y: 0.44}
+    end: {x: 0.513, y: 0.02}
+    widths: {x: 0.085, y: 0.13}
+  - source: {x: 0.683, y: 0.44}
+    end: {x: 0.683, y: 0.02}
+    widths: {x: 0.055, y: 0.095}
+  lamps:
+  - position: {x: 0.272, y: 0.881}
+    radius: {x: 0.026, y: 0.0962}
+    tint: {r: 1, g: 0.70, b: 0.32, a: 0.035}
+    phase: 0.3
+  - position: {x: 0.411, y: 0.739}
+    radius: {x: 0.02, y: 0.074}
+    tint: {r: 1, g: 0.70, b: 0.32, a: 0.035}
+    phase: 2.1
+  - position: {x: 0.754, y: 0.883}
+    radius: {x: 0.026, y: 0.0962}
+    tint: {r: 1, g: 0.70, b: 0.32, a: 0.035}
+    phase: 4.8
+  - position: {x: 0.27, y: 0.656}
+    radius: {x: 0.013, y: 0.0481}
+    tint: {r: 0.43, g: 0.81, b: 1, a: 0.02275}
+    phase: 6.2
+  sunlight: {r: 1, g: 0.97, b: 0.86, a: 0.19}
+  dustColor: {r: 1, g: 0.98, b: 0.89, a: 0.2}
+  dustPerWindow: 20
+  beamSway: 0
+  ambientParticleCount: 44
+  ambientParticleColor: {r: 1, g: 0.97, b: 0.85, a: 0.38}
+  ambientParticleRadius: {x: 0.9, y: 1.6}
+  ambientParticleSpeed: 0.026
+--- !u!1 &2161320000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2161320001}
+  - component: {fileID: 2161320002}
+  - component: {fileID: 2161320003}
+  m_Layer: 0
+  m_Name: Dinner Ambient Light
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &2161320001
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2161320000}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2161340001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &2161320002
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2161320000}
+  m_CullTransparentMesh: 1
+--- !u!114 &2161320003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2161320000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a319e0c696094fe4a3b66b2ba8b87222, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.TavernAmbientLight
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  windows:
+  - source: {x: 0.346, y: 0.44}
+    end: {x: 0.346, y: 0.02}
+    widths: {x: 0.055, y: 0.095}
+  - source: {x: 0.513, y: 0.44}
+    end: {x: 0.513, y: 0.02}
+    widths: {x: 0.085, y: 0.13}
+  - source: {x: 0.683, y: 0.44}
+    end: {x: 0.683, y: 0.02}
+    widths: {x: 0.055, y: 0.095}
+  lamps:
+  - position: {x: 0.272, y: 0.881}
+    radius: {x: 0.026, y: 0.0962}
+    tint: {r: 1, g: 0.70, b: 0.32, a: 0.19}
+    phase: 0.3
+  - position: {x: 0.411, y: 0.739}
+    radius: {x: 0.02, y: 0.074}
+    tint: {r: 1, g: 0.70, b: 0.32, a: 0.19}
+    phase: 2.1
+  - position: {x: 0.754, y: 0.883}
+    radius: {x: 0.026, y: 0.0962}
+    tint: {r: 1, g: 0.70, b: 0.32, a: 0.19}
+    phase: 4.8
+  - position: {x: 0.27, y: 0.656}
+    radius: {x: 0.013, y: 0.0481}
+    tint: {r: 0.43, g: 0.81, b: 1, a: 0.12350000000000001}
+    phase: 6.2
+  sunlight: {r: 0.43, g: 0.65, b: 1, a: 0.045}
+  dustColor: {r: 0.60, g: 0.76, b: 1, a: 0.10}
+  dustPerWindow: 10
+  beamSway: 0
+  ambientParticleCount: 32
+  ambientParticleColor: {r: 0.55, g: 0.77, b: 1, a: 0.48}
+  ambientParticleRadius: {x: 0.9, y: 2.0}
+  ambientParticleSpeed: 0.014
+--- !u!114 &2161330000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 44333747}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aeca73f8a2df4d74a61560cd3bb34e67, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MealBackgroundDisplay
+  gameManager: {fileID: 101588415}
+  nightBackground: {fileID: 2161300000}
+  morningLight: {fileID: 2161060000}
+  lunchLight: {fileID: 2161310000}
+  dinnerLight: {fileID: 2161320000}
+--- !u!1 &2161340000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2161340001}
+  - component: {fileID: 44333750}
+  - component: {fileID: 44333749}
+  m_Layer: 0
+  m_Name: Tavern Artwork
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2161340001
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2161340000}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2161300001}
+  - {fileID: 2161060001}
+  - {fileID: 2161310001}
+  - {fileID: 2161320001}
+  m_Father: {fileID: 44333748}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: -0.06943000, y: -0.01672414}
+  m_AnchorMax: {x: 1.04057000, y: 1.01672414}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
