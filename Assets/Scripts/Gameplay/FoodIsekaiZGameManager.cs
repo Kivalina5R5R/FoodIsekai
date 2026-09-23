@@ -171,6 +171,8 @@ namespace FoodIsekaiZ.Gameplay
         // Raised when a positive money pile cannot fit in this player's wallet.
         public event Action<FoodIsekaiZPlayerState, ArenaSlot2D> PlayerMoneyCollectionBlocked;
         public event Action<int, int> PlayerMoneyDeposited;
+        // Includes both manual deliveries and automatic deposits during the break.
+        public event Action<int> BankedMoneyChanged;
         // Carries both transaction endpoints for directional bank feedback.
         public event Action<FoodIsekaiZPlayerState, ArenaSlot2D, int> PlayerMoneyDelivered;
         public event Action<int, int> PlayerScoreChanged;
@@ -559,6 +561,7 @@ namespace FoodIsekaiZ.Gameplay
             }
             ChangeMealBehindCover("SERVICE BREAK", () =>
             {
+                SettleOutstandingMoney();
                 mealWavePhase = MealWavePhase.Intermission;
                 mealPhaseRemainingSeconds = Mathf.Max(0f, intermissionDurationSeconds);
                 lastNotifiedMealSecond = int.MinValue;
@@ -831,15 +834,45 @@ namespace FoodIsekaiZ.Gameplay
         private bool TryDepositMoney(FoodIsekaiZPlayerState player, ArenaSlot2D bank)
         {
             int deposited = player.DepositAllMoney();
-            if (deposited <= 0)
+            if (!CreditMoneyDeposit(player.PlayerId, deposited)) return false;
+
+            PlayerMoneyDelivered?.Invoke(player, bank, deposited);
+            return true;
+        }
+
+        // Settle once behind the break cover, before the intermission summary is shown.
+        private void SettleOutstandingMoney()
+        {
+            FoodIsekaiZPlayerState[] players = FindObjectsByType<FoodIsekaiZPlayerState>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (FoodIsekaiZPlayerState player in players)
             {
-                return false;
+                CreditMoneyDeposit(player.PlayerId, player.DepositAllMoney());
             }
 
-            totalBankedMoney += deposited;
-            AddPlayerAndTeamScore(player.PlayerId, bankDepositScore);
-            PlayerMoneyDeposited?.Invoke(player.PlayerId, deposited);
-            PlayerMoneyDelivered?.Invoke(player, bank, deposited);
+            if (customerSlots == null) return;
+            foreach (ArenaSlot2D slot in customerSlots)
+            {
+                if (slot == null || slot.CustomerState != CustomerSlotState.MoneyAvailable) continue;
+                CreditMoneyDeposit(0, slot.CollectMoney());
+            }
+        }
+
+        // Unclaimed NPC piles have no player owner, so their deposit bonus belongs only to the team.
+        private bool CreditMoneyDeposit(int playerId, int amount)
+        {
+            if (amount <= 0) return false;
+            totalBankedMoney += amount;
+            BankedMoneyChanged?.Invoke(totalBankedMoney);
+            if (playerId > 0)
+            {
+                AddPlayerAndTeamScore(playerId, bankDepositScore);
+                PlayerMoneyDeposited?.Invoke(playerId, amount);
+            }
+            else
+            {
+                AddTeamScore(bankDepositScore);
+            }
             return true;
         }
 

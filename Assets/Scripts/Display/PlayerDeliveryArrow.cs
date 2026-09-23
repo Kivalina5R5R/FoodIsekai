@@ -9,13 +9,19 @@ namespace FoodIsekaiZ.Display
     {
         [SerializeField] private FoodIsekaiZPlayerState playerState;
         [SerializeField, Min(0f)] private float plateClearance = 100f;
-        [SerializeField, Min(1f)] private float arrowLength = 56f;
-        [SerializeField, Min(1f)] private float arrowWidth = 42f;
+        [SerializeField, Min(1f)] private float arrowLength = 48f;
+        [SerializeField, Min(1f)] private float arrowWidth = 34f;
         [SerializeField, Min(0f)] private float outlineWidth = 4f;
         [SerializeField] private Color outlineColor = new Color(0.15f, 0.08f, 0.03f, 1f);
+        [SerializeField] private Color[] playerBorderColors;
+        [SerializeField, Min(0f)] private float trimWidth = 1.2f;
         [SerializeField] private Color trimColor = new Color(0.8f, 0.55f, 0.25f, 1f);
         [SerializeField] private Color sealColor = new Color(0.65f, 0.16f, 0.2f, 1f);
-        [SerializeField, Min(0f)] private float pulseDistance = 5f;
+        [SerializeField, Min(0f)] private float pulseDistance = 6f;
+        [SerializeField, Min(0.2f)] private float pulseSeconds = 1.4f;
+        [SerializeField, Range(1f, 1.5f)] private float pulseScale = 1.08f;
+        [SerializeField, Min(0f)] private float glowWidth = 2.5f;
+        [SerializeField] private Color glowColor = new Color(1f, 0.92f, 0.6f, 0.35f);
 
         private static readonly Vector2[] ArrowContour =
         {
@@ -27,6 +33,8 @@ namespace FoodIsekaiZ.Display
         private FoodIsekaiZGameManager gameManager;
         private Vector2 direction;
         private bool hasTarget;
+        private const int CornerSteps = 5;
+        private readonly Vector2[] roundedContour = new Vector2[36];
 
         protected override void OnEnable()
         {
@@ -55,23 +63,33 @@ namespace FoodIsekaiZ.Display
         {
             mesh.Clear();
             if (!hasTarget) return;
-            float pulse = pulseDistance * (0.5f - 0.5f * Mathf.Cos(Time.unscaledTime * Mathf.PI * 2f));
-            Vector2 center = rectTransform.rect.center + direction * (plateClearance + arrowLength * 0.5f + pulse);
-            AddArrow(mesh, center, arrowLength + outlineWidth * 2f, arrowWidth + outlineWidth * 2f, outlineColor);
-            AddArrow(mesh, center, arrowLength, arrowWidth, trimColor);
-            AddArrow(mesh, center, arrowLength * 0.82f, arrowWidth * 0.76f, color);
-            Vector2 sealCenter = center - direction * (arrowLength * 0.12f);
-            AddSeal(mesh, sealCenter, arrowWidth * 0.15f, trimColor);
-            AddSeal(mesh, sealCenter, arrowWidth * 0.095f, sealColor);
+            float phase = Mathf.Repeat(Time.unscaledTime / Mathf.Max(0.2f, pulseSeconds), 1f);
+            float pulse = 0.5f - 0.5f * Mathf.Cos(phase * Mathf.PI * 2f);
+            float scale = Mathf.Lerp(1f, pulseScale, pulse);
+            float length = arrowLength * scale;
+            float width = arrowWidth * scale;
+            Vector2 center = rectTransform.rect.center + direction *
+                (plateClearance + length * 0.5f + pulseDistance * pulse);
+
+            // Animate mesh vertices and tints only; authored transforms and Graphic colors stay untouched.
+            Color glow = glowColor;
+            glow.a *= Mathf.Lerp(0.35f, 1f, pulse);
+            int playerIndex = playerState != null ? playerState.PlayerId - 1 : -1;
+            Color border = playerBorderColors != null && playerIndex >= 0 && playerIndex < playerBorderColors.Length
+                ? playerBorderColors[playerIndex] : outlineColor;
+            BuildContour(length, width);
+            AddArrow(mesh, center, outlineWidth + trimWidth + glowWidth, glow);
+            AddArrow(mesh, center, outlineWidth + trimWidth, trimColor);
+            AddArrow(mesh, center, outlineWidth, border);
+            AddArrow(mesh, center, 0f, color);
+            Vector2 sealCenter = center - direction * (length * 0.12f);
+            AddSeal(mesh, sealCenter, width * 0.15f, trimColor);
+            AddSeal(mesh, sealCenter, width * 0.095f, sealColor);
         }
 
         // Keep the original ribbon silhouette, with balanced shoulders and a shallow split tail.
-        private void AddArrow(VertexHelper mesh, Vector2 center, float length, float width, Color tint)
+        private void BuildContour(float length, float width)
         {
-            Vector2 right = new Vector2(direction.y, -direction.x);
-            int first = mesh.currentVertCount;
-            mesh.AddVert(center, tint, Vector2.zero);
-            const int cornerSteps = 5;
             for (int i = 0; i < ArrowContour.Length; i++)
             {
                 Vector2 corner = ArrowContour[i];
@@ -80,18 +98,43 @@ namespace FoodIsekaiZ.Display
                 float rounding = i == 0 ? 0.06f : 0.1f;
                 Vector2 start = Vector2.Lerp(corner, previous, rounding);
                 Vector2 end = Vector2.Lerp(corner, next, rounding);
-                for (int step = 0; step <= cornerSteps; step++)
+                for (int step = 0; step <= CornerSteps; step++)
                 {
-                    float t = step / (float)cornerSteps;
+                    float t = step / (float)CornerSteps;
                     Vector2 point = (1f - t) * (1f - t) * start +
                         2f * (1f - t) * t * corner + t * t * end;
-                    mesh.AddVert(center + right * (point.x * width) + direction * (point.y * length),
-                        tint, Vector2.zero);
+                    roundedContour[i * (CornerSteps + 1) + step] = new Vector2(point.x * width, point.y * length);
                 }
             }
-            int contourCount = ArrowContour.Length * (cornerSteps + 1);
-            for (int i = 0; i < contourCount; i++)
-                mesh.AddTriangle(first, first + i + 1, first + (i + 1) % contourCount + 1);
+        }
+
+        // Offset parallel edges by a fixed distance instead of scaling the silhouette.
+        // Intersecting adjacent offset edges keeps the tip and recessed tail equally thick.
+        private Vector2 OffsetPoint(int index, float distance)
+        {
+            int count = roundedContour.Length;
+            Vector2 point = roundedContour[index];
+            Vector2 incoming = (point - roundedContour[(index + count - 1) % count]).normalized;
+            Vector2 outgoing = (roundedContour[(index + 1) % count] - point).normalized;
+            Vector2 incomingNormal = new Vector2(incoming.y, -incoming.x);
+            Vector2 outgoingNormal = new Vector2(outgoing.y, -outgoing.x);
+            Vector2 bisector = incomingNormal + outgoingNormal;
+            float denominator = Vector2.Dot(bisector, outgoingNormal);
+            return point + bisector * (distance / Mathf.Max(0.001f, denominator));
+        }
+
+        private void AddArrow(VertexHelper mesh, Vector2 center, float offset, Color tint)
+        {
+            Vector2 right = new Vector2(direction.y, -direction.x);
+            int first = mesh.currentVertCount;
+            mesh.AddVert(center, tint, Vector2.zero);
+            for (int i = 0; i < roundedContour.Length; i++)
+            {
+                Vector2 point = OffsetPoint(i, offset);
+                mesh.AddVert(center + right * point.x + direction * point.y, tint, Vector2.zero);
+            }
+            for (int i = 0; i < roundedContour.Length; i++)
+                mesh.AddTriangle(first, first + i + 1, first + (i + 1) % roundedContour.Length + 1);
         }
 
         private void AddSeal(VertexHelper mesh, Vector2 center, float radius, Color tint)

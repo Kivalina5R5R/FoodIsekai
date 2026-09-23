@@ -17,6 +17,11 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private Image bankPurse;
         [SerializeField] private MealFoodSwapEffect bankTransition;
         private int displayedMeal = -1;
+        private bool stationsHidden;
+
+        private bool IsBreakOrResults => gameManager != null && gameManager.UsesMealWaves &&
+            (gameManager.CurrentMealWavePhase == MealWavePhase.Intermission ||
+             gameManager.CurrentMealWavePhase == MealWavePhase.Completed);
 
         public int MealIndex => gameManager != null && gameManager.UsesMealWaves
             ? Mathf.Clamp(gameManager.CurrentWaveNumber - 1, 0, 2) : 0;
@@ -39,6 +44,11 @@ namespace FoodIsekaiZ.Display
 
         private void RevealStations()
         {
+            if (IsBreakOrResults)
+            {
+                HideStations();
+                return;
+            }
             RefreshStations();
             if (bankTransition != null && bankPurse != null)
                 bankTransition.PlayReveal(bankPurse.sprite, menuTransition);
@@ -53,6 +63,7 @@ namespace FoodIsekaiZ.Display
         private void OnEnable()
         {
             displayedMeal = -1;
+            stationsHidden = false;
             if (menuTransition != null) menuTransition.RevealStarting += RevealStations;
             if (gameManager != null) gameManager.MealWaveDisplayChanged += RefreshStations;
             RefreshStations();
@@ -66,11 +77,21 @@ namespace FoodIsekaiZ.Display
 
         private void RefreshStations()
         {
+            if (IsBreakOrResults)
+            {
+                HideStations();
+                return;
+            }
             if (stationImages == null) return;
             int meal = MealIndex;
-            if (displayedMeal == meal) return;
+            if (displayedMeal == meal && !stationsHidden) return;
+            bool reveal = stationsHidden;
+            stationsHidden = false;
             bool animate = displayedMeal >= 0;
             displayedMeal = meal;
+            if (reveal && bankTransition != null && bankPurse != null)
+                bankTransition.PlayReveal(bankPurse.sprite, menuTransition);
+            else if (reveal && bankPurse != null) bankPurse.enabled = true;
             for (int i = 0; i < stationImages.Length; i++)
             {
                 Sprite sprite = GetSprite((FoodType)(i + (int)FoodType.Food1));
@@ -78,11 +99,32 @@ namespace FoodIsekaiZ.Display
                     ? stationTransitions[i] : null;
                 if (transition != null)
                 {
-                    if (animate && (menuTransition == null || !menuTransition.IsVisible)) transition.Play(sprite);
+                    if (reveal || (menuTransition != null && menuTransition.IsVisible))
+                        transition.PlayReveal(sprite, menuTransition);
+                    else if (animate && (menuTransition == null || !menuTransition.IsVisible)) transition.Play(sprite);
                     else transition.ShowImmediately(sprite);
                 }
                 else if (stationImages[i] != null)
+                {
                     stationImages[i].sprite = sprite;
+                    stationImages[i].enabled = true;
+                }
+            }
+        }
+
+        private void HideStations()
+        {
+            if (stationsHidden) return;
+            stationsHidden = true;
+            if (bankTransition != null) bankTransition.PlayHide(menuTransition);
+            else if (bankPurse != null) bankPurse.enabled = false;
+            if (stationImages == null) return;
+            for (int i = 0; i < stationImages.Length; i++)
+            {
+                MealFoodSwapEffect transition = stationTransitions != null && i < stationTransitions.Length
+                    ? stationTransitions[i] : null;
+                if (transition != null) transition.PlayHide(menuTransition);
+                else if (stationImages[i] != null) stationImages[i].enabled = false;
             }
         }
     }

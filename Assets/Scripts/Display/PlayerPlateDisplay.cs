@@ -13,10 +13,11 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private TMP_Text playerName;
         [SerializeField] private Image foodImage;
         [SerializeField] private Image drinkImage;
+        [SerializeField] private Image[] authoredFoodImages;
         [SerializeField] private Sprite[] foodSprites;
         [SerializeField] private MealFoodDisplay mealFoodDisplay;
         [SerializeField] private GameObject moneyVisual;
-        [SerializeField] private TMP_Text moneyAmount;
+        [SerializeField] private PlayerMoneyMeter moneyMeter;
         [SerializeField] private InventoryAppearEffect foodAppearEffect;
         [SerializeField] private InventoryAppearEffect drinkAppearEffect;
         [SerializeField] private InventoryAppearEffect moneyAppearEffect;
@@ -45,6 +46,7 @@ namespace FoodIsekaiZ.Display
             displayedFood = (FoodType)(-1);
             foodImage.enabled = false;
             if (drinkImage != null) drinkImage.enabled = false;
+            HideAuthoredFood();
         }
 
         private void OnDisable()
@@ -94,7 +96,7 @@ namespace FoodIsekaiZ.Display
                 bool receivedMoney = playerState.CarriedMoney > displayedMoney && playerState.CarriedMoney > 0;
                 displayedMoney = playerState.CarriedMoney;
                 moneyVisual.SetActive(displayedMoney > 0);
-                moneyAmount.text = displayedMoney > 0 ? displayedMoney.ToString() : string.Empty;
+                moneyMeter?.SetAmount(displayedMoney, playerState.MaximumCarriedMoney);
                 if (receivedMoney)
                 {
                     moneyAppearEffect?.Play();
@@ -108,6 +110,20 @@ namespace FoodIsekaiZ.Display
             Sprite sprite = mealFoodDisplay != null ? mealFoodDisplay.GetSprite(displayedFood)
                 : foodSprites != null && foodIndex >= 0 && foodIndex < foodSprites.Length ? foodSprites[foodIndex] : null;
             bool hasFood = sprite != null;
+            HideAuthoredFood();
+            if (authoredFoodImages != null && authoredFoodImages.Length > 0)
+            {
+                foodImage.enabled = false;
+                if (drinkImage != null) drinkImage.enabled = false;
+                foreach (Image image in authoredFoodImages)
+                {
+                    if (image == null || !hasFood || image.sprite != sprite) continue;
+                    image.enabled = true;
+                    image.GetComponent<InventoryAppearEffect>()?.PlayGrow();
+                    return;
+                }
+            }
+
             bool showDrink = hasFood && displayedFood == FoodType.Food5 && drinkImage != null;
             foodImage.enabled = hasFood && !showDrink;
             if (drinkImage != null)
@@ -125,6 +141,15 @@ namespace FoodIsekaiZ.Display
             {
                 InventoryAppearEffect effect = showDrink ? drinkAppearEffect : foodAppearEffect;
                 effect?.PlayGrow();
+            }
+        }
+
+        private void HideAuthoredFood()
+        {
+            if (authoredFoodImages == null) return;
+            foreach (Image image in authoredFoodImages)
+            {
+                if (image != null) image.enabled = false;
             }
         }
     }

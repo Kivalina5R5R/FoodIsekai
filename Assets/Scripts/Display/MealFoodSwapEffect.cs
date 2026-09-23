@@ -12,10 +12,14 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private CustomerPanelSuccessParticles revealParticles;
         [SerializeField, Min(0.01f)] private float anticipationSeconds = 0.16f;
         [SerializeField, Min(0.01f)] private float shrinkSeconds = 0.22f;
-        [SerializeField, Min(0.01f)] private float growSeconds = 0.28f;
-        [SerializeField, Min(0.01f)] private float settleSeconds = 0.2f;
+        [SerializeField, Min(0.01f)] private float growSeconds = 0.45f;
+        [SerializeField, Min(0.01f)] private float settleSeconds = 0.4f;
         [SerializeField, Range(1f, 1.5f)] private float outgoingScale = 1.16f;
-        [SerializeField, Range(1f, 1.5f)] private float incomingScale = 1.24f;
+        [SerializeField, Range(1f, 2f)] private float incomingScale = 1.5f;
+        // Keep the swell and disappearance connected without a stationary hold at the peak.
+        [SerializeField, Range(1f, 2f)] private float hidePeakScale = 1.45f;
+        [SerializeField, Min(0.01f)] private float hideEnlargeSeconds = 0.35f;
+        [SerializeField, Min(0.01f)] private float hideShrinkSeconds = 0.58f;
 
         private Sprite nextSprite;
         private float elapsed;
@@ -23,12 +27,18 @@ namespace FoodIsekaiZ.Display
         private bool playing;
         private bool swapped;
         private bool particlesPlayed;
+        private bool hiding;
+        private float hideStartScale;
         private MealMenuTransition revealGate;
+
+        // Companion labels follow the icon's visibility during meal transitions.
+        public bool IsIconVisible => meshScale > 0.01f;
 
         // Initialization and disabled displays use the final sprite immediately.
         public void ShowImmediately(Sprite sprite)
         {
             playing = false;
+            hiding = false;
             revealGate = null;
             nextSprite = sprite;
             meshScale = 1f;
@@ -73,8 +83,26 @@ namespace FoodIsekaiZ.Display
 
         protected override void OnDisable()
         {
-            if (playing) ShowImmediately(nextSprite);
+            if (hiding)
+            {
+                meshScale = 0f;
+                playing = false;
+                revealGate = null;
+            }
+            else if (playing) ShowImmediately(nextSprite);
             base.OnDisable();
+        }
+
+        // After the page transition, enlarge the outgoing icon before shrinking it away.
+        public void PlayHide(MealMenuTransition waitForTransition = null)
+        {
+            if (hiding) return;
+            hiding = true;
+            hideStartScale = meshScale;
+            elapsed = 0f;
+            revealGate = waitForTransition;
+            playing = true;
+            revealParticles?.Stop();
         }
 
         private void Update()
@@ -83,6 +111,24 @@ namespace FoodIsekaiZ.Display
             if (revealGate != null && revealGate.IsVisible) return;
             revealGate = null;
             elapsed += Time.unscaledDeltaTime;
+            if (hiding)
+            {
+                float enlargeDuration = Mathf.Max(0.01f, hideEnlargeSeconds);
+                float shrinkDuration = Mathf.Max(0.01f, hideShrinkSeconds);
+                float peakScale = hideStartScale * hidePeakScale;
+                if (elapsed < enlargeDuration)
+                    meshScale = SmootherScale(hideStartScale, peakScale, elapsed / enlargeDuration);
+                else
+                    meshScale = SmootherScale(peakScale, 0f, (elapsed - enlargeDuration) / shrinkDuration);
+                if (elapsed >= enlargeDuration + shrinkDuration)
+                {
+                    meshScale = 0f;
+                    playing = false;
+                    if (hideStartScale > 0f) revealParticles?.Play();
+                }
+                graphic.SetVerticesDirty();
+                return;
+            }
             float anticipation = Mathf.Max(0.01f, anticipationSeconds);
             float swapAt = anticipation + Mathf.Max(0.01f, shrinkSeconds);
             float peakAt = swapAt + Mathf.Max(0.01f, growSeconds);
@@ -105,9 +151,9 @@ namespace FoodIsekaiZ.Display
             else if (elapsed < swapAt)
                 meshScale = SmoothScale(outgoingScale, 0f, (elapsed - anticipation) / (swapAt - anticipation));
             else if (elapsed < peakAt)
-                meshScale = SmoothScale(0f, incomingScale, (elapsed - swapAt) / (peakAt - swapAt));
+                meshScale = SmootherScale(0f, incomingScale, (elapsed - swapAt) / (peakAt - swapAt));
             else
-                meshScale = SmoothScale(incomingScale, 1f, (elapsed - peakAt) / (finishAt - peakAt));
+                meshScale = SmootherScale(incomingScale, 1f, (elapsed - peakAt) / (finishAt - peakAt));
 
             if (elapsed >= finishAt)
             {
@@ -122,9 +168,17 @@ namespace FoodIsekaiZ.Display
             return Mathf.Lerp(from, to, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(progress)));
         }
 
+        // Zero velocity and acceleration at both ends avoid a sharp change at the swell's peak.
+        private static float SmootherScale(float from, float to, float progress)
+        {
+            float t = Mathf.Clamp01(progress);
+            float eased = t * t * t * (t * (6f * t - 15f) + 10f);
+            return Mathf.Lerp(from, to, eased);
+        }
+
         public override void ModifyMesh(VertexHelper vertices)
         {
-            if (!IsActive() || !playing) return;
+            if (!IsActive()) return;
             Vector3 center = graphic.rectTransform.rect.center;
             UIVertex vertex = default;
             for (int i = 0; i < vertices.currentVertCount; i++)

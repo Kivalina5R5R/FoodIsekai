@@ -1,4 +1,6 @@
 using FoodIsekaiZ.Gameplay;
+using System.Globalization;
+using TMPro;
 using UnityEngine;
 
 namespace FoodIsekaiZ.Display
@@ -10,6 +12,9 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private ArenaSlot2D slot;
         [SerializeField] private FloorCoinBurst coinBurst;
         [SerializeField] private BankPurseImage bankPurse;
+        [SerializeField] private TMP_Text bankBalanceText;
+        [SerializeField] private GameObject bankBalanceVisual;
+        [SerializeField] private MealFoodSwapEffect bankTransition;
 
         private void OnEnable()
         {
@@ -17,7 +22,8 @@ namespace FoodIsekaiZ.Display
             gameManager.CustomerMoneySpawned += HandlePayout;
             gameManager.PlayerMoneyCollected += HandleCollection;
             gameManager.PlayerMoneyDelivered += HandleDeposit;
-            bankPurse?.SetBalance(gameManager.TotalBankedMoney);
+            gameManager.BankedMoneyChanged += HandleBalanceChanged;
+            HandleBalanceChanged(gameManager.TotalBankedMoney);
         }
 
         private void OnDisable()
@@ -27,6 +33,7 @@ namespace FoodIsekaiZ.Display
                 gameManager.CustomerMoneySpawned -= HandlePayout;
                 gameManager.PlayerMoneyCollected -= HandleCollection;
                 gameManager.PlayerMoneyDelivered -= HandleDeposit;
+                gameManager.BankedMoneyChanged -= HandleBalanceChanged;
             }
             coinBurst?.Stop();
         }
@@ -47,6 +54,20 @@ namespace FoodIsekaiZ.Display
             bankPurse.SetBalance(gameManager.TotalBankedMoney);
             bankPurse.Pulse();
             coinBurst?.PlayTransfer(player.transform.position, bankPurse.transform.position);
+        }
+
+        private void HandleBalanceChanged(int balance)
+        {
+            bankPurse?.SetBalance(balance);
+            if (bankBalanceText != null)
+                bankBalanceText.text = balance.ToString("N0", CultureInfo.InvariantCulture);
+        }
+
+        private void LateUpdate()
+        {
+            if (bankBalanceVisual == null) return;
+            bool visible = bankTransition == null || bankTransition.IsIconVisible;
+            if (bankBalanceVisual.activeSelf != visible) bankBalanceVisual.SetActive(visible);
         }
     }
 }
