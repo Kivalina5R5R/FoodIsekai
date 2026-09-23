@@ -32,7 +32,7 @@ namespace FoodIsekaiZ.Display
         private MealMenuTransition revealGate;
 
         // Companion labels follow the icon's visibility during meal transitions.
-        public bool IsIconVisible => meshScale > 0.01f;
+        public bool IsIconVisible => foodImage != null && foodImage.enabled && meshScale > 0.01f;
 
         // Initialization and disabled displays use the final sprite immediately.
         public void ShowImmediately(Sprite sprite)
@@ -42,7 +42,11 @@ namespace FoodIsekaiZ.Display
             revealGate = null;
             nextSprite = sprite;
             meshScale = 1f;
-            if (foodImage != null) foodImage.sprite = sprite;
+            if (foodImage != null)
+            {
+                foodImage.sprite = sprite;
+                foodImage.enabled = sprite != null;
+            }
             revealParticles?.Stop();
             if (graphic != null) graphic.SetVerticesDirty();
         }
@@ -69,8 +73,10 @@ namespace FoodIsekaiZ.Display
         // Hold the incoming food at zero size until the optional menu transition finishes.
         public void PlayReveal(Sprite sprite, MealMenuTransition waitForTransition = null)
         {
-            ShowImmediately(sprite);
-            if (!isActiveAndEnabled || foodImage == null || sprite == null) return;
+            PrepareHidden(sprite);
+            // Prepare the hidden mesh even when gameplay's parent is still inactive.
+            // Otherwise enabling it shows the full icon before the reveal event hides it.
+            if (foodImage == null || sprite == null) return;
 
             elapsed = Mathf.Max(0.01f, anticipationSeconds) + Mathf.Max(0.01f, shrinkSeconds);
             meshScale = 0f;
@@ -81,6 +87,23 @@ namespace FoodIsekaiZ.Display
             graphic.SetVerticesDirty();
         }
 
+        // Disable drawing before assigning artwork, including any cached full-size canvas mesh.
+        public void PrepareHidden(Sprite sprite)
+        {
+            if (foodImage != null)
+            {
+                foodImage.enabled = false;
+                foodImage.sprite = sprite;
+            }
+            playing = false;
+            hiding = false;
+            revealGate = null;
+            nextSprite = sprite;
+            meshScale = 0f;
+            revealParticles?.Stop();
+            if (graphic != null) graphic.SetVerticesDirty();
+        }
+
         protected override void OnDisable()
         {
             if (hiding)
@@ -88,8 +111,10 @@ namespace FoodIsekaiZ.Display
                 meshScale = 0f;
                 playing = false;
                 revealGate = null;
+                RefreshImageVisibility();
             }
-            else if (playing) ShowImmediately(nextSprite);
+            // Retain a queued or partly played entrance across parent activation changes.
+            // Restoring full size here could expose it before the next reveal request.
             base.OnDisable();
         }
 
@@ -126,6 +151,7 @@ namespace FoodIsekaiZ.Display
                     playing = false;
                     if (hideStartScale > 0f) revealParticles?.Play();
                 }
+                RefreshImageVisibility();
                 graphic.SetVerticesDirty();
                 return;
             }
@@ -160,7 +186,13 @@ namespace FoodIsekaiZ.Display
                 meshScale = 1f;
                 playing = false;
             }
+            RefreshImageVisibility();
             graphic.SetVerticesDirty();
+        }
+
+        private void RefreshImageVisibility()
+        {
+            if (foodImage != null) foodImage.enabled = meshScale > 0.001f && foodImage.sprite != null;
         }
 
         private static float SmoothScale(float from, float to, float progress)

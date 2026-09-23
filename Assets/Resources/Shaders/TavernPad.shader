@@ -16,6 +16,7 @@ Shader "FoodIsekaiZ/Floor/Tavern Pad"
         _Style ("Guest 0 / Kitchen 1 / Bank 2", Float) = 0
         _WarningAmount ("Runtime warning", Range(0,1)) = 0
         _Visibility ("Runtime visibility", Range(0,1)) = 1
+        _RevealOpacity ("Entrance opacity", Range(0,1)) = 1
     }
     SubShader
     {
@@ -49,6 +50,7 @@ Shader "FoodIsekaiZ/Floor/Tavern Pad"
                 float _Style;
                 float _WarningAmount;
                 float _Visibility;
+                float _RevealOpacity;
                 float _UseArtwork;
                 float _ArtworkScale;
             CBUFFER_END
@@ -98,7 +100,7 @@ Shader "FoodIsekaiZ/Floor/Tavern Pad"
                 {
                     half4 artwork = SAMPLE_TEXTURE2D(_Artwork, sampler_Artwork, input.uv);
                     artwork.rgb = lerp(artwork.rgb, _AlertColor.rgb, saturate(_WarningAmount) * 0.35);
-                    return half4(artwork.rgb * _BaseColor.rgb, artwork.a * _BaseColor.a * _Visibility);
+                    return half4(artwork.rgb * _BaseColor.rgb, artwork.a * _BaseColor.a * _Visibility * _RevealOpacity);
                 }
 
                 float2 p = (input.uv - 0.5) * float2(_Aspect, 1);
@@ -172,7 +174,7 @@ Shader "FoodIsekaiZ/Floor/Tavern Pad"
 
                 // Gameplay supplies state only; the scene material owns alert styling.
                 result = lerp(result, _AlertColor.rgb, _WarningAmount * (0.18 * panel + 0.75 * brass * (1 - wood)));
-                return half4(result * _BaseColor.rgb, outer * _BaseColor.a * _Visibility);
+                return half4(result * _BaseColor.rgb, outer * _BaseColor.a * _Visibility * _RevealOpacity);
             }
             ENDHLSL
         }

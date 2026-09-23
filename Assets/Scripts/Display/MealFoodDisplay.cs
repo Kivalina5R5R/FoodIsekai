@@ -19,6 +19,9 @@ namespace FoodIsekaiZ.Display
         private int displayedMeal = -1;
         private bool stationsHidden;
 
+        private bool IsWaitingForFirstMeal => gameManager != null && (gameManager.IsWaitingForStartup ||
+            (gameManager.UsesMealWaves && gameManager.CurrentMealWavePhase == MealWavePhase.NotStarted));
+
         private bool IsBreakOrResults => gameManager != null && gameManager.UsesMealWaves &&
             (gameManager.CurrentMealWavePhase == MealWavePhase.Intermission ||
              gameManager.CurrentMealWavePhase == MealWavePhase.Completed);
@@ -44,6 +47,11 @@ namespace FoodIsekaiZ.Display
 
         private void RevealStations()
         {
+            if (IsWaitingForFirstMeal)
+            {
+                RefreshStations();
+                return;
+            }
             if (IsBreakOrResults)
             {
                 HideStations();
@@ -77,6 +85,19 @@ namespace FoodIsekaiZ.Display
 
         private void RefreshStations()
         {
+            // Scene initialization precedes the first covered meal. Never present full-size
+            // menu art in this interval, even if the station hierarchy becomes active first.
+            if (IsWaitingForFirstMeal)
+            {
+                stationsHidden = true;
+                if (bankTransition != null && bankPurse != null) bankTransition.PrepareHidden(bankPurse.sprite);
+                if (stationTransitions != null)
+                {
+                    for (int i = 0; i < stationTransitions.Length; i++)
+                        stationTransitions[i]?.PrepareHidden(GetSprite((FoodType)(i + (int)FoodType.Food1)));
+                }
+                return;
+            }
             if (IsBreakOrResults)
             {
                 HideStations();

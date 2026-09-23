@@ -1876,6 +1876,7 @@ GameObject:
   m_Component:
   - component: {fileID: 314790730}
   - component: {fileID: 314790731}
+  - component: {fileID: 2026300000}
   m_Layer: 0
   m_Name: BackgroundT1
   m_TagString: Untagged
@@ -3344,6 +3345,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 698791465}
+  - component: {fileID: 2026300100}
   m_Layer: 0
   m_Name: CustomerSlots
   m_TagString: Untagged
@@ -3853,6 +3855,7 @@ GameObject:
   m_Component:
   - component: {fileID: 876217316}
   - component: {fileID: 876217317}
+  - component: {fileID: 2026300001}
   m_Layer: 0
   m_Name: BackgroundT2
   m_TagString: Untagged
@@ -18302,6 +18305,8 @@ GameObject:
   - component: {fileID: 2026200111}
   - component: {fileID: 2026200112}
   - component: {fileID: 2026200113}
+  - component: {fileID: 2026300002}
+  - component: {fileID: 2026300003}
   m_Layer: 5
   m_Name: BG Food
   m_TagString: Untagged
@@ -18377,6 +18382,8 @@ GameObject:
   - component: {fileID: 2026200121}
   - component: {fileID: 2026200122}
   - component: {fileID: 2026200123}
+  - component: {fileID: 2026300004}
+  - component: {fileID: 2026300005}
   m_Layer: 5
   m_Name: BG NameFood
   m_TagString: Untagged
@@ -18452,6 +18459,8 @@ GameObject:
   - component: {fileID: 2026200131}
   - component: {fileID: 2026200132}
   - component: {fileID: 2026200133}
+  - component: {fileID: 2026300006}
+  - component: {fileID: 2026300007}
   m_Layer: 5
   m_Name: Food Name
   m_TagString: Untagged
@@ -18652,6 +18661,8 @@ GameObject:
   - component: {fileID: 2026200211}
   - component: {fileID: 2026200212}
   - component: {fileID: 2026200213}
+  - component: {fileID: 2026300008}
+  - component: {fileID: 2026300009}
   m_Layer: 5
   m_Name: BG Food
   m_TagString: Untagged
@@ -18727,6 +18738,8 @@ GameObject:
   - component: {fileID: 2026200221}
   - component: {fileID: 2026200222}
   - component: {fileID: 2026200223}
+  - component: {fileID: 2026300010}
+  - component: {fileID: 2026300011}
   m_Layer: 5
   m_Name: BG NameFood
   m_TagString: Untagged
@@ -18802,6 +18815,8 @@ GameObject:
   - component: {fileID: 2026200231}
   - component: {fileID: 2026200232}
   - component: {fileID: 2026200233}
+  - component: {fileID: 2026300012}
+  - component: {fileID: 2026300013}
   m_Layer: 5
   m_Name: Food Name
   m_TagString: Untagged
@@ -19002,6 +19017,8 @@ GameObject:
   - component: {fileID: 2026200311}
   - component: {fileID: 2026200312}
   - component: {fileID: 2026200313}
+  - component: {fileID: 2026300014}
+  - component: {fileID: 2026300015}
   m_Layer: 5
   m_Name: BG Food
   m_TagString: Untagged
@@ -19077,6 +19094,8 @@ GameObject:
   - component: {fileID: 2026200321}
   - component: {fileID: 2026200322}
   - component: {fileID: 2026200323}
+  - component: {fileID: 2026300016}
+  - component: {fileID: 2026300017}
   m_Layer: 5
   m_Name: BG NameFood
   m_TagString: Untagged
@@ -19152,6 +19171,8 @@ GameObject:
   - component: {fileID: 2026200331}
   - component: {fileID: 2026200332}
   - component: {fileID: 2026200333}
+  - component: {fileID: 2026300018}
+  - component: {fileID: 2026300019}
   m_Layer: 5
   m_Name: Food Name
   m_TagString: Untagged
@@ -19352,6 +19373,8 @@ GameObject:
   - component: {fileID: 2026200411}
   - component: {fileID: 2026200412}
   - component: {fileID: 2026200413}
+  - component: {fileID: 2026300020}
+  - component: {fileID: 2026300021}
   m_Layer: 5
   m_Name: BG Food
   m_TagString: Untagged
@@ -19427,6 +19450,8 @@ GameObject:
   - component: {fileID: 2026200421}
   - component: {fileID: 2026200422}
   - component: {fileID: 2026200423}
+  - component: {fileID: 2026300022}
+  - component: {fileID: 2026300023}
   m_Layer: 5
   m_Name: BG NameFood
   m_TagString: Untagged
@@ -19502,6 +19527,8 @@ GameObject:
   - component: {fileID: 2026200431}
   - component: {fileID: 2026200432}
   - component: {fileID: 2026200433}
+  - component: {fileID: 2026300024}
+  - component: {fileID: 2026300025}
   m_Layer: 5
   m_Name: Food Name
   m_TagString: Untagged
@@ -19702,6 +19729,8 @@ GameObject:
   - component: {fileID: 2026200511}
   - component: {fileID: 2026200512}
   - component: {fileID: 2026200513}
+  - component: {fileID: 2026300026}
+  - component: {fileID: 2026300027}
   m_Layer: 5
   m_Name: BG Food
   m_TagString: Untagged
@@ -19777,6 +19806,8 @@ GameObject:
   - component: {fileID: 2026200521}
   - component: {fileID: 2026200522}
   - component: {fileID: 2026200523}
+  - component: {fileID: 2026300028}
+  - component: {fileID: 2026300029}
   m_Layer: 5
   m_Name: BG NameFood
   m_TagString: Untagged
@@ -19852,6 +19883,8 @@ GameObject:
   - component: {fileID: 2026200531}
   - component: {fileID: 2026200532}
   - component: {fileID: 2026200533}
+  - component: {fileID: 2026300030}
+  - component: {fileID: 2026300031}
   m_Layer: 5
   m_Name: Food Name
   m_TagString: Untagged
@@ -20052,6 +20085,8 @@ GameObject:
   - component: {fileID: 2026200611}
   - component: {fileID: 2026200612}
   - component: {fileID: 2026200613}
+  - component: {fileID: 2026300032}
+  - component: {fileID: 2026300033}
   m_Layer: 5
   m_Name: BG Food
   m_TagString: Untagged
@@ -20127,6 +20162,8 @@ GameObject:
   - component: {fileID: 2026200621}
   - component: {fileID: 2026200622}
   - component: {fileID: 2026200623}
+  - component: {fileID: 2026300034}
+  - component: {fileID: 2026300035}
   m_Layer: 5
   m_Name: BG NameFood
   m_TagString: Untagged
@@ -20202,6 +20239,8 @@ GameObject:
   - component: {fileID: 2026200631}
   - component: {fileID: 2026200632}
   - component: {fileID: 2026200633}
+  - component: {fileID: 2026300036}
+  - component: {fileID: 2026300037}
   m_Layer: 5
   m_Name: Food Name
   m_TagString: Untagged
@@ -25436,3 +25475,559 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &2026300000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 314790729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f31d073157f74fd8a1bb29224952f94e, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorTableFade
+  table: {fileID: 314790731}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+--- !u!114 &2026300001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 876217315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f31d073157f74fd8a1bb29224952f94e, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorTableFade
+  table: {fileID: 876217317}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+--- !u!225 &2026300002
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200110}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300002}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300004
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200120}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300004}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300006
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200130}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300006}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300008
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200210}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300008}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300010
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200220}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300010}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300012
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200230}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300012}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300014
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200310}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300014}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300016
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200320}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300016}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300018
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200330}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300018}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300020
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200410}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300020}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300022
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200420}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300022}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300024
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200430}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300024}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300026
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200510}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300026}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300028
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200520}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300028}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300030
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200530}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300030}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300032
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200610}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300032}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300034
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200620}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300034}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!225 &2026300036
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200630}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2026300037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026200630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00ceaaacac4a4b70932cebd3e03cb898, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.FloorDecorFade
+  visibility: {fileID: 2026300036}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06
+--- !u!114 &2026300100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 698791464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57be914c8a62457b99d624613587325f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerSlotsFade
+  slotRenderers:
+  - {fileID: 210079176}
+  - {fileID: 478382151}
+  - {fileID: 823862594}
+  - {fileID: 911444996}
+  - {fileID: 2005000004}
+  - {fileID: 2006000004}
+  revealGate: {fileID: 2161070003}
+  duration: 0.7
+  delay: 0.06

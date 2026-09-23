@@ -1,4 +1,5 @@
 using FoodIsekaiZ.Gameplay;
+using FoodIsekaiZ.Display;
 using Fortal.UWB;
 using UnityEngine;
 
@@ -31,6 +32,7 @@ namespace FoodIsekaiZ.Players
         [Header("Player Plate")]
         [SerializeField] private GameObject authoredMarker;
         [SerializeField] private GameObject selectionMarker;
+        [SerializeField] private PlayerMarkerTransition markerTransition;
 
         [Header("Runtime (Read Only)")]
         [SerializeField] private bool isTracking;
@@ -290,11 +292,16 @@ namespace FoodIsekaiZ.Players
         private void SetPlayerMarkerVisible(bool visible)
         {
             bool showPlate = visible && !selectingPlayerNumber;
+            bool showCircle = visible && selectingPlayerNumber && selectionMarkerVisible;
+            if (markerTransition != null)
+            {
+                markerTransition.SetVisible(showPlate, showCircle);
+                return;
+            }
             if (authoredMarker != null && authoredMarker.activeSelf != showPlate)
             {
                 authoredMarker.SetActive(showPlate);
             }
-            bool showCircle = visible && selectingPlayerNumber && selectionMarkerVisible;
             if (selectionMarker != null && selectionMarker.activeSelf != showCircle)
             {
                 selectionMarker.SetActive(showCircle);

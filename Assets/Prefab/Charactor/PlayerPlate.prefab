@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1005}
   - component: {fileID: 1006}
   - component: {fileID: 1007}
+  - component: {fileID: 6200}
   m_Layer: 0
   m_Name: Player Plate
   m_TagString: Untagged
@@ -100,6 +101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Players.UWBPlayerController
   authoredMarker: {fileID: 2000}
   selectionMarker: {fileID: 4000}
+  markerTransition: {fileID: 6200}
   playerScale: 1
   floorHeight: 0.12
 --- !u!114 &1006
@@ -176,6 +178,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2001}
   - component: {fileID: 2002}
+  - component: {fileID: 6201}
   m_Layer: 0
   m_Name: Plate Canvas
   m_TagString: Untagged
@@ -1025,6 +1028,7 @@ GameObject:
   - component: {fileID: 3001}
   - component: {fileID: 3002}
   - component: {fileID: 3003}
+  - component: {fileID: 6210}
   m_Layer: 0
   m_Name: Player Background
   m_TagString: Untagged
@@ -1214,6 +1218,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4001}
   - component: {fileID: 4002}
+  - component: {fileID: 6202}
   m_Layer: 5
   m_Name: Selection Marker
   m_TagString: Untagged
@@ -1275,6 +1280,7 @@ GameObject:
   - component: {fileID: 4101}
   - component: {fileID: 4102}
   - component: {fileID: 4103}
+  - component: {fileID: 6211}
   m_Layer: 5
   m_Name: Tag Circle
   m_TagString: Untagged
@@ -2833,3 +2839,70 @@ MonoBehaviour:
   highlightColor: {r: 1, g: 0.95, b: 0.83, a: 1}
   jewelColor: {r: 0.69, g: 0.48, b: 0.34, a: 1}
   fillSeconds: 0.2
+--- !u!114 &6200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2931d69759344b5bba5afdb2096e7f01, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.PlayerMarkerTransition
+  plate: {fileID: 6201}
+  selection: {fileID: 6202}
+  plateShape: {fileID: 6210}
+  selectionShape: {fileID: 6211}
+  duration: 0.68
+  plateStartScale: 0.94
+  selectionEndScale: 1.12
+--- !u!225 &6201
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2000}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!225 &6202
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4000}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &6210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7411ec2b714f4b4caf01aa7539e47b53, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MarkerBlendMesh
+--- !u!114 &6211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7411ec2b714f4b4caf01aa7539e47b53, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MarkerBlendMesh
