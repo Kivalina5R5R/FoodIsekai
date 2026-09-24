@@ -231,10 +231,11 @@ namespace FoodIsekaiZ.Display
             rankedPlayerIds.Clear();
             if (playerSpawner != null)
             {
-                // Offline players and players with zero points still belong in the final standings.
+                // Ready selection leaves unselected tags at PlayerId 0; they have no result row.
+                // Assigned players remain in the standings even when offline or on zero points.
                 foreach (UWBPlayerController player in playerSpawner.SpawnedPlayers)
                 {
-                    if (player != null && !rankedPlayerIds.Contains(player.PlayerId))
+                    if (player != null && player.PlayerId > 0 && !rankedPlayerIds.Contains(player.PlayerId))
                         rankedPlayerIds.Add(player.PlayerId);
                 }
             }

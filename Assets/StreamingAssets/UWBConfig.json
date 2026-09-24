@@ -7,9 +7,9 @@
         "rawZTo": "none"
     },
     "UWBInputOffset": {
-        "x": -5.3,
+        "x": -5.9,
         "y": 0.0,
-        "z": 1.25
+        "z": 1.95
     },
     "metersToWorldScale": 1.0,
     "tracking": {
