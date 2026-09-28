@@ -20,10 +20,6 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private UWBPlayerSpawner playerSpawner;
         [SerializeField] private TopHudVisibility topHudVisibility;
         [SerializeField] private MealMenuTransition menuTransition;
-        [SerializeField] private TMP_Text breakScoreText;
-        [SerializeField] private TMP_Text breakMvpText;
-        [SerializeField] private TMP_Text breakCountdownText;
-        [SerializeField] private TMP_Text breakNextMealText;
         private TMP_Text resultScoreText;
         private readonly TMP_Text[] resultNames = new TMP_Text[4];
         private readonly TMP_Text[] resultScores = new TMP_Text[4];
@@ -290,16 +286,6 @@ namespace FoodIsekaiZ.Display
                 previousWave = gameManager.CurrentWaveNumber;
             }
             GameObject nextExclusivePanel = complete ? resultsPanel : intermission ? breakPanel : null;
-            if (intermission)
-            {
-                if (breakScoreText != null) breakScoreText.text = gameManager.TeamScore.ToString();
-                if (breakMvpText != null)
-                    breakMvpText.text = gameManager.TryGetMvp(out int mvpPlayerId, out _)
-                        ? $"MVP : Player{mvpPlayerId}" : "MVP : --";
-                if (breakCountdownText != null)
-                    breakCountdownText.text = Mathf.Max(0, Mathf.CeilToInt(gameManager.MealPhaseRemainingSeconds)).ToString("00");
-                if (breakNextMealText != null) breakNextMealText.text = $"NEXT {gameManager.NextWaveName}";
-            }
             if (exclusivePanel != null) HideOtherUi(exclusivePanel);
             if (complete) RefreshResults();
             if (requestedPanel == nextExclusivePanel && !showMenu) return;

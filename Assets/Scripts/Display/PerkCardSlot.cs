@@ -8,8 +8,20 @@ namespace FoodIsekaiZ.Display
     {
         [SerializeField] private Transform artworkParent;
         private GameObject artwork;
+        private PerkCardAnimation presentation;
 
-        public void SetOffer(PerkOffer offer, GameObject prefab)
+        public bool IsHidden => !gameObject.activeInHierarchy || presentation == null || presentation.IsHidden;
+        public bool HasRevealed => !gameObject.activeInHierarchy || presentation == null || presentation.HasRevealed;
+
+        private void Awake() => presentation = GetComponent<PerkCardAnimation>();
+
+        public void Hide()
+        {
+            presentation = GetComponent<PerkCardAnimation>();
+            if (presentation != null) presentation.Hide();
+        }
+
+        public void SetOffer(PerkOffer offer, GameObject prefab, bool bigPerk)
         {
             if (artwork != null)
             {
@@ -17,6 +29,8 @@ namespace FoodIsekaiZ.Display
                 Destroy(artwork);
             }
             artwork = prefab != null ? Instantiate(prefab, artworkParent, false) : null;
+            var frameEffect = GetComponentInChildren<PerkCardSparkles>(true);
+            if (frameEffect != null) frameEffect.SetTier(bigPerk);
             gameObject.SetActive(offer != null && artwork != null);
         }
     }

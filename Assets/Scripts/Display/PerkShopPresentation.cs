@@ -25,14 +25,17 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private PerkCardSlot[] slots;
         [SerializeField] private PerkFloorZone[] zones;
         [SerializeField] private TMP_Text walletText;
-        [SerializeField] private TMP_Text countdownText;
+        private TMP_Text countdownText;
         [SerializeField, Min(0.1f)] private float holdSeconds = 1.5f;
         [SerializeField, HideInInspector] private int layoutRevision;
         private PerkShopSession session;
         private PerkSelectionHold[] holds;
         private bool entranceStarted;
         private bool selectionStarted;
+        private bool wallShown;
+        private bool floorShown;
         private bool closing;
+        private bool departureStarted;
 
         public int LayoutRevision => layoutRevision;
         public bool CanCountDown => selectionStarted && !closing && guide != null && guide.HasFinishedSpeaking;
@@ -49,20 +52,28 @@ namespace FoodIsekaiZ.Display
                 enabled = false;
                 return;
             }
+            countdownText = guide.transform.Find("TextPerk/Time/TextTime")?.GetComponent<TMP_Text>();
             if (session == null) session = new PerkShopSession(gameManager, new System.Random());
             bool big = gameManager.CurrentWaveNumber >= 2;
             session.Open(catalog.GetOffers(big), big, gameManager.CurrentWaveNumber + 1);
+            // These messages also reach Player.log on the installation computer.
+            Debug.Log($"[PerkShop] Open: version={Application.version}, tier={(big ? "Big" : "Small")}, offers={session.Offers.Count}, coins={gameManager.TotalBankedMoney}, players={playerSpawner?.SpawnedPlayers.Count ?? 0}.", this);
+            if (session.Offers.Count == 0)
+                Debug.LogError("[PerkShop] No valid cards in the built catalog. Low money does not hide offers; check the catalog included in this build.", this);
             holds = new PerkSelectionHold[4];
             for (int i = 0; i < slots.Length; i++)
             {
                 holds[i] = new PerkSelectionHold(Mathf.Max(0.1f, holdSeconds));
                 PerkOffer offer = i < session.Offers.Count ? session.Offers[i] : null;
-                slots[i].SetOffer(offer, offer != null ? catalog.GetPrefab(offer.Id) : null);
+                slots[i].SetOffer(offer, offer != null ? catalog.GetPrefab(offer.Id) : null, big);
                 zones[i].gameObject.SetActive(offer != null);
             }
             entranceStarted = false;
             selectionStarted = false;
+            wallShown = false;
+            floorShown = false;
             closing = false;
+            departureStarted = false;
             offersRoot.SetActive(false);
             floorRoot.SetActive(false);
             guide.gameObject.SetActive(false);
@@ -81,12 +92,25 @@ namespace FoodIsekaiZ.Display
                 guide.UsePerkDialogue(true);
                 guide.WalkIn(guideStart.anchoredPosition, guideDestination.anchoredPosition, guideStage.rect.width);
             }
-            if (!selectionStarted)
+            if (!wallShown)
             {
                 if (!guide.HasOpenedDialogue) return;
-                selectionStarted = true;
+                wallShown = true;
                 offersRoot.SetActive(true);
+            }
+            if (!floorShown)
+            {
+                foreach (PerkCardSlot slot in slots)
+                    if (!slot.HasRevealed) return;
+                floorShown = true;
                 floorRoot.SetActive(true);
+                Debug.Log($"[PerkShop] Reveal: wall={offersRoot.activeInHierarchy}, floor={floorRoot.activeInHierarchy}, offers={session.Offers.Count}.", this);
+            }
+            if (!selectionStarted)
+            {
+                foreach (PerkFloorZone zone in zones)
+                    if (!zone.HasRevealed) return;
+                selectionStarted = true;
             }
             if (gameManager.MealPhaseRemainingSeconds <= 0f) return;
             UpdateSelection();
@@ -117,10 +141,9 @@ namespace FoodIsekaiZ.Display
                     holds[i].Reset();
                 }
                 bool bought = session.IsPurchased(i);
-                string status = !CanCountDown ? "LISTEN TO LUNAR" : bought ? "PURCHASED" : session.IsLocked ? "LOCKED" :
-                    !session.CanBuy(i) ? "NOT ENOUGH COINS" : occupants > 1 ? "ONE PLAYER AT A TIME" :
-                    occupants == 1 ? "HOLD TO BUY" : "STAND HERE TO BUY";
-                zones[i].ShowStatus(status, holds[i].Progress, bought, occupants > 1);
+                string status = bought ? "PURCHASED" : "NOT PURCHASED";
+                bool showGauge = occupants > 0 && CanCountDown && session.CanBuy(i);
+                zones[i].ShowStatus(status, holds[i].Progress, bought, occupants > 1, showGauge);
             }
         }
 
@@ -128,9 +151,7 @@ namespace FoodIsekaiZ.Display
         {
             if (walletText != null) walletText.text = $"TEAM COINS  {gameManager.TotalBankedMoney}";
             if (countdownText != null)
-                countdownText.text = CanCountDown
-                    ? $"{Mathf.CeilToInt(gameManager.MealPhaseRemainingSeconds):00}s"
-                    : "LUNAR'S PERK SHOP";
+                countdownText.text = $"{Mathf.Max(0, Mathf.CeilToInt(gameManager.MealPhaseRemainingSeconds)):00}";
         }
 
         public bool TryFinish()
@@ -139,9 +160,19 @@ namespace FoodIsekaiZ.Display
             {
                 closing = true;
                 session?.Close();
+                foreach (PerkCardSlot slot in slots) slot.Hide();
+                foreach (PerkFloorZone zone in zones) zone.Hide();
+                if (countdownText != null) countdownText.text = "00";
+            }
+            foreach (PerkCardSlot slot in slots)
+                if (!slot.IsHidden) return false;
+            foreach (PerkFloorZone zone in zones)
+                if (!zone.IsHidden) return false;
+            if (!departureStarted)
+            {
+                departureStarted = true;
                 offersRoot.SetActive(false);
                 floorRoot.SetActive(false);
-                if (countdownText != null) countdownText.text = string.Empty;
                 if (entranceStarted && guide != null) guide.WalkOut(guideStart.anchoredPosition);
             }
             return !entranceStarted || guide == null || guide.HasExited || !guide.gameObject.activeInHierarchy;

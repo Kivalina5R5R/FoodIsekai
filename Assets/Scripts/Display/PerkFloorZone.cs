@@ -9,6 +9,29 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private RectTransform selectionBounds;
         [SerializeField] private TMP_Text statusText;
         [SerializeField] private ReadyConfirmationGauge progress;
+        private PerkCardAnimation presentation;
+        private bool purchased;
+        public bool HasRevealed => !gameObject.activeInHierarchy || presentation == null || presentation.HasRevealed;
+        public bool IsHidden => !gameObject.activeInHierarchy || presentation == null || presentation.IsHidden;
+
+        public void Hide()
+        {
+            if (progress != null) progress.gameObject.SetActive(false);
+            if (presentation != null) presentation.Hide();
+        }
+
+        private void Awake() => presentation = GetComponent<PerkCardAnimation>();
+
+        private void OnEnable()
+        {
+            purchased = false;
+            if (progress != null) progress.gameObject.SetActive(false);
+        }
+
+        private void Update()
+        {
+            if (purchased && (presentation == null || presentation.IsHidden)) gameObject.SetActive(false);
+        }
 
         public bool Contains(Vector3 worldPosition)
         {
@@ -17,10 +40,19 @@ namespace FoodIsekaiZ.Display
             return selectionBounds.rect.Contains(new Vector2(point.x, point.y));
         }
 
-        public void ShowStatus(string message, float amount, bool bought, bool contested)
+        public void ShowStatus(string message, float amount, bool bought, bool contested, bool showGauge)
         {
             if (statusText != null && statusText.text != message) statusText.text = message;
-            if (progress != null) progress.ShowProgress(amount, bought, contested);
+            if (progress != null)
+            {
+                progress.gameObject.SetActive(showGauge && !bought);
+                progress.ShowProgress(amount, bought, contested);
+            }
+            if (bought && !purchased)
+            {
+                purchased = true;
+                if (presentation != null) presentation.Hide();
+            }
         }
     }
 }

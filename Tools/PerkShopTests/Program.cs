@@ -26,6 +26,17 @@ internal static class Program
     {
         var small = Enumerable.Range(0, 10).Select(i => new PerkOffer("Small" + i, 80)).ToArray();
         var big = Enumerable.Range(0, 6).Select(i => new PerkOffer("Big" + i, 150)).ToArray();
+        foreach (int balance in new[] { 0, 1, 79 })
+        {
+            var soloWallet = new Wallet(balance);
+            var soloShop = new PerkShopSession(soloWallet, new Random(23));
+            soloShop.Open(small, false, 2);
+            Check(soloShop.Offers.Count == 4 && soloShop.IsOpen,
+                $"Solo player with {balance} coins still receives all four shop offers.");
+            Check(Enumerable.Range(0, 4).All(i => !soloShop.TryBuy(i, 1)) &&
+                soloShop.Offers.Count == 4 && soloWallet.Balance == balance && soloShop.Purchases.Count == 0,
+                $"Solo player with {balance} coins cannot buy; offers remain and money is unchanged.");
+        }
         var wallet = new Wallet(400);
         var shop = new PerkShopSession(wallet, new Random(23));
         shop.Open(small.Concat(small), false, 2);

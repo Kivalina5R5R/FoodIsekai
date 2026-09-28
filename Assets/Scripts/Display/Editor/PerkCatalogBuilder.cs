@@ -2,16 +2,29 @@ using System;
 using FoodIsekaiZ.Gameplay;
 using TMPro;
 using UnityEditor;
+using UnityEditor.Build;
+using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 namespace FoodIsekaiZ.Display.Editor
 {
     // Folder discovery happens in the editor; builds use explicit serialized prefab references.
-    public sealed class PerkCatalogBuilder : AssetPostprocessor
+    public sealed class PerkCatalogBuilder : AssetPostprocessor, IPreprocessBuildWithReport
     {
         private const string CatalogPath = "Assets/Settings/PerkCatalog.asset";
         private const string SmallFolder = "Assets/Prefab/Perk/Small";
         private const string BigFolder = "Assets/Prefab/Perk/Big";
+
+        public int callbackOrder => 0;
+
+        // Refresh and validate serialized card references before packaging the standalone player.
+        public void OnPreprocessBuild(BuildReport report)
+        {
+            Rebuild();
+            PerkCatalog catalog = AssetDatabase.LoadAssetAtPath<PerkCatalog>(CatalogPath);
+            if (catalog == null || catalog.GetOffers(false).Count < 4 || catalog.GetOffers(true).Count < 4)
+                throw new BuildFailedException("Perk Catalog must contain at least four valid Small and four valid Big cards. Check prefab references and Price text before building.");
+        }
 
         [MenuItem("Food Isekai/Rebuild Perk Catalog")]
         public static void Rebuild()

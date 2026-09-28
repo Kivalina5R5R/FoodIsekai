@@ -1863,10 +1863,6 @@ MonoBehaviour:
   playerSpawner: {fileID: 0}
   topHudVisibility: {fileID: 0}
   menuTransition: {fileID: 0}
-  breakScoreText: {fileID: 0}
-  breakMvpText: {fileID: 0}
-  breakCountdownText: {fileID: 0}
-  breakNextMealText: {fileID: 0}
 --- !u!114 &2088000001
 MonoBehaviour:
   m_ObjectHideFlags: 0
