@@ -25,14 +25,62 @@ namespace FoodIsekaiZ.Display
         public Vector2Int SideDisplayResolution => sideDisplayResolution;
         public Vector2Int FloorDisplayResolution => floorDisplayResolution;
 
+        private int floorOutputWidth;
+        private int floorOutputHeight;
+
         private void Awake()
         {
             ConfigureOutputs();
+            ApplyFloorResolution();
 
             if (activateSecondDisplayOnAwake)
             {
                 ActivateDisplays();
             }
+        }
+
+        private void ApplyFloorResolution()
+        {
+            if (!applyPaperArenaResolutionsInStandalone || Application.isEditor) return;
+            Screen.SetResolution(floorDisplayResolution.x, floorDisplayResolution.y,
+                FullScreenMode.FullScreenWindow, TargetRefreshRate);
+        }
+
+        private RefreshRate TargetRefreshRate => new RefreshRate
+        {
+            numerator = (uint)refreshRate,
+            denominator = 1u
+        };
+
+        // Resolution changes complete after the current frame. Fit again when the output changes.
+        private void LateUpdate()
+        {
+            if (Application.isEditor || !applyPaperArenaResolutionsInStandalone || floorCamera == null) return;
+            int width = Screen.width;
+            int height = Screen.height;
+            if (width <= 0 || height <= 0 || floorDisplayResolution.x <= 0 || floorDisplayResolution.y <= 0) return;
+            if (width == floorOutputWidth && height == floorOutputHeight) return;
+            floorOutputWidth = width;
+            floorOutputHeight = height;
+
+            float referenceAspect = (float)floorDisplayResolution.x / floorDisplayResolution.y;
+            float outputAspect = (float)width / height;
+            Rect viewport = new Rect(0f, 0f, 1f, 1f);
+            if (outputAspect > referenceAspect)
+            {
+                viewport.width = referenceAspect / outputAspect;
+                viewport.x = (1f - viewport.width) * 0.5f;
+            }
+            else
+            {
+                viewport.height = outputAspect / referenceAspect;
+                viewport.y = (1f - viewport.height) * 0.5f;
+            }
+            floorCamera.rect = viewport;
+            floorCamera.aspect = referenceAspect;
+            Debug.Log($"[DisplayManager] Floor requested={floorDisplayResolution.x}x{floorDisplayResolution.y}, " +
+                $"rendering={width}x{height}, desktop={UnityEngine.Display.main.systemWidth}x{UnityEngine.Display.main.systemHeight}, " +
+                $"displays={UnityEngine.Display.displays.Length}, viewport={viewport}", this);
         }
 
         [ContextMenu("Configure Camera And Canvas Outputs")]
@@ -67,21 +115,10 @@ namespace FoodIsekaiZ.Display
 
             if (applyPaperArenaResolutionsInStandalone && !Application.isEditor)
             {
-                // Display 1 is the floor (2944x1408); Display 2 is the wall (8192x2160).
-                var targetRefreshRate = new RefreshRate
-                {
-                    numerator = (uint)refreshRate,
-                    denominator = 1u
-                };
-                Screen.SetResolution(
-                    floorDisplayResolution.x,
-                    floorDisplayResolution.y,
-                    FullScreenMode.FullScreenWindow,
-                    targetRefreshRate);
                 UnityEngine.Display.displays[1].Activate(
                     sideDisplayResolution.x,
                     sideDisplayResolution.y,
-                    targetRefreshRate);
+                    TargetRefreshRate);
             }
             else
             {
