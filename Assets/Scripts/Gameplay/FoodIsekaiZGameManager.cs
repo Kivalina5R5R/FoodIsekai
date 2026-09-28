@@ -452,7 +452,7 @@ namespace FoodIsekaiZ.Gameplay
             target = null;
             if (IsWaitingForStartup || player == null || player.PlayerId <= 0) return false;
             if (useMealWaves && mealWavePhase != MealWavePhase.Active &&
-                mealWavePhase != MealWavePhase.Intermission && mealWavePhase != MealWavePhase.Clearing)
+                mealWavePhase != MealWavePhase.Clearing)
                 return false;
 
             bool deliveringMoney = player.CarriedMoney > 0;
@@ -491,7 +491,6 @@ namespace FoodIsekaiZ.Gameplay
 
             if (useMealWaves &&
                 mealWavePhase != MealWavePhase.Active &&
-                mealWavePhase != MealWavePhase.Intermission &&
                 mealWavePhase != MealWavePhase.Clearing)
             {
                 return false;
@@ -617,12 +616,20 @@ namespace FoodIsekaiZ.Gameplay
             ChangeMealBehindCover("SERVICE BREAK", () =>
             {
                 SettleOutstandingMoney();
+                DiscardPlayerFood();
                 StopCustomerFlowAndClearSlots();
                 mealWavePhase = MealWavePhase.Intermission;
                 mealPhaseRemainingSeconds = Mathf.Max(0f, intermissionDurationSeconds);
                 lastNotifiedMealSecond = int.MinValue;
                 NotifyMealWaveDisplayIfNeeded(true);
             });
+        }
+
+        private void DiscardPlayerFood()
+        {
+            foreach (FoodIsekaiZPlayerState player in FindObjectsByType<FoodIsekaiZPlayerState>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None))
+                player.TryDiscardHeldFood();
         }
 
         private void CompleteMealWaves()

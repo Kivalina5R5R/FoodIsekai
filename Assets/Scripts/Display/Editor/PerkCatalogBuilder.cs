@@ -1,6 +1,5 @@
 using System;
 using FoodIsekaiZ.Gameplay;
-using TMPro;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
@@ -20,14 +19,20 @@ namespace FoodIsekaiZ.Display.Editor
         // Refresh and validate serialized card references before packaging the standalone player.
         public void OnPreprocessBuild(BuildReport report)
         {
-            Rebuild();
+            if (!TryRebuild())
+                throw new BuildFailedException("Perk Catalog could not be refreshed. Fix the reported PerkPrice components and display references before building.");
             PerkCatalog catalog = AssetDatabase.LoadAssetAtPath<PerkCatalog>(CatalogPath);
             if (catalog == null || catalog.GetOffers(false).Count < 4 || catalog.GetOffers(true).Count < 4)
-                throw new BuildFailedException("Perk Catalog must contain at least four valid Small and four valid Big cards. Check prefab references and Price text before building.");
+                throw new BuildFailedException("Perk Catalog must contain at least four valid Small and four valid Big cards. Check prefab references and PerkPrice values before building.");
         }
 
         [MenuItem("Food Isekai/Rebuild Perk Catalog")]
         public static void Rebuild()
+        {
+            TryRebuild();
+        }
+
+        private static bool TryRebuild()
         {
             PerkCatalog catalog = AssetDatabase.LoadAssetAtPath<PerkCatalog>(CatalogPath);
             if (catalog == null)
@@ -36,28 +41,37 @@ namespace FoodIsekaiZ.Display.Editor
                 AssetDatabase.CreateAsset(catalog, CatalogPath);
             }
             var serialized = new SerializedObject(catalog);
-            WriteEntries(serialized.FindProperty("smallPerks"), SmallFolder);
-            WriteEntries(serialized.FindProperty("bigPerks"), BigFolder);
+            bool smallValid = WriteEntries(serialized.FindProperty("smallPerks"), SmallFolder);
+            bool bigValid = WriteEntries(serialized.FindProperty("bigPerks"), BigFolder);
+            // Keep the last valid catalog intact if any authored price is invalid.
+            if (!smallValid || !bigValid) return false;
             if (serialized.ApplyModifiedPropertiesWithoutUndo()) AssetDatabase.SaveAssetIfDirty(catalog);
+            return true;
         }
 
-        private static void WriteEntries(SerializedProperty entries, string folder)
+        private static bool WriteEntries(SerializedProperty entries, string folder)
         {
             string[] ids = AssetDatabase.FindAssets("t:Prefab", new[] { folder });
             Array.Sort(ids, (left, right) => string.CompareOrdinal(
                 AssetDatabase.GUIDToAssetPath(left), AssetDatabase.GUIDToAssetPath(right)));
             entries.arraySize = ids.Length;
+            bool valid = true;
             for (int i = 0; i < ids.Length; i++)
             {
                 GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(ids[i]));
-                TMP_Text priceText = prefab.transform.Find("Price")?.GetComponent<TMP_Text>();
-                int price = priceText != null && int.TryParse(priceText.text, out int parsed) ? parsed : 0;
-                if (price <= 0) Debug.LogError($"Perk {prefab.name} needs a positive integer Price text.", prefab);
+                PerkPrice data = prefab.GetComponent<PerkPrice>();
+                PerkPriceDisplay display = prefab.GetComponent<PerkPriceDisplay>();
+                if (data == null || data.Price <= 0 || display == null || !display.HasValidReferences)
+                {
+                    Debug.LogError($"Perk {prefab.name} needs a positive PerkPrice value and a PerkPriceDisplay with assigned references.", prefab);
+                    valid = false;
+                    continue;
+                }
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 entry.FindPropertyRelative("id").stringValue = prefab.name;
                 entry.FindPropertyRelative("prefab").objectReferenceValue = prefab;
-                entry.FindPropertyRelative("price").intValue = price;
             }
+            return valid;
         }
 
         private static void OnPostprocessAllAssets(string[] imported, string[] deleted, string[] moved, string[] movedFrom)

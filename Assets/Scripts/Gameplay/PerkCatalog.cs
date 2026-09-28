@@ -12,10 +12,9 @@ namespace FoodIsekaiZ.Gameplay
         {
             [SerializeField] private string id;
             [SerializeField] private GameObject prefab;
-            [SerializeField, Min(1)] private int price;
             public string Id => id;
             public GameObject Prefab => prefab;
-            public int Price => price;
+            public int Price => prefab != null && prefab.TryGetComponent(out PerkPrice data) ? data.Price : 0;
         }
 
         [SerializeField] private Entry[] smallPerks;

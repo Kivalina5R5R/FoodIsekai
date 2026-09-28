@@ -9,6 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3994084079726713046}
+  - component: {fileID: 900100000000000001}
+  - component: {fileID: 900100000000000002}
   m_Layer: 0
   m_Name: Perk_Big_Bank
   m_TagString: Untagged
@@ -753,3 +755,30 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &900100000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1287916586057464901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f171cadcba4aeeb5ef2dd9802131d0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  price: 150
+--- !u!114 &900100000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1287916586057464901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a62528836274470994bb0028dcb1f46, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  source: {fileID: 900100000000000001}
+  priceText: {fileID: 303541364010509270}
