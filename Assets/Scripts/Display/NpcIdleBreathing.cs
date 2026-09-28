@@ -43,13 +43,7 @@ namespace FoodIsekaiZ.Display
             authoredPosition = body.anchoredPosition3D;
             authoredScale = body.localScale;
             authoredRotation = body.localRotation;
-            this.verticalFollower = verticalFollower;
-            if (verticalFollower != null)
-            {
-                authoredFollowerPosition = verticalFollower.anchoredPosition3D;
-                authoredFollowerLocalY = verticalFollower.localPosition.y;
-                followerBodyAnchor = body.InverseTransformPoint(verticalFollower.position);
-            }
+            SetVerticalFollower(verticalFollower);
             Rect bodyRect = body.rect;
             groundedPoint = new Vector3(bodyRect.center.x,
                 authoredScale.y < 0f ? bodyRect.yMax : bodyRect.yMin, 0f);
@@ -62,6 +56,17 @@ namespace FoodIsekaiZ.Display
         }
 
         // Gently settles the visual body and fades in its repeating breathing motion.
+        // Switches between the guide's authored intro and perk bubbles without recaching the body pose.
+        public void SetVerticalFollower(RectTransform follower)
+        {
+            if (verticalFollower != null) verticalFollower.anchoredPosition3D = authoredFollowerPosition;
+            verticalFollower = follower;
+            if (follower == null || body == null) return;
+            authoredFollowerPosition = follower.anchoredPosition3D;
+            authoredFollowerLocalY = follower.localPosition.y;
+            followerBodyAnchor = body.InverseTransformPoint(follower.position);
+        }
+
         public void BeginIdle()
         {
             if (!initialized || idleRequested)

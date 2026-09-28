@@ -46,5 +46,13 @@ namespace FoodIsekaiZ.Display
             if (visibility != null && playing) visibility.alpha = authoredAlpha;
             playing = false;
         }
+
+        // Show the authored decorations during the return slide without replaying their fade.
+        public void CompleteReveal()
+        {
+            if (!playing) return;
+            if (visibility != null) visibility.alpha = authoredAlpha;
+            playing = false;
+        }
     }
 }

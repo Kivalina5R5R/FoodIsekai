@@ -58,13 +58,16 @@ namespace FoodIsekaiZ.Display
                 return;
             }
             RefreshStations();
+            // Returning tables have already finished their entrance; animate food as the page leaves.
+            MealMenuTransition revealGate = menuTransition != null && menuTransition.RevealFoodImmediately
+                ? null : menuTransition;
             if (bankTransition != null && bankPurse != null)
-                bankTransition.PlayReveal(bankPurse.sprite, menuTransition);
+                bankTransition.PlayReveal(bankPurse.sprite, revealGate);
             if (stationTransitions == null) return;
             for (int i = 0; i < stationTransitions.Length; i++)
             {
                 if (stationTransitions[i] != null)
-                    stationTransitions[i].PlayReveal(GetSprite((FoodType)(i + (int)FoodType.Food1)), menuTransition);
+                    stationTransitions[i].PlayReveal(GetSprite((FoodType)(i + (int)FoodType.Food1)), revealGate);
             }
         }
 

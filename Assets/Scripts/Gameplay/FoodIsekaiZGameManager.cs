@@ -9,7 +9,7 @@ using UnityEngine.Serialization;
 namespace FoodIsekaiZ.Gameplay
 {
 
-    public sealed class FoodIsekaiZGameManager : MonoBehaviour
+    public sealed class FoodIsekaiZGameManager : MonoBehaviour, IPerkWallet
     {
         private const int CustomerSlotCapacity = 6;
         private const int MaximumConsecutiveSameFoodOrders = 2;
@@ -76,7 +76,7 @@ namespace FoodIsekaiZ.Gameplay
         [SerializeField, Min(1f)] private float waveDurationSeconds = 90f;
         [Tooltip("เวลาพักระหว่าง Wave ก่อนเริ่มมื้อถัดไป")]
         [InspectorName("Break Duration (Seconds)")]
-        [SerializeField, Min(0f)] private float intermissionDurationSeconds = 10f;
+        [SerializeField, Min(0f)] private float intermissionDurationSeconds = 30f;
         [Tooltip("ชื่อของแต่ละ Wave เรียงตามลำดับการเล่น")]
         [SerializeField] private MealWaveDefinition[] mealWaves =
         {
@@ -151,8 +151,27 @@ namespace FoodIsekaiZ.Gameplay
 
         private int totalBankedMoney;
         private IWaveDepartureStatus departureStatus;
+        private IMealIntermissionGate intermissionGate;
 
         public int TotalBankedMoney => totalBankedMoney;
+        public int Balance => totalBankedMoney;
+
+        // Spending changes the shared wallet, never earned service scores.
+        public bool TrySpend(int amount)
+        {
+            if (mealWavePhase != MealWavePhase.Intermission || amount <= 0 || amount > totalBankedMoney)
+                return false;
+            totalBankedMoney -= amount;
+            BankedMoneyChanged?.Invoke(totalBankedMoney);
+            return true;
+        }
+
+        public void RegisterIntermissionGate(IMealIntermissionGate gate) => intermissionGate = gate;
+
+        public void ReleaseIntermissionGate(IMealIntermissionGate gate)
+        {
+            if (ReferenceEquals(intermissionGate, gate)) intermissionGate = null;
+        }
         public int TeamScore => teamScore;
         // Counts accepted deliveries, including NPCs still eating when a wave ends.
         public int ServedOrderCount => servedOrderCount;
@@ -280,6 +299,7 @@ namespace FoodIsekaiZ.Gameplay
 
         private void Update()
         {
+            HandleSimulationMoneyShortcut();
             if (IsWaitingForStartup) return;
             if (HandleSimulationShortcut()) return;
             if (phasePresentationPaused) return;
@@ -311,14 +331,32 @@ namespace FoodIsekaiZ.Gameplay
             SpawnReadyCustomers();
         }
 
+        private void HandleSimulationMoneyShortcut()
+        {
+            if (simulationModeSource == null || !simulationModeSource.IsSimulationMode ||
+                Keyboard.current == null || !Keyboard.current.bKey.wasPressedThisFrame) return;
+
+            // Test funds are available during startup, transitions and the perk shop without awarding score.
+            totalBankedMoney = (int)Math.Min(int.MaxValue, (long)totalBankedMoney + 1000);
+            BankedMoneyChanged?.Invoke(totalBankedMoney);
+        }
+
         private bool HandleSimulationShortcut()
         {
             if (simulationModeSource == null || !simulationModeSource.IsSimulationMode ||
-                !useMealWaves || phasePresentationPaused || Keyboard.current == null ||
-                !Keyboard.current.nKey.wasPressedThisFrame)
+                !useMealWaves || phasePresentationPaused || phaseChangePending || Keyboard.current == null)
             {
                 return false;
             }
+
+            if (Keyboard.current.mKey.wasPressedThisFrame && mealWaveFlowStarted &&
+                (mealWavePhase == MealWavePhase.Active || mealWavePhase == MealWavePhase.Clearing))
+            {
+                BeginIntermission();
+                return true;
+            }
+
+            if (!Keyboard.current.nKey.wasPressedThisFrame) return false;
 
             if (mealWavePhase == MealWavePhase.Completed)
             {
@@ -335,6 +373,13 @@ namespace FoodIsekaiZ.Gameplay
             }
 
             if (!mealWaveFlowStarted) return false;
+
+            if (mealWavePhase == MealWavePhase.Intermission && intermissionGate != null)
+            {
+                mealPhaseRemainingSeconds = 0f;
+                NotifyMealWaveDisplayIfNeeded(true);
+                return true;
+            }
 
             // Skip directly to the next meal while preserving scores and the normal transition.
             if (currentWaveIndex >= TotalWaveCount - 1)
@@ -485,6 +530,9 @@ namespace FoodIsekaiZ.Gameplay
                 return;
             }
 
+            if (mealWavePhase == MealWavePhase.Intermission && mealPhaseRemainingSeconds > 0f &&
+                intermissionGate != null && !intermissionGate.CanCountDown) return;
+
             mealPhaseRemainingSeconds = Mathf.Max(
                 0f,
                 mealPhaseRemainingSeconds - Mathf.Max(0f, deltaTime));
@@ -500,6 +548,7 @@ namespace FoodIsekaiZ.Gameplay
             }
             else
             {
+                if (intermissionGate != null && !intermissionGate.TryFinish()) return;
                 currentWaveIndex++;
                 BeginCurrentWave();
             }
@@ -559,9 +608,16 @@ namespace FoodIsekaiZ.Gameplay
                 BeginCurrentWave();
                 return;
             }
+            BeginIntermission();
+        }
+
+        // Both normal clearance and the simulation shortcut use the same break transition.
+        private void BeginIntermission()
+        {
             ChangeMealBehindCover("SERVICE BREAK", () =>
             {
                 SettleOutstandingMoney();
+                StopCustomerFlowAndClearSlots();
                 mealWavePhase = MealWavePhase.Intermission;
                 mealPhaseRemainingSeconds = Mathf.Max(0f, intermissionDurationSeconds);
                 lastNotifiedMealSecond = int.MinValue;

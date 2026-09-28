@@ -18,7 +18,7 @@ namespace FoodIsekaiZ.Audio
         [Tooltip("เปิดเพื่อวนเพลงซ้ำ ปิดเพื่อเล่นเพลงครั้งเดียว")]
         [SerializeField] private bool loop = true;
 
-        [SerializeField, Range(0f, 1f)] private float volume = 0.18f;
+        [SerializeField, Range(0f, 1f)] private float volume = 0.26f;
 
         [SerializeField] private AudioSource audioSource;
 

@@ -7,6 +7,7 @@ namespace FoodIsekaiZ.Display
     public sealed class NpcGuidePresentation : MonoBehaviour
     {
         [SerializeField] private GameObject dialogue;
+        [SerializeField] private GameObject perkDialogue;
         [SerializeField] private RectTransform visualBody;
         [SerializeField] private NpcIdleBreathing breathing;
         [SerializeField] private NpcGuidePoseBlend poseBlend;
@@ -19,12 +20,25 @@ namespace FoodIsekaiZ.Display
         private float speed;
         private RectTransform dialogueRect;
         private Vector3 dialogueScale;
+        private GameObject introDialogue;
+        private Vector3 entranceScale;
+        private Quaternion entranceRotation;
+        private AudioSource dialogueVoice;
 
         public bool HasExited { get; private set; }
         public bool HasOpenedDialogue { get; private set; }
+        public bool HasFinishedSpeaking => HasOpenedDialogue &&
+            (dialogueVoice == null || !dialogueVoice.isPlaying);
 
         private void Awake()
         {
+            entranceScale = transform.localScale;
+            entranceRotation = transform.localRotation;
+            // Resolve renamed children in prefab instances that still carry older scene references.
+            Transform intro = transform.Find("TextIntro");
+            if (intro != null) dialogue = intro.gameObject;
+            if (perkDialogue == null) perkDialogue = transform.Find("TextPerk")?.gameObject;
+            introDialogue = dialogue;
             dialogueRect = dialogue != null ? dialogue.transform as RectTransform : null;
             if (dialogueRect != null) dialogueScale = dialogueRect.localScale;
             if (dialogue != null) dialogue.SetActive(false);
@@ -32,9 +46,37 @@ namespace FoodIsekaiZ.Display
             if (poseBlend != null) poseBlend.ShowWalking();
         }
 
+        private void OnEnable()
+        {
+            // The selected dialogue opens only after the guide reaches her standing position.
+            if (dialogue != null) dialogue.SetActive(false);
+            if (perkDialogue != null) perkDialogue.SetActive(false);
+            if (introDialogue != null) introDialogue.SetActive(false);
+        }
+
+        // Select authored dialogue before starting the matching guide entrance.
+        public void UsePerkDialogue(bool usePerk)
+        {
+            if (dialogue != null)
+            {
+                dialogue.SetActive(false);
+                if (dialogueRect != null) dialogueRect.localScale = dialogueScale;
+            }
+            if (introDialogue != null) introDialogue.SetActive(false);
+            if (perkDialogue != null) perkDialogue.SetActive(false);
+            dialogue = usePerk ? perkDialogue : introDialogue;
+            dialogueRect = dialogue != null ? dialogue.transform as RectTransform : null;
+            if (dialogueRect != null) dialogueScale = dialogueRect.localScale;
+            if (breathing != null) breathing.SetVerticalFollower(dialogueRect);
+        }
+
         public void WalkIn(Vector2 start, Vector2 destination, float canvasWidth)
         {
             if (entrance != null) StopCoroutine(entrance);
+            // A reused shop guide must undo the previous exit turn before walking in again.
+            transform.localScale = entranceScale;
+            transform.localRotation = entranceRotation;
+            if (perkDialogue != null) perkDialogue.SetActive(false);
             if (dialogue != null) dialogue.SetActive(false);
             speed = Mathf.Max(1f, canvasWidth * walkingSpeedCanvasMultiplier);
             HasExited = false;
@@ -47,6 +89,7 @@ namespace FoodIsekaiZ.Display
 
         public void WalkOut(Vector2 destination)
         {
+            if (dialogueVoice != null) dialogueVoice.Stop();
             if (entrance != null) StopCoroutine(entrance);
             entrance = StartCoroutine(TurnAndExit(destination));
         }
@@ -157,10 +200,14 @@ namespace FoodIsekaiZ.Display
         {
             if (dialogueRect == null) yield break;
             if (!show && !dialogue.activeSelf) yield break;
+            if (dialogueVoice != null) dialogueVoice.Stop();
             if (show)
             {
                 dialogueRect.localScale = dialogueScale * 0.05f;
                 dialogue.SetActive(true);
+                // Play the bubble's authored voice exactly when its reveal begins.
+                dialogueVoice = dialogue.GetComponent<AudioSource>();
+                if (dialogueVoice != null && dialogueVoice.clip != null) dialogueVoice.Play();
             }
             Vector3 from = dialogueRect.localScale;
             Vector3 peak = dialogueScale * 1.12f;

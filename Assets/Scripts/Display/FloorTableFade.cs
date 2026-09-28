@@ -60,6 +60,9 @@ namespace FoodIsekaiZ.Display
             RestoreMaterial();
         }
 
+        // Keep the table visible while its parent slides back during the meal transition.
+        public void CompleteReveal() => RestoreMaterial();
+
         private void RestoreMaterial()
         {
             if (playing && table != null) table.SetPropertyBlock(originalProperties);

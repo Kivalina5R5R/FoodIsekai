@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 289b0b460e82463ba5f85864f3c9beb4, type: 3}
+  m_Name: PerkCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Gameplay.PerkCatalog
+  smallPerks:
+  - id: Perk_Small_Cross
+    prefab: {fileID: 1287916586057464901, guid: 918cbcc6b9234d369c0e6d3e8c2f43e5, type: 3}
+    price: 80
+  - id: Perk_Small_Dessert
+    prefab: {fileID: 1287916586057464901, guid: 44bcd8d97f444c3aa28c6252057dccec, type: 3}
+    price: 80
+  - id: Perk_Small_Drink
+    prefab: {fileID: 1287916586057464901, guid: 676642cf420b4b34b0c1951f2a92eb47, type: 3}
+    price: 80
+  - id: Perk_Small_Glad
+    prefab: {fileID: 1287916586057464901, guid: 1d733747b4404ed48dbc2605861837f8, type: 3}
+    price: 80
+  - id: Perk_Small_Longer
+    prefab: {fileID: 1287916586057464901, guid: f8c2982938fe65b4994a45ce7432096b, type: 3}
+    price: 80
+  - id: Perk_Small_Meat
+    prefab: {fileID: 1287916586057464901, guid: 6a9b216aa94049408de2c840e8b74ee4, type: 3}
+    price: 80
+  - id: Perk_Small_Seafood
+    prefab: {fileID: 1287916586057464901, guid: 7426cae3546b47208afdd8127eb12dd8, type: 3}
+    price: 80
+  - id: Perk_Small_Spoon
+    prefab: {fileID: 1287916586057464901, guid: 1f9e73dbd8b54f5198eba5f5251c2e8b, type: 3}
+    price: 80
+  - id: Perk_Small_Starter
+    prefab: {fileID: 1287916586057464901, guid: ab5d6f647f694969ad28bc17b75d0d9d, type: 3}
+    price: 80
+  - id: Perk_Small_Tasty
+    prefab: {fileID: 1287916586057464901, guid: c39bcb310f1a4fae8b2a78f84f4a5b68, type: 3}
+    price: 80
+  bigPerks:
+  - id: Perk_Big_Bank
+    prefab: {fileID: 1287916586057464901, guid: 6064d1c896764af1ab50dda859460198, type: 3}
+    price: 150
+  - id: Perk_Big_Happiness
+    prefab: {fileID: 1287916586057464901, guid: 3491e1fcbf0d429fa5003a8261f283b8, type: 3}
+    price: 150
+  - id: Perk_Big_Home
+    prefab: {fileID: 1287916586057464901, guid: 976048fbde1e493a87e0c45cbf658eeb, type: 3}
+    price: 150
+  - id: Perk_Big_Omakase
+    prefab: {fileID: 1287916586057464901, guid: bffde33ede414331b169168180d12056, type: 3}
+    price: 150
+  - id: Perk_Big_Pairs
+    prefab: {fileID: 1287916586057464901, guid: 57f9dbced5d245488327744fc9848872, type: 3}
+    price: 150
+  - id: Perk_Big_Sky
+    prefab: {fileID: 1287916586057464901, guid: ba3e6834006c4c74af967e9fb3a9fb7e, type: 3}
+    price: 150

@@ -13,6 +13,9 @@ namespace FoodIsekaiZ.Display
     {
         [SerializeField] private FoodIsekaiZGameManager gameManager;
         [SerializeField] private GameObject breakPanel;
+        [SerializeField] private GameObject[] hideDuringBreak;
+        [SerializeField, Min(0.01f)] private float breakSlideDuration = 0.45f;
+        [SerializeField, Min(0f)] private float breakSlideDistance = 3f;
         [SerializeField] private GameObject resultsPanel;
         [SerializeField] private UWBPlayerSpawner playerSpawner;
         [SerializeField] private TopHudVisibility topHudVisibility;
@@ -28,6 +31,7 @@ namespace FoodIsekaiZ.Display
         private readonly List<int> rankedPlayerIds = new List<int>();
 
         private readonly Dictionary<GameObject, bool> previousVisibility = new Dictionary<GameObject, bool>();
+        private readonly Dictionary<Transform, Vector3> floorSlideOrigins = new Dictionary<Transform, Vector3>();
         private GameObject exclusivePanel;
         private GameObject requestedPanel;
         private Coroutine transition;
@@ -65,6 +69,18 @@ namespace FoodIsekaiZ.Display
 
         private void HideOtherUi(GameObject panel)
         {
+            // Restore each floor object's prior visibility when leaving the break.
+            if (panel == breakPanel && hideDuringBreak != null)
+            {
+                foreach (GameObject target in hideDuringBreak)
+                {
+                    if (target == null) continue;
+                    if (!previousVisibility.ContainsKey(target))
+                        previousVisibility.Add(target, target.activeSelf);
+                    if (target.activeSelf) target.SetActive(false);
+                }
+            }
+
             Canvas canvas = panel.GetComponentInParent<Canvas>();
             if (canvas == null) return;
             Transform background = canvas.transform.Find("Background");
@@ -91,6 +107,10 @@ namespace FoodIsekaiZ.Display
 
         private void RestoreOtherUi()
         {
+            // Restore the authored positions before enabling the floor groups again.
+            foreach (KeyValuePair<Transform, Vector3> entry in floorSlideOrigins)
+                if (entry.Key != null) entry.Key.position = entry.Value;
+            floorSlideOrigins.Clear();
             foreach (KeyValuePair<GameObject, bool> entry in previousVisibility)
             {
                 if (entry.Key != null) entry.Key.SetActive(entry.Value);
@@ -98,8 +118,77 @@ namespace FoodIsekaiZ.Display
             previousVisibility.Clear();
         }
 
+        private IEnumerator SlideFloorOut()
+        {
+            if (hideDuringBreak == null) yield break;
+            foreach (GameObject target in hideDuringBreak)
+            {
+                if (target == null || !target.activeInHierarchy ||
+                    (target.name != "CustomerSlots" && target.name != "FoodStationSlots" &&
+                     target.name != "BackgroundT1" && target.name != "BackgroundT2")) continue;
+                if (!previousVisibility.ContainsKey(target))
+                    previousVisibility.Add(target, target.activeSelf);
+                if (!floorSlideOrigins.ContainsKey(target.transform))
+                    floorSlideOrigins.Add(target.transform, target.transform.position);
+            }
+            if (floorSlideOrigins.Count == 0) yield break;
+
+            float elapsed = 0f;
+            float duration = Mathf.Max(0.01f, breakSlideDuration);
+            while (elapsed < duration)
+            {
+                elapsed = Mathf.Min(duration, elapsed + Time.unscaledDeltaTime);
+                float progress = elapsed / duration;
+                float eased = progress * progress * (3f - 2f * progress);
+                foreach (KeyValuePair<Transform, Vector3> entry in floorSlideOrigins)
+                {
+                    if (entry.Key == null) continue;
+                    float direction = entry.Key.name == "CustomerSlots" || entry.Key.name == "BackgroundT2"
+                        ? 1f : -1f;
+                    entry.Key.position = entry.Value + Vector3.forward *
+                        (direction * Mathf.Max(0f, breakSlideDistance) * eased);
+                }
+                yield return null;
+            }
+        }
+
+        private IEnumerator SlideFloorIn()
+        {
+            if (floorSlideOrigins.Count == 0) yield break;
+            var startPositions = new Dictionary<Transform, Vector3>();
+            foreach (KeyValuePair<Transform, Vector3> entry in floorSlideOrigins)
+            {
+                Transform target = entry.Key;
+                if (target == null) continue;
+                startPositions.Add(target, target.position);
+                if (previousVisibility.TryGetValue(target.gameObject, out bool wasVisible))
+                    target.gameObject.SetActive(wasVisible);
+                // Startup fades wait for the wall page and would make this slide invisible.
+                foreach (FloorTableFade fade in target.GetComponentsInChildren<FloorTableFade>())
+                    fade.CompleteReveal();
+                foreach (CustomerSlotsFade fade in target.GetComponentsInChildren<CustomerSlotsFade>())
+                    fade.CompleteReveal();
+                foreach (FloorDecorFade fade in target.GetComponentsInChildren<FloorDecorFade>())
+                    fade.CompleteReveal();
+            }
+
+            float elapsed = 0f;
+            float duration = Mathf.Max(0.01f, breakSlideDuration);
+            while (elapsed < duration)
+            {
+                elapsed = Mathf.Min(duration, elapsed + Time.unscaledDeltaTime);
+                float progress = elapsed / duration;
+                float eased = progress * progress * (3f - 2f * progress);
+                foreach (KeyValuePair<Transform, Vector3> entry in startPositions)
+                    if (entry.Key != null)
+                        entry.Key.position = Vector3.Lerp(entry.Value, floorSlideOrigins[entry.Key], eased);
+                yield return null;
+            }
+        }
+
         private void OnEnable()
         {
+            ResolveBreakFloorObjects();
             if (gameManager != null)
             {
                 gameManager.MealWaveDisplayChanged += Refresh;
@@ -109,6 +198,32 @@ namespace FoodIsekaiZ.Display
                 gameManager.PlayerMoneyDeposited += PlayerChanged;
             }
             Refresh();
+        }
+
+        // Open scenes can still have the old serialized component without the floor references.
+        // Resolve only existing Arena children in this scene, including currently hidden objects.
+        private void ResolveBreakFloorObjects()
+        {
+            var targets = new List<GameObject>();
+            if (hideDuringBreak != null)
+                foreach (GameObject target in hideDuringBreak)
+                    if (target != null && !targets.Contains(target)) targets.Add(target);
+
+            string[] names = { "BackgroundT1", "BackgroundT2", "CustomerSlots", "FoodStationSlots" };
+            foreach (GameObject root in gameObject.scene.GetRootGameObjects())
+            {
+                foreach (Transform candidate in root.GetComponentsInChildren<Transform>(true))
+                {
+                    if (candidate.name != "Arena") continue;
+                    foreach (string childName in names)
+                    {
+                        Transform child = candidate.Find(childName);
+                        if (child != null && !targets.Contains(child.gameObject))
+                            targets.Add(child.gameObject);
+                    }
+                }
+            }
+            hideDuringBreak = targets.ToArray();
         }
 
         private void OnDisable()
@@ -197,22 +312,27 @@ namespace FoodIsekaiZ.Display
 
         private IEnumerator TransitionTo(GameObject nextPanel, bool showMenu, string heading)
         {
-            gameManager?.SetPhasePresentationPaused(showMenu);
+            bool returnFloor = nextPanel == null && gameManager != null &&
+                gameManager.CurrentMealWavePhase == MealWavePhase.Active && floorSlideOrigins.Count > 0;
+            gameManager?.SetPhasePresentationPaused(showMenu || returnFloor);
             if (showMenu) yield return menuTransition.Cover(heading);
-            if (exclusivePanel != null && exclusivePanel != nextPanel)
+            if (exclusivePanel != nextPanel && previousVisibility.Count > 0)
             {
-                yield return FadePanel(exclusivePanel, false);
-                RestoreOtherUi();
+                if (exclusivePanel != null) yield return FadePanel(exclusivePanel, false);
                 exclusivePanel = null;
+                // Keep the groups at their offscreen positions until their return animation finishes.
+                if (returnFloor) yield return SlideFloorIn();
+                RestoreOtherUi();
             }
             topHudVisibility?.SetReportVisible(nextPanel != null);
             if (nextPanel != null)
             {
+                if (nextPanel == breakPanel) yield return SlideFloorOut();
                 exclusivePanel = nextPanel;
                 HideOtherUi(nextPanel);
                 yield return FadePanel(nextPanel, true);
             }
-            if (showMenu) yield return menuTransition.Reveal();
+            if (showMenu) yield return menuTransition.Reveal(returnFloor);
             else menuTransition?.Hide();
             gameManager?.SetPhasePresentationPaused(false);
             transition = null;

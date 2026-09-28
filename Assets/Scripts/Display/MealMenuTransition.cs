@@ -30,6 +30,8 @@ namespace FoodIsekaiZ.Display
         public bool IsCovered => visible && Mathf.Approximately(offset, 0f);
         // Includes the cover, title hold, and reveal until the page is fully hidden.
         public bool IsVisible => visible && gameObject.activeInHierarchy;
+        // A completed floor entrance can flow straight into food animation during the page reveal.
+        public bool RevealFoodImmediately { get; private set; }
         // Raised while the page still covers the scene, before every phase reveal.
         public event System.Action RevealStarting;
         public override Texture mainTexture => pageArtwork != null ? pageArtwork.texture : base.mainTexture;
@@ -89,16 +91,20 @@ namespace FoodIsekaiZ.Display
             }
         }
 
-        public IEnumerator Reveal()
+        // Continue from a floor slide without adding another title hold or delaying the food reveal.
+        public IEnumerator Reveal(bool continueFromFloorSlide = false)
         {
+            RevealFoodImmediately = continueFromFloorSlide;
             RevealStarting?.Invoke();
-            if (titleHoldSeconds > 0f) yield return new WaitForSecondsRealtime(titleHoldSeconds);
+            if (!continueFromFloorSlide && titleHoldSeconds > 0f)
+                yield return new WaitForSecondsRealtime(titleHoldSeconds);
             yield return Slide(1f, revealSeconds);
             Hide();
         }
 
         public void Hide()
         {
+            RevealFoodImmediately = false;
             visible = false;
             offset = -1f;
             if (heading != null) heading.gameObject.SetActive(false);

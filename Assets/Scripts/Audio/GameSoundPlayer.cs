@@ -8,7 +8,25 @@ namespace FoodIsekaiZ.Audio
         [SerializeField] private AudioSource[] voices;
         [SerializeField] private AudioClip[] clips;
         [SerializeField] private float[] cooldowns;
-        [SerializeField, Range(0f, 1f)] private float masterVolume = 0.65f;
+        [SerializeField, Range(0f, 1f)] private float masterVolume = 0.85f;
+        [Header("Action Mix (dB)")]
+        [SerializeField, Range(-12f, 12f)] private float foodPickupGainDb = 0f;
+        [SerializeField, Range(-12f, 12f)] private float foodServedGainDb = 0f;
+        [SerializeField, Range(-12f, 12f)] private float wrongFoodGainDb = 1f;
+        [SerializeField, Range(-12f, 12f)] private float moneyPaidGainDb = 2f;
+        [SerializeField, Range(-12f, 12f)] private float moneyCollectedGainDb = 1f;
+        [SerializeField, Range(-12f, 12f)] private float bankDepositGainDb = 1f;
+        [Header("Announcements And Warnings (dB)")]
+        [SerializeField, Range(-12f, 12f)] private float customerExpiredGainDb = 2f;
+        [SerializeField, Range(-12f, 12f)] private float waveStartGainDb = 4f;
+        [SerializeField, Range(-12f, 12f)] private float waveBreakGainDb = 4f;
+        [SerializeField, Range(-12f, 12f)] private float serviceCompleteGainDb = -1f;
+        [SerializeField, Range(-12f, 12f)] private float timeWarningGainDb = 7f;
+        [Header("Supporting Cues (dB)")]
+        [SerializeField, Range(-12f, 12f)] private float orderArrivedGainDb = 4f;
+        [SerializeField, Range(-12f, 12f)] private float emojiBubbleGainDb = 0f;
+        [SerializeField, Range(-12f, 12f)] private float moneyReminderGainDb = 3f;
+        [SerializeField, Range(-12f, 12f)] private float successPopGainDb = 4f;
         private readonly float[] nextAllowedTime = new float[System.Enum.GetValues(typeof(GameSoundCue)).Length];
         private int nextVoice;
 
@@ -36,8 +54,31 @@ namespace FoodIsekaiZ.Audio
             float cooldown = cooldowns != null && index < cooldowns.Length ? cooldowns[index] : 0.12f;
             nextAllowedTime[index] = Time.unscaledTime + Mathf.Max(0.05f, cooldown);
             voice.Stop();
-            voice.PlayOneShot(clips[index], masterVolume);
+            voice.PlayOneShot(clips[index], Mathf.Clamp01(masterVolume) * Mathf.Pow(10f, GetGainDb(cue) / 20f));
             return true;
+        }
+
+        private float GetGainDb(GameSoundCue cue)
+        {
+            switch (cue)
+            {
+                case GameSoundCue.FoodPickup: return foodPickupGainDb;
+                case GameSoundCue.FoodServed: return foodServedGainDb;
+                case GameSoundCue.WrongFood: return wrongFoodGainDb;
+                case GameSoundCue.OrderArrived: return orderArrivedGainDb;
+                case GameSoundCue.MoneyPaid: return moneyPaidGainDb;
+                case GameSoundCue.MoneyCollected: return moneyCollectedGainDb;
+                case GameSoundCue.BankDeposit: return bankDepositGainDb;
+                case GameSoundCue.CustomerExpired: return customerExpiredGainDb;
+                case GameSoundCue.WaveStart: return waveStartGainDb;
+                case GameSoundCue.WaveBreak: return waveBreakGainDb;
+                case GameSoundCue.ServiceComplete: return serviceCompleteGainDb;
+                case GameSoundCue.TimeWarning: return timeWarningGainDb;
+                case GameSoundCue.EmojiBubble: return emojiBubbleGainDb;
+                case GameSoundCue.MoneyReminder: return moneyReminderGainDb;
+                case GameSoundCue.SuccessPop: return successPopGainDb;
+                default: return 0f;
+            }
         }
 
         private void OnDisable()

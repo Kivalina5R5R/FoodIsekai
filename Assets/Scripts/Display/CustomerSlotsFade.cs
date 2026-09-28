@@ -46,6 +46,14 @@ namespace FoodIsekaiZ.Display
             playing = false;
         }
 
+        // A returning floor group uses its slide instead of replaying the startup fade.
+        public void CompleteReveal()
+        {
+            if (!playing) return;
+            SetOpacity(1f);
+            playing = false;
+        }
+
         private void SetOpacity(float opacity)
         {
             if (slotRenderers == null) return;

@@ -18,7 +18,7 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private bool activateSecondDisplayOnAwake = true;
         [SerializeField] private bool applyPaperArenaResolutionsInStandalone = true;
         [SerializeField] private Vector2Int sideDisplayResolution = new Vector2Int(8192, 2160);
-        [SerializeField] private Vector2Int floorDisplayResolution = new Vector2Int(2816, 1280);
+        [SerializeField] private Vector2Int floorDisplayResolution = new Vector2Int(2944, 1408);
         [SerializeField, Min(30)] private int refreshRate = 60;
         [SerializeField] private Color sideDisplayBackground = new Color(0.025f, 0.035f, 0.055f, 1f);
 
@@ -67,7 +67,7 @@ namespace FoodIsekaiZ.Display
 
             if (applyPaperArenaResolutionsInStandalone && !Application.isEditor)
             {
-                // Display 1 is the floor (2816x1280); Display 2 is the wall (8192x2160).
+                // Display 1 is the floor (2944x1408); Display 2 is the wall (8192x2160).
                 var targetRefreshRate = new RefreshRate
                 {
                     numerator = (uint)refreshRate,
