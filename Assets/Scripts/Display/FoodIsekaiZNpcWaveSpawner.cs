@@ -367,6 +367,8 @@ namespace FoodIsekaiZ.Display
             }
 
             if (gameManager.UsesMealWaves && gameManager.CurrentMealWavePhase == MealWavePhase.Clearing) return;
+            // Customers assigned before last call stay outside once the pre-break window begins.
+            if (gameManager.IsNewCustomerEntryClosed) return;
 
             if (pendingSpawnSlots.Count == 0 ||
                 presentationTime < nextSpawnBatchTime ||

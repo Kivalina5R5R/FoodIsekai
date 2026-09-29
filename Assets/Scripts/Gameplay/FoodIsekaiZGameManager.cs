@@ -77,6 +77,9 @@ namespace FoodIsekaiZ.Gameplay
         [Tooltip("เวลาพักระหว่าง Wave ก่อนเริ่มมื้อถัดไป")]
         [InspectorName("Break Duration (Seconds)")]
         [SerializeField, Min(0f)] private float intermissionDurationSeconds = 30f;
+        [Tooltip("ช่วงวินาทีสุดท้ายของ Wave ที่ลูกค้าคนใหม่จะไม่เดินเข้าช่องแล้ว เพื่อเตรียมพักเบรก")]
+        [InspectorName("Last Call Before Break (Seconds)")]
+        [SerializeField, Min(0f)] private float lastCallBeforeBreakSeconds = 7.5f;
         [Tooltip("ชื่อของแต่ละ Wave เรียงตามลำดับการเล่น")]
         [SerializeField] private MealWaveDefinition[] mealWaves =
         {
@@ -183,6 +186,11 @@ namespace FoodIsekaiZ.Gameplay
         public int CurrentWaveNumber => currentWaveIndex >= 0 ? currentWaveIndex + 1 : 0;
         public int TotalWaveCount => mealWaves != null ? mealWaves.Length : 0;
         public float MealPhaseRemainingSeconds => mealPhaseRemainingSeconds;
+        // True during the final seconds of an active wave, when no new customer may enter a slot.
+        public bool IsNewCustomerEntryClosed =>
+            useMealWaves &&
+            mealWavePhase == MealWavePhase.Active &&
+            mealPhaseRemainingSeconds <= lastCallBeforeBreakSeconds;
         public string CurrentWaveName => GetWaveDisplayName(currentWaveIndex);
         public string NextWaveName => GetWaveDisplayName(currentWaveIndex + 1);
 
@@ -582,7 +590,17 @@ namespace FoodIsekaiZ.Gameplay
             NotifyMealWaveDisplayIfNeeded(true);
             if (customerSlots == null) return;
             foreach (ArenaSlot2D slot in customerSlots)
-                if (slot != null && slot.CustomerState == CustomerSlotState.WaitingForFood) slot.ClearCustomer();
+            {
+                if (slot == null || slot.CustomerState != CustomerSlotState.WaitingForFood) continue;
+                // A customer still waiting at its slot when the break starts counts as an expired order.
+                if (slot.IsOrderRevealed)
+                {
+                    expiredOrderCount++;
+                    AddTeamScore(-escapedCustomerPenalty);
+                    CustomerOrderExpired?.Invoke(slot);
+                }
+                slot.ClearCustomer();
+            }
         }
 
         private void TickWaveClearance(float deltaTime)
@@ -703,6 +721,7 @@ namespace FoodIsekaiZ.Gameplay
 
             waveDurationSeconds = Mathf.Max(1f, waveDurationSeconds);
             intermissionDurationSeconds = Mathf.Max(0f, intermissionDurationSeconds);
+            lastCallBeforeBreakSeconds = Mathf.Max(0f, lastCallBeforeBreakSeconds);
         }
 
         public ArenaSlot2D GetCustomerSlot(int index)
@@ -999,6 +1018,12 @@ namespace FoodIsekaiZ.Gameplay
 
         private void SpawnReadyCustomers()
         {
+            // Keep the final seconds of the wave free of new arrivals before the break.
+            if (IsNewCustomerEntryClosed)
+            {
+                return;
+            }
+
             int activeCustomers = CountActiveCustomers();
             if (activeCustomers >= maximumActiveCustomers)
             {
