@@ -83,7 +83,12 @@ namespace FoodIsekaiZ.Display
             HasOpenedDialogue = false;
             groundedPosition = start;
             if (breathing != null) breathing.EndIdle();
-            if (poseBlend != null) poseBlend.ShowWalking();
+            if (poseBlend != null)
+            {
+                poseBlend.ShowWalking();
+                // Prepare the hidden standing clip during the walk so it is ready on arrival.
+                poseBlend.WarmStandingVideo();
+            }
             entrance = StartCoroutine(Walk(start, destination, false));
         }
 
@@ -98,29 +103,43 @@ namespace FoodIsekaiZ.Display
         {
             yield return AnimateDialogue(false);
             if (breathing != null) breathing.EndIdle();
-            yield return BlendPose(1f);
             var rect = (RectTransform)transform;
             Vector3 startScale = rect.localScale;
+            Vector3 exitScale = new Vector3(-startScale.x, startScale.y, startScale.z);
             Quaternion startRotation = rect.localRotation;
             float direction = Mathf.Sign(destination.x - groundedPosition.x);
+            float startWeight = poseBlend != null ? poseBlend.WalkingWeight : 1f;
             float elapsed = 0f;
-            const float turnSeconds = 0.3f;
-            // Match the customer turn: a shallow squash and midpoint flip, never an edge-on collapse.
+            float turnSeconds = Mathf.Max(0.3f, poseBlend != null ? poseBlend.FadeSeconds + 0.15f : 0.3f);
+            // Cross-dissolve from the inward standing pose to a walking pose that already faces the exit,
+            // with a light squash and lean, so no frame shows a hard mirror flip.
+            if (poseBlend != null) poseBlend.MirrorWalkingImage(true);
+            else rect.localScale = exitScale;
             while (elapsed < turnSeconds)
             {
                 elapsed += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(elapsed / turnSeconds);
                 float collapse = Mathf.Sin(t * Mathf.PI);
                 float easedCollapse = Mathf.SmoothStep(0f, 1f, collapse);
-                Vector3 scale = startScale;
-                scale.x *= Mathf.Lerp(1f, 0.78f, easedCollapse) * (t < 0.5f ? 1f : -1f);
-                scale.y *= 1f + 0.02f * easedCollapse;
+                Vector3 scale = poseBlend != null ? startScale : exitScale;
+                scale.x *= Mathf.Lerp(1f, 0.92f, easedCollapse);
+                scale.y *= 1f + 0.01f * easedCollapse;
                 rect.localScale = scale;
-                rect.localRotation = startRotation * Quaternion.Euler(0f, 0f, collapse * 2.5f * direction);
+                rect.localRotation = startRotation * Quaternion.Euler(0f, 0f, collapse * 2f * direction);
                 rect.anchoredPosition = groundedPosition + Vector2.up * (collapse * 2f);
+                if (poseBlend != null)
+                    poseBlend.SetWalkingWeight(Mathf.Lerp(startWeight, 1f, Mathf.SmoothStep(0f, 1f, t)));
                 yield return null;
             }
-            rect.localScale = new Vector3(-startScale.x, startScale.y, startScale.z);
+            // The standing pose is now invisible, so flipping the root while un-mirroring the walking image
+            // leaves the frame unchanged.
+            if (poseBlend != null)
+            {
+                poseBlend.SetWalkingWeight(1f);
+                poseBlend.MirrorWalkingImage(false);
+            }
+            rect.localScale = exitScale;
+            rect.localRotation = startRotation;
             rect.localRotation = startRotation;
             rect.anchoredPosition = groundedPosition;
             yield return Walk(groundedPosition, destination, true);
@@ -171,11 +190,27 @@ namespace FoodIsekaiZ.Display
                 gameObject.SetActive(false);
                 yield break;
             }
+            yield return WaitForStandingVideo();
             yield return BlendPose(0f);
             if (breathing != null) breathing.BeginIdle();
+            // Let the standing video play at least one visible frame before the dialogue opens.
+            yield return null;
             yield return AnimateDialogue(true);
             HasOpenedDialogue = true;
             entrance = null;
+        }
+
+        // Waits briefly for the standing clip's first frame so the arrival fades straight into video.
+        private IEnumerator WaitForStandingVideo()
+        {
+            if (poseBlend == null) yield break;
+            poseBlend.WarmStandingVideo();
+            float waited = 0f;
+            while (!poseBlend.IsStandingVideoReady && waited < 3f)
+            {
+                waited += Time.unscaledDeltaTime;
+                yield return null;
+            }
         }
 
         // Finish changing pose at the grounded position before starting the next action.
