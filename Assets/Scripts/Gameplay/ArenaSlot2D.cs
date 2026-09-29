@@ -43,6 +43,27 @@ namespace FoodIsekaiZ.Gameplay
         private bool customerTimerStarted;
         private int customerGeneration;
         private Func<bool> isMoneyPresentationComplete;
+        private Func<bool> isAutomaticCollectionPresentationComplete;
+        private int automaticCollectionSpawnFrame;
+        private float automaticCollectionReadyAt;
+        public bool IsAutomaticCollectionPending { get; private set; }
+        public bool IsAutomaticCollectionReady => IsAutomaticCollectionPending &&
+            customerState == CustomerSlotState.MoneyAvailable && Time.frameCount > automaticCollectionSpawnFrame &&
+            Time.time >= automaticCollectionReadyAt &&
+            (isAutomaticCollectionPresentationComplete == null || isAutomaticCollectionPresentationComplete());
+
+        public void BeginAutomaticCollection()
+        {
+            IsAutomaticCollectionPending = true;
+            automaticCollectionSpawnFrame = Time.frameCount;
+            automaticCollectionReadyAt = Time.time + 0.65f;
+        }
+
+        public void WaitForAutomaticCollectionPresentation(Func<bool> isComplete)
+        {
+            isAutomaticCollectionPresentationComplete = isComplete;
+        }
+        private readonly CustomerOrder order = new CustomerOrder();
 
         private MaterialPropertyBlock slotVisualProperties;
         private Renderer slotRenderer;
@@ -62,7 +83,12 @@ namespace FoodIsekaiZ.Gameplay
         // Whether this completed order can expose its reward for collection.
         public bool IsReadyToSpawnMoney => customerState == CustomerSlotState.Completing &&
             (isMoneyPresentationComplete == null || isMoneyPresentationComplete());
-        public FoodType RequestedFood => requestedFood;
+        public FoodType RequestedFood => order.DishCount > 0 ? order.DisplayFood : requestedFood;
+        public IReadOnlyList<FoodType> RemainingFoods => order.Remaining;
+        public FoodType LastServedFood => order.LastServedFood;
+        public bool IsOmakase => order.IsOmakase;
+        public bool IsSpecialOrder { get; private set; }
+        public bool AcceptsFood(FoodType food) => IsOrderRevealed && order.Accepts(food);
         // The NPC presentation starts this timer only when its order panel is shown.
         public bool IsOrderRevealed => customerState == CustomerSlotState.WaitingForFood && customerTimerStarted;
         public float StateRemainingSeconds => stateRemainingSeconds;
@@ -74,7 +100,7 @@ namespace FoodIsekaiZ.Gameplay
             ? Mathf.Clamp01(stateRemainingSeconds / orderDurationSeconds)
             : 0f;
         // Whether a running food order is in the same low-time window used by the floor warning.
-        public bool IsOrderNearTimeout => customerState == CustomerSlotState.WaitingForFood &&
+        public bool IsOrderNearTimeout => !IsSpecialOrder && customerState == CustomerSlotState.WaitingForFood &&
             customerTimerStarted && OrderTimeNormalized > 0f && OrderTimeNormalized <= warningTimeNormalized;
         public int OrderReward => orderReward;
         public int AvailableMoney => availableMoney;
@@ -236,8 +262,13 @@ namespace FoodIsekaiZ.Gameplay
             RefreshVisuals();
         }
 
-        public void ConfigureCustomer(FoodType food, float orderTimeSeconds, int reward)
+        public void ConfigureCustomer(FoodType food, float orderTimeSeconds, int reward,
+            FoodType secondFood = FoodType.None, bool omakase = false, bool special = false)
         {
+            IsAutomaticCollectionPending = false;
+            isAutomaticCollectionPresentationComplete = null;
+            order.Configure(food, secondFood, omakase);
+            IsSpecialOrder = special;
             isMoneyPresentationComplete = null;
             customerGeneration = customerGeneration == int.MaxValue ? 1 : customerGeneration + 1;
             requestedFood = food;
@@ -290,8 +321,18 @@ namespace FoodIsekaiZ.Gameplay
             return true;
         }
 
+        // Partial deliveries keep the original waiting timer; only the final dish starts eating.
+        public bool TryServeFood(FoodType food, float eatingDurationSeconds)
+        {
+            if (!IsOrderRevealed || !order.TryServe(food)) return false;
+            requestedFood = order.DisplayFood;
+            if (order.IsComplete) TryBeginEating(eatingDurationSeconds);
+            return true;
+        }
+
         public bool AdvanceStateTimer(float deltaTime)
         {
+            if (IsSpecialOrder && customerState == CustomerSlotState.WaitingForFood) return false;
             if (customerState != CustomerSlotState.WaitingForFood && customerState != CustomerSlotState.Eating)
             {
                 return false;
@@ -334,19 +375,23 @@ namespace FoodIsekaiZ.Gameplay
         }
 
         // Makes the completed order's reward visible and available to collect.
-        public void SpawnMoney(int amount)
+        public void SpawnMoney(int amount, bool collectAutomatically = false)
         {
             if (slotType != ArenaSlotType.Customer)
             {
                 return;
             }
 
+            IsAutomaticCollectionPending = false;
+            isAutomaticCollectionPresentationComplete = null;
             availableMoney = Mathf.Max(0, amount);
             isMoneyPresentationComplete = null;
             customerState = CustomerSlotState.MoneyAvailable;
             stateRemainingSeconds = 0f;
             stateDurationSeconds = 0f;
             customerTimerStarted = false;
+            // Set Bank state before enabling the money object so its OnEnable can bind the animation.
+            if (collectAutomatically) BeginAutomaticCollection();
             RefreshVisuals();
         }
 
@@ -364,6 +409,10 @@ namespace FoodIsekaiZ.Gameplay
 
         public void ClearCustomer()
         {
+            IsAutomaticCollectionPending = false;
+            isAutomaticCollectionPresentationComplete = null;
+            order.Clear();
+            IsSpecialOrder = false;
             isMoneyPresentationComplete = null;
             customerState = CustomerSlotState.Empty;
             requestedFood = FoodType.None;

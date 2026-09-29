@@ -14,6 +14,10 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private Image foodImage;
         [SerializeField] private Image drinkImage;
         [SerializeField] private Image[] authoredFoodImages;
+        [Tooltip("Authored compact positions: left, right, then bottom. Used only while holding multiple dishes.")]
+        [SerializeField] private Image[] multiFoodImages;
+        [Tooltip("Per-menu compact images grouped under each slot, with sizes and offsets authored in the prefab.")]
+        [SerializeField] private Image[] authoredMultiFoodImages;
         [SerializeField] private Sprite[] foodSprites;
         [SerializeField] private MealFoodDisplay mealFoodDisplay;
         [SerializeField] private GameObject moneyVisual;
@@ -29,6 +33,8 @@ namespace FoodIsekaiZ.Display
         private FloorAnimatedSprite pendingPickup;
         private int pendingPlaybackVersion;
         private FoodType pendingFood;
+        private int displayedInventoryRevision = -1;
+        private bool displayedWaitingForPickup;
 
         // The spawner supplies the scene meal display to each prefab instance.
         public void BindMealDisplay(MealFoodDisplay display)
@@ -38,15 +44,12 @@ namespace FoodIsekaiZ.Display
         }
 
         // Hide the held illustration until this specific pickup flight finishes or is interrupted.
-        public void WaitForPickup(FloorAnimatedSprite motion)
+        public void WaitForPickup(FloorAnimatedSprite motion, FoodType food)
         {
             pendingPickup = motion;
             pendingPlaybackVersion = motion.PlaybackVersion;
-            pendingFood = playerState.HeldFood;
-            displayedFood = (FoodType)(-1);
-            foodImage.enabled = false;
-            if (drinkImage != null) drinkImage.enabled = false;
-            HideAuthoredFood();
+            pendingFood = food;
+            displayedInventoryRevision = -1;
         }
 
         private void OnDisable()
@@ -59,6 +62,7 @@ namespace FoodIsekaiZ.Display
             displayedPlayerId = -1;
             displayedFood = (FoodType)(-1);
             displayedMoney = -1;
+            displayedInventoryRevision = -1;
         }
 
         private void LateUpdate()
@@ -81,14 +85,19 @@ namespace FoodIsekaiZ.Display
 
             bool waitingForPickup = pendingPickup != null && pendingPickup.isActiveAndEnabled &&
                 pendingPickup.PlaybackVersion == pendingPlaybackVersion && pendingPickup.IsAnimating &&
-                playerState.HeldFood == pendingFood;
+                playerState.HasFood(pendingFood);
             if (!waitingForPickup) pendingPickup = null;
             int meal = mealFoodDisplay != null ? mealFoodDisplay.MealIndex : 0;
-            if (!waitingForPickup && (displayedFood != playerState.HeldFood || displayedMeal != meal))
+            if (displayedInventoryRevision != playerState.InventoryRevision || displayedMeal != meal ||
+                displayedWaitingForPickup != waitingForPickup)
             {
+                displayedInventoryRevision = playerState.InventoryRevision;
+                displayedWaitingForPickup = waitingForPickup;
                 displayedMeal = meal;
-                displayedFood = playerState.HeldFood;
+                displayedFood = playerState.HeldFoods.Count > 1 || (waitingForPickup && playerState.HeldFood == pendingFood)
+                    ? FoodType.None : playerState.HeldFood;
                 RefreshFood();
+                RefreshMultipleFood(waitingForPickup);
             }
 
             if (displayedMoney != playerState.CarriedMoney)
@@ -150,6 +159,39 @@ namespace FoodIsekaiZ.Display
             foreach (Image image in authoredFoodImages)
             {
                 if (image != null) image.enabled = false;
+            }
+        }
+
+        private void RefreshMultipleFood(bool waitingForPickup)
+        {
+            if (multiFoodImages == null) return;
+            bool multiple = playerState.HeldFoods.Count > 1;
+            for (int i = 0; i < multiFoodImages.Length; i++)
+            {
+                Image image = multiFoodImages[i];
+                if (image == null) continue;
+                FoodType food = multiple && i < playerState.HeldFoods.Count ? playerState.HeldFoods[i] : FoodType.None;
+                if (waitingForPickup && food == pendingFood) food = FoodType.None;
+                int index = (int)food - 1;
+                Sprite sprite = mealFoodDisplay != null ? mealFoodDisplay.GetSprite(food)
+                    : foodSprites != null && index >= 0 && index < foodSprites.Length ? foodSprites[index] : null;
+                bool hasAuthoredVariant = false;
+                if (authoredMultiFoodImages != null)
+                {
+                    foreach (Image variant in authoredMultiFoodImages)
+                    {
+                        if (variant == null || variant.transform.parent != image.transform) continue;
+                        bool show = sprite != null && variant.sprite == sprite;
+                        bool appeared = show && !variant.enabled;
+                        variant.enabled = show;
+                        hasAuthoredVariant |= show;
+                        if (appeared) variant.GetComponent<InventoryAppearEffect>()?.PlayGrow();
+                    }
+                }
+                bool changed = image.sprite != sprite || !image.enabled;
+                image.sprite = sprite;
+                image.enabled = sprite != null && !hasAuthoredVariant;
+                if (image.enabled && changed) image.GetComponent<InventoryAppearEffect>()?.PlayGrow();
             }
         }
     }

@@ -1,0 +1,30 @@
+<Project>
+  <PropertyGroup>
+    <BaseIntermediateOutputPath>../../Temp/PerkShopTests/obj/</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <OutputPath>../../Temp/PerkShopTests/bin/</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Scripts/Gameplay/IPerkWallet.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/PerkOffer.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/PerkPurchase.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/PerkShopSession.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/PerkSelectionHold.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/FoodIsekaiZGameplayTypes.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/PerkDefinition.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/PerkDefinitions.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/PerkEffect.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/IPerkProgression.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/PerkManager.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/FoodInventory.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/CustomerOrder.cs" />
+    <Compile Include="PerkGameplayTests.cs" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+</Project>

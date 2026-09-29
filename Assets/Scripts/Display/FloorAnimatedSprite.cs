@@ -40,12 +40,28 @@ namespace FoodIsekaiZ.Display
         private bool animating;
         private Transform pickupTarget;
         private bool delivering;
+        private bool automaticCollection;
+        private int automaticCollectionFrame;
+        private const float AutomaticCollectionDuration = 0.9f;
+        private int firstAutomaticRenderFrame = -1;
+        private ArenaSlot2D rewardSlot;
         public int PlaybackVersion { get; private set; }
 
         // Raised when a temporary food illustration reaches its destination.
         public event System.Action FoodArrived;
 
         public bool IsAnimating => animating || IsReminding;
+        public bool PlayAutomaticCollection()
+        {
+            if (motion != MotionKind.Reward || !isActiveAndEnabled || rewardSprite == null) return false;
+            Begin(rewardSprite);
+            automaticCollection = true;
+            automaticCollectionFrame = Time.frameCount;
+            firstAutomaticRenderFrame = -1;
+            rewardSlot?.WaitForAutomaticCollectionPresentation(() => this == null ||
+                !isActiveAndEnabled || (firstAutomaticRenderFrame >= 0 && !animating));
+            return true;
+        }
         public override Texture mainTexture => currentSprite != null ? currentSprite.texture : s_WhiteTexture;
 
         protected override void OnEnable()
@@ -53,7 +69,9 @@ namespace FoodIsekaiZ.Display
             base.OnEnable();
             if (motion == MotionKind.Reward && rewardSprite != null)
             {
-                Begin(rewardSprite);
+                rewardSlot = GetComponentInParent<ArenaSlot2D>();
+                if (rewardSlot == null || !rewardSlot.IsAutomaticCollectionPending || !PlayAutomaticCollection())
+                    Begin(rewardSprite);
             }
         }
 
@@ -91,6 +109,7 @@ namespace FoodIsekaiZ.Display
             elapsed = 0f;
             rewardAge = 0f;
             pickupTarget = null;
+            automaticCollection = false;
             SetVerticesDirty();
         }
 
@@ -108,12 +127,26 @@ namespace FoodIsekaiZ.Display
 
         private void Update()
         {
+            // Recover when the reward was already enabled before Bank's payout, including a script reload.
+            if (motion == MotionKind.Reward && rewardSlot != null &&
+                rewardSlot.IsAutomaticCollectionPending && !automaticCollection)
+                PlayAutomaticCollection();
             Advance(Time.deltaTime);
         }
 
         private void Advance(float deltaTime)
         {
             if (deltaTime <= 0f) return;
+            if (automaticCollection)
+            {
+                // A generated visible mesh must reach a subsequent frame before the collection can advance.
+                if (firstAutomaticRenderFrame < 0 || Time.frameCount <= firstAutomaticRenderFrame ||
+                    Time.frameCount == automaticCollectionFrame || !animating) return;
+                elapsed = Mathf.Min(elapsed + deltaTime, AutomaticCollectionDuration);
+                animating = elapsed < AutomaticCollectionDuration;
+                SetVerticesDirty();
+                return;
+            }
             if (motion == MotionKind.Reward && visible)
             {
                 bool wasReminding = IsReminding;
@@ -165,6 +198,18 @@ namespace FoodIsekaiZ.Display
                 shadow = new Vector2(2f, -3f);
                 alpha = Mathf.Clamp01(age / 0.12f);
                 tilt = Mathf.Sin(age * Mathf.PI * 2f) * 0.065f * (1f - age);
+                if (automaticCollection)
+                {
+                    if (firstAutomaticRenderFrame < 0) firstAutomaticRenderFrame = Time.frameCount;
+                    float progress = Mathf.Clamp01(elapsed / AutomaticCollectionDuration);
+                    float collectionGrowth = Mathf.InverseLerp(.2f, .5f, progress);
+                    float shrink = Mathf.InverseLerp(.5f, 1f, progress);
+                    scale = progress < .5f ? Mathf.Lerp(1f, 1.35f, Mathf.SmoothStep(0f, 1f, collectionGrowth))
+                        : Mathf.Lerp(1.35f, 0f, Mathf.SmoothStep(0f, 1f, shrink));
+                    alpha = 1f;
+                    tilt = 0f;
+                    center = Vector2.zero;
+                }
                 if (IsReminding)
                 {
                     float reminder = Mathf.Clamp01(ReminderPhase / Mathf.Max(0.1f, reminderDuration));

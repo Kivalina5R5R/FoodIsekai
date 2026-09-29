@@ -21,22 +21,22 @@ namespace FoodIsekaiZ.Gameplay
         internal FoodType PickRandomFood(
             ArenaSlot2D[] customerSlots,
             int slotIndex,
-            FoodIsekaiZGameManager.FoodOption[] foodOptions)
+            FoodIsekaiZGameManager.FoodOption[] foodOptions, FoodType excludedFood = FoodType.None)
         {
-            BuildFoodCandidates(customerSlots, slotIndex, foodOptions, true, true);
+            BuildFoodCandidates(customerSlots, slotIndex, foodOptions, true, true, excludedFood);
             if (foodCandidates.Count == 0)
             {
-                BuildFoodCandidates(customerSlots, slotIndex, foodOptions, true, false);
+                BuildFoodCandidates(customerSlots, slotIndex, foodOptions, true, false, excludedFood);
             }
 
             if (foodCandidates.Count == 0)
             {
-                BuildFoodCandidates(customerSlots, slotIndex, foodOptions, false, true);
+                BuildFoodCandidates(customerSlots, slotIndex, foodOptions, false, true, excludedFood);
             }
 
             if (foodCandidates.Count == 0)
             {
-                BuildFoodCandidates(customerSlots, slotIndex, foodOptions, false, false);
+                BuildFoodCandidates(customerSlots, slotIndex, foodOptions, false, false, excludedFood);
             }
 
             FoodType selectedFood = foodCandidates.Count > 0
@@ -51,7 +51,7 @@ namespace FoodIsekaiZ.Gameplay
             int slotIndex,
             FoodIsekaiZGameManager.FoodOption[] foodOptions,
             bool avoidAdjacentFood,
-            bool avoidConsecutiveFood)
+            bool avoidConsecutiveFood, FoodType excludedFood)
         {
             foodCandidates.Clear();
             if (foodOptions == null)
@@ -62,7 +62,7 @@ namespace FoodIsekaiZ.Gameplay
             for (int i = 0; i < foodOptions.Length; i++)
             {
                 FoodIsekaiZGameManager.FoodOption option = foodOptions[i];
-                if (!IsOrderable(option) || foodCandidates.Contains(option.food))
+                if (!IsOrderable(option) || option.food == excludedFood || foodCandidates.Contains(option.food))
                 {
                     continue;
                 }

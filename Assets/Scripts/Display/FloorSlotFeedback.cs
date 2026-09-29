@@ -80,14 +80,14 @@ namespace FoodIsekaiZ.Display
             if (interactedSlot != slot || player == null) return;
             foodMotion?.PlayFood(slot.StationFood, player.transform, false);
             if (foodMotion != null && foodMotion.isActiveAndEnabled && foodMotion.IsAnimating)
-                player.GetComponentInChildren<PlayerPlateDisplay>(true)?.WaitForPickup(foodMotion);
+                player.GetComponentInChildren<PlayerPlateDisplay>(true)?.WaitForPickup(foodMotion, slot.StationFood);
         }
 
         private void HandleDelivery(FoodIsekaiZPlayerState player, ArenaSlot2D interactedSlot)
         {
             if (interactedSlot != slot || player == null) return;
             if (foodMotion != null && foodMotion.isActiveAndEnabled)
-                foodMotion.PlayFood(slot.RequestedFood, player.transform, true);
+                foodMotion.PlayFood(slot.LastServedFood, player.transform, true);
             else
                 HandleFoodArrived();
         }

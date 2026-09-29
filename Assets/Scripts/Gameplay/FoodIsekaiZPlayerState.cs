@@ -1,4 +1,5 @@
 using FoodIsekaiZ.Players;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace FoodIsekaiZ.Gameplay
@@ -13,15 +14,22 @@ namespace FoodIsekaiZ.Gameplay
         [Header("Runtime (Read Only)")]
         [SerializeField] private FoodType heldFood = FoodType.None;
         [SerializeField, Range(0, MoneyCarryLimit)] private int carriedMoney;
+        private readonly FoodInventory inventory = new FoodInventory();
+        private int foodCapacity = 1;
 
         public int PlayerId => trackedPlayer != null ? trackedPlayer.PlayerId : fallbackPlayerId;
-        public FoodType HeldFood => heldFood;
+        public FoodType HeldFood => inventory.First;
+        public IReadOnlyList<FoodType> HeldFoods => inventory.Foods;
+        public int InventoryRevision => inventory.Revision;
+        public bool HasFood(FoodType food) => inventory.Contains(food);
+        public void SetFoodCapacity(int capacity) => foodCapacity = Mathf.Clamp(capacity, 1, 3);
         public int CarriedMoney => carriedMoney;
         // Gets the maximum money this player can carry before visiting the bank.
         public int MaximumCarriedMoney => MoneyCarryLimit;
 
         private void Awake()
         {
+            if (heldFood != FoodType.None) inventory.TryPick(heldFood, foodCapacity);
             carriedMoney = Mathf.Clamp(carriedMoney, 0, MoneyCarryLimit);
             if (trackedPlayer == null)
             {
@@ -29,36 +37,32 @@ namespace FoodIsekaiZ.Gameplay
             }
         }
 
-        // Picks up a different station food, replacing the food currently held by this player.
-        // Returns false while carrying money, for invalid food or the same food already held.
+        // A normal plate replaces its food; perk plates accumulate distinct menus until full.
         public bool TryPickFood(FoodType food)
         {
-            if (carriedMoney > 0 || food < FoodType.Food1 || food > FoodType.Food5 || heldFood == food)
+            if (carriedMoney > 0 || !inventory.TryPick(food, foodCapacity))
             {
                 return false;
             }
 
-            // Picking up from F is an explicit replacement action. The food that was
-            // already held is discarded as part of this pickup, so the player does
-            // not need to visit a customer slot before choosing a different food.
-            heldFood = food;
+            heldFood = inventory.First;
             return true;
         }
 
         public bool TryConsumeFood(FoodType requiredFood)
         {
-            if (heldFood != requiredFood || requiredFood == FoodType.None)
+            if (!inventory.TryConsume(requiredFood))
             {
                 return false;
             }
 
-            heldFood = FoodType.None;
+            heldFood = inventory.First;
             return true;
         }
 
         public bool TryDiscardHeldFood()
         {
-            if (heldFood == FoodType.None)
+            if (!inventory.Clear())
             {
                 return false;
             }
@@ -76,6 +80,7 @@ namespace FoodIsekaiZ.Gameplay
                 return false;
             }
 
+            inventory.Clear();
             heldFood = FoodType.None;
             carriedMoney += amount;
             return true;

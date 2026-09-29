@@ -53,12 +53,17 @@ namespace FoodIsekaiZ.Display
                 return;
             }
             countdownText = guide.transform.Find("TextPerk/Time/TextTime")?.GetComponent<TMP_Text>();
-            if (session == null) session = new PerkShopSession(gameManager, new System.Random());
+            if (session == null) session = new PerkShopSession(gameManager, new System.Random(), gameManager.Perks);
             bool big = gameManager.CurrentWaveNumber >= 2;
-            session.Open(catalog.GetOffers(big), big, gameManager.CurrentWaveNumber + 1);
+            var perkMonitor = gameManager.GetComponentInChildren<PerkManagerMonitor>(true);
+            bool simulation = gameManager.IsSimulationMode;
+            session.Open(catalog.GetOffers(big), big, gameManager.CurrentWaveNumber + 1,
+                simulation ? perkMonitor != null ? perkMonitor.GetSimulationOffers(big) : Array.Empty<string>() : null);
             // These messages also reach Player.log on the installation computer.
             Debug.Log($"[PerkShop] Open: version={Application.version}, tier={(big ? "Big" : "Small")}, offers={session.Offers.Count}, coins={gameManager.TotalBankedMoney}, players={playerSpawner?.SpawnedPlayers.Count ?? 0}.", this);
-            if (session.Offers.Count == 0)
+            if (session.Offers.Count == 0 && simulation)
+                Debug.Log("[PerkShop] Simulation: no eligible selected cards. Select perks on System/PerkManager; no random cards will be added.", this);
+            else if (session.Offers.Count == 0)
                 Debug.LogError("[PerkShop] No valid cards in the built catalog. Low money does not hide offers; check the catalog included in this build.", this);
             holds = new PerkSelectionHold[4];
             for (int i = 0; i < slots.Length; i++)

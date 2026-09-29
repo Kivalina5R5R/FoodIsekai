@@ -24,6 +24,7 @@ internal static class Program
 
     private static void Main()
     {
+        PerkGameplayTests.Run();
         var small = Enumerable.Range(0, 10).Select(i => new PerkOffer("Small" + i, 80)).ToArray();
         var big = Enumerable.Range(0, 6).Select(i => new PerkOffer("Big" + i, 150)).ToArray();
         foreach (int balance in new[] { 0, 1, 79 })

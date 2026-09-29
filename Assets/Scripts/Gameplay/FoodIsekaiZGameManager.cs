@@ -148,11 +148,17 @@ namespace FoodIsekaiZ.Gameplay
         // Holds gameplay timers and interactions while the authored phase transition covers the wall.
         public void SetPhasePresentationPaused(bool paused) => phasePresentationPaused = paused;
         private UWBManager simulationModeSource;
+        public bool IsSimulationMode => simulationModeSource != null && simulationModeSource.IsSimulationMode;
 
         public bool IsWaitingForStartup => waitForStartup && !startupReleased;
         private int lastNotifiedMealSecond = int.MinValue;
 
         private int totalBankedMoney;
+        private readonly PerkManager perks = new PerkManager(PerkDefinitions.All);
+        private double teamScoreRemainder;
+        public PerkManager Perks => perks;
+        public FoodType SpecialMenuFood { get; private set; }
+        private int specialMenuWave = int.MinValue;
         private IWaveDepartureStatus departureStatus;
         private IMealIntermissionGate intermissionGate;
 
@@ -214,6 +220,8 @@ namespace FoodIsekaiZ.Gameplay
         public event Action<ArenaSlot2D, int> CustomerFinishedEating;
         // Raised when a completed order's money is visible and available to collect.
         public event Action<ArenaSlot2D, int> CustomerMoneySpawned;
+        // Bank has finished the money animation and removed the pile from the floor.
+        public event Action<ArenaSlot2D, int> CustomerMoneyAutomaticallyCollected;
         public event Action<ArenaSlot2D> CustomerOrderExpired;
         public event Action MealWaveDisplayChanged;
         // The presentation calls the completion action once the previous screen is fully covered.
@@ -407,6 +415,10 @@ namespace FoodIsekaiZ.Gameplay
             if (IsWaitingForStartup) return;
 
             EnsureMealWaveConfiguration();
+            perks.Reset();
+            teamScoreRemainder = 0;
+            specialMenuWave = int.MinValue;
+            SpecialMenuFood = FoodType.None;
             mealWaveFlowStarted = true;
             currentWaveIndex = 0;
             BeginCurrentWave();
@@ -435,6 +447,7 @@ namespace FoodIsekaiZ.Gameplay
 
             customerFlowStarted = true;
             foodOrderGenerator.Reset();
+            SelectSpecialMenu();
             int initialCount = Mathf.Min(initialActiveCustomers, maximumActiveCustomers, CountUsableCustomerSlots());
             for (int i = 0; i < initialCount; i++)
             {
@@ -479,7 +492,7 @@ namespace FoodIsekaiZ.Gameplay
                 }
                 else if (candidate.SlotType != ArenaSlotType.Customer ||
                     !candidate.IsOrderRevealed ||
-                    candidate.RequestedFood != player.HeldFood) continue;
+                    !HasDeliverableFood(player, candidate)) continue;
 
                 Vector3 offset = candidate.transform.position - player.transform.position;
                 float distanceSquared = offset.x * offset.x + offset.z * offset.z;
@@ -511,6 +524,7 @@ namespace FoodIsekaiZ.Gameplay
             switch (slot.SlotType)
             {
                 case ArenaSlotType.FoodStation:
+                    player.SetFoodCapacity(perks.FoodCapacity);
                     if (!player.TryPickFood(slot.StationFood))
                     {
                         return false;
@@ -593,10 +607,10 @@ namespace FoodIsekaiZ.Gameplay
             {
                 if (slot == null || slot.CustomerState != CustomerSlotState.WaitingForFood) continue;
                 // A customer still waiting at its slot when the break starts counts as an expired order.
-                if (slot.IsOrderRevealed)
+                if (slot.IsOrderRevealed && !slot.IsSpecialOrder)
                 {
                     expiredOrderCount++;
-                    AddTeamScore(-escapedCustomerPenalty);
+                    ApplyEscapedCustomerPenalty();
                     CustomerOrderExpired?.Invoke(slot);
                 }
                 slot.ClearCustomer();
@@ -610,7 +624,7 @@ namespace FoodIsekaiZ.Gameplay
             if (customerSlots != null)
                 foreach (ArenaSlot2D slot in customerSlots)
                     if (slot != null && (slot.CustomerState == CustomerSlotState.Eating ||
-                        slot.CustomerState == CustomerSlotState.Completing)) return;
+                        slot.CustomerState == CustomerSlotState.Completing || slot.IsAutomaticCollectionPending)) return;
             if (departureStatus != null && departureStatus.HasNpcsInRestaurant) return;
 
             if (currentWaveIndex >= TotalWaveCount - 1)
@@ -802,6 +816,7 @@ namespace FoodIsekaiZ.Gameplay
             for (int i = 0; i < customerSlots.Length; i++)
             {
                 ArenaSlot2D slot = customerSlots[i];
+                if (slot != null) ServeAutomaticDrinks(slot);
                 if (slot == null || !slot.AdvanceStateTimer(deltaTime))
                 {
                     continue;
@@ -810,7 +825,7 @@ namespace FoodIsekaiZ.Gameplay
                 if (slot.CustomerState == CustomerSlotState.WaitingForFood)
                 {
                     expiredOrderCount++;
-                    AddTeamScore(-escapedCustomerPenalty);
+                    ApplyEscapedCustomerPenalty();
                     CustomerOrderExpired?.Invoke(slot);
                     slot.ClearCustomer();
                     ScheduleCustomer(i);
@@ -840,6 +855,13 @@ namespace FoodIsekaiZ.Gameplay
                 if (slot != null)
                 {
                     TrySpawnCompletedCustomerMoney(slot, slot.CustomerGeneration);
+                    if (slot.IsAutomaticCollectionReady)
+                    {
+                        int collected = slot.CollectMoney();
+                        if (CreditMoneyDeposit(0, collected))
+                            CustomerMoneyAutomaticallyCollected?.Invoke(slot, collected);
+                        ScheduleCustomer(i);
+                    }
                 }
             }
         }
@@ -858,39 +880,75 @@ namespace FoodIsekaiZ.Gameplay
             }
 
             int reward = slot.OrderReward;
-            slot.SpawnMoney(reward);
+            slot.SpawnMoney(reward, perks.HasEffect(PerkEffect.AutomaticBank));
             CustomerMoneySpawned?.Invoke(slot, reward);
+        }
+
+        private static bool HasDeliverableFood(FoodIsekaiZPlayerState player, ArenaSlot2D slot)
+        {
+            foreach (FoodType food in player.HeldFoods)
+                if (slot.AcceptsFood(food)) return true;
+            return false;
+        }
+
+        private float EffectiveEatingSeconds => eatingDurationSeconds / (float)perks.GetAmount(PerkEffect.EatingSpeed);
+
+        private int GetServeScore(FoodType food, ArenaSlot2D slot) =>
+            (int)(correctServeScore * perks.GetAmount(PerkEffect.FoodScore, food: food) * (slot.IsSpecialOrder ? 2 : 1));
+
+        private void ServeAutomaticDrinks(ArenaSlot2D slot)
+        {
+            if (!perks.HasEffect(PerkEffect.AutomaticDrinks)) return;
+            while (slot.AcceptsFood(FoodType.Food5))
+            {
+                if (!slot.TryServeFood(FoodType.Food5, EffectiveEatingSeconds)) break;
+                AddTeamScore(GetServeScore(FoodType.Food5, slot));
+                if (slot.CustomerState == CustomerSlotState.Eating) servedOrderCount++;
+                FoodServed?.Invoke(null, slot);
+            }
+        }
+
+        private void ApplyEscapedCustomerPenalty()
+        {
+            // Keep fractional reductions so the five-point base penalty still benefits from Cross.
+            double exact = -escapedCustomerPenalty * perks.GetAmount(PerkEffect.AngerPenalty) + teamScoreRemainder;
+            int rounded = (int)Math.Round(exact, MidpointRounding.AwayFromZero);
+            AddTeamScore(rounded);
+            teamScoreRemainder = teamScore > 0 ? exact - rounded : 0;
         }
 
         private bool TryInteractWithCustomer(FoodIsekaiZPlayerState player, ArenaSlot2D slot)
         {
             if (slot.CustomerState == CustomerSlotState.WaitingForFood)
             {
+                if (!slot.IsOrderRevealed) return false;
                 if (player.HeldFood == FoodType.None)
                 {
                     return false;
                 }
 
-                if (player.HeldFood != slot.RequestedFood)
+                if (!HasDeliverableFood(player, slot))
                 {
-                    if (!player.TryDiscardHeldFood()) return false;
+                    if (!player.TryConsumeFood(player.HeldFood)) return false;
                     WrongFoodDiscarded?.Invoke(player, slot);
                     return true;
                 }
 
-                if (!slot.TryBeginEating(eatingDurationSeconds) ||
-                    !player.TryConsumeFood(slot.RequestedFood))
+                bool delivered = false;
+                for (int i = player.HeldFoods.Count - 1; i >= 0; i--)
                 {
-                    return false;
+                    FoodType food = player.HeldFoods[i];
+                    if (!slot.TryServeFood(food, EffectiveEatingSeconds)) continue;
+                    player.TryConsumeFood(food);
+                    AddPlayerAndTeamScore(player.PlayerId, GetServeScore(food, slot));
+                    if (slot.CustomerState == CustomerSlotState.Eating) servedOrderCount++;
+                    FoodServed?.Invoke(player, slot);
+                    delivered = true;
                 }
-
-                servedOrderCount++;
-                AddPlayerAndTeamScore(player.PlayerId, correctServeScore);
-                FoodServed?.Invoke(player, slot);
-                return true;
+                return delivered;
             }
 
-            if (slot.CustomerState != CustomerSlotState.MoneyAvailable)
+            if (slot.CustomerState != CustomerSlotState.MoneyAvailable || slot.IsAutomaticCollectionPending)
             {
                 return false;
             }
@@ -1052,16 +1110,39 @@ namespace FoodIsekaiZ.Gameplay
                 return;
             }
 
-            FoodType food = foodOrderGenerator.PickRandomFood(
+            bool special = SpecialMenuFood != FoodType.None &&
+                UnityEngine.Random.value < perks.GetAmount(PerkEffect.SpecialMenu, 0);
+            FoodType food = special ? SpecialMenuFood : foodOrderGenerator.PickRandomFood(
                 customerSlots,
                 slotIndex,
-                foodOptions);
+                foodOptions, SpecialMenuFood);
+            bool paired = UnityEngine.Random.value < perks.GetAmount(PerkEffect.PairedOrders, 0);
+            FoodType secondFood = paired
+                ? foodOrderGenerator.PickRandomFood(customerSlots, slotIndex, foodOptions) : FoodType.None;
+            bool omakase = UnityEngine.Random.value < perks.GetAmount(PerkEffect.Omakase, 0);
             int reward = UnityEngine.Random.Range(
                 Mathf.Min(moneyRewardRange.x, moneyRewardRange.y),
                 Mathf.Max(moneyRewardRange.x, moneyRewardRange.y) + 1);
 
-            slot.ConfigureCustomer(food, orderTimeLimitSeconds, reward);
+            reward = (int)Math.Round(reward * perks.GetAmount(PerkEffect.Payment) *
+                (paired ? 2 : 1) * (special ? 2 : 1), MidpointRounding.AwayFromZero);
+            slot.ConfigureCustomer(food, orderTimeLimitSeconds * (float)perks.GetAmount(PerkEffect.Patience),
+                reward, secondFood, omakase, special);
             CustomerRequestedFood?.Invoke(slot, food);
+        }
+
+        private void SelectSpecialMenu()
+        {
+            if (specialMenuWave == CurrentWaveNumber && SpecialMenuFood != FoodType.None &&
+                perks.HasEffect(PerkEffect.SpecialMenu)) return;
+            SpecialMenuFood = FoodType.None;
+            specialMenuWave = CurrentWaveNumber;
+            if (!perks.HasEffect(PerkEffect.SpecialMenu)) return;
+            var menus = new List<FoodType>();
+            if (foodOptions == null) return;
+            foreach (FoodOption option in foodOptions)
+                if (IsOrderable(option) && !menus.Contains(option.food)) menus.Add(option.food);
+            if (menus.Count > 0) SpecialMenuFood = menus[UnityEngine.Random.Range(0, menus.Count)];
         }
 
         private void ScheduleCustomer(int slotIndex)

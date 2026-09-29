@@ -1599,7 +1599,7 @@ namespace FoodIsekaiZ.Display
                 if (slot != null && (slot.CustomerState == CustomerSlotState.Eating ||
                     slot.CustomerState == CustomerSlotState.Completing)) continue;
                 // Customers who have already paid leave normally; unfinished customers leave Angry immediately.
-                if (slot == null || slot.CustomerState != CustomerSlotState.MoneyAvailable)
+                if (slot == null || (slot.CustomerState != CustomerSlotState.MoneyAvailable && !slot.IsSpecialOrder))
                 {
                     npcOrdersExpired[index] = true;
                     npcAngryUntilTimes[index] = 0f;

@@ -20,6 +20,7 @@ namespace FoodIsekaiZ.Display
         {
             if (gameManager == null) return;
             gameManager.CustomerMoneySpawned += HandlePayout;
+            gameManager.CustomerMoneyAutomaticallyCollected += HandleAutomaticCollection;
             gameManager.PlayerMoneyCollected += HandleCollection;
             gameManager.PlayerMoneyDelivered += HandleDeposit;
             gameManager.BankedMoneyChanged += HandleBalanceChanged;
@@ -31,6 +32,7 @@ namespace FoodIsekaiZ.Display
             if (gameManager != null)
             {
                 gameManager.CustomerMoneySpawned -= HandlePayout;
+                gameManager.CustomerMoneyAutomaticallyCollected -= HandleAutomaticCollection;
                 gameManager.PlayerMoneyCollected -= HandleCollection;
                 gameManager.PlayerMoneyDelivered -= HandleDeposit;
                 gameManager.BankedMoneyChanged -= HandleBalanceChanged;
@@ -39,6 +41,12 @@ namespace FoodIsekaiZ.Display
         }
 
         private void HandlePayout(ArenaSlot2D source, int amount)
+        {
+            if (source == slot && amount > 0 && !source.IsAutomaticCollectionPending)
+                coinBurst?.Play(false, transform.position);
+        }
+
+        private void HandleAutomaticCollection(ArenaSlot2D source, int amount)
         {
             if (source == slot && amount > 0) coinBurst?.Play(false, transform.position);
         }

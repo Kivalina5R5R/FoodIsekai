@@ -31,6 +31,13 @@ namespace FoodIsekaiZ.Display
         private Text intermissionCountdownText;
         private Text uwbStatusText;
         private readonly Image[] customerStatusImages = new Image[CustomerPanelCapacity];
+        private readonly Image[] pairedFirstImages = new Image[CustomerPanelCapacity];
+        private readonly Image[] pairedSecondImages = new Image[CustomerPanelCapacity];
+        private readonly Image[] pairedFirstBackgrounds = new Image[CustomerPanelCapacity];
+        private readonly Image[] pairedSecondBackgrounds = new Image[CustomerPanelCapacity];
+        private readonly TavernTimerGraphic[] pairedFirstTimers = new TavernTimerGraphic[CustomerPanelCapacity];
+        private readonly TavernTimerGraphic[] pairedSecondTimers = new TavernTimerGraphic[CustomerPanelCapacity];
+        private readonly OmakaseOrderGraphic[] omakaseImages = new OmakaseOrderGraphic[CustomerPanelCapacity];
         private readonly Image[] customerPanelBackgrounds = new Image[CustomerPanelCapacity];
         private readonly CustomerPanelPresentation[] customerPanelPresentations =
             new CustomerPanelPresentation[CustomerPanelCapacity];
@@ -122,6 +129,7 @@ namespace FoodIsekaiZ.Display
                      gameManager.CurrentMealWavePhase == MealWavePhase.Completed))
                 {
                     SetCustomerFoodImage(i, FoodType.None);
+                    UpdatePerkOrderIcons(i, null);
                     customerDisplayInitialized[i] = false;
                     if (customerPanelPresentations[i] != null) customerPanelPresentations[i].Hide(true);
                     else SetCustomerPanelVisible(i, false);
@@ -149,6 +157,7 @@ namespace FoodIsekaiZ.Display
                 ArenaSlot2D slot = gameManager != null ? gameManager.GetCustomerSlot(i) : null;
                 if (slot == null || !slot.HasCustomer)
                 {
+                    UpdatePerkOrderIcons(i, null);
                     if (!customerDisplayInitialized[i] ||
                         lastCustomerDisplayedFood[i] != FoodType.None)
                     {
@@ -173,6 +182,7 @@ namespace FoodIsekaiZ.Display
                     lastCustomerDisplayedFood[i] = requestedFood;
                     customerDisplayInitialized[i] = true;
                 }
+                UpdatePerkOrderIcons(i, slot);
 
                 switch (slot.CustomerState)
                 {
@@ -180,7 +190,10 @@ namespace FoodIsekaiZ.Display
                     case CustomerSlotState.Eating:
                         if (timerSlider != null)
                         {
-                            timerSlider.gameObject.SetActive(true);
+                            bool paired = HasPairedCards(i) && slot.CustomerState == CustomerSlotState.WaitingForFood &&
+                                !slot.IsOmakase && slot.RemainingFoods.Count > 1;
+                            timerSlider.gameObject.SetActive(!paired &&
+                                (!slot.IsSpecialOrder || slot.CustomerState == CustomerSlotState.Eating));
                             timerSlider.SetValueWithoutNotify(slot.StateTimeNormalized);
                             customerTimerGraphics[i]?.SetState(slot.StateTimeNormalized, slot.CustomerState == CustomerSlotState.Eating);
                         }
@@ -279,6 +292,54 @@ namespace FoodIsekaiZ.Display
             lastUwbAgeTenths = ageTenths;
             lastUwbSimulationMode = simulationMode;
             lastUwbStatus = managerStatus;
+        }
+
+        private void UpdatePerkOrderIcons(int index, ArenaSlot2D slot)
+        {
+            bool waiting = slot != null && slot.CustomerState == CustomerSlotState.WaitingForFood;
+            bool omakase = waiting && slot.IsOmakase;
+            bool paired = HasPairedCards(index) && waiting && !omakase && slot.RemainingFoods.Count > 1;
+            if (customerPanelBackgrounds[index] != null) customerPanelBackgrounds[index].enabled = !paired;
+            SetPairedCardVisible(pairedFirstBackgrounds[index], paired);
+            SetPairedCardVisible(pairedSecondBackgrounds[index], paired);
+            UpdatePairedTimer(pairedFirstTimers[index], slot, paired);
+            UpdatePairedTimer(pairedSecondTimers[index], slot, paired);
+            if (omakaseImages[index] != null) omakaseImages[index].enabled = omakase;
+            Image first = pairedFirstImages[index];
+            Image second = pairedSecondImages[index];
+            if (first != null)
+            {
+                first.enabled = paired;
+                if (paired) first.sprite = GetFoodSprite(slot.RemainingFoods[0]);
+            }
+            if (second != null)
+            {
+                second.enabled = paired;
+                if (paired) second.sprite = GetFoodSprite(slot.RemainingFoods[1]);
+            }
+            if (customerStatusImages[index] != null)
+                customerStatusImages[index].enabled = slot != null && slot.HasCustomer && !omakase && !paired &&
+                    customerStatusImages[index].sprite != null;
+        }
+
+        private bool HasPairedCards(int index) => pairedFirstBackgrounds[index] != null &&
+            pairedSecondBackgrounds[index] != null && pairedFirstImages[index] != null &&
+            pairedSecondImages[index] != null;
+
+        private static void SetPairedCardVisible(Image background, bool visible)
+        {
+            if (background == null) return;
+            background.enabled = visible;
+            background.gameObject.SetActive(visible);
+        }
+
+        private static void UpdatePairedTimer(TavernTimerGraphic timer, ArenaSlot2D slot, bool paired)
+        {
+            if (timer == null) return;
+            timer.gameObject.SetActive(paired && !slot.IsSpecialOrder);
+            if (!paired) return;
+            timer.SetState(slot.StateTimeNormalized, false);
+            timer.GetComponent<Slider>()?.SetValueWithoutNotify(slot.StateTimeNormalized);
         }
 
         private void ResetRealtimeDisplayCaches()
@@ -583,6 +644,15 @@ namespace FoodIsekaiZ.Display
                 customerPanelBackgrounds[i] = GetManualComponent<Image>(panel, "BG Order");
                 customerPanelPresentations[i] = panel.GetComponent<CustomerPanelPresentation>();
                 customerStatusImages[i] = GetManualComponent<Image>(panel, "Status");
+                pairedFirstImages[i] = GetManualComponent<Image>(panel, "Status Pair First");
+                pairedSecondImages[i] = GetManualComponent<Image>(panel, "Status Pair Second");
+                pairedFirstBackgrounds[i] = GetManualComponent<Image>(panel, "BG Order Pair First");
+                pairedSecondBackgrounds[i] = GetManualComponent<Image>(panel, "BG Order Pair Second");
+                pairedFirstTimers[i] = GetManualComponent<TavernTimerGraphic>(panel, "OrderTimer Pair First");
+                pairedSecondTimers[i] = GetManualComponent<TavernTimerGraphic>(panel, "OrderTimer Pair Second");
+                if (!HasPairedCards(i))
+                    Debug.LogWarning($"CustomerPanel{i + 1} is missing its paired menu cards. Reload the updated FoodIsekai scene after preserving any unsaved edits.", this);
+                omakaseImages[i] = GetManualComponent<OmakaseOrderGraphic>(panel, "Status Omakase");
                 customerTimerSliders[i] = GetManualComponent<Slider>(panel, "OrderTimer");
                 customerTimerGraphics[i] = GetManualComponent<TavernTimerGraphic>(panel, "OrderTimer");
                 if (customerStatusImages[i] != null)
