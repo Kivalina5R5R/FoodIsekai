@@ -1,13 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using FoodIsekaiZ.Audio;
 
 namespace FoodIsekaiZ.Display
 {
     // Owns the temporary purchase visuals and plays simultaneous purchases in order.
+    // Both shop tiers use it: Small purchases are gold, Big purchases are rainbow with extra release effects.
     public sealed class SmallPerkPurchasePresentation : MonoBehaviour
     {
         [SerializeField] private Canvas wallCanvas;
+        [SerializeField] private GameSoundPlayer soundPlayer;
         [SerializeField, Min(0.1f)] private float flightSeconds = 1.65f;
         [SerializeField, Min(0.1f)] private float landingHoldSeconds = .85f;
         [SerializeField, Min(0.1f)] private float gatherSeconds = 2.6f;
@@ -28,10 +31,12 @@ namespace FoodIsekaiZ.Display
             public Vector3 StartPosition { get; }
             public Vector3 StartScale { get; }
             public Quaternion StartRotation { get; }
+            public bool Rainbow { get; }
 
             public PurchaseVisual(RectTransform root, RectTransform absorption, CanvasGroup artworkOpacity, PerkLandingGraphic landing,
-                GameObject artwork, GameObject back, PerkChargedFrameGraphic chargedFrame)
+                GameObject artwork, GameObject back, PerkChargedFrameGraphic chargedFrame, bool rainbow)
             {
+                Rainbow = rainbow;
                 Root = root;
                 Absorption = absorption;
                 ArtworkOpacity = artworkOpacity;
@@ -52,11 +57,14 @@ namespace FoodIsekaiZ.Display
         private PerkPowerGraphic powerPulse;
         private PerkGatherGraphic gathering;
         private Image focusShade;
+        private PerkReactionBackdropGraphic backdrop;
+        private bool impactPlayed;
 
         public bool IsPlaying => current != null || waiting.Count > 0;
 
         // Gameplay has already committed the purchase; this method never changes money or perks.
-        public void Play(PerkCardSlot slot)
+        // Rainbow selects the Big Perk look.
+        public void Play(PerkCardSlot slot, bool rainbow = false)
         {
             if (slot == null || wallCanvas == null || !isActiveAndEnabled || !slot.gameObject.activeInHierarchy) return;
             RectTransform source = slot.transform as RectTransform;
@@ -73,6 +81,7 @@ namespace FoodIsekaiZ.Display
             Vector3 verticalScale = canvasRect.InverseTransformVector(source.TransformVector(Vector3.up));
             root.localScale = new Vector3(scale.magnitude, verticalScale.magnitude, 1f);
             var landing = CreateRect("Landing Burst", root, source.rect.size).gameObject.AddComponent<PerkLandingGraphic>();
+            landing.SetRainbow(rainbow);
 
             RectTransform absorption = CreateRect("Card Absorption", root, source.rect.size);
             var artworkOpacity = absorption.gameObject.AddComponent<CanvasGroup>();
@@ -108,9 +117,9 @@ namespace FoodIsekaiZ.Display
             }
             // The break UI hides siblings outside the shop whenever gameplay data refreshes.
             var chargedFrame = CreateRect("Charged Gold Frame", absorption, source.rect.size).gameObject.AddComponent<PerkChargedFrameGraphic>();
-            chargedFrame.SetFrame(bounds);
+            chargedFrame.SetFrame(bounds, rainbow);
             root.SetParent(transform, true);
-            waiting.Enqueue(new PurchaseVisual(root, absorption, artworkOpacity, landing, copy.gameObject, back, chargedFrame));
+            waiting.Enqueue(new PurchaseVisual(root, absorption, artworkOpacity, landing, copy.gameObject, back, chargedFrame, rainbow));
             // Keep the authored slot available for the next shop; only its visibility changes.
             slot.gameObject.SetActive(false);
         }
@@ -126,8 +135,11 @@ namespace FoodIsekaiZ.Display
                 powerPulse = null;
                 gathering = null;
                 focusShade = null;
+                backdrop = null;
                 current.Root.SetAsLastSibling();
                 phase = Phase.Flying;
+                impactPlayed = false;
+                soundPlayer?.TryPlay(GameSoundCue.PerkFlip, true);
                 elapsed = 0f;
             }
             elapsed += Mathf.Max(0f, deltaTime);
@@ -145,8 +157,20 @@ namespace FoodIsekaiZ.Display
                     focusShade = shadeRect.gameObject.AddComponent<Image>();
                     focusShade.raycastTarget = false;
                     focusShade.color = Color.clear;
+                    // The reaction backdrop sits between the dimmed wall and the card.
+                    backdrop = CreateFullscreenRect("Food Reaction Backdrop").gameObject.AddComponent<PerkReactionBackdropGraphic>();
+                    backdrop.SetRainbow(current.Rainbow);
+                    backdrop.transform.SetSiblingIndex(shadeRect.GetSiblingIndex() + 1);
+                    backdrop.SetReaction(0f, 0f);
                     gathering = CreateFullscreenRect("Gathered Perk Energy").gameObject.AddComponent<PerkGatherGraphic>();
+                    Rect frameBounds = current.ChargedFrame.FrameBounds;
+                    Transform frameTransform = current.ChargedFrame.transform;
+                    Vector2 frameMinimum = gathering.transform.InverseTransformPoint(frameTransform.TransformPoint(frameBounds.min));
+                    Vector2 frameMaximum = gathering.transform.InverseTransformPoint(frameTransform.TransformPoint(frameBounds.max));
+                    gathering.SetFrame(Rect.MinMaxRect(frameMinimum.x, frameMinimum.y, frameMaximum.x, frameMaximum.y));
+                    gathering.SetRainbow(current.Rainbow);
                     gathering.SetEnergy(0f, 0f);
+                    soundPlayer?.TryPlay(GameSoundCue.PerkGather, true);
                     phase = Phase.Gathering;
                     elapsed = 0f;
                     break;
@@ -155,28 +179,42 @@ namespace FoodIsekaiZ.Display
                     break;
                 case Phase.Charging:
                     gathering.SetEnergy(1f, elapsed / Mathf.Max(.1f, chargeSeconds));
+                    backdrop.SetReaction(1f, gatherSeconds + elapsed, elapsed / Mathf.Max(.1f, chargeSeconds) * .35f);
                     AnimateChargedCard(1f, gatherSeconds + elapsed);
                     if (elapsed < chargeSeconds) break;
+                    soundPlayer?.StopCue(GameSoundCue.PerkCharge);
+                    soundPlayer?.TryPlay(GameSoundCue.PerkRelease, true);
                     ShowPowerPulse();
                     phase = Phase.Releasing;
                     elapsed = 0f;
                     break;
                 case Phase.Releasing:
+                {
+                    // Big releases linger longer so the star shower can cross the wall.
+                    float releaseSeconds = powerSeconds * (current.Rainbow ? 1.35f : 1f);
                     gathering.SetEnergy(1f, 1f, 1f - Mathf.Clamp01(elapsed / .25f));
-                    float remaining = 1f - Mathf.Clamp01(elapsed / .12f);
+                    // The card swells outward with the blast while it fades away.
+                    // It stays solid for the first third so the swell reads as the card rushing at the players.
+                    float burst = Mathf.Clamp01(elapsed / .5f);
+                    float remaining = 1f - Mathf.SmoothStep(0f, 1f, (burst - .35f) / .65f);
                     current.ArtworkOpacity.alpha = remaining;
+                    current.Absorption.localScale = Vector3.one * (1f + (1f - Mathf.Pow(1f - burst, 3f)) * 2.2f);
                     current.ChargedFrame.SetCharge(remaining, gatherSeconds + chargeSeconds + elapsed);
-                    powerPulse.SetPower(elapsed / Mathf.Max(.1f, powerSeconds));
-                    focusShade.color = new Color(0f, 0f, 0f, .58f * (1f - Mathf.Clamp01(elapsed / powerSeconds)));
-                    if (elapsed >= powerSeconds)
+                    powerPulse.SetPower(elapsed / Mathf.Max(.1f, releaseSeconds));
+                    focusShade.color = new Color(0f, 0f, 0f, .58f * (1f - Mathf.Clamp01(elapsed / releaseSeconds)));
+                    backdrop.SetReaction(1f - Mathf.Clamp01(elapsed / releaseSeconds), gatherSeconds + chargeSeconds + elapsed,
+                        1f - Mathf.Clamp01(elapsed / .5f));
+                    if (elapsed >= releaseSeconds)
                     {
                         DestroyVisual(current.Root);
                         current = null;
                         powerPulse = null;
                         gathering = null;
                         focusShade = null;
+                        backdrop = null;
                     }
                     break;
+                }
             }
         }
 
@@ -210,6 +248,12 @@ namespace FoodIsekaiZ.Display
                 current.Back.SetActive(!frontFacing);
             }
             current.Landing.SetImpact(t < .9f ? -1f : (elapsed - flightSeconds * .9f) / .9f);
+            if (t >= .9f && !impactPlayed)
+            {
+                impactPlayed = true;
+                soundPlayer?.StopCue(GameSoundCue.PerkFlip);
+                soundPlayer?.TryPlay(GameSoundCue.PerkImpact, true);
+            }
             if (t < 1f) return;
             current.Root.localPosition = destination;
             current.Root.localRotation = Quaternion.identity;
@@ -226,8 +270,11 @@ namespace FoodIsekaiZ.Display
             float amount = Mathf.Clamp01(elapsed / Mathf.Max(.1f, gatherSeconds));
             gathering.SetEnergy(amount, 0f);
             focusShade.color = new Color(0f, 0f, 0f, Mathf.SmoothStep(0f, .58f, amount * 2f));
+            backdrop.SetReaction(Mathf.SmoothStep(0f, 1f, amount * 1.6f), elapsed);
             AnimateChargedCard(amount, elapsed);
             if (amount < 1f) return;
+            soundPlayer?.StopCue(GameSoundCue.PerkGather);
+            soundPlayer?.TryPlay(GameSoundCue.PerkCharge, true);
             phase = Phase.Charging;
             elapsed = 0f;
         }
@@ -242,6 +289,7 @@ namespace FoodIsekaiZ.Display
         private void ShowPowerPulse()
         {
             powerPulse = CreateFullscreenRect("Perk Power Acquired").gameObject.AddComponent<PerkPowerGraphic>();
+            powerPulse.SetRainbow(current.Rainbow);
             powerPulse.SetPower(0f);
         }
 
@@ -268,11 +316,17 @@ namespace FoodIsekaiZ.Display
 
         private void OnDisable()
         {
+            soundPlayer?.StopCue(GameSoundCue.PerkFlip);
+            soundPlayer?.StopCue(GameSoundCue.PerkImpact);
+            soundPlayer?.StopCue(GameSoundCue.PerkGather);
+            soundPlayer?.StopCue(GameSoundCue.PerkCharge);
+            soundPlayer?.StopCue(GameSoundCue.PerkRelease);
             if (current != null) DestroyVisual(current.Root);
             current = null;
             powerPulse = null;
             gathering = null;
             focusShade = null;
+            backdrop = null;
             while (waiting.Count > 0) DestroyVisual(waiting.Dequeue().Root);
         }
 

@@ -103,10 +103,17 @@ internal static class PerkGameplayTests
         Check(plate.TryPick(FoodType.Food1, 1) && plate.TryPick(FoodType.Food2, 1) && plate.Foods.Count == 1,
             "Without perks, a new menu still replaces the held menu.");
         plate.Clear();
-        Check(plate.TryPick(FoodType.Food1, 2) && plate.TryPick(FoodType.Food2, 2) &&
-            !plate.TryPick(FoodType.Food3, 2) && !plate.TryPick(FoodType.Food1, 2),
-            "Tasty holds two distinct menus and rejects full or duplicate pickups.");
-        Check(plate.TryPick(FoodType.Food3, 3) && plate.TryConsume(FoodType.Food3) &&
+        Check(plate.TryPick(FoodType.Food1, 2) && plate.TryPick(FoodType.Food2, 2) && !plate.TryPick(FoodType.Food1, 2),
+            "Tasty holds two distinct menus and ignores duplicate pickups.");
+        Check(plate.TryPick(FoodType.Food3, 2) && plate.Foods.SequenceEqual(new[] { FoodType.Food2, FoodType.Food3 }),
+            "A full Tasty plate replaces its oldest menu with the new pickup.");
+        plate.Clear();
+        Check(plate.TryPick(FoodType.Food1, 3) && plate.TryPick(FoodType.Food2, 3) && plate.TryPick(FoodType.Food4, 3) &&
+            plate.TryPick(FoodType.Food5, 3) && plate.Foods.SequenceEqual(new[] { FoodType.Food2, FoodType.Food4, FoodType.Food5 }),
+            "A full Happiness plate replaces its oldest menu with the new pickup.");
+        plate.Clear();
+        Check(plate.TryPick(FoodType.Food1, 3) && plate.TryPick(FoodType.Food2, 3) &&
+            plate.TryPick(FoodType.Food3, 3) && plate.TryConsume(FoodType.Food3) &&
             plate.Foods.SequenceEqual(new[] { FoodType.Food1, FoodType.Food2 }),
             "Happiness can deliver slot three while preserving slots one and two.");
         Check(plate.TryConsume(plate.First) && plate.First == FoodType.Food2 && plate.Foods.Count == 1,

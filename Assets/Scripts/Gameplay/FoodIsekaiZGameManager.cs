@@ -181,6 +181,14 @@ namespace FoodIsekaiZ.Gameplay
         {
             if (ReferenceEquals(intermissionGate, gate)) intermissionGate = null;
         }
+
+        // Ends the break now; the registered gate still controls the guide's departure before the next meal.
+        public void EndIntermissionEarly()
+        {
+            if (mealWavePhase != MealWavePhase.Intermission) return;
+            mealPhaseRemainingSeconds = 0f;
+            NotifyMealWaveDisplayIfNeeded(true);
+        }
         public int TeamScore => teamScore;
         // Counts accepted deliveries, including NPCs still eating when a wave ends.
         public int ServedOrderCount => servedOrderCount;
@@ -668,12 +676,24 @@ namespace FoodIsekaiZ.Gameplay
         {
             ChangeMealBehindCover("SERVICE RESULTS", () =>
             {
+                SettleOutstandingMoney();
+                ConvertRemainingMoneyToScore();
                 StopCustomerFlowAndClearSlots();
                 mealWavePhase = MealWavePhase.Completed;
                 mealPhaseRemainingSeconds = 0f;
                 lastNotifiedMealSecond = int.MinValue;
                 NotifyMealWaveDisplayIfNeeded(true);
             });
+        }
+
+        // Unspent team coins count one point each on the final team score, so the wallet empties into the result.
+        private void ConvertRemainingMoneyToScore()
+        {
+            if (totalBankedMoney <= 0) return;
+            int remaining = totalBankedMoney;
+            totalBankedMoney = 0;
+            BankedMoneyChanged?.Invoke(totalBankedMoney);
+            AddTeamScore(remaining);
         }
 
         private void StopCustomerFlowAndClearSlots()

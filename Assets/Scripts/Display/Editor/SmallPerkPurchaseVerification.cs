@@ -30,6 +30,16 @@ namespace FoodIsekaiZ.Display.Editor
                 if (presentation == null || Get(shop, "smallPurchases") != presentation)
                     throw new InvalidOperationException("Small purchase presentation is not connected to the shop.");
                 Canvas canvas = (Canvas)Get(presentation, "wallCanvas");
+                var soundPlayer = (FoodIsekaiZ.Audio.GameSoundPlayer)Get(presentation, "soundPlayer");
+                Check(soundPlayer != null && (FoodIsekaiZ.Audio.GameSoundPlayer)Get(shop, "soundPlayer") == soundPlayer, "Shop and animation share the scene sound player.");
+                var clips = (AudioClip[])Get(soundPlayer, "clips");
+                Check(clips.Length == Enum.GetValues(typeof(FoodIsekaiZ.Audio.GameSoundCue)).Length, "Every sound cue has a serialized slot.");
+                for (int cue = (int)FoodIsekaiZ.Audio.GameSoundCue.PerkReveal; cue < clips.Length; cue++)
+                {
+                    Check(clips[cue] != null && clips[cue].name == ((FoodIsekaiZ.Audio.GameSoundCue)cue).ToString(), "Perk sound is assigned to its matching cue.");
+                    Check(soundPlayer.TryPlay((FoodIsekaiZ.Audio.GameSoundCue)cue, true), "The scene sound player accepts each perk cue for playback.");
+                    soundPlayer.StopCue((FoodIsekaiZ.Audio.GameSoundCue)cue);
+                }
                 Camera camera = null;
                 foreach (GameObject root in preview.GetRootGameObjects())
                     foreach (Camera candidate in root.GetComponentsInChildren<Camera>(true))
@@ -104,6 +114,9 @@ namespace FoodIsekaiZ.Display.Editor
                     "The intact landing pause precedes energy gathering.");
                 Advance(presentation, .07f);
                 Check(Get(presentation, "phase").ToString() == "Gathering", "Energy gathering follows the landing hold.");
+                var backdrop = (PerkReactionBackdropGraphic)Get(presentation, "backdrop");
+                Check(backdrop != null && !backdrop.raycastTarget && backdrop.transform.GetSiblingIndex() < absorption.GetSiblingIndex(),
+                    "The food-reaction backdrop sits behind the card without intercepting input.");
                 Advance(presentation, .65f);
                 Render(camera, preview, "04-Incoming-Energy");
                 Advance(presentation, .8f);
@@ -129,9 +142,9 @@ namespace FoodIsekaiZ.Display.Editor
                 float wallWidth = canvas.transform.TransformVector(Vector3.right * ((RectTransform)canvas.transform).rect.width).magnitude;
                 Check(Mathf.Abs(powerWidth - wallWidth) < .01f && !power.raycastTarget,
                     "The power effect covers the wall canvas without intercepting input.");
-                Advance(presentation, .35f);
+                Advance(presentation, .52f);
                 Check(artworkOpacity.alpha == 0f, "The card disappears with the explosion, not before it."); Render(camera, preview, "06b-Power-Expanding");
-                Advance(presentation, .45f);
+                Advance(presentation, .28f);
                 Render(camera, preview, "06c-Power-Fullscreen");
                 Check(presentation.IsPlaying, "The shop waits for the power confirmation to finish.");
                 for (int step = 0; step < 160 && presentation.IsPlaying; step++) Advance(presentation, .1f);
@@ -139,6 +152,22 @@ namespace FoodIsekaiZ.Display.Editor
                 Check(slots[0].transform.localPosition == sourcePosition && slots[0].transform.localScale == sourceScale &&
                     slots[0].transform.parent == sourceParent, "Authored card transform and hierarchy remain unchanged.");
                 Render(camera, preview, "07-Finished");
+                // Big purchases replay the same timeline in rainbow, on the Big card frame, and linger longer.
+                var bigOffers = catalog.GetOffers(true);
+                slots[1].SetOffer(bigOffers[0], catalog.GetPrefab(bigOffers[0].Id), true);
+                presentation.Play(slots[1], true);
+                AdvanceUntil(presentation, "Gathering", 5f);
+                Check((bool)Get(Get(presentation, "backdrop"), "rainbow") && (bool)Get(Get(presentation, "gathering"), "rainbow"),
+                    "Big purchases use the rainbow backdrop and gathering.");
+                AdvanceUntil(presentation, "Releasing", 5f);
+                object bigPower = Get(presentation, "powerPulse");
+                Check(bigPower != null && (bool)Get(bigPower, "rainbow"), "Big purchases release in rainbow.");
+                Advance(presentation, .3f);
+                Render(camera, preview, "08-Big-Rainbow-Release");
+                for (int step = 0; step < 15; step++) Advance(presentation, .1f);
+                Check(presentation.IsPlaying, "Big releases linger longer than Small releases.");
+                for (int step = 0; step < 160 && presentation.IsPlaying; step++) Advance(presentation, .1f);
+                Check(!presentation.IsPlaying, "The Big purchase completes.");
                 presentation.Play(slots[2]);
                 presentation.Play(slots[3]);
                 Advance(presentation, .4f);
@@ -147,7 +176,7 @@ namespace FoodIsekaiZ.Display.Editor
                 Check(shop.transform.Find("Small Perk Purchase") == null, "All temporary visuals are disposed.");
                 slots[0].SetOffer(offers[0], catalog.GetPrefab(offers[0].Id), false);
                 Check(slots[0].gameObject.activeSelf, "The same slot can reveal an offer in the next shop.");
-                File.WriteAllText(Output + "/Result.txt", "PASS: reproduced old visibility failure; purchase stays visible through break UI refresh. Verified queue, center position, 0.85 second intact landing hold, upright inward flip, enlarged landing, diagonal energy masses, rigid charged card, held central light and full-screen release, completion, cancellation, cleanup and authored transform preservation.");
+                File.WriteAllText(Output + "/Result.txt", "PASS: reproduced old visibility failure; purchase stays visible through break UI refresh. Verified queue, center position, 0.85 second intact landing hold, upright inward flip, enlarged landing, food-reaction backdrop behind the card, converging sparkles, rigid charged card, held central light and full-screen release, the longer rainbow Big release, completion, cancellation, cleanup and authored transform preservation.");
             }
             catch (Exception exception)
             {
@@ -162,6 +191,14 @@ namespace FoodIsekaiZ.Display.Editor
 
         private static void Advance(SmallPerkPurchasePresentation presentation, float seconds) =>
             typeof(SmallPerkPurchasePresentation).GetMethod("Advance", Private).Invoke(presentation, new object[] { seconds });
+
+        // Steps in small increments because each Advance call performs at most one phase change.
+        private static void AdvanceUntil(SmallPerkPurchasePresentation presentation, string phase, float limit)
+        {
+            for (float time = 0f; time < limit && Get(presentation, "phase").ToString() != phase; time += .05f)
+                Advance(presentation, .05f);
+            Check(Get(presentation, "phase").ToString() == phase, "The purchase reaches " + phase + ".");
+        }
 
         private static object Get(object target, string field) => target.GetType().GetField(field, Private).GetValue(target);
 

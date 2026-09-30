@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace FoodIsekaiZ.Gameplay
 {
-    // A plate holds at most one of each menu, in pickup order.
+    // A plate holds at most one of each menu, in pickup order. A full plate drops its oldest menu for the new one.
     public sealed class FoodInventory
     {
         private readonly List<FoodType> foods = new List<FoodType>(3);
@@ -17,8 +17,7 @@ namespace FoodIsekaiZ.Gameplay
         public bool TryPick(FoodType food, int capacity)
         {
             if (food < FoodType.Food1 || food > FoodType.Food5 || foods.Contains(food) || capacity < 1) return false;
-            if (capacity == 1) foods.Clear();
-            else if (foods.Count >= capacity) return false;
+            while (foods.Count >= capacity) foods.RemoveAt(0);
             foods.Add(food);
             Revision++;
             return true;

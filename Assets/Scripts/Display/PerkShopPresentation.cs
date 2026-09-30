@@ -38,6 +38,7 @@ namespace FoodIsekaiZ.Display
         private bool closing;
         private bool departureStarted;
         private bool bigShop;
+        private readonly int[] audibleCandidates = new int[4];
 
         public int LayoutRevision => layoutRevision;
         public bool CanCountDown => selectionStarted && !closing && guide != null && guide.HasFinishedSpeaking;
@@ -72,6 +73,7 @@ namespace FoodIsekaiZ.Display
             for (int i = 0; i < slots.Length; i++)
             {
                 holds[i] = new PerkSelectionHold(Mathf.Max(0.1f, holdSeconds));
+                audibleCandidates[i] = 0;
                 PerkOffer offer = i < session.Offers.Count ? session.Offers[i] : null;
                 slots[i].SetOffer(offer, offer != null ? catalog.GetPrefab(offer.Id) : null, big);
                 zones[i].gameObject.SetActive(offer != null);
@@ -105,6 +107,7 @@ namespace FoodIsekaiZ.Display
                 if (!guide.HasOpenedDialogue) return;
                 wallShown = true;
                 offersRoot.SetActive(true);
+                if (session.Offers.Count > 0) soundPlayer?.TryPlay(GameSoundCue.SmallPerkReveal);
             }
             if (!floorShown)
             {
@@ -142,13 +145,28 @@ namespace FoodIsekaiZ.Display
                     }
                 }
                 bool canBuy = CanCountDown && session.CanBuy(i);
+                int audibleCandidate = CanCountDown && occupants == 1 && !session.IsPurchased(i) ? candidate : 0;
+                if (audibleCandidate > 0 && audibleCandidate != audibleCandidates[i])
+                    soundPlayer?.TryPlay(canBuy ? GameSoundCue.SmallPerkFocus : GameSoundCue.SmallPerkUnavailable);
+                audibleCandidates[i] = audibleCandidate;
+                float previousProgress = holds[i].Progress;
                 bool confirmed = holds[i].Tick(canBuy && occupants == 1 ? (int?)candidate : null, Time.unscaledDeltaTime);
+                int holdStep = Mathf.FloorToInt(holds[i].Progress * 3f);
+                // Ticks climb a major third per step so the hold builds toward the purchase chord.
+                if (!confirmed && holdStep > Mathf.FloorToInt(previousProgress * 3f))
+                    soundPlayer?.TryPlay(GameSoundCue.SmallPerkHoldTick, false, Mathf.Pow(1.26f, holdStep - 1));
+                if (!confirmed && previousProgress > .1f && holds[i].Progress == 0f)
+                    soundPlayer?.TryPlay(GameSoundCue.SmallPerkCancel);
                 if (confirmed)
                 {
                     if (session.TryBuy(i, candidate))
                     {
-                        soundPlayer?.TryPlay(GameSoundCue.BankDeposit, true);
-                        if (!bigShop && smallPurchases != null) smallPurchases.Play(slots[i]);
+                        soundPlayer?.TryPlay(GameSoundCue.SmallPerkPurchase, true);
+                        // Both tiers share the purchase animation and sounds; Big plays it in rainbow.
+                        if (smallPurchases != null) smallPurchases.Play(slots[i], bigShop);
+                        // A Big shop allows one pick: the break ends, the other cards leave and the guide walks out
+                        // once the purchase animation finishes, then the next meal begins.
+                        if (bigShop) gameManager.EndIntermissionEarly();
                     }
                     holds[i].Reset();
                 }

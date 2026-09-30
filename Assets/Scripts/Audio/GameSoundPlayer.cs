@@ -29,10 +29,21 @@ namespace FoodIsekaiZ.Audio
         [SerializeField, Range(-12f, 12f)] private float successPopGainDb = 4f;
         private readonly float[] nextAllowedTime = new float[System.Enum.GetValues(typeof(GameSoundCue)).Length];
         private int nextVoice;
+        private readonly System.Collections.Generic.HashSet<GameSoundCue> missingClips =
+            new System.Collections.Generic.HashSet<GameSoundCue>();
+        private readonly System.Collections.Generic.Dictionary<AudioSource, GameSoundCue> activeCues =
+            new System.Collections.Generic.Dictionary<AudioSource, GameSoundCue>();
 
-        public bool TryPlay(GameSoundCue cue, bool priority = false)
+        // Pitch lets a single authored clip step through a short rising sequence; other cues play at 1.
+        public bool TryPlay(GameSoundCue cue, bool priority = false, float pitch = 1f)
         {
             int index = (int)cue;
+            if (index >= 0 && (clips == null || index >= clips.Length || clips[index] == null))
+            {
+                if (missingClips.Add(cue))
+                    Debug.LogWarning($"[GameSound] Missing clip for {cue} in scene '{gameObject.scene.name}'. In the editor, run Food Isekai > Repair Perk Audio Links, then save the scene.", this);
+                return false;
+            }
             if (!isActiveAndEnabled || masterVolume <= 0f || clips == null || index < 0 ||
                 index >= clips.Length || index >= nextAllowedTime.Length || clips[index] == null ||
                 voices == null || voices.Length == 0 || Time.unscaledTime < nextAllowedTime[index]) return false;
@@ -54,8 +65,17 @@ namespace FoodIsekaiZ.Audio
             float cooldown = cooldowns != null && index < cooldowns.Length ? cooldowns[index] : 0.12f;
             nextAllowedTime[index] = Time.unscaledTime + Mathf.Max(0.05f, cooldown);
             voice.Stop();
+            voice.pitch = Mathf.Clamp(pitch, .5f, 2f);
+            activeCues[voice] = cue;
             voice.PlayOneShot(clips[index], Mathf.Clamp01(masterVolume) * Mathf.Pow(10f, GetGainDb(cue) / 20f));
             return true;
+        }
+
+        // Stops only matching effect voices, leaving music and unrelated gameplay sounds alone.
+        public void StopCue(GameSoundCue cue)
+        {
+            foreach (var entry in activeCues)
+                if (entry.Value == cue && entry.Key != null) entry.Key.Stop();
         }
 
         private float GetGainDb(GameSoundCue cue)
@@ -86,6 +106,7 @@ namespace FoodIsekaiZ.Audio
             if (voices != null)
                 foreach (AudioSource voice in voices) if (voice != null) voice.Stop();
             System.Array.Clear(nextAllowedTime, 0, nextAllowedTime.Length);
+            activeCues.Clear();
         }
     }
 }

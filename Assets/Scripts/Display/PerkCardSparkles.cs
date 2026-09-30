@@ -41,6 +41,9 @@ namespace FoodIsekaiZ.Display
         {
             mesh.Clear();
             Rect frame = rectTransform.rect;
+            // The rect is authored at the Small frame's aspect; the taller Big frame keeps the same center.
+            if (rainbow) frame = new Rect(frame.x, frame.center.y - frame.height * PerkFrameContour.BigHeightScale * .5f,
+                frame.width, frame.height * PerkFrameContour.BigHeightScale);
             if (emitting)
             {
                 DrawSheen(mesh, frame);
@@ -167,9 +170,9 @@ namespace FoodIsekaiZ.Display
             return band * band * (3f - 2f * band);
         }
 
-        private static Vector2 OnFrame(Rect frame, float progress)
+        private Vector2 OnFrame(Rect frame, float progress)
         {
-            return PerkFrameContour.Sample(frame, progress);
+            return PerkFrameContour.Sample(frame, progress, rainbow);
         }
 
         private void Star(VertexHelper mesh, Vector2 center, float radius, float alpha, float rotation)

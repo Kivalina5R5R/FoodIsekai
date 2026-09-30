@@ -16450,6 +16450,23 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 9f1f6bef2b7243689d94b65d559f10ee, type: 3}
   - {fileID: 8300000, guid: 21f646394587454e86383a4e5aff5f82, type: 3}
   - {fileID: 8300000, guid: 1a9e95ba9cf444aa9425b45cc1c4a19c, type: 3}
+  - {fileID: 8300000, guid: ca20733bec7f4d5abfc185fa212ac1be, type: 3}
+  - {fileID: 8300000, guid: 8021cb880152489da93426bc3367ceb1, type: 3}
+  - {fileID: 8300000, guid: 4e0716fc02c348da913aed22ae4c5f87, type: 3}
+  - {fileID: 8300000, guid: bd26a1fb5a8e450abf06fdec33bc4a8b, type: 3}
+  - {fileID: 8300000, guid: b7954514e88a41d597d6e887cc620a0f, type: 3}
+  - {fileID: 8300000, guid: aef04b76e4e442c4b55cae6637e10119, type: 3}
+  - {fileID: 8300000, guid: 25df96f1be8c4c58814ad4390b86dc48, type: 3}
+  - {fileID: 8300000, guid: 077e3dda2cfa47778e81cc3498674bd3, type: 3}
+  - {fileID: 8300000, guid: 3ac9fb3a9d3a49c8bb6fba06e28c99d1, type: 3}
+  - {fileID: 8300000, guid: 1456ab30be664886846dd2953f9c7b61, type: 3}
+  - {fileID: 8300000, guid: e8f80f3ba83f4152ac0415820fe7b809, type: 3}
+  - {fileID: 8300000, guid: 626996f009174cbe9eac1313e48cf12e, type: 3}
+  - {fileID: 8300000, guid: 5b5a8c82f8f742c4a276e543793dff03, type: 3}
+  - {fileID: 8300000, guid: 5c14b7b0d88247089a5691130703bf35, type: 3}
+  - {fileID: 8300000, guid: dd42a7b0606f47138892fc0b18f7ffde, type: 3}
+  - {fileID: 8300000, guid: 8f1cee040c2b49c680d0e00378943d8e, type: 3}
+  - {fileID: 8300000, guid: 5f54812fa56c4af4bf8c3463b50db2fc, type: 3}
   cooldowns:
   - 0.12
   - 0.16
@@ -16466,6 +16483,23 @@ MonoBehaviour:
   - 0.05
   - 0.35
   - 0.18
+  - 0.6
+  - 0.18
+  - 0.14
+  - 0.2
+  - 0.35
+  - 0.15
+  - 0.1
+  - 0.1
+  - 0.1
+  - 0.1
+  - 0.2
+  - 0.6
+  - 0.18
+  - 0.1
+  - 0.2
+  - 0.35
+  - 0.15
   masterVolume: 0.85
   foodPickupGainDb: 0
   foodServedGainDb: 0
@@ -40366,6 +40400,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.SmallPerkPurchasePresentation
   wallCanvas: {fileID: 1595694067}
+  soundPlayer: {fileID: 2026098024}
   flightSeconds: 1.65
   landingHoldSeconds: 0.85
   gatherSeconds: 2.6
