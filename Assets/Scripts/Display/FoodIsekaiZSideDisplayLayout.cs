@@ -35,6 +35,7 @@ namespace FoodIsekaiZ.Display
         private readonly Image[] pairedSecondImages = new Image[CustomerPanelCapacity];
         private readonly Image[] pairedFirstBackgrounds = new Image[CustomerPanelCapacity];
         private readonly Image[] pairedSecondBackgrounds = new Image[CustomerPanelCapacity];
+        private readonly PairedOrderPresentation[] pairedPresentations = new PairedOrderPresentation[CustomerPanelCapacity];
         private readonly TavernTimerGraphic[] pairedFirstTimers = new TavernTimerGraphic[CustomerPanelCapacity];
         private readonly TavernTimerGraphic[] pairedSecondTimers = new TavernTimerGraphic[CustomerPanelCapacity];
         private readonly OmakaseOrderGraphic[] omakaseImages = new OmakaseOrderGraphic[CustomerPanelCapacity];
@@ -296,25 +297,27 @@ namespace FoodIsekaiZ.Display
 
         private void UpdatePerkOrderIcons(int index, ArenaSlot2D slot)
         {
+            pairedPresentations[index]?.Synchronize(slot);
             bool waiting = slot != null && slot.CustomerState == CustomerSlotState.WaitingForFood;
             bool omakase = waiting && slot.IsOmakase;
             bool paired = HasPairedCards(index) && waiting && !omakase && slot.RemainingFoods.Count > 1;
+            bool showPair = paired || (pairedPresentations[index] != null && pairedPresentations[index].IsTransitioning);
             if (customerPanelBackgrounds[index] != null) customerPanelBackgrounds[index].enabled = !paired;
-            SetPairedCardVisible(pairedFirstBackgrounds[index], paired);
-            SetPairedCardVisible(pairedSecondBackgrounds[index], paired);
-            UpdatePairedTimer(pairedFirstTimers[index], slot, paired);
-            UpdatePairedTimer(pairedSecondTimers[index], slot, paired);
+            SetPairedCardVisible(pairedFirstBackgrounds[index], showPair);
+            SetPairedCardVisible(pairedSecondBackgrounds[index], showPair);
+            UpdatePairedTimer(pairedFirstTimers[index], slot, showPair);
+            UpdatePairedTimer(pairedSecondTimers[index], slot, showPair);
             if (omakaseImages[index] != null) omakaseImages[index].enabled = omakase;
             Image first = pairedFirstImages[index];
             Image second = pairedSecondImages[index];
             if (first != null)
             {
-                first.enabled = paired;
+                first.enabled = showPair;
                 if (paired) first.sprite = GetFoodSprite(slot.RemainingFoods[0]);
             }
             if (second != null)
             {
-                second.enabled = paired;
+                second.enabled = showPair;
                 if (paired) second.sprite = GetFoodSprite(slot.RemainingFoods[1]);
             }
             if (customerStatusImages[index] != null)
@@ -643,6 +646,7 @@ namespace FoodIsekaiZ.Display
 
                 customerPanelBackgrounds[i] = GetManualComponent<Image>(panel, "BG Order");
                 customerPanelPresentations[i] = panel.GetComponent<CustomerPanelPresentation>();
+                pairedPresentations[i] = panel.GetComponent<PairedOrderPresentation>();
                 customerStatusImages[i] = GetManualComponent<Image>(panel, "Status");
                 pairedFirstImages[i] = GetManualComponent<Image>(panel, "Status Pair First");
                 pairedSecondImages[i] = GetManualComponent<Image>(panel, "Status Pair Second");

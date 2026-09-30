@@ -933,6 +933,7 @@ GameObject:
   - component: {fileID: 145745365}
   - component: {fileID: 145745367}
   - component: {fileID: 145745366}
+  - component: {fileID: 202609301010}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -1123,6 +1124,7 @@ GameObject:
   - component: {fileID: 164886412}
   - component: {fileID: 2026096043}
   - component: {fileID: 2026096042}
+  - component: {fileID: 202609301034}
   m_Layer: 0
   m_Name: OrderTimer
   m_TagString: Untagged
@@ -1214,6 +1216,7 @@ GameObject:
   - component: {fileID: 170048473}
   - component: {fileID: 2026096045}
   - component: {fileID: 2026096044}
+  - component: {fileID: 202609301011}
   m_Layer: 0
   m_Name: OrderTimer
   m_TagString: Untagged
@@ -1304,6 +1307,7 @@ GameObject:
   - component: {fileID: 170082141}
   - component: {fileID: 170082143}
   - component: {fileID: 170082142}
+  - component: {fileID: 202609301058}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -1532,6 +1536,7 @@ GameObject:
   - component: {fileID: 211217128}
   - component: {fileID: 211217130}
   - component: {fileID: 211217129}
+  - component: {fileID: 202609301059}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -1639,6 +1644,7 @@ GameObject:
   - component: {fileID: 249395614}
   - component: {fileID: 249395616}
   - component: {fileID: 249395615}
+  - component: {fileID: 202609301035}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -2195,6 +2201,8 @@ GameObject:
   - component: {fileID: 422844806}
   - component: {fileID: 422844808}
   - component: {fileID: 422844807}
+  - component: {fileID: 202610010000}
+  - component: {fileID: 202609301082}
   m_Layer: 0
   m_Name: Status
   m_TagString: Untagged
@@ -2784,6 +2792,7 @@ GameObject:
   - component: {fileID: 491305669}
   - component: {fileID: 2131000020}
   - component: {fileID: 2131000021}
+  - component: {fileID: 202609301001}
   m_Layer: 0
   m_Name: CustomerPanel3
   m_TagString: Untagged
@@ -2809,6 +2818,8 @@ RectTransform:
   - {fileID: 202609290051}
   - {fileID: 202609300001}
   - {fileID: 202609300020}
+  - {fileID: 202609301003}
+  - {fileID: 202609301007}
   m_Father: {fileID: 57849071}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.338, y: 0.08}
@@ -2922,6 +2933,7 @@ GameObject:
   - component: {fileID: 544000952}
   - component: {fileID: 544000954}
   - component: {fileID: 544000953}
+  - component: {fileID: 202609301083}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -3322,6 +3334,7 @@ GameObject:
   - component: {fileID: 690131569}
   - component: {fileID: 2131000000}
   - component: {fileID: 2131000001}
+  - component: {fileID: 202609301025}
   m_Layer: 0
   m_Name: CustomerPanel1
   m_TagString: Untagged
@@ -3347,6 +3360,8 @@ RectTransform:
   - {fileID: 202609290111}
   - {fileID: 202609300039}
   - {fileID: 202609300058}
+  - {fileID: 202609301027}
+  - {fileID: 202609301031}
   m_Father: {fileID: 57849071}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.005, y: 0.08}
@@ -4481,6 +4496,7 @@ GameObject:
   - component: {fileID: 1066344560}
   - component: {fileID: 2026096047}
   - component: {fileID: 2026096046}
+  - component: {fileID: 202609301084}
   m_Layer: 0
   m_Name: OrderTimer
   m_TagString: Untagged
@@ -4690,6 +4706,7 @@ GameObject:
   - component: {fileID: 1335439944}
   - component: {fileID: 1335439946}
   - component: {fileID: 1335439945}
+  - component: {fileID: 202609301036}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -4765,6 +4782,7 @@ GameObject:
   - component: {fileID: 1376234883}
   - component: {fileID: 2131000030}
   - component: {fileID: 2131000031}
+  - component: {fileID: 202609301049}
   m_Layer: 0
   m_Name: CustomerPanel4
   m_TagString: Untagged
@@ -4790,6 +4808,8 @@ RectTransform:
   - {fileID: 202609290081}
   - {fileID: 202609300077}
   - {fileID: 202609300096}
+  - {fileID: 202609301051}
+  - {fileID: 202609301055}
   m_Father: {fileID: 57849071}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.508, y: 0.08}
@@ -5069,6 +5089,7 @@ GameObject:
   - component: {fileID: 1450704595}
   - component: {fileID: 1450704597}
   - component: {fileID: 1450704596}
+  - component: {fileID: 202609301012}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -5926,6 +5947,7 @@ GameObject:
   - component: {fileID: 1674204464}
   - component: {fileID: 1674204466}
   - component: {fileID: 1674204465}
+  - component: {fileID: 202609301085}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -6196,6 +6218,8 @@ GameObject:
   - component: {fileID: 1809678786}
   - component: {fileID: 1809678788}
   - component: {fileID: 1809678787}
+  - component: {fileID: 202610010001}
+  - component: {fileID: 202609301013}
   m_Layer: 0
   m_Name: Status
   m_TagString: Untagged
@@ -6400,6 +6424,7 @@ GameObject:
   - component: {fileID: 1838018648}
   - component: {fileID: 2026096049}
   - component: {fileID: 2026096048}
+  - component: {fileID: 202609301060}
   m_Layer: 0
   m_Name: OrderTimer
   m_TagString: Untagged
@@ -6490,6 +6515,8 @@ GameObject:
   - component: {fileID: 1857898657}
   - component: {fileID: 1857898659}
   - component: {fileID: 1857898658}
+  - component: {fileID: 202610010002}
+  - component: {fileID: 202609301061}
   m_Layer: 0
   m_Name: Status
   m_TagString: Untagged
@@ -6565,6 +6592,8 @@ GameObject:
   - component: {fileID: 1902413827}
   - component: {fileID: 1902413829}
   - component: {fileID: 1902413828}
+  - component: {fileID: 202610010003}
+  - component: {fileID: 202609301037}
   m_Layer: 0
   m_Name: Status
   m_TagString: Untagged
@@ -6777,6 +6806,7 @@ GameObject:
   - component: {fileID: 1991298205}
   - component: {fileID: 2131000010}
   - component: {fileID: 2131000011}
+  - component: {fileID: 202609301073}
   m_Layer: 0
   m_Name: CustomerPanel2
   m_TagString: Untagged
@@ -6802,6 +6832,8 @@ RectTransform:
   - {fileID: 202609290021}
   - {fileID: 202609300115}
   - {fileID: 202609300134}
+  - {fileID: 202609301075}
+  - {fileID: 202609301079}
   m_Father: {fileID: 57849071}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.171, y: 0.08}
@@ -7784,6 +7816,7 @@ GameObject:
   - component: {fileID: 2015000001}
   - component: {fileID: 2131000040}
   - component: {fileID: 2131000041}
+  - component: {fileID: 202609301097}
   m_Layer: 0
   m_Name: CustomerPanel5
   m_TagString: Untagged
@@ -7809,6 +7842,8 @@ RectTransform:
   - {fileID: 202609290141}
   - {fileID: 202609300153}
   - {fileID: 202609300172}
+  - {fileID: 202609301099}
+  - {fileID: 202609301103}
   m_Father: {fileID: 57849071}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.675, y: 0.08}
@@ -7827,6 +7862,8 @@ GameObject:
   - component: {fileID: 2015000011}
   - component: {fileID: 2015000012}
   - component: {fileID: 2015000013}
+  - component: {fileID: 202610010004}
+  - component: {fileID: 202609301106}
   m_Layer: 0
   m_Name: Status
   m_TagString: Untagged
@@ -7903,6 +7940,7 @@ GameObject:
   - component: {fileID: 2015000022}
   - component: {fileID: 2026096051}
   - component: {fileID: 2026096050}
+  - component: {fileID: 202609301107}
   m_Layer: 0
   m_Name: OrderTimer
   m_TagString: Untagged
@@ -7993,6 +8031,7 @@ GameObject:
   - component: {fileID: 2015000031}
   - component: {fileID: 2015000033}
   - component: {fileID: 2015000032}
+  - component: {fileID: 202609301108}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -8104,6 +8143,7 @@ GameObject:
   - component: {fileID: 2015000051}
   - component: {fileID: 2015000053}
   - component: {fileID: 2015000052}
+  - component: {fileID: 202609301109}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -8179,6 +8219,7 @@ GameObject:
   - component: {fileID: 2016000001}
   - component: {fileID: 2131000050}
   - component: {fileID: 2131000051}
+  - component: {fileID: 202609301121}
   m_Layer: 0
   m_Name: CustomerPanel6
   m_TagString: Untagged
@@ -8204,6 +8245,8 @@ RectTransform:
   - {fileID: 202609290171}
   - {fileID: 202609300191}
   - {fileID: 202609300210}
+  - {fileID: 202609301123}
+  - {fileID: 202609301127}
   m_Father: {fileID: 57849071}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.842, y: 0.08}
@@ -8222,6 +8265,8 @@ GameObject:
   - component: {fileID: 2016000011}
   - component: {fileID: 2016000012}
   - component: {fileID: 2016000013}
+  - component: {fileID: 202610010005}
+  - component: {fileID: 202609301130}
   m_Layer: 0
   m_Name: Status
   m_TagString: Untagged
@@ -8298,6 +8343,7 @@ GameObject:
   - component: {fileID: 2016000022}
   - component: {fileID: 2026096053}
   - component: {fileID: 2026096052}
+  - component: {fileID: 202609301131}
   m_Layer: 0
   m_Name: OrderTimer
   m_TagString: Untagged
@@ -8388,6 +8434,7 @@ GameObject:
   - component: {fileID: 2016000031}
   - component: {fileID: 2016000033}
   - component: {fileID: 2016000032}
+  - component: {fileID: 202609301132}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -8499,6 +8546,7 @@ GameObject:
   - component: {fileID: 2016000051}
   - component: {fileID: 2016000053}
   - component: {fileID: 2016000052}
+  - component: {fileID: 202609301133}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -25804,6 +25852,7 @@ GameObject:
   - component: {fileID: 2100000001}
   - component: {fileID: 2100000002}
   - component: {fileID: 2100000003}
+  - component: {fileID: 202609301038}
   m_Layer: 0
   m_Name: BG Order
   m_TagString: Untagged
@@ -25879,6 +25928,7 @@ GameObject:
   - component: {fileID: 2100000011}
   - component: {fileID: 2100000012}
   - component: {fileID: 2100000013}
+  - component: {fileID: 202609301086}
   m_Layer: 0
   m_Name: BG Order
   m_TagString: Untagged
@@ -25954,6 +26004,7 @@ GameObject:
   - component: {fileID: 2100000021}
   - component: {fileID: 2100000022}
   - component: {fileID: 2100000023}
+  - component: {fileID: 202609301014}
   m_Layer: 0
   m_Name: BG Order
   m_TagString: Untagged
@@ -26029,6 +26080,7 @@ GameObject:
   - component: {fileID: 2100000031}
   - component: {fileID: 2100000032}
   - component: {fileID: 2100000033}
+  - component: {fileID: 202609301062}
   m_Layer: 0
   m_Name: BG Order
   m_TagString: Untagged
@@ -26104,6 +26156,7 @@ GameObject:
   - component: {fileID: 2100000041}
   - component: {fileID: 2100000042}
   - component: {fileID: 2100000043}
+  - component: {fileID: 202609301110}
   m_Layer: 0
   m_Name: BG Order
   m_TagString: Untagged
@@ -26179,6 +26232,7 @@ GameObject:
   - component: {fileID: 2100000051}
   - component: {fileID: 2100000052}
   - component: {fileID: 2100000053}
+  - component: {fileID: 202609301134}
   m_Layer: 0
   m_Name: BG Order
   m_TagString: Untagged
@@ -29710,6 +29764,8 @@ GameObject:
   - component: {fileID: 202609290001}
   - component: {fileID: 202609290002}
   - component: {fileID: 202609290003}
+  - component: {fileID: 202610010006}
+  - component: {fileID: 202609301087}
   m_Layer: 0
   m_Name: Status Pair First
   m_TagString: Untagged
@@ -29785,6 +29841,8 @@ GameObject:
   - component: {fileID: 202609290011}
   - component: {fileID: 202609290012}
   - component: {fileID: 202609290013}
+  - component: {fileID: 202610010007}
+  - component: {fileID: 202609301088}
   m_Layer: 0
   m_Name: Status Pair Second
   m_TagString: Untagged
@@ -29876,7 +29934,7 @@ RectTransform:
   m_GameObject: {fileID: 202609290020}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9, y: 1, z: 1}
+  m_LocalScale: {x: 0.765, y: 0.85, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1991298205}
@@ -29907,13 +29965,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OmakaseOrderGraphic
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.83, b: 0.35, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 2656bdceaa084eb2a8c7eb5d07dd6fcf, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &202609290030
 GameObject:
   m_ObjectHideFlags: 0
@@ -29925,6 +29993,8 @@ GameObject:
   - component: {fileID: 202609290031}
   - component: {fileID: 202609290032}
   - component: {fileID: 202609290033}
+  - component: {fileID: 202610010008}
+  - component: {fileID: 202609301015}
   m_Layer: 0
   m_Name: Status Pair First
   m_TagString: Untagged
@@ -30000,6 +30070,8 @@ GameObject:
   - component: {fileID: 202609290041}
   - component: {fileID: 202609290042}
   - component: {fileID: 202609290043}
+  - component: {fileID: 202610010009}
+  - component: {fileID: 202609301016}
   m_Layer: 0
   m_Name: Status Pair Second
   m_TagString: Untagged
@@ -30091,7 +30163,7 @@ RectTransform:
   m_GameObject: {fileID: 202609290050}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9, y: 1, z: 1}
+  m_LocalScale: {x: 0.765, y: 0.85, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 491305669}
@@ -30122,13 +30194,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OmakaseOrderGraphic
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.83, b: 0.35, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 2656bdceaa084eb2a8c7eb5d07dd6fcf, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &202609290060
 GameObject:
   m_ObjectHideFlags: 0
@@ -30140,6 +30222,8 @@ GameObject:
   - component: {fileID: 202609290061}
   - component: {fileID: 202609290062}
   - component: {fileID: 202609290063}
+  - component: {fileID: 202610010010}
+  - component: {fileID: 202609301063}
   m_Layer: 0
   m_Name: Status Pair First
   m_TagString: Untagged
@@ -30215,6 +30299,8 @@ GameObject:
   - component: {fileID: 202609290071}
   - component: {fileID: 202609290072}
   - component: {fileID: 202609290073}
+  - component: {fileID: 202610010011}
+  - component: {fileID: 202609301064}
   m_Layer: 0
   m_Name: Status Pair Second
   m_TagString: Untagged
@@ -30306,7 +30392,7 @@ RectTransform:
   m_GameObject: {fileID: 202609290080}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
+  m_LocalScale: {x: 0.765, y: 0.765, z: 0.9}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1376234883}
@@ -30337,13 +30423,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OmakaseOrderGraphic
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.83, b: 0.35, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 2656bdceaa084eb2a8c7eb5d07dd6fcf, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &202609290090
 GameObject:
   m_ObjectHideFlags: 0
@@ -30355,6 +30451,8 @@ GameObject:
   - component: {fileID: 202609290091}
   - component: {fileID: 202609290092}
   - component: {fileID: 202609290093}
+  - component: {fileID: 202610010012}
+  - component: {fileID: 202609301039}
   m_Layer: 0
   m_Name: Status Pair First
   m_TagString: Untagged
@@ -30430,6 +30528,8 @@ GameObject:
   - component: {fileID: 202609290101}
   - component: {fileID: 202609290102}
   - component: {fileID: 202609290103}
+  - component: {fileID: 202610010013}
+  - component: {fileID: 202609301040}
   m_Layer: 0
   m_Name: Status Pair Second
   m_TagString: Untagged
@@ -30521,7 +30621,7 @@ RectTransform:
   m_GameObject: {fileID: 202609290110}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9, y: 1, z: 1}
+  m_LocalScale: {x: 0.765, y: 0.85, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 690131569}
@@ -30552,13 +30652,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OmakaseOrderGraphic
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.83, b: 0.35, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 2656bdceaa084eb2a8c7eb5d07dd6fcf, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &202609290120
 GameObject:
   m_ObjectHideFlags: 0
@@ -30570,6 +30680,8 @@ GameObject:
   - component: {fileID: 202609290121}
   - component: {fileID: 202609290123}
   - component: {fileID: 202609290122}
+  - component: {fileID: 202610010014}
+  - component: {fileID: 202609301111}
   m_Layer: 0
   m_Name: Status Pair First
   m_TagString: Untagged
@@ -30645,6 +30757,8 @@ GameObject:
   - component: {fileID: 202609290131}
   - component: {fileID: 202609290133}
   - component: {fileID: 202609290132}
+  - component: {fileID: 202610010015}
+  - component: {fileID: 202609301112}
   m_Layer: 0
   m_Name: Status Pair Second
   m_TagString: Untagged
@@ -30736,7 +30850,7 @@ RectTransform:
   m_GameObject: {fileID: 202609290140}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
+  m_LocalScale: {x: 0.765, y: 0.765, z: 0.9}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 2015000001}
@@ -30767,13 +30881,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OmakaseOrderGraphic
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.83, b: 0.35, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 2656bdceaa084eb2a8c7eb5d07dd6fcf, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &202609290150
 GameObject:
   m_ObjectHideFlags: 0
@@ -30785,6 +30909,8 @@ GameObject:
   - component: {fileID: 202609290151}
   - component: {fileID: 202609290153}
   - component: {fileID: 202609290152}
+  - component: {fileID: 202610010016}
+  - component: {fileID: 202609301135}
   m_Layer: 0
   m_Name: Status Pair First
   m_TagString: Untagged
@@ -30860,6 +30986,8 @@ GameObject:
   - component: {fileID: 202609290161}
   - component: {fileID: 202609290163}
   - component: {fileID: 202609290162}
+  - component: {fileID: 202610010017}
+  - component: {fileID: 202609301136}
   m_Layer: 0
   m_Name: Status Pair Second
   m_TagString: Untagged
@@ -30951,7 +31079,7 @@ RectTransform:
   m_GameObject: {fileID: 202609290170}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
+  m_LocalScale: {x: 0.765, y: 0.765, z: 0.9}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 2016000001}
@@ -30982,13 +31110,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OmakaseOrderGraphic
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.83, b: 0.35, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 2656bdceaa084eb2a8c7eb5d07dd6fcf, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &202609290180
 GameObject:
   m_ObjectHideFlags: 0
@@ -32373,12 +32511,12 @@ MonoBehaviour:
   - Perk_Small_Meat
   - Perk_Small_Seafood
   - Perk_Small_Tasty
-  - Perk_Small_Starter
+  - Perk_Small_Cross
   bigSimulationOffers:
   - Perk_Big_Home
   - Perk_Big_Pairs
   - Perk_Big_Sky
-  - Perk_Big_Happiness
+  - Perk_Big_Omakase
 --- !u!1 &202609300000
 GameObject:
   m_ObjectHideFlags: 0
@@ -32390,6 +32528,7 @@ GameObject:
   - component: {fileID: 202609300001}
   - component: {fileID: 202609300002}
   - component: {fileID: 202609300003}
+  - component: {fileID: 202609301017}
   m_Layer: 0
   m_Name: BG Order Pair First
   m_TagString: Untagged
@@ -32415,7 +32554,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -42, y: -11}
+  m_AnchoredPosition: {x: -52, y: -11}
   m_SizeDelta: {x: 221.14407, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &202609300002
@@ -32468,6 +32607,7 @@ GameObject:
   - component: {fileID: 202609300006}
   - component: {fileID: 202609300007}
   - component: {fileID: 202609300008}
+  - component: {fileID: 202609301018}
   m_Layer: 0
   m_Name: OrderTimer Pair First
   m_TagString: Untagged
@@ -32593,6 +32733,7 @@ GameObject:
   - component: {fileID: 202609300010}
   - component: {fileID: 202609300011}
   - component: {fileID: 202609300012}
+  - component: {fileID: 202609301019}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -32704,6 +32845,7 @@ GameObject:
   - component: {fileID: 202609300016}
   - component: {fileID: 202609300017}
   - component: {fileID: 202609300018}
+  - component: {fileID: 202609301020}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -32779,6 +32921,7 @@ GameObject:
   - component: {fileID: 202609300020}
   - component: {fileID: 202609300021}
   - component: {fileID: 202609300022}
+  - component: {fileID: 202609301021}
   m_Layer: 0
   m_Name: BG Order Pair Second
   m_TagString: Untagged
@@ -32804,7 +32947,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 42, y: -11}
+  m_AnchoredPosition: {x: 52, y: -11}
   m_SizeDelta: {x: 221.14407, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &202609300021
@@ -32857,6 +33000,7 @@ GameObject:
   - component: {fileID: 202609300025}
   - component: {fileID: 202609300026}
   - component: {fileID: 202609300027}
+  - component: {fileID: 202609301022}
   m_Layer: 0
   m_Name: OrderTimer Pair Second
   m_TagString: Untagged
@@ -32982,6 +33126,7 @@ GameObject:
   - component: {fileID: 202609300029}
   - component: {fileID: 202609300030}
   - component: {fileID: 202609300031}
+  - component: {fileID: 202609301023}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -33093,6 +33238,7 @@ GameObject:
   - component: {fileID: 202609300035}
   - component: {fileID: 202609300036}
   - component: {fileID: 202609300037}
+  - component: {fileID: 202609301024}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -33168,6 +33314,7 @@ GameObject:
   - component: {fileID: 202609300039}
   - component: {fileID: 202609300040}
   - component: {fileID: 202609300041}
+  - component: {fileID: 202609301041}
   m_Layer: 0
   m_Name: BG Order Pair First
   m_TagString: Untagged
@@ -33193,7 +33340,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -42, y: -11}
+  m_AnchoredPosition: {x: -52, y: -11}
   m_SizeDelta: {x: 219.708, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &202609300040
@@ -33246,6 +33393,7 @@ GameObject:
   - component: {fileID: 202609300044}
   - component: {fileID: 202609300045}
   - component: {fileID: 202609300046}
+  - component: {fileID: 202609301042}
   m_Layer: 0
   m_Name: OrderTimer Pair First
   m_TagString: Untagged
@@ -33371,6 +33519,7 @@ GameObject:
   - component: {fileID: 202609300048}
   - component: {fileID: 202609300049}
   - component: {fileID: 202609300050}
+  - component: {fileID: 202609301043}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -33482,6 +33631,7 @@ GameObject:
   - component: {fileID: 202609300054}
   - component: {fileID: 202609300055}
   - component: {fileID: 202609300056}
+  - component: {fileID: 202609301044}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -33557,6 +33707,7 @@ GameObject:
   - component: {fileID: 202609300058}
   - component: {fileID: 202609300059}
   - component: {fileID: 202609300060}
+  - component: {fileID: 202609301045}
   m_Layer: 0
   m_Name: BG Order Pair Second
   m_TagString: Untagged
@@ -33582,7 +33733,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 42, y: -11}
+  m_AnchoredPosition: {x: 52, y: -11}
   m_SizeDelta: {x: 219.708, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &202609300059
@@ -33635,6 +33786,7 @@ GameObject:
   - component: {fileID: 202609300063}
   - component: {fileID: 202609300064}
   - component: {fileID: 202609300065}
+  - component: {fileID: 202609301046}
   m_Layer: 0
   m_Name: OrderTimer Pair Second
   m_TagString: Untagged
@@ -33760,6 +33912,7 @@ GameObject:
   - component: {fileID: 202609300067}
   - component: {fileID: 202609300068}
   - component: {fileID: 202609300069}
+  - component: {fileID: 202609301047}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -33871,6 +34024,7 @@ GameObject:
   - component: {fileID: 202609300073}
   - component: {fileID: 202609300074}
   - component: {fileID: 202609300075}
+  - component: {fileID: 202609301048}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -33946,6 +34100,7 @@ GameObject:
   - component: {fileID: 202609300077}
   - component: {fileID: 202609300078}
   - component: {fileID: 202609300079}
+  - component: {fileID: 202609301065}
   m_Layer: 0
   m_Name: BG Order Pair First
   m_TagString: Untagged
@@ -33971,7 +34126,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -42, y: -11}
+  m_AnchoredPosition: {x: -52, y: -11}
   m_SizeDelta: {x: 221.14401, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &202609300078
@@ -34024,6 +34179,7 @@ GameObject:
   - component: {fileID: 202609300082}
   - component: {fileID: 202609300083}
   - component: {fileID: 202609300084}
+  - component: {fileID: 202609301066}
   m_Layer: 0
   m_Name: OrderTimer Pair First
   m_TagString: Untagged
@@ -34149,6 +34305,7 @@ GameObject:
   - component: {fileID: 202609300086}
   - component: {fileID: 202609300087}
   - component: {fileID: 202609300088}
+  - component: {fileID: 202609301067}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -34260,6 +34417,7 @@ GameObject:
   - component: {fileID: 202609300092}
   - component: {fileID: 202609300093}
   - component: {fileID: 202609300094}
+  - component: {fileID: 202609301068}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -34335,6 +34493,7 @@ GameObject:
   - component: {fileID: 202609300096}
   - component: {fileID: 202609300097}
   - component: {fileID: 202609300098}
+  - component: {fileID: 202609301069}
   m_Layer: 0
   m_Name: BG Order Pair Second
   m_TagString: Untagged
@@ -34360,7 +34519,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 42, y: -11}
+  m_AnchoredPosition: {x: 52, y: -11}
   m_SizeDelta: {x: 221.14401, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &202609300097
@@ -34413,6 +34572,7 @@ GameObject:
   - component: {fileID: 202609300101}
   - component: {fileID: 202609300102}
   - component: {fileID: 202609300103}
+  - component: {fileID: 202609301070}
   m_Layer: 0
   m_Name: OrderTimer Pair Second
   m_TagString: Untagged
@@ -34538,6 +34698,7 @@ GameObject:
   - component: {fileID: 202609300105}
   - component: {fileID: 202609300106}
   - component: {fileID: 202609300107}
+  - component: {fileID: 202609301071}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -34649,6 +34810,7 @@ GameObject:
   - component: {fileID: 202609300111}
   - component: {fileID: 202609300112}
   - component: {fileID: 202609300113}
+  - component: {fileID: 202609301072}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -34724,6 +34886,7 @@ GameObject:
   - component: {fileID: 202609300115}
   - component: {fileID: 202609300116}
   - component: {fileID: 202609300117}
+  - component: {fileID: 202609301089}
   m_Layer: 0
   m_Name: BG Order Pair First
   m_TagString: Untagged
@@ -34749,7 +34912,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -42, y: -11}
+  m_AnchoredPosition: {x: -52, y: -11}
   m_SizeDelta: {x: 221.14398, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &202609300116
@@ -34802,6 +34965,7 @@ GameObject:
   - component: {fileID: 202609300120}
   - component: {fileID: 202609300121}
   - component: {fileID: 202609300122}
+  - component: {fileID: 202609301090}
   m_Layer: 0
   m_Name: OrderTimer Pair First
   m_TagString: Untagged
@@ -34927,6 +35091,7 @@ GameObject:
   - component: {fileID: 202609300124}
   - component: {fileID: 202609300125}
   - component: {fileID: 202609300126}
+  - component: {fileID: 202609301091}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -35038,6 +35203,7 @@ GameObject:
   - component: {fileID: 202609300130}
   - component: {fileID: 202609300131}
   - component: {fileID: 202609300132}
+  - component: {fileID: 202609301092}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -35113,6 +35279,7 @@ GameObject:
   - component: {fileID: 202609300134}
   - component: {fileID: 202609300135}
   - component: {fileID: 202609300136}
+  - component: {fileID: 202609301093}
   m_Layer: 0
   m_Name: BG Order Pair Second
   m_TagString: Untagged
@@ -35138,7 +35305,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 42, y: -11}
+  m_AnchoredPosition: {x: 52, y: -11}
   m_SizeDelta: {x: 221.14398, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &202609300135
@@ -35191,6 +35358,7 @@ GameObject:
   - component: {fileID: 202609300139}
   - component: {fileID: 202609300140}
   - component: {fileID: 202609300141}
+  - component: {fileID: 202609301094}
   m_Layer: 0
   m_Name: OrderTimer Pair Second
   m_TagString: Untagged
@@ -35316,6 +35484,7 @@ GameObject:
   - component: {fileID: 202609300143}
   - component: {fileID: 202609300144}
   - component: {fileID: 202609300145}
+  - component: {fileID: 202609301095}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -35427,6 +35596,7 @@ GameObject:
   - component: {fileID: 202609300149}
   - component: {fileID: 202609300150}
   - component: {fileID: 202609300151}
+  - component: {fileID: 202609301096}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -35502,6 +35672,7 @@ GameObject:
   - component: {fileID: 202609300153}
   - component: {fileID: 202609300154}
   - component: {fileID: 202609300155}
+  - component: {fileID: 202609301113}
   m_Layer: 0
   m_Name: BG Order Pair First
   m_TagString: Untagged
@@ -35527,7 +35698,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -42, y: -11}
+  m_AnchoredPosition: {x: -52, y: -11}
   m_SizeDelta: {x: 221.14395, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &202609300154
@@ -35580,6 +35751,7 @@ GameObject:
   - component: {fileID: 202609300158}
   - component: {fileID: 202609300159}
   - component: {fileID: 202609300160}
+  - component: {fileID: 202609301114}
   m_Layer: 0
   m_Name: OrderTimer Pair First
   m_TagString: Untagged
@@ -35705,6 +35877,7 @@ GameObject:
   - component: {fileID: 202609300162}
   - component: {fileID: 202609300163}
   - component: {fileID: 202609300164}
+  - component: {fileID: 202609301115}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -35816,6 +35989,7 @@ GameObject:
   - component: {fileID: 202609300168}
   - component: {fileID: 202609300169}
   - component: {fileID: 202609300170}
+  - component: {fileID: 202609301116}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -35891,6 +36065,7 @@ GameObject:
   - component: {fileID: 202609300172}
   - component: {fileID: 202609300173}
   - component: {fileID: 202609300174}
+  - component: {fileID: 202609301117}
   m_Layer: 0
   m_Name: BG Order Pair Second
   m_TagString: Untagged
@@ -35916,7 +36091,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 42, y: -11}
+  m_AnchoredPosition: {x: 52, y: -11}
   m_SizeDelta: {x: 221.14395, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &202609300173
@@ -35969,6 +36144,7 @@ GameObject:
   - component: {fileID: 202609300177}
   - component: {fileID: 202609300178}
   - component: {fileID: 202609300179}
+  - component: {fileID: 202609301118}
   m_Layer: 0
   m_Name: OrderTimer Pair Second
   m_TagString: Untagged
@@ -36094,6 +36270,7 @@ GameObject:
   - component: {fileID: 202609300181}
   - component: {fileID: 202609300182}
   - component: {fileID: 202609300183}
+  - component: {fileID: 202609301119}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -36205,6 +36382,7 @@ GameObject:
   - component: {fileID: 202609300187}
   - component: {fileID: 202609300188}
   - component: {fileID: 202609300189}
+  - component: {fileID: 202609301120}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -36280,6 +36458,7 @@ GameObject:
   - component: {fileID: 202609300191}
   - component: {fileID: 202609300192}
   - component: {fileID: 202609300193}
+  - component: {fileID: 202609301137}
   m_Layer: 0
   m_Name: BG Order Pair First
   m_TagString: Untagged
@@ -36305,7 +36484,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -42, y: -11}
+  m_AnchoredPosition: {x: -52, y: -11}
   m_SizeDelta: {x: 219.70805, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &202609300192
@@ -36358,6 +36537,7 @@ GameObject:
   - component: {fileID: 202609300196}
   - component: {fileID: 202609300197}
   - component: {fileID: 202609300198}
+  - component: {fileID: 202609301138}
   m_Layer: 0
   m_Name: OrderTimer Pair First
   m_TagString: Untagged
@@ -36483,6 +36663,7 @@ GameObject:
   - component: {fileID: 202609300200}
   - component: {fileID: 202609300201}
   - component: {fileID: 202609300202}
+  - component: {fileID: 202609301139}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -36594,6 +36775,7 @@ GameObject:
   - component: {fileID: 202609300206}
   - component: {fileID: 202609300207}
   - component: {fileID: 202609300208}
+  - component: {fileID: 202609301140}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -36669,6 +36851,7 @@ GameObject:
   - component: {fileID: 202609300210}
   - component: {fileID: 202609300211}
   - component: {fileID: 202609300212}
+  - component: {fileID: 202609301141}
   m_Layer: 0
   m_Name: BG Order Pair Second
   m_TagString: Untagged
@@ -36694,7 +36877,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 42, y: -11}
+  m_AnchoredPosition: {x: 52, y: -11}
   m_SizeDelta: {x: 219.70805, y: 137.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &202609300211
@@ -36747,6 +36930,7 @@ GameObject:
   - component: {fileID: 202609300215}
   - component: {fileID: 202609300216}
   - component: {fileID: 202609300217}
+  - component: {fileID: 202609301142}
   m_Layer: 0
   m_Name: OrderTimer Pair Second
   m_TagString: Untagged
@@ -36872,6 +37056,7 @@ GameObject:
   - component: {fileID: 202609300219}
   - component: {fileID: 202609300220}
   - component: {fileID: 202609300221}
+  - component: {fileID: 202609301143}
   m_Layer: 0
   m_Name: Track
   m_TagString: Untagged
@@ -36983,6 +37168,7 @@ GameObject:
   - component: {fileID: 202609300225}
   - component: {fileID: 202609300226}
   - component: {fileID: 202609300227}
+  - component: {fileID: 202609301144}
   m_Layer: 0
   m_Name: Fill
   m_TagString: Untagged
@@ -37047,6 +37233,3132 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &202609301001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 491305668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75e9f6e65e944b7fab5d94e77e80e096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.PairedOrderPresentation
+  firstCard: {fileID: 202609300001}
+  secondCard: {fileID: 202609300020}
+  singleCard: {fileID: 2100000021}
+  firstParticles: {fileID: 202609301005}
+  secondParticles: {fileID: 202609301009}
+  durationSeconds: 0.58
+--- !u!1 &202609301002
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 202609301003}
+  - component: {fileID: 202609301004}
+  - component: {fileID: 202609301005}
+  m_Layer: 5
+  m_Name: Pair First Delivery Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &202609301003
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301002}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 491305669}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -52, y: -11}
+  m_SizeDelta: {x: 210, y: 210}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &202609301004
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301002}
+  m_CullTransparentMesh: 1
+--- !u!114 &202609301005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 16
+  duration: 0.6
+  useUnscaledTime: 0
+  startRadius: 9
+  travelDistance: 48
+  downwardDrift: 12
+  particleSizeRange: {x: 2, y: 4.5}
+  starRatio: 0.75
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.55, b: 0.18, a: 1}
+  showRing: 1
+  ringRadius: 28
+  ringWidth: 1.2
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!1 &202609301006
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 202609301007}
+  - component: {fileID: 202609301008}
+  - component: {fileID: 202609301009}
+  m_Layer: 5
+  m_Name: Pair Second Delivery Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &202609301007
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301006}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 491305669}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 52, y: -11}
+  m_SizeDelta: {x: 210, y: 210}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &202609301008
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301006}
+  m_CullTransparentMesh: 1
+--- !u!114 &202609301009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 16
+  duration: 0.6
+  useUnscaledTime: 0
+  startRadius: 9
+  travelDistance: 48
+  downwardDrift: 12
+  particleSizeRange: {x: 2, y: 4.5}
+  starRatio: 0.75
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.55, b: 0.18, a: 1}
+  showRing: 1
+  ringRadius: 28
+  ringWidth: 1.2
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!114 &202609301010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145745364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 2
+--- !u!114 &202609301011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 170048471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 2
+--- !u!114 &202609301012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1450704594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 2
+--- !u!114 &202609301013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1809678785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 2
+--- !u!114 &202609301014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 2
+--- !u!114 &202609301015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 0
+--- !u!114 &202609301016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 1
+--- !u!114 &202609301017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 0
+--- !u!114 &202609301018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 0
+--- !u!114 &202609301019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 0
+--- !u!114 &202609301020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 0
+--- !u!114 &202609301021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300019}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 1
+--- !u!114 &202609301022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 1
+--- !u!114 &202609301023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 1
+--- !u!114 &202609301024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301001}
+  card: 1
+--- !u!114 &202609301025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 690131568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75e9f6e65e944b7fab5d94e77e80e096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.PairedOrderPresentation
+  firstCard: {fileID: 202609300039}
+  secondCard: {fileID: 202609300058}
+  singleCard: {fileID: 2100000001}
+  firstParticles: {fileID: 202609301029}
+  secondParticles: {fileID: 202609301033}
+  durationSeconds: 0.58
+--- !u!1 &202609301026
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 202609301027}
+  - component: {fileID: 202609301028}
+  - component: {fileID: 202609301029}
+  m_Layer: 5
+  m_Name: Pair First Delivery Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &202609301027
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301026}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 690131569}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -52, y: -11}
+  m_SizeDelta: {x: 210, y: 210}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &202609301028
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301026}
+  m_CullTransparentMesh: 1
+--- !u!114 &202609301029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 16
+  duration: 0.6
+  useUnscaledTime: 0
+  startRadius: 9
+  travelDistance: 48
+  downwardDrift: 12
+  particleSizeRange: {x: 2, y: 4.5}
+  starRatio: 0.75
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.55, b: 0.18, a: 1}
+  showRing: 1
+  ringRadius: 28
+  ringWidth: 1.2
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!1 &202609301030
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 202609301031}
+  - component: {fileID: 202609301032}
+  - component: {fileID: 202609301033}
+  m_Layer: 5
+  m_Name: Pair Second Delivery Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &202609301031
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301030}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 690131569}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 52, y: -11}
+  m_SizeDelta: {x: 210, y: 210}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &202609301032
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301030}
+  m_CullTransparentMesh: 1
+--- !u!114 &202609301033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 16
+  duration: 0.6
+  useUnscaledTime: 0
+  startRadius: 9
+  travelDistance: 48
+  downwardDrift: 12
+  particleSizeRange: {x: 2, y: 4.5}
+  starRatio: 0.75
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.55, b: 0.18, a: 1}
+  showRing: 1
+  ringRadius: 28
+  ringWidth: 1.2
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!114 &202609301034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 164886410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 2
+--- !u!114 &202609301035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 249395613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 2
+--- !u!114 &202609301036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1335439943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 2
+--- !u!114 &202609301037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1902413826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 2
+--- !u!114 &202609301038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 2
+--- !u!114 &202609301039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 0
+--- !u!114 &202609301040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 1
+--- !u!114 &202609301041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 0
+--- !u!114 &202609301042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 0
+--- !u!114 &202609301043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300047}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 0
+--- !u!114 &202609301044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 0
+--- !u!114 &202609301045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 1
+--- !u!114 &202609301046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300061}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 1
+--- !u!114 &202609301047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 1
+--- !u!114 &202609301048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301025}
+  card: 1
+--- !u!114 &202609301049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1376234882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75e9f6e65e944b7fab5d94e77e80e096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.PairedOrderPresentation
+  firstCard: {fileID: 202609300077}
+  secondCard: {fileID: 202609300096}
+  singleCard: {fileID: 2100000031}
+  firstParticles: {fileID: 202609301053}
+  secondParticles: {fileID: 202609301057}
+  durationSeconds: 0.58
+--- !u!1 &202609301050
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 202609301051}
+  - component: {fileID: 202609301052}
+  - component: {fileID: 202609301053}
+  m_Layer: 5
+  m_Name: Pair First Delivery Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &202609301051
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301050}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 1376234883}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -52, y: -11}
+  m_SizeDelta: {x: 210, y: 210}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &202609301052
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301050}
+  m_CullTransparentMesh: 1
+--- !u!114 &202609301053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 16
+  duration: 0.6
+  useUnscaledTime: 0
+  startRadius: 9
+  travelDistance: 48
+  downwardDrift: 12
+  particleSizeRange: {x: 2, y: 4.5}
+  starRatio: 0.75
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.55, b: 0.18, a: 1}
+  showRing: 1
+  ringRadius: 28
+  ringWidth: 1.2
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!1 &202609301054
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 202609301055}
+  - component: {fileID: 202609301056}
+  - component: {fileID: 202609301057}
+  m_Layer: 5
+  m_Name: Pair Second Delivery Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &202609301055
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301054}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 1376234883}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 52, y: -11}
+  m_SizeDelta: {x: 210, y: 210}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &202609301056
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301054}
+  m_CullTransparentMesh: 1
+--- !u!114 &202609301057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 16
+  duration: 0.6
+  useUnscaledTime: 0
+  startRadius: 9
+  travelDistance: 48
+  downwardDrift: 12
+  particleSizeRange: {x: 2, y: 4.5}
+  starRatio: 0.75
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.55, b: 0.18, a: 1}
+  showRing: 1
+  ringRadius: 28
+  ringWidth: 1.2
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!114 &202609301058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 170082140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 2
+--- !u!114 &202609301059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 211217127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 2
+--- !u!114 &202609301060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1838018646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 2
+--- !u!114 &202609301061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1857898656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 2
+--- !u!114 &202609301062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 2
+--- !u!114 &202609301063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 0
+--- !u!114 &202609301064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 1
+--- !u!114 &202609301065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 0
+--- !u!114 &202609301066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 0
+--- !u!114 &202609301067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 0
+--- !u!114 &202609301068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 0
+--- !u!114 &202609301069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 1
+--- !u!114 &202609301070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 1
+--- !u!114 &202609301071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 1
+--- !u!114 &202609301072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301049}
+  card: 1
+--- !u!114 &202609301073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991298204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75e9f6e65e944b7fab5d94e77e80e096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.PairedOrderPresentation
+  firstCard: {fileID: 202609300115}
+  secondCard: {fileID: 202609300134}
+  singleCard: {fileID: 2100000011}
+  firstParticles: {fileID: 202609301077}
+  secondParticles: {fileID: 202609301081}
+  durationSeconds: 0.58
+--- !u!1 &202609301074
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 202609301075}
+  - component: {fileID: 202609301076}
+  - component: {fileID: 202609301077}
+  m_Layer: 5
+  m_Name: Pair First Delivery Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &202609301075
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301074}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 1991298205}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -52, y: -11}
+  m_SizeDelta: {x: 210, y: 210}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &202609301076
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301074}
+  m_CullTransparentMesh: 1
+--- !u!114 &202609301077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 16
+  duration: 0.6
+  useUnscaledTime: 0
+  startRadius: 9
+  travelDistance: 48
+  downwardDrift: 12
+  particleSizeRange: {x: 2, y: 4.5}
+  starRatio: 0.75
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.55, b: 0.18, a: 1}
+  showRing: 1
+  ringRadius: 28
+  ringWidth: 1.2
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!1 &202609301078
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 202609301079}
+  - component: {fileID: 202609301080}
+  - component: {fileID: 202609301081}
+  m_Layer: 5
+  m_Name: Pair Second Delivery Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &202609301079
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301078}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 1991298205}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 52, y: -11}
+  m_SizeDelta: {x: 210, y: 210}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &202609301080
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301078}
+  m_CullTransparentMesh: 1
+--- !u!114 &202609301081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 16
+  duration: 0.6
+  useUnscaledTime: 0
+  startRadius: 9
+  travelDistance: 48
+  downwardDrift: 12
+  particleSizeRange: {x: 2, y: 4.5}
+  starRatio: 0.75
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.55, b: 0.18, a: 1}
+  showRing: 1
+  ringRadius: 28
+  ringWidth: 1.2
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!114 &202609301082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422844805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 2
+--- !u!114 &202609301083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544000951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 2
+--- !u!114 &202609301084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1066344558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 2
+--- !u!114 &202609301085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1674204463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 2
+--- !u!114 &202609301086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 2
+--- !u!114 &202609301087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 0
+--- !u!114 &202609301088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 1
+--- !u!114 &202609301089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 0
+--- !u!114 &202609301090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 0
+--- !u!114 &202609301091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 0
+--- !u!114 &202609301092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 0
+--- !u!114 &202609301093
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300133}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 1
+--- !u!114 &202609301094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 1
+--- !u!114 &202609301095
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300142}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 1
+--- !u!114 &202609301096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301073}
+  card: 1
+--- !u!114 &202609301097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75e9f6e65e944b7fab5d94e77e80e096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.PairedOrderPresentation
+  firstCard: {fileID: 202609300153}
+  secondCard: {fileID: 202609300172}
+  singleCard: {fileID: 2100000041}
+  firstParticles: {fileID: 202609301101}
+  secondParticles: {fileID: 202609301105}
+  durationSeconds: 0.58
+--- !u!1 &202609301098
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 202609301099}
+  - component: {fileID: 202609301100}
+  - component: {fileID: 202609301101}
+  m_Layer: 5
+  m_Name: Pair First Delivery Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &202609301099
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301098}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 2015000001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -52, y: -11}
+  m_SizeDelta: {x: 210, y: 210}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &202609301100
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301098}
+  m_CullTransparentMesh: 1
+--- !u!114 &202609301101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 16
+  duration: 0.6
+  useUnscaledTime: 0
+  startRadius: 9
+  travelDistance: 48
+  downwardDrift: 12
+  particleSizeRange: {x: 2, y: 4.5}
+  starRatio: 0.75
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.55, b: 0.18, a: 1}
+  showRing: 1
+  ringRadius: 28
+  ringWidth: 1.2
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!1 &202609301102
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 202609301103}
+  - component: {fileID: 202609301104}
+  - component: {fileID: 202609301105}
+  m_Layer: 5
+  m_Name: Pair Second Delivery Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &202609301103
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301102}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 2015000001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 52, y: -11}
+  m_SizeDelta: {x: 210, y: 210}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &202609301104
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301102}
+  m_CullTransparentMesh: 1
+--- !u!114 &202609301105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 16
+  duration: 0.6
+  useUnscaledTime: 0
+  startRadius: 9
+  travelDistance: 48
+  downwardDrift: 12
+  particleSizeRange: {x: 2, y: 4.5}
+  starRatio: 0.75
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.55, b: 0.18, a: 1}
+  showRing: 1
+  ringRadius: 28
+  ringWidth: 1.2
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!114 &202609301106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015000010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 2
+--- !u!114 &202609301107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015000020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 2
+--- !u!114 &202609301108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015000030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 2
+--- !u!114 &202609301109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015000050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 2
+--- !u!114 &202609301110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 2
+--- !u!114 &202609301111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 0
+--- !u!114 &202609301112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 1
+--- !u!114 &202609301113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 0
+--- !u!114 &202609301114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 0
+--- !u!114 &202609301115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300161}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 0
+--- !u!114 &202609301116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 0
+--- !u!114 &202609301117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 1
+--- !u!114 &202609301118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 1
+--- !u!114 &202609301119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 1
+--- !u!114 &202609301120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301097}
+  card: 1
+--- !u!114 &202609301121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2016000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75e9f6e65e944b7fab5d94e77e80e096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.PairedOrderPresentation
+  firstCard: {fileID: 202609300191}
+  secondCard: {fileID: 202609300210}
+  singleCard: {fileID: 2100000051}
+  firstParticles: {fileID: 202609301125}
+  secondParticles: {fileID: 202609301129}
+  durationSeconds: 0.58
+--- !u!1 &202609301122
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 202609301123}
+  - component: {fileID: 202609301124}
+  - component: {fileID: 202609301125}
+  m_Layer: 5
+  m_Name: Pair First Delivery Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &202609301123
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301122}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 2016000001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -52, y: -11}
+  m_SizeDelta: {x: 210, y: 210}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &202609301124
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301122}
+  m_CullTransparentMesh: 1
+--- !u!114 &202609301125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 16
+  duration: 0.6
+  useUnscaledTime: 0
+  startRadius: 9
+  travelDistance: 48
+  downwardDrift: 12
+  particleSizeRange: {x: 2, y: 4.5}
+  starRatio: 0.75
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.55, b: 0.18, a: 1}
+  showRing: 1
+  ringRadius: 28
+  ringWidth: 1.2
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!1 &202609301126
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 202609301127}
+  - component: {fileID: 202609301128}
+  - component: {fileID: 202609301129}
+  m_Layer: 5
+  m_Name: Pair Second Delivery Sparkles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &202609301127
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301126}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 2016000001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 52, y: -11}
+  m_SizeDelta: {x: 210, y: 210}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &202609301128
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301126}
+  m_CullTransparentMesh: 1
+--- !u!114 &202609301129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609301126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8fea9f24ddd410aa0ca1cf05ba119cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.CustomerPanelSuccessParticles
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  particleCount: 16
+  duration: 0.6
+  useUnscaledTime: 0
+  startRadius: 9
+  travelDistance: 48
+  downwardDrift: 12
+  particleSizeRange: {x: 2, y: 4.5}
+  starRatio: 0.75
+  goldColor: {r: 1, g: 0.76, b: 0.25, a: 1}
+  creamColor: {r: 1, g: 0.96, b: 0.77, a: 1}
+  mintColor: {r: 1, g: 0.55, b: 0.18, a: 1}
+  showRing: 1
+  ringRadius: 28
+  ringWidth: 1.2
+  rejectionSprite: {fileID: 0}
+  rejectionSealColor: {r: 0.57, g: 0.23, b: 0.18, a: 1}
+  rejectionSizeRatio: 0.35
+  rejectionDuration: 1.1
+--- !u!114 &202609301130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2016000010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 2
+--- !u!114 &202609301131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2016000020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 2
+--- !u!114 &202609301132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2016000030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 2
+--- !u!114 &202609301133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2016000050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 2
+--- !u!114 &202609301134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 2
+--- !u!114 &202609301135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290150}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 0
+--- !u!114 &202609301136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 1
+--- !u!114 &202609301137
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 0
+--- !u!114 &202609301138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 0
+--- !u!114 &202609301139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 0
+--- !u!114 &202609301140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300205}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 0
+--- !u!114 &202609301141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 1
+--- !u!114 &202609301142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 1
+--- !u!114 &202609301143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 1
+--- !u!114 &202609301144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609300224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dea4d44ff24b8bb512d412dbf20169, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.OrderCardMeshEffect
+  presentation: {fileID: 202609301121}
+  card: 1
+--- !u!114 &202610010000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422844805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.998692
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.945481
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.92508
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.852234
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.954586
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.875665
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.834997
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.796799
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.767715
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.801381
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.864125
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.768244
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.947116
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.779526
+--- !u!114 &202610010001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1809678785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.998692
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.945481
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.92508
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.852234
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.954586
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.875665
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.834997
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.796799
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.767715
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.801381
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.864125
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.768244
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.947116
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.779526
+--- !u!114 &202610010002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1857898656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.998692
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.945481
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.92508
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.852234
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.954586
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.875665
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.834997
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.796799
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.767714
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.801381
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.864125
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.768244
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.947116
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.779525
+--- !u!114 &202610010003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1902413826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.998692
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.945481
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.92508
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.852234
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.954586
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.875665
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.834997
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.796799
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.767715
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.801381
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.864125
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.768244
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.947116
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.779526
+--- !u!114 &202610010004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2015000010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.998692
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.945481
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.92508
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.852234
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.954586
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.875665
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.834997
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.796799
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.767714
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.801381
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.864125
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.768244
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.947116
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.779525
+--- !u!114 &202610010005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2016000010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.998692
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.945481
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.92508
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.852234
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.954586
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.875665
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.834997
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.796799
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.767714
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.801381
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.864125
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.768244
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.947116
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.779525
+--- !u!114 &202610010006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+    scale: 0.968221
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.96183
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.925189
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.960773
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.911975
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.919352
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.889877
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.893531
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.852655
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.821531
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.857558
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.924701
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.822098
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.912158
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.83417
+--- !u!114 &202610010007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+    scale: 0.968221
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.96183
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.925189
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.960773
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.911975
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.919352
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.889877
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.893531
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.852655
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.821531
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.857558
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.924701
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.822098
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.912158
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.83417
+--- !u!114 &202610010008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+    scale: 0.968221
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.96183
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.925189
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.960773
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.911975
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.919352
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.889877
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.893531
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.852655
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.821531
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.857558
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.924701
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.822098
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.912158
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.83417
+--- !u!114 &202610010009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+    scale: 0.968221
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.96183
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.925189
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.960773
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.911975
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.919352
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.889877
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.893531
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.852655
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.821531
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.857558
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.924701
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.822098
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.912158
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.83417
+--- !u!114 &202610010010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+    scale: 0.968221
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.96183
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.910583
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.890936
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.820778
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.919352
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.843344
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.804178
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.767389
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.739378
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.771802
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.83223
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.739888
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.912158
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.750753
+--- !u!114 &202610010011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+    scale: 0.968221
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.96183
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.910583
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.890936
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.820778
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.919352
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.843344
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.804178
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.767389
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.739378
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.771802
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.83223
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.739888
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.912158
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.750753
+--- !u!114 &202610010012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+    scale: 0.968221
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.96183
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.925189
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.960773
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.911975
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.919352
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.889877
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.893531
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.852655
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.821531
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.857558
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.924701
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.822098
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.912158
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.83417
+--- !u!114 &202610010013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+    scale: 0.968221
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.96183
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.925189
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.960773
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.911975
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.919352
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.889877
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.893531
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.852655
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.821531
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.857558
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.924701
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.822098
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.912158
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.83417
+--- !u!114 &202610010014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+    scale: 0.968221
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.96183
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.910583
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.890936
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.820778
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.919352
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.843344
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.804178
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.767389
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.739378
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.771802
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.83223
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.739888
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.912158
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.750753
+--- !u!114 &202610010015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+    scale: 0.968221
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.96183
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.910583
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.890936
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.820778
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.919352
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.843344
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.804178
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.767389
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.739378
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.771802
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.83223
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.739888
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.912158
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.750753
+--- !u!114 &202610010016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290150}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+    scale: 0.968221
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.96183
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.910583
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.890936
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.820778
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.919352
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.843344
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.804178
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.767389
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.739378
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.771802
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.83223
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.739888
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.912158
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.750753
+--- !u!114 &202610010017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202609290160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c39063397c4bceb60315251a558dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.MenuFoodSizeEffect
+  menuSizes:
+  - sprite: {fileID: 21300000, guid: 1562eb48ff014c34586431395b090f44, type: 3}
+    scale: 0.968221
+  - sprite: {fileID: 21300000, guid: 47bd0f3e078433a4db2d06434fcf3e72, type: 3}
+    scale: 0.96183
+  - sprite: {fileID: 21300000, guid: 07ee18314e20e88459d6c8673a1ad565, type: 3}
+    scale: 0.910583
+  - sprite: {fileID: 21300000, guid: 3502c299dcd853e4caee0aa24768441a, type: 3}
+    scale: 0.890936
+  - sprite: {fileID: 21300000, guid: b831af933067b2a43ba5a8f4d124185e, type: 3}
+    scale: 0.820778
+  - sprite: {fileID: 21300000, guid: f8e652a3e626e49449c42f5414f99e16, type: 3}
+    scale: 0.919352
+  - sprite: {fileID: 21300000, guid: 34d4023d4e8dfc347912e353bd951f99, type: 3}
+    scale: 0.843344
+  - sprite: {fileID: 21300000, guid: a38f8c967f6121943aad1b7c09fa458a, type: 3}
+    scale: 0.804178
+  - sprite: {fileID: 21300000, guid: eb8c392f0ab37014fa35eac56e50cbb4, type: 3}
+    scale: 0.767389
+  - sprite: {fileID: 21300000, guid: 0677e8a8c59970142ab38c2f390ae7b8, type: 3}
+    scale: 0.739378
+  - sprite: {fileID: 21300000, guid: 451175e770900fb4ab701793f0033f37, type: 3}
+    scale: 0.771802
+  - sprite: {fileID: 21300000, guid: cdb14291e081a83499f6918ac09da232, type: 3}
+    scale: 0.83223
+  - sprite: {fileID: 21300000, guid: 5676b8d630436114f831eaa3a89ec4d3, type: 3}
+    scale: 0.739888
+  - sprite: {fileID: 21300000, guid: 0e8e92469d6721048abbf2548de910d0, type: 3}
+    scale: 0.912158
+  - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
+    scale: 0.750753
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -25,6 +25,7 @@ internal static class Program
     private static void Main()
     {
         PerkGameplayTests.Run();
+        CheckFoodScoreOfferLimit();
         var small = Enumerable.Range(0, 10).Select(i => new PerkOffer("Small" + i, 80)).ToArray();
         var big = Enumerable.Range(0, 6).Select(i => new PerkOffer("Big" + i, 150)).ToArray();
         foreach (int balance in new[] { 0, 1, 79 })
@@ -81,5 +82,34 @@ internal static class Program
         bigRace.Open(big, true, 3);
         Check(bigRace.TryBuy(0, 1) && !bigRace.TryBuy(1, 2) && richWallet.Balance == 850,
             "Two same-frame confirmations still spend for only one Big card.");
+    }
+
+    private static void CheckFoodScoreOfferLimit()
+    {
+        var foodIds = PerkDefinitions.All.Where(d => d.Effect == PerkEffect.FoodScore)
+            .Select(d => d.Id).ToArray();
+        var pool = PerkDefinitions.All.Where(d => d.Id.StartsWith("Perk_Small_"))
+            .Select(d => new PerkOffer(d.Id, 80)).ToArray();
+        bool validRandomOffers = true;
+        for (int seed = 0; seed < 1000; seed++)
+        {
+            var shop = new PerkShopSession(new Wallet(1000), new Random(seed));
+            shop.Open(pool, false, 2);
+            validRandomOffers &= shop.Offers.Count == 4 &&
+                shop.Offers.Select(o => o.Id).Distinct().Count() == 4 &&
+                shop.Offers.Count(o => foodIds.Contains(o.Id)) <= 2;
+        }
+        Check(validRandomOffers, "Random shops offer four unique cards with at most two food-score perks across 1000 seeds.");
+
+        var simulation = new PerkShopSession(new Wallet(1000), new Random(23));
+        simulation.Open(pool, false, 2, pool.Select(o => o.Id));
+        Check(simulation.Offers.Count == 4 && simulation.Offers.Count(o => foodIds.Contains(o.Id)) == 2,
+            "Simulation skips excess food-score selections and fills remaining slots from other selected perks.");
+        simulation.Open(pool, false, 2, foodIds);
+        Check(simulation.Offers.Count == 2 && simulation.Offers.All(o => foodIds.Contains(o.Id)),
+            "Food-only simulation selections show two cards without adding unselected perks.");
+        simulation.Open(pool.Where(o => foodIds.Contains(o.Id)), false, 2);
+        Check(simulation.Offers.Count == 2,
+            "A food-only random pool stops at two cards and resets its limit on reopening.");
     }
 }

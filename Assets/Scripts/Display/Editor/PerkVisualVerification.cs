@@ -57,9 +57,14 @@ namespace FoodIsekaiZ.Display.Editor
                 foreach (Transform child in canvas.GetComponentsInChildren<Transform>(true))
                 {
                     bool show = child == canvas.transform;
+                    bool ancestor = show;
                     foreach (Transform branch in visibleBranches)
+                    {
                         show |= child.IsChildOf(branch) || branch.IsChildOf(child);
-                    child.gameObject.SetActive(show);
+                        ancestor |= branch.IsChildOf(child);
+                    }
+                    // Keep authored child visibility, including the disabled legacy timer graphics.
+                    if (!show || ancestor) child.gameObject.SetActive(show);
                 }
                 foreach (Transform branch in visibleBranches)
                 {
@@ -85,6 +90,7 @@ namespace FoodIsekaiZ.Display.Editor
                 }
                 Canvas.ForceUpdateCanvases();
                 Render(wallCamera, preview, 2048, 540, "Temp/PerkOrdersPreview.png");
+                VerifyPairedTransitions(game, display, wallCamera, preview);
 
                 Invoke(meals, "RefreshStations");
                 var stationTransitions = (MealFoodSwapEffect[])Get(meals, "stationTransitions");
@@ -150,7 +156,7 @@ namespace FoodIsekaiZ.Display.Editor
                 Canvas.ForceUpdateCanvases();
                 Render(floorCamera, preview, 1472, 704, "Temp/PerkFloorPreview.png");
                 File.WriteAllText("Temp/PerkVisualVerification.txt",
-                    "PASS: live perk monitor reflects purchases; one/two/three-dish visibility and return to one dish verified; authored layouts rendered. Live scene unchanged.");
+                    "PASS: live perk monitor reflects purchases; paired-order left/right/repeated-food deliveries, transition meshes, particles, interruption and reset verified; one/two/three-dish inventory visibility verified; authored layouts rendered. Live scene unchanged.");
             }
             catch (Exception exception)
             {
@@ -162,6 +168,97 @@ namespace FoodIsekaiZ.Display.Editor
                 UnityEngine.Random.state = randomState;
                 if (preview.IsValid()) EditorSceneManager.ClosePreviewScene(preview);
             }
+        }
+
+        private static void VerifyPairedTransitions(FoodIsekaiZGameManager game,
+            FoodIsekaiZSideDisplayLayout display, Camera camera, Scene preview)
+        {
+            var presentations = (PairedOrderPresentation[])Get(display, "pairedPresentations");
+            var firstImages = (Image[])Get(display, "pairedFirstImages");
+            var secondImages = (Image[])Get(display, "pairedSecondImages");
+            var singleImages = (Image[])Get(display, "customerStatusImages");
+            for (int i = 0; i < presentations.Length; i++)
+            {
+                if (presentations[i] == null || presentations[i].GetComponentsInChildren<OrderCardMeshEffect>(true).Length != 15)
+                    throw new InvalidOperationException("Every customer panel needs its paired transition and all card mesh effects.");
+                var first = (RectTransform)Get(presentations[i], "firstCard");
+                var second = (RectTransform)Get(presentations[i], "secondCard");
+                if (second.anchoredPosition.x - first.anchoredPosition.x < 104f)
+                    throw new InvalidOperationException("Paired menu cards are too close together.");
+            }
+
+            // Exercise left-first, right-first and identical-dish orders together.
+            for (int i = 0; i < 3; i++)
+            {
+                game.GetCustomerSlot(i).ConfigureCustomer(FoodType.Food1, 20, 40,
+                    i == 2 ? FoodType.Food1 : FoodType.Food4);
+                game.GetCustomerSlot(i).StartCustomerTimer();
+            }
+            Invoke(display, "UpdateRealtimeText");
+            Render(camera, preview, 2048, 540, "Temp/PairedOrdersBefore.png");
+            for (int i = 0; i < 3; i++)
+            {
+                ArenaSlot2D slot = game.GetCustomerSlot(i);
+                float timer = slot.StateTimeNormalized;
+                if (!slot.TryServeFood(i == 1 ? FoodType.Food4 : FoodType.Food1, 3) || slot.StateTimeNormalized != timer)
+                    throw new InvalidOperationException("Partial delivery must preserve the waiting timer.");
+            }
+            Invoke(display, "UpdateRealtimeText");
+            for (int i = 0; i < 3; i++)
+            {
+                if (!presentations[i].IsTransitioning || !firstImages[i].enabled || !secondImages[i].enabled)
+                    throw new InvalidOperationException("Partial delivery must retain both outgoing cards during the transition.");
+                int served = (int)Get(presentations[i], "servedCard");
+                if (served != (i == 1 ? 1 : 0)) throw new InvalidOperationException("The wrong dish was animated away.");
+                var burst = (CustomerPanelSuccessParticles)Get(presentations[i], served == 0 ? "firstParticles" : "secondParticles");
+                if (!burst.IsPlaying) throw new InvalidOperationException("Partial delivery did not play its sparkle burst.");
+            }
+
+            foreach (float time in new[] { 0.12f, 0.3f, 0.5f })
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    Set(presentations[i], "elapsed", time);
+                    Invoke(presentations[i], "RefreshMeshes");
+                    foreach (CustomerPanelSuccessParticles burst in presentations[i].GetComponentsInChildren<CustomerPanelSuccessParticles>(true))
+                    {
+                        Set(burst, "elapsed", time);
+                        burst.SetVerticesDirty();
+                    }
+                }
+                Render(camera, preview, 2048, 540, $"Temp/PairedOrdersDuring{Mathf.RoundToInt(time * 100):00}.png");
+            }
+
+            for (int i = 0; i < 3; i++) Set(presentations[i], "elapsed", 0.6f);
+            Invoke(display, "UpdateRealtimeText");
+            for (int i = 0; i < 3; i++)
+                if (presentations[i].IsTransitioning || firstImages[i].enabled || secondImages[i].enabled || !singleImages[i].enabled)
+                    throw new InvalidOperationException("The finished transition must show only the remaining single dish.");
+            Render(camera, preview, 2048, 540, "Temp/PairedOrdersAfter.png");
+
+            ArenaSlot2D fastSlot = game.GetCustomerSlot(0);
+            fastSlot.ConfigureCustomer(FoodType.Food1, 20, 40, FoodType.Food4);
+            fastSlot.StartCustomerTimer();
+            Invoke(display, "UpdateRealtimeText");
+            fastSlot.TryServeFood(FoodType.Food1, 3);
+            Invoke(display, "UpdateRealtimeText");
+            fastSlot.TryServeFood(FoodType.Food4, 3);
+            Invoke(display, "UpdateRealtimeText");
+            if (presentations[0].IsTransitioning || firstImages[0].enabled || secondImages[0].enabled || !singleImages[0].enabled)
+                throw new InvalidOperationException("A rapid second delivery must cancel the partial transition cleanly.");
+
+            fastSlot.ConfigureCustomer(FoodType.Food1, 20, 40, FoodType.Food4);
+            fastSlot.StartCustomerTimer();
+            Invoke(display, "UpdateRealtimeText");
+            fastSlot.TryServeFood(FoodType.Food1, 3);
+            Invoke(display, "UpdateRealtimeText");
+            presentations[0].gameObject.SetActive(false);
+            // Preview scenes do not dispatch Play Mode lifecycle messages for ordinary MonoBehaviours.
+            Invoke(presentations[0], "OnDisable");
+            if (presentations[0].IsTransitioning) throw new InvalidOperationException("Hiding a panel must clear the transition.");
+            presentations[0].gameObject.SetActive(true);
+            Invoke(display, "UpdateRealtimeText");
+            if (presentations[0].IsTransitioning) throw new InvalidOperationException("A reused panel must not replay a stale delivery.");
         }
 
         private static T Find<T>(Scene scene) where T : Component

@@ -6,6 +6,7 @@ namespace FoodIsekaiZ.Gameplay
     // Owns one shop's offers and commits successful purchases to the shared game progression.
     public sealed class PerkShopSession
     {
+        private const int MaximumFoodScoreOffers = 2;
         private readonly IPerkWallet wallet;
         private readonly Random random;
         private readonly IPerkProgression progression;
@@ -14,6 +15,7 @@ namespace FoodIsekaiZ.Gameplay
         private readonly HashSet<string> purchasedOffers = new HashSet<string>();
         private bool bigShop;
         private int beforeWave;
+        private int foodScoreOfferCount;
 
         public IReadOnlyList<PerkOffer> Offers => offers.AsReadOnly();
         public IReadOnlyList<PerkPurchase> Purchases => purchases.AsReadOnly();
@@ -28,12 +30,13 @@ namespace FoodIsekaiZ.Gameplay
         }
 
         // A non-null selection is exclusive, including an empty selection. Null uses normal random offers.
-        // Purchase eligibility still applies in both modes.
+        // Purchase eligibility and the food-score offer limit apply in both modes.
         public void Open(IEnumerable<PerkOffer> pool, bool big, int nextWave,
             IEnumerable<string> preferredIds = null)
         {
             Close();
             offers.Clear();
+            foodScoreOfferCount = 0;
             purchasedOffers.Clear();
             bigShop = big;
             beforeWave = nextWave;
@@ -49,7 +52,7 @@ namespace FoodIsekaiZ.Gameplay
                     if (offers.Count == 4) break;
                     int index = candidates.FindIndex(candidate => candidate.Id == id);
                     if (index < 0) continue;
-                    offers.Add(candidates[index]);
+                    TryAddOffer(candidates[index]);
                     candidates.RemoveAt(index);
                 }
                 IsOpen = true;
@@ -58,16 +61,31 @@ namespace FoodIsekaiZ.Gameplay
             for (int i = candidates.Count - 1; i >= 0 && offers.Count < 4; i--)
             {
                 if (progression == null || !progression.IsGuaranteedOffer(candidates[i].Id, nextWave)) continue;
-                offers.Add(candidates[i]);
+                TryAddOffer(candidates[i]);
                 candidates.RemoveAt(i);
             }
             while (offers.Count < 4 && candidates.Count > 0)
             {
                 int index = random.Next(candidates.Count);
-                offers.Add(candidates[index]);
+                TryAddOffer(candidates[index]);
                 candidates.RemoveAt(index);
             }
             IsOpen = true;
+        }
+
+        private void TryAddOffer(PerkOffer offer)
+        {
+            bool isFoodScore = false;
+            foreach (PerkDefinition definition in PerkDefinitions.All)
+            {
+                if (definition.Id != offer.Id) continue;
+                isFoodScore = definition.Effect == PerkEffect.FoodScore;
+                break;
+            }
+
+            if (isFoodScore && foodScoreOfferCount >= MaximumFoodScoreOffers) return;
+            offers.Add(offer);
+            if (isFoodScore) foodScoreOfferCount++;
         }
 
         public bool IsPurchased(int index) => index >= 0 && index < offers.Count &&

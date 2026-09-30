@@ -1,0 +1,4 @@
+Generator: built-in image_gen tool
+Output: Assets/Art/Perk/OmakaseSushi.png
+
+Use case: stylized-concept. Asset type: transparent Unity UI sprite for an Omakase food-order icon. Create one original nigiri sushi illustration matching the user's attached reference: bold slightly irregular hand-drawn Japanese black ink silhouette of a curved fish slice draped over a compact white rice mound, three-quarter side view. Broad solid black fish with a few clean white curved cut lines, white rice with sparse chunky black grain outlines. Simple readable at 80 pixels. Single sushi only, centered and filling 85% of the canvas width, compact balanced silhouette. Pure black and opaque white ink only. Genuine transparent alpha outside the sushi; keep white rice and white fish details opaque. No white background, no paper texture, no plate, no shadows, no text, no question mark, no border, no watermark. Square canvas.
