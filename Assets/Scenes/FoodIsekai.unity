@@ -21903,6 +21903,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2089000002}
   - component: {fileID: 2089000166}
+  - component: {fileID: 202610020001}
   m_Layer: 5
   m_Name: Perk Shop
   m_TagString: Untagged
@@ -24473,6 +24474,7 @@ MonoBehaviour:
   - {fileID: 2089000131}
   - {fileID: 2089000148}
   - {fileID: 2089000165}
+  smallPurchases: {fileID: 202610020001}
   walletText: {fileID: 2089000076}
   holdSeconds: 1.5
   layoutRevision: 6
@@ -32507,16 +32509,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Gameplay.PerkManagerMonitor
   gameManager: {fileID: 101588415}
-  smallSimulationOffers:
-  - Perk_Small_Meat
-  - Perk_Small_Seafood
-  - Perk_Small_Tasty
-  - Perk_Small_Cross
-  bigSimulationOffers:
-  - Perk_Big_Home
-  - Perk_Big_Pairs
-  - Perk_Big_Sky
-  - Perk_Big_Omakase
+  smallSimulationOffers: []
+  bigSimulationOffers: []
 --- !u!1 &202609300000
 GameObject:
   m_ObjectHideFlags: 0
@@ -40359,6 +40353,24 @@ MonoBehaviour:
     scale: 0.912158
   - sprite: {fileID: 21300000, guid: 29e8aa7e5e0eee54ea180b5e36c17b6d, type: 3}
     scale: 0.750753
+--- !u!114 &202610020001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77ad7f6cd7534a35b8b15f4de1630af5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.SmallPerkPurchasePresentation
+  wallCanvas: {fileID: 1595694067}
+  flightSeconds: 1.65
+  landingHoldSeconds: 0.85
+  burnSeconds: 6
+  emberSeconds: 1.2
+  powerSeconds: 1.4
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

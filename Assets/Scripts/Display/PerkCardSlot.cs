@@ -15,6 +15,12 @@ namespace FoodIsekaiZ.Display
 
         private void Awake() => presentation = GetComponent<PerkCardAnimation>();
 
+        // Copies only the card artwork; the purchase presentation owns and disposes the copy.
+        public Transform CopyPurchaseArtwork(Transform parent)
+        {
+            return artworkParent != null ? Instantiate(artworkParent, parent, false) : null;
+        }
+
         public void Hide()
         {
             presentation = GetComponent<PerkCardAnimation>();

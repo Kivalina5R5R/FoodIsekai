@@ -24,6 +24,7 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private GameObject floorRoot;
         [SerializeField] private PerkCardSlot[] slots;
         [SerializeField] private PerkFloorZone[] zones;
+        [SerializeField] private SmallPerkPurchasePresentation smallPurchases;
         [SerializeField] private TMP_Text walletText;
         private TMP_Text countdownText;
         [SerializeField, Min(0.1f)] private float holdSeconds = 1.5f;
@@ -36,6 +37,7 @@ namespace FoodIsekaiZ.Display
         private bool floorShown;
         private bool closing;
         private bool departureStarted;
+        private bool bigShop;
 
         public int LayoutRevision => layoutRevision;
         public bool CanCountDown => selectionStarted && !closing && guide != null && guide.HasFinishedSpeaking;
@@ -55,6 +57,7 @@ namespace FoodIsekaiZ.Display
             countdownText = guide.transform.Find("TextPerk/Time/TextTime")?.GetComponent<TMP_Text>();
             if (session == null) session = new PerkShopSession(gameManager, new System.Random(), gameManager.Perks);
             bool big = gameManager.CurrentWaveNumber >= 2;
+            bigShop = big;
             var perkMonitor = gameManager.GetComponentInChildren<PerkManagerMonitor>(true);
             bool simulation = gameManager.IsSimulationMode;
             session.Open(catalog.GetOffers(big), big, gameManager.CurrentWaveNumber + 1,
@@ -142,7 +145,11 @@ namespace FoodIsekaiZ.Display
                 bool confirmed = holds[i].Tick(canBuy && occupants == 1 ? (int?)candidate : null, Time.unscaledDeltaTime);
                 if (confirmed)
                 {
-                    if (session.TryBuy(i, candidate)) soundPlayer?.TryPlay(GameSoundCue.BankDeposit, true);
+                    if (session.TryBuy(i, candidate))
+                    {
+                        soundPlayer?.TryPlay(GameSoundCue.BankDeposit, true);
+                        if (!bigShop && smallPurchases != null) smallPurchases.Play(slots[i]);
+                    }
                     holds[i].Reset();
                 }
                 bool bought = session.IsPurchased(i);
@@ -173,6 +180,7 @@ namespace FoodIsekaiZ.Display
                 if (!slot.IsHidden) return false;
             foreach (PerkFloorZone zone in zones)
                 if (!zone.IsHidden) return false;
+            if (smallPurchases != null && smallPurchases.IsPlaying) return false;
             if (!departureStarted)
             {
                 departureStarted = true;
