@@ -39,6 +39,8 @@ namespace FoodIsekaiZ.Display
         private bool departureStarted;
         private bool bigShop;
         private readonly int[] audibleCandidates = new int[4];
+        private const string PurchasedText = "PURCHASED";
+        private const string NotPurchasedText = "NOT PURCHASED";
 
         public int LayoutRevision => layoutRevision;
         public bool CanCountDown => selectionStarted && !closing && guide != null && guide.HasFinishedSpeaking;
@@ -77,6 +79,8 @@ namespace FoodIsekaiZ.Display
                 PerkOffer offer = i < session.Offers.Count ? session.Offers[i] : null;
                 slots[i].SetOffer(offer, offer != null ? catalog.GetPrefab(offer.Id) : null, big);
                 zones[i].gameObject.SetActive(offer != null);
+                // Clear the previous shop's text before the floor reveals, so no stale "PURCHASED" flashes.
+                zones[i].ShowStatus(NotPurchasedText, 0f, false, false, false);
             }
             entranceStarted = false;
             selectionStarted = false;
@@ -113,6 +117,8 @@ namespace FoodIsekaiZ.Display
             {
                 foreach (PerkCardSlot slot in slots)
                     if (!slot.HasRevealed) return;
+                // The floor zones stay hidden until the guide finishes speaking, so players never see tiles they cannot use.
+                if (!guide.HasFinishedSpeaking) return;
                 floorShown = true;
                 floorRoot.SetActive(true);
                 Debug.Log($"[PerkShop] Reveal: wall={offersRoot.activeInHierarchy}, floor={floorRoot.activeInHierarchy}, offers={session.Offers.Count}.", this);
@@ -147,7 +153,11 @@ namespace FoodIsekaiZ.Display
                 bool canBuy = CanCountDown && session.CanBuy(i);
                 int audibleCandidate = CanCountDown && occupants == 1 && !session.IsPurchased(i) ? candidate : 0;
                 if (audibleCandidate > 0 && audibleCandidate != audibleCandidates[i])
+                {
                     soundPlayer?.TryPlay(canBuy ? GameSoundCue.SmallPerkFocus : GameSoundCue.SmallPerkUnavailable);
+                    // Unaffordable tiles shake; buyable tiles use the occupied pulse below instead.
+                    if (!canBuy) zones[i].ShakeWarning();
+                }
                 audibleCandidates[i] = audibleCandidate;
                 float previousProgress = holds[i].Progress;
                 bool confirmed = holds[i].Tick(canBuy && occupants == 1 ? (int?)candidate : null, Time.unscaledDeltaTime);
@@ -171,7 +181,8 @@ namespace FoodIsekaiZ.Display
                     holds[i].Reset();
                 }
                 bool bought = session.IsPurchased(i);
-                string status = bought ? "PURCHASED" : "NOT PURCHASED";
+                zones[i].SetOccupied(canBuy && occupants == 1 && !bought);
+                string status = bought ? PurchasedText : NotPurchasedText;
                 bool showGauge = occupants > 0 && CanCountDown && session.CanBuy(i);
                 zones[i].ShowStatus(status, holds[i].Progress, bought, occupants > 1, showGauge);
             }

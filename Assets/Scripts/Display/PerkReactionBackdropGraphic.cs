@@ -38,10 +38,12 @@ namespace FoodIsekaiZ.Display
             if (strength <= 0f) return;
             Rect rect = rectTransform.rect;
             float reach = rect.size.magnitude * .62f;
+            // The sunburst runs far past every wall edge, so its fading tips never show as a cut line.
+            float rayReach = rect.size.magnitude * 1.5f;
             PerkEffectMesh.Glow(mesh, Vector2.zero, rect.height * (.9f + flare * .4f),
                 PerkEffectMesh.Tint(rainbow ? Color.white : PerkEffectMesh.Peach, strength * (.22f + flare * .25f)), 48);
-            if (rainbow) DrawSunburst(mesh, rect, reach * 1.1f, -seconds * .06f, Wedges * 2, .45f, .5f);
-            DrawSunburst(mesh, rect, reach, seconds * (.1f + flare * .5f), Wedges, 1f, 0f);
+            if (rainbow) DrawSunburst(mesh, rect, rayReach * 1.1f, -seconds * .06f, Wedges * 2, .45f, .5f);
+            DrawSunburst(mesh, rect, rayReach, seconds * (.1f + flare * .5f), Wedges, 1f, 0f);
             if (rainbow) DrawHalo(mesh, rect);
             DrawFocusLines(mesh, rect, reach);
         }
@@ -50,6 +52,7 @@ namespace FoodIsekaiZ.Display
         {
             float inner = rect.height * .55f;
             // Only alternate wedges are lit, which gives the classic striped reaction-shot sunburst.
+            // Both the Small gold and Big rainbow stripes stay faint so they frame the card instead of competing with it.
             for (int i = 0; i < wedges; i += 2)
             {
                 float from = turn + i * Mathf.PI * 2f / wedges;
@@ -57,10 +60,10 @@ namespace FoodIsekaiZ.Display
                 Vector2 a = new Vector2(Mathf.Cos(from), Mathf.Sin(from));
                 Vector2 b = new Vector2(Mathf.Cos(to), Mathf.Sin(to));
                 float hue = i / (float)wedges + seconds * .08f + hueOffset;
-                Color core = rainbow ? PerkEffectMesh.Tint(Color.white, strength * (.3f + flare * .45f) * opacity)
-                    : PerkEffectMesh.Tint(PerkEffectMesh.Cream, strength * (.3f + flare * .45f));
-                Color middle = rainbow ? PerkEffectMesh.Rainbow(hue, strength * (.28f + flare * .3f) * opacity, .6f)
-                    : PerkEffectMesh.Tint(PerkEffectMesh.Gold, strength * (.2f + flare * .3f));
+                Color core = rainbow ? PerkEffectMesh.Tint(Color.white, strength * (.15f + flare * .22f) * opacity)
+                    : PerkEffectMesh.Tint(PerkEffectMesh.Cream, strength * (.15f + flare * .22f));
+                Color middle = rainbow ? PerkEffectMesh.Rainbow(hue, strength * (.1f + flare * .15f) * opacity, .6f)
+                    : PerkEffectMesh.Tint(PerkEffectMesh.Gold, strength * (.1f + flare * .15f));
                 Color clear = PerkEffectMesh.Tint(middle, 0f);
                 int start = mesh.currentVertCount;
                 mesh.AddVert(Vector2.zero, core, Vector2.zero);
@@ -82,7 +85,7 @@ namespace FoodIsekaiZ.Display
                 float to = (i + 1) * Mathf.PI * 2f / HaloSegments + seconds * .4f;
                 Vector2 a = new Vector2(Mathf.Cos(from), Mathf.Sin(from));
                 Vector2 b = new Vector2(Mathf.Cos(to), Mathf.Sin(to));
-                Color band = PerkEffectMesh.Rainbow(i / (float)HaloSegments, strength * (.55f + flare * .4f), .65f);
+                Color band = PerkEffectMesh.Rainbow(i / (float)HaloSegments, strength * (.28f + flare * .2f), .65f);
                 Color clear = PerkEffectMesh.Tint(band, 0f);
                 PerkEffectMesh.Quad(mesh, a * radius, b * radius, b * (radius - width), a * (radius - width), band, clear);
                 PerkEffectMesh.Quad(mesh, a * radius, b * radius, b * (radius + width), a * (radius + width), band, clear);

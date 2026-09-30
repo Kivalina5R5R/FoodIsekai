@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace FoodIsekaiZ.Display
 {
     // The food-reaction climax: a white flash, a burst of sunrays, kira stars and pastel light drifting across the wall.
-    // The Big tier adds rainbow shockwaves, a rising rainbow arc and a rainbow star shower.
+    // The Big tier adds rainbow shockwaves and a rainbow star shower.
     [RequireComponent(typeof(CanvasRenderer))]
     public sealed class PerkPowerGraphic : MaskableGraphic
     {
@@ -12,7 +12,6 @@ namespace FoodIsekaiZ.Display
         private const int Stars = 34;
         private const int Lights = 70;
         private const int ShowerStars = 60;
-        private const int ArcBands = 7;
         private float progress;
         private bool rainbow;
 
@@ -44,7 +43,6 @@ namespace FoodIsekaiZ.Display
             Vector2 maximum = rect.max * 1.25f;
             PerkEffectMesh.Quad(mesh, minimum, new Vector2(maximum.x, minimum.y), maximum,
                 new Vector2(minimum.x, maximum.y), wash, wash);
-            if (rainbow) DrawRainbowArc(mesh, rect);
             DrawRays(mesh, rect, reach, travel);
             DrawShockwaves(mesh, rect, reach, fade);
             DrawStars(mesh, rect, reach, travel);
@@ -90,7 +88,7 @@ namespace FoodIsekaiZ.Display
             {
                 float seed = PerkEffectMesh.Hash(i, 5f);
                 float angle = turn + (i + seed * .5f) * Mathf.PI * 2f / Rays;
-                Vector2 tip = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * reach * (.55f + travel * .6f) * (.7f + seed * .3f);
+                Vector2 tip = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * reach * (1.2f + travel * 1.3f) * (.7f + seed * .3f);
                 Color tint = rainbow ? PerkEffectMesh.Rainbow(i / (float)Rays, strength * .5f, .6f)
                     : PerkEffectMesh.Tint(i % 2 == 0 ? PerkEffectMesh.Cream : PerkEffectMesh.Gold, strength * .45f);
                 PerkEffectMesh.Spike(mesh, Vector2.zero, tip, rect.height * (.1f + seed * .14f) * strength,
@@ -129,32 +127,6 @@ namespace FoodIsekaiZ.Display
                     PerkEffectMesh.Sparkle(mesh, point, rect.height * (.02f + seed * .025f), 0f, tint);
                 else
                     PerkEffectMesh.Glow(mesh, point, rect.height * (.006f + seed * .012f), PerkEffectMesh.Tint(tint, tint.a * .85f), 12);
-            }
-        }
-
-        // Seven soft bands rise behind the card as a rainbow arch, then fade with the release.
-        private void DrawRainbowArc(VertexHelper mesh, Rect rect)
-        {
-            float rise = Mathf.SmoothStep(0f, 1f, progress / .35f);
-            float alpha = rise * Mathf.Pow(1f - progress, 1.2f) * .5f;
-            if (alpha <= 0f) return;
-            float outer = rect.height * (.7f + rise * .55f);
-            float band = rect.height * .07f;
-            Vector2 center = Vector2.down * rect.height * .35f;
-            const int segments = 64;
-            for (int b = 0; b < ArcBands; b++)
-            {
-                float radius = outer - b * band;
-                Color tint = PerkEffectMesh.Rainbow(b / (float)ArcBands, alpha, .65f);
-                for (int i = 0; i < segments; i++)
-                {
-                    float from = Mathf.PI * i / segments;
-                    float to = Mathf.PI * (i + 1) / segments;
-                    Vector2 a = new Vector2(Mathf.Cos(from), Mathf.Sin(from));
-                    Vector2 c = new Vector2(Mathf.Cos(to), Mathf.Sin(to));
-                    PerkEffectMesh.Quad(mesh, center + a * radius, center + c * radius,
-                        center + c * (radius - band), center + a * (radius - band), tint, tint);
-                }
             }
         }
 

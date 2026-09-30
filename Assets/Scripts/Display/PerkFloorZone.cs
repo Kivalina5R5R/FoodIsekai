@@ -22,6 +22,18 @@ namespace FoodIsekaiZ.Display
 
         private void Awake() => presentation = GetComponent<PerkCardAnimation>();
 
+        // Swells and gently pulses like the player-selection cards while a player holds to buy here.
+        public void SetOccupied(bool value)
+        {
+            if (presentation != null) presentation.SetOccupied(value);
+        }
+
+        // Warns a player standing here that the team cannot afford this card.
+        public void ShakeWarning()
+        {
+            if (presentation != null) presentation.Shake();
+        }
+
         private void OnEnable()
         {
             purchased = false;

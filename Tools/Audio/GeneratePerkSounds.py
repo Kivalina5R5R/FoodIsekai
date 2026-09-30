@@ -239,16 +239,16 @@ def kiin(buffer, start, frequency, duration, gain):
         buffer[offset + i] += gain * envelope * value
 
 
-def buzz(buffer, start, frequency, duration, gain):
-    # A muffled nasal "bu" made from odd harmonics only.
+def boop(buffer, start, frequency, duration, gain):
+    # A soft rounded note that droops slightly in pitch: a gentle "oops" instead of a harsh buzzer.
     offset, count = span(buffer, start, duration)
+    phase = 0.
     for i in range(count):
         t = i / RATE
-        envelope = min(1, t / .006, (count - i) / (RATE * .03))
-        value = sum(math.sin(TAU * frequency * h * t) / h * math.exp(-h * .25) for h in (1, 3, 5, 7))
+        phase += TAU * frequency * (1 - .06 * min(1, t / duration)) / RATE
+        envelope = min(1, t / .006, (count - i) / (RATE * .03)) * math.exp(-t * 3.5 / duration)
+        value = math.sin(phase) + .18 * math.sin(2 * phase) * math.exp(-t * 20) + .05 * math.sin(3 * phase)
         buffer[offset + i] += gain * envelope * value
-
-
 def riser(buffer, start, duration, gain, from_hz, to_hz):
     # An exponential pitch climb that swells into the next hit.
     offset, count = span(buffer, start, duration)
@@ -333,8 +333,9 @@ def anime(name, data):
         celesta(data, 0, E5, .2, .2)
         celesta(data, .08, C5, .24, .16)
     elif name == 'SmallPerkUnavailable':
-        buzz(data, 0, 155.56, .13, .3)
-        buzz(data, .17, 155.56, .15, .3)
+        # Two soft descending notes read as "not yet" without a harsh buzzer edge.
+        boop(data, 0, E4, .16, .3)
+        boop(data, .16, C4, .26, .3)
     elif name == 'SmallPerkPurchase':
         # Short on purpose: the card flip starts on the same frame and carries the rest of the story.
         for index, note in enumerate((C6, E6, G6)):
@@ -418,7 +419,7 @@ def soft_limit(value, knee=.75, ceiling=.89):
 # and the purchase animation climbs from the flip to the impact, gather, charge and release.
 ANIME = dict(SmallPerkReveal=(1.2, -19, .2), SmallPerkFocus=(.4, -20, .12),
              SmallPerkHoldTick=(.3, -21, .1), SmallPerkCancel=(.35, -23, .1),
-             SmallPerkUnavailable=(.4, -23, .06), SmallPerkPurchase=(.55, -18, .15),
+             SmallPerkUnavailable=(.45, -18, .1), SmallPerkPurchase=(.55, -18, .15),
              PerkFlip=(1.5, -19, .12), PerkImpact=(1.0, -14, .25), PerkGather=(2.6, -16, .25),
              PerkCharge=(.8, -16, .12), PerkRelease=(1.8, -11, .28))
 TAVERN = dict(PerkReveal=.7, PerkFocus=.28, PerkHoldTick=.16, PerkCancel=.23,
