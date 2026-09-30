@@ -17,7 +17,7 @@ namespace FoodIsekaiZ.Display.Editor
             EditorGUILayout.PropertyField(serializedObject.FindProperty("gameManager"));
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Simulation Shop Offers", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox("Simulation spawns ONLY checked perks, up to 4 per break. No random fill or automatic extra cards. Nothing checked means no cards. Serial mode ignores these selections and uses normal random offers. You must still buy the cards; owned or locked perks are skipped.", MessageType.Info);
+            EditorGUILayout.HelpBox("Nothing checked for a break: use normal random perk offers. With any perks checked: offer ONLY those selections, up to 4, with no random fill. Serial mode always uses normal random offers. You must still buy the cards; owned or locked perks are skipped.", MessageType.Info);
             DrawOffers("Break 1 - Small", "smallSimulationOffers", "Perk_Small_");
             DrawOffers("Break 2 - Big", "bigSimulationOffers", "Perk_Big_");
             EditorGUILayout.HelpBox("Happiness requires buying Tasty first. Changes affect the next shop opening, not the current cards.", MessageType.Info);

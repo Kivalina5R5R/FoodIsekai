@@ -10,33 +10,35 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private Canvas wallCanvas;
         [SerializeField, Min(0.1f)] private float flightSeconds = 1.65f;
         [SerializeField, Min(0.1f)] private float landingHoldSeconds = .85f;
-        [SerializeField, Min(0.1f)] private float burnSeconds = 6f;
-        [SerializeField, Min(0.1f)] private float emberSeconds = 1.2f;
+        [SerializeField, Min(0.1f)] private float gatherSeconds = 2.6f;
+        [SerializeField, Min(0.1f)] private float chargeSeconds = .8f;
         [SerializeField, Min(0.1f)] private float powerSeconds = 1.4f;
 
-        private enum Phase { Flying, Settling, Burning, Embers }
+        private enum Phase { Flying, Settling, Gathering, Charging, Releasing }
 
         private sealed class PurchaseVisual
         {
             public RectTransform Root { get; }
-            public PerkBurnGraphic[] Masks { get; }
-            public PerkBurnGraphic[] Fires { get; }
+            public RectTransform Absorption { get; }
+            public CanvasGroup ArtworkOpacity { get; }
             public PerkLandingGraphic Landing { get; }
+            public PerkChargedFrameGraphic ChargedFrame { get; }
             public GameObject Artwork { get; }
             public GameObject Back { get; }
             public Vector3 StartPosition { get; }
             public Vector3 StartScale { get; }
             public Quaternion StartRotation { get; }
 
-            public PurchaseVisual(RectTransform root, PerkBurnGraphic[] masks, PerkBurnGraphic[] fires, PerkLandingGraphic landing,
-                GameObject artwork, GameObject back)
+            public PurchaseVisual(RectTransform root, RectTransform absorption, CanvasGroup artworkOpacity, PerkLandingGraphic landing,
+                GameObject artwork, GameObject back, PerkChargedFrameGraphic chargedFrame)
             {
                 Root = root;
-                Masks = masks;
-                Fires = fires;
+                Absorption = absorption;
+                ArtworkOpacity = artworkOpacity;
                 Landing = landing;
                 Artwork = artwork;
                 Back = back;
+                ChargedFrame = chargedFrame;
                 StartPosition = root.localPosition;
                 StartScale = root.localScale;
                 StartRotation = root.localRotation;
@@ -48,7 +50,8 @@ namespace FoodIsekaiZ.Display
         private Phase phase;
         private float elapsed;
         private PerkPowerGraphic powerPulse;
-        private readonly System.Random visualRandom = new System.Random();
+        private PerkGatherGraphic gathering;
+        private Image focusShade;
 
         public bool IsPlaying => current != null || waiting.Count > 0;
 
@@ -71,21 +74,10 @@ namespace FoodIsekaiZ.Display
             root.localScale = new Vector3(scale.magnitude, verticalScale.magnitude, 1f);
             var landing = CreateRect("Landing Burst", root, source.rect.size).gameObject.AddComponent<PerkLandingGraphic>();
 
-            var ignitions = new Vector2[visualRandom.Next(2, 4)];
-            ignitions[0] = Vector2.one * .5f;
-            float burnSeed = (float)visualRandom.NextDouble() * 100f;
-            var masks = new PerkBurnGraphic[ignitions.Length];
-            var fires = new PerkBurnGraphic[ignitions.Length];
-            RectTransform maskParent = root;
-            // Nested stencils keep paper only where none of the ignition holes have reached it.
-            for (int i = 0; i < ignitions.Length; i++)
-            {
-                maskParent = CreateRect("Burn Mask " + i, maskParent, source.rect.size);
-                masks[i] = maskParent.gameObject.AddComponent<PerkBurnGraphic>();
-                masks[i].Configure(true, ignitions[i], burnSeed);
-                maskParent.gameObject.AddComponent<Mask>().showMaskGraphic = false;
-            }
-            Transform copy = slot.CopyPurchaseArtwork(maskParent);
+            RectTransform absorption = CreateRect("Card Absorption", root, source.rect.size);
+            var artworkOpacity = absorption.gameObject.AddComponent<CanvasGroup>();
+            artworkOpacity.blocksRaycasts = false;
+            Transform copy = slot.CopyPurchaseArtwork(absorption);
             if (copy == null)
             {
                 DestroyVisual(root);
@@ -114,31 +106,11 @@ namespace FoodIsekaiZ.Display
                 back = backRect.gameObject;
                 back.SetActive(false);
             }
-            float edgeStart = (float)visualRandom.NextDouble();
-            for (int i = 1; i < ignitions.Length; i++)
-            {
-                Vector2 edge = PerkFrameContour.Sample(bounds, edgeStart + (i - 1) * .5f);
-                edge = Vector2.Lerp(edge, bounds.center, .006f);
-                ignitions[i] = new Vector2((edge.x - source.rect.xMin) / source.rect.width,
-                    (edge.y - source.rect.yMin) / source.rect.height);
-            }
-            for (int i = 0; i < masks.Length; i++) masks[i].Configure(true, ignitions[i], burnSeed);
-            for (int i = 0; i < ignitions.Length; i++)
-            {
-                RectTransform fireRect = CreateRect("Burn Edge and Ash " + i, root, source.rect.size);
-                fires[i] = fireRect.gameObject.AddComponent<PerkBurnGraphic>();
-                fires[i].Configure(false, ignitions[i], burnSeed);
-                fires[i].SetOtherIgnitions(ignitions, i);
-                foreach (Image image in copy.GetComponentsInChildren<Image>(true))
-                {
-                    if (image.name != "BG") continue;
-                    fires[i].SetFrame(image.rectTransform);
-                    break;
-                }
-            }
             // The break UI hides siblings outside the shop whenever gameplay data refreshes.
+            var chargedFrame = CreateRect("Charged Gold Frame", absorption, source.rect.size).gameObject.AddComponent<PerkChargedFrameGraphic>();
+            chargedFrame.SetFrame(bounds);
             root.SetParent(transform, true);
-            waiting.Enqueue(new PurchaseVisual(root, masks, fires, landing, copy.gameObject, back));
+            waiting.Enqueue(new PurchaseVisual(root, absorption, artworkOpacity, landing, copy.gameObject, back, chargedFrame));
             // Keep the authored slot available for the next shop; only its visibility changes.
             slot.gameObject.SetActive(false);
         }
@@ -152,6 +124,8 @@ namespace FoodIsekaiZ.Display
                 if (waiting.Count == 0) return;
                 current = waiting.Dequeue();
                 powerPulse = null;
+                gathering = null;
+                focusShade = null;
                 current.Root.SetAsLastSibling();
                 phase = Phase.Flying;
                 elapsed = 0f;
@@ -165,21 +139,42 @@ namespace FoodIsekaiZ.Display
                 case Phase.Settling:
                     current.Landing.SetImpact((flightSeconds * .1f + elapsed) / .9f);
                     if (elapsed < landingHoldSeconds) break;
-                    phase = Phase.Burning;
+                    RectTransform shadeRect = CreateFullscreenRect("Power Focus Shade");
+                    shadeRect.sizeDelta *= 1.25f;
+                    shadeRect.SetAsFirstSibling();
+                    focusShade = shadeRect.gameObject.AddComponent<Image>();
+                    focusShade.raycastTarget = false;
+                    focusShade.color = Color.clear;
+                    gathering = CreateFullscreenRect("Gathered Perk Energy").gameObject.AddComponent<PerkGatherGraphic>();
+                    gathering.SetEnergy(0f, 0f);
+                    phase = Phase.Gathering;
                     elapsed = 0f;
                     break;
-                case Phase.Burning:
-                    AnimateBurn();
+                case Phase.Gathering:
+                    AnimateGathering();
                     break;
-                case Phase.Embers:
-                    foreach (PerkBurnGraphic fire in current.Fires)
-                        fire.SetBurn(1f, elapsed / Mathf.Max(0.1f, emberSeconds));
-                    if (powerPulse != null) powerPulse.SetPower(elapsed / Mathf.Max(.1f, powerSeconds));
-                    if (elapsed >= Mathf.Max(emberSeconds, powerSeconds))
+                case Phase.Charging:
+                    gathering.SetEnergy(1f, elapsed / Mathf.Max(.1f, chargeSeconds));
+                    AnimateChargedCard(1f, gatherSeconds + elapsed);
+                    if (elapsed < chargeSeconds) break;
+                    ShowPowerPulse();
+                    phase = Phase.Releasing;
+                    elapsed = 0f;
+                    break;
+                case Phase.Releasing:
+                    gathering.SetEnergy(1f, 1f, 1f - Mathf.Clamp01(elapsed / .25f));
+                    float remaining = 1f - Mathf.Clamp01(elapsed / .12f);
+                    current.ArtworkOpacity.alpha = remaining;
+                    current.ChargedFrame.SetCharge(remaining, gatherSeconds + chargeSeconds + elapsed);
+                    powerPulse.SetPower(elapsed / Mathf.Max(.1f, powerSeconds));
+                    focusShade.color = new Color(0f, 0f, 0f, .58f * (1f - Mathf.Clamp01(elapsed / powerSeconds)));
+                    if (elapsed >= powerSeconds)
                     {
                         DestroyVisual(current.Root);
                         current = null;
                         powerPulse = null;
+                        gathering = null;
+                        focusShade = null;
                     }
                     break;
             }
@@ -225,31 +220,41 @@ namespace FoodIsekaiZ.Display
         private static float SmootherStep(float value) =>
             value * value * value * (value * (value * 6f - 15f) + 10f);
 
-        private void AnimateBurn()
+        private void AnimateGathering()
         {
             current.Landing.SetImpact(1f);
-            float progress = Mathf.Clamp01(elapsed / Mathf.Max(0.1f, burnSeconds));
-            foreach (PerkBurnGraphic mask in current.Masks) mask.SetBurn(progress);
-            foreach (PerkBurnGraphic fire in current.Fires) fire.SetBurn(progress);
-            if (progress < 1f) return;
-            ShowPowerPulse();
-            phase = Phase.Embers;
+            float amount = Mathf.Clamp01(elapsed / Mathf.Max(.1f, gatherSeconds));
+            gathering.SetEnergy(amount, 0f);
+            focusShade.color = new Color(0f, 0f, 0f, Mathf.SmoothStep(0f, .58f, amount * 2f));
+            AnimateChargedCard(amount, elapsed);
+            if (amount < 1f) return;
+            phase = Phase.Charging;
             elapsed = 0f;
+        }
+
+        private void AnimateChargedCard(float strength, float seconds)
+        {
+            current.ChargedFrame.SetCharge(strength, seconds);
+            float shake = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((strength - .65f) / .35f)) * 3f;
+            current.Absorption.anchoredPosition = new Vector2(Mathf.Sin(seconds * 73f), Mathf.Sin(seconds * 91f)) * shake;
         }
 
         private void ShowPowerPulse()
         {
-            // The pulse belongs to the purchase, but its bounds match the entire wall canvas.
+            powerPulse = CreateFullscreenRect("Perk Power Acquired").gameObject.AddComponent<PerkPowerGraphic>();
+            powerPulse.SetPower(0f);
+        }
+
+        private RectTransform CreateFullscreenRect(string objectName)
+        {
             var corners = new Vector3[4];
             ((RectTransform)wallCanvas.transform).GetWorldCorners(corners);
             Vector2 minimum = current.Root.InverseTransformPoint(corners[0]);
             Vector2 maximum = current.Root.InverseTransformPoint(corners[2]);
-            RectTransform rect = CreateRect("Perk Power Acquired", current.Root, maximum - minimum);
+            RectTransform rect = CreateRect(objectName, current.Root, maximum - minimum);
             rect.anchoredPosition = (minimum + maximum) * .5f;
-            powerPulse = rect.gameObject.AddComponent<PerkPowerGraphic>();
-            powerPulse.SetPower(0f);
+            return rect;
         }
-
         private static RectTransform CreateRect(string objectName, RectTransform parent, Vector2 size)
         {
             var rect = (RectTransform)new GameObject(objectName, typeof(RectTransform)).transform;
@@ -266,6 +271,8 @@ namespace FoodIsekaiZ.Display
             if (current != null) DestroyVisual(current.Root);
             current = null;
             powerPulse = null;
+            gathering = null;
+            focusShade = null;
             while (waiting.Count > 0) DestroyVisual(waiting.Dequeue().Root);
         }
 

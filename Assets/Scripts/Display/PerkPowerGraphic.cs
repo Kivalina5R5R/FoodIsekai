@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace FoodIsekaiZ.Display
 {
-    // A warm pulse expands across the wall after the card has finished burning.
+    // A warm pulse releases the gathered energy across the entire wall.
     [RequireComponent(typeof(CanvasRenderer))]
     public sealed class PerkPowerGraphic : MaskableGraphic
     {
@@ -27,7 +27,7 @@ namespace FoodIsekaiZ.Display
             float fade = Mathf.Sin(Mathf.PI * Mathf.Min(1f, progress / .16f) * .5f) * Mathf.Pow(1f - progress, 1.5f);
             Color clear = new Color(1f, .79f, .32f, 0f);
             Color glow = new Color(1f, .87f, .52f, fade * .48f);
-            Color warmth = new Color(1f, .74f, .25f, fade * .085f);
+            Color warmth = new Color(1f, .86f, .58f, fade * .18f);
             // Overscan the wash because the authored canvas can be narrower than the camera view.
             Vector2 minimum = rect.min * 1.25f;
             Vector2 maximum = rect.max * 1.25f;
@@ -43,6 +43,11 @@ namespace FoodIsekaiZ.Display
                 Quad(mesh, a * radius, b * radius, b * radius * 1.055f, a * radius * 1.055f, glow, clear);
                 if (i % 2 != 0) continue;
                 float seed = Mathf.Repeat(i * .618034f, 1f);
+                float flare = Mathf.Sin(Mathf.Clamp01(progress / .38f) * Mathf.PI);
+                float rayLength = rect.height * (.25f + seed * .65f) * (.6f + travel);
+                float rayWidth = (2f + seed * 14f) * flare;
+                Color ray = new Color(1f, .89f, .6f, flare * .32f);
+                SoftRay(mesh, a * rayLength, rayWidth, ray);
                 Vector2 point = a * radius * (.4f + seed * .62f);
                 Vector2 normal = new Vector2(-a.y, a.x);
                 float length = (5f + seed * 23f) * (1f - progress);
@@ -50,6 +55,29 @@ namespace FoodIsekaiZ.Display
                 Quad(mesh, point - a * length, point + normal * 1.1f, point + a * length * .35f,
                     point - normal * 1.1f, clear, spark);
             }
+            float flash = Mathf.Sin(Mathf.Clamp01(progress / .4f) * Mathf.PI);
+            int core = mesh.currentVertCount;
+            mesh.AddVert(Vector2.zero, new Color(1f, .98f, .86f, flash * .95f), Vector2.zero);
+            for (int i = 0; i < 64; i++)
+            {
+                float angle = i * Mathf.PI * 2f / 64f;
+                mesh.AddVert(new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * rect.height * .33f, clear, Vector2.zero);
+            }
+            for (int i = 0; i < 64; i++) mesh.AddTriangle(core, core + 1 + i, core + 1 + (i + 1) % 64);
+        }
+
+        private static void SoftRay(VertexHelper mesh, Vector2 tip, float width, Color tint)
+        {
+            Vector2 direction = tip.normalized;
+            Vector2 normal = new Vector2(-direction.y, direction.x);
+            int start = mesh.currentVertCount;
+            mesh.AddVert(Vector2.zero, tint, Vector2.zero);
+            tint.a = 0f;
+            mesh.AddVert(tip * .45f + normal * width, tint, Vector2.zero);
+            mesh.AddVert(tip, tint, Vector2.zero);
+            mesh.AddVert(tip * .45f - normal * width, tint, Vector2.zero);
+            mesh.AddTriangle(start, start + 1, start + 2);
+            mesh.AddTriangle(start, start + 2, start + 3);
         }
 
         private static void Quad(VertexHelper mesh, Vector2 a, Vector2 b, Vector2 c, Vector2 d, Color inner, Color outer)

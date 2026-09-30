@@ -70,7 +70,11 @@ internal static class PerkGameplayTests
             if (shop.Offers.Count != 1 || shop.Offers[0].Id != "Perk_Big_Home")
                 throw new Exception("Simulation added an unchecked guaranteed Happiness.");
             shop.Open(big, true, 3, Array.Empty<string>());
-            if (shop.Offers.Count != 0) throw new Exception("Empty simulation selection spawned cards.");
+            if (shop.Offers.Count != 4 || !shop.Offers.Any(o => o.Id == PerkDefinitions.Happiness) ||
+                shop.Offers.Any(o => o.Id == forcedIds[0]))
+                throw new Exception("Empty simulation selection must use normal random offers, guarantees and eligibility.");
+            shop.Open(big, true, 3, new[] { forcedIds[0], "Unknown" });
+            if (shop.Offers.Count != 0) throw new Exception("Ineligible checked selections must not fall back to random offers.");
             shop.Open(big, true, 3, new[] { PerkDefinitions.Happiness });
             if (shop.Offers.Count != 1 || shop.Offers[0].Id != PerkDefinitions.Happiness)
                 throw new Exception("Unlocked selected Happiness was not offered.");

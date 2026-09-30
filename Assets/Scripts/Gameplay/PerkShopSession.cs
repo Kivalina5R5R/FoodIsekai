@@ -29,7 +29,7 @@ namespace FoodIsekaiZ.Gameplay
             this.progression = progression;
         }
 
-        // A non-null selection is exclusive, including an empty selection. Null uses normal random offers.
+        // A non-empty selection is exclusive. Null or an empty selection uses normal random offers.
         // Purchase eligibility and the food-score offer limit apply in both modes.
         public void Open(IEnumerable<PerkOffer> pool, bool big, int nextWave,
             IEnumerable<string> preferredIds = null)
@@ -47,16 +47,21 @@ namespace FoodIsekaiZ.Gameplay
                     candidates.Add(offer);
             if (preferredIds != null)
             {
+                bool hasSelection = false;
                 foreach (string id in preferredIds)
                 {
+                    hasSelection = true;
                     if (offers.Count == 4) break;
                     int index = candidates.FindIndex(candidate => candidate.Id == id);
                     if (index < 0) continue;
                     TryAddOffer(candidates[index]);
                     candidates.RemoveAt(index);
                 }
-                IsOpen = true;
-                return;
+                if (hasSelection)
+                {
+                    IsOpen = true;
+                    return;
+                }
             }
             for (int i = candidates.Count - 1; i >= 0 && offers.Count < 4; i--)
             {

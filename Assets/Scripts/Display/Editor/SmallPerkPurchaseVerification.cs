@@ -92,58 +92,45 @@ namespace FoodIsekaiZ.Display.Editor
                 Check(Get(presentation, "phase").ToString() == "Settling", "Flight arrives at the intact landing hold.");
                 var current = Get(presentation, "current");
                 var moving = (RectTransform)current.GetType().GetProperty("Root").GetValue(current);
-                var masks = (PerkBurnGraphic[])current.GetType().GetProperty("Masks").GetValue(current);
-                var fires = (PerkBurnGraphic[])current.GetType().GetProperty("Fires").GetValue(current);
-                Check(masks.Length >= 2 && masks.Length <= 3 && fires.Length == masks.Length,
-                    "Every purchase has two or three ignition points.");
-                Check((Vector2)Get(masks[0], "ignition") == Vector2.one * .5f, "Exactly one ignition starts at the center.");
-                for (int edgeIndex = 1; edgeIndex < masks.Length; edgeIndex++)
-                {
-                    Vector2 edgePoint = (Vector2)Get(masks[edgeIndex], "ignition") - Vector2.one * .5f;
-                    Check(Mathf.Max(Mathf.Abs(edgePoint.x), Mathf.Abs(edgePoint.y)) > .4f, "All remaining ignition points lie on the card border.");
-                }
-                var mask = masks[0];
+                var artworkOpacity = (CanvasGroup)current.GetType().GetProperty("ArtworkOpacity").GetValue(current);
+                var absorption = (RectTransform)current.GetType().GetProperty("Absorption").GetValue(current);
                 Check(Vector3.Distance(moving.position, canvas.transform.TransformPoint(((RectTransform)canvas.transform).rect.center)) < .01f &&
-                    (float)Get(mask, "progress") == 0f, "The centered card remains fully intact on its arrival frame.");
+                    artworkOpacity.alpha == 1f, "The card lands intact at screen center.");
                 Check(moving.localScale.y > sourceScale.y * 1.1f, "The landing card is visibly enlarged.");
+                Check(moving.GetComponentsInChildren<PerkBurnGraphic>(true).Length == 0, "Purchases no longer create burn masks or flames.");
                 Render(camera, preview, "03-Centered-Intact");
-                for (int i = 0; i < masks.Length; i++)
-                {
-                    Check((Vector2)Get(masks[i], "ignition") == (Vector2)Get(fires[i], "ignition"),
-                        "Each flame follows its own stencil hole.");
-                    for (int j = 0; j < i; j++)
-                        Check(Vector2.Distance((Vector2)Get(masks[i], "ignition"), (Vector2)Get(masks[j], "ignition")) > .3f,
-                            "Ignition points are separated so each hole can be seen.");
-                }
-                Advance(presentation, 1f / 60f);
-                Check(Get(presentation, "phase").ToString() == "Settling" && (float)Get(mask, "progress") == 0f,
-                    "The burn cannot start on the frame after impact.");
-                Advance(presentation, .18f);
-                Render(camera, preview, "03b-Face-On-Impact");
-                Advance(presentation, .6f);
-                Check(Get(presentation, "phase").ToString() == "Settling" && (float)Get(mask, "progress") == 0f, "Paper remains intact for at least .79 seconds after settling.");
-                Render(camera, preview, "03c-Pause-Before-Burn");
-                Advance(presentation, .06f);
-                Check(Get(presentation, "phase").ToString() == "Burning", "The burn starts after the .85 second hold.");
-                Advance(presentation, .9f);
-                Render(camera, preview, "04-Multiple-Ignitions");
+                Advance(presentation, .79f);
+                Check(Get(presentation, "phase").ToString() == "Settling" && Get(presentation, "gathering") == null,
+                    "The intact landing pause precedes energy gathering.");
+                Advance(presentation, .07f);
+                Check(Get(presentation, "phase").ToString() == "Gathering", "Energy gathering follows the landing hold.");
+                Advance(presentation, .65f);
+                Render(camera, preview, "04-Incoming-Energy");
                 Advance(presentation, .8f);
-                Render(camera, preview, "05-Burning-With-Ash");
-                Check(Get(presentation, "phase").ToString() == "Burning" && (float)Get(mask, "progress") < .5f,
-                    "The burn is still in its first half after 1.7 seconds.");
-                Advance(presentation, 1.2f);
-                Render(camera, preview, "06-Merging-Holes");
-                Check(Get(presentation, "powerPulse") == null, "Power confirmation cannot appear before the burn finishes.");
-                Advance(presentation, (float)Get(presentation, "burnSeconds") - (float)Get(presentation, "elapsed") + .01f);
+                Check(artworkOpacity.alpha == 1f && absorption.localScale == Vector3.one,
+                    "The card retains its full size and opacity during gathering.");
+                Render(camera, preview, "05-Energy-Masses");
+                Check(Get(presentation, "powerPulse") == null, "Energy must gather before the full-screen release.");
+                Advance(presentation, (float)Get(presentation, "gatherSeconds") - (float)Get(presentation, "elapsed") + .01f);
+                Check(Get(presentation, "phase").ToString() == "Charging" && artworkOpacity.alpha == 1f,
+                    "The charged card remains visible until the explosion.");
+                Advance(presentation, .4f);
+                Check(Get(presentation, "phase").ToString() == "Charging" && Get(presentation, "powerPulse") == null,
+                    "The central light visibly holds before releasing.");
+                Check(absorption.localScale == Vector3.one && absorption.anchoredPosition.sqrMagnitude > .01f,
+                    "The charged card shakes without changing size.");
+                var goldFrame = moving.GetComponentInChildren<PerkChargedFrameGraphic>();
+                Check(goldFrame != null && (float)Get(goldFrame, "strength") == 1f, "A gold ripple follows the charged frame.");
+                Render(camera, preview, "06-Charged-Light");
+                Advance(presentation, .41f);
                 var power = (PerkPowerGraphic)Get(presentation, "powerPulse");
-                Check(power != null && Get(presentation, "phase").ToString() == "Embers" &&
-                    (float)Get(mask, "progress") == 1f, "Power pulse starts only after the paper has fully burned.");
+                Check(power != null && Get(presentation, "phase").ToString() == "Releasing", "The held light releases into a full-screen pulse.");
                 float powerWidth = power.transform.TransformVector(Vector3.right * power.rectTransform.rect.width).magnitude;
                 float wallWidth = canvas.transform.TransformVector(Vector3.right * ((RectTransform)canvas.transform).rect.width).magnitude;
                 Check(Mathf.Abs(powerWidth - wallWidth) < .01f && !power.raycastTarget,
                     "The power effect covers the wall canvas without intercepting input.");
                 Advance(presentation, .35f);
-                Render(camera, preview, "06b-Power-Expanding");
+                Check(artworkOpacity.alpha == 0f, "The card disappears with the explosion, not before it."); Render(camera, preview, "06b-Power-Expanding");
                 Advance(presentation, .45f);
                 Render(camera, preview, "06c-Power-Fullscreen");
                 Check(presentation.IsPlaying, "The shop waits for the power confirmation to finish.");
@@ -160,7 +147,7 @@ namespace FoodIsekaiZ.Display.Editor
                 Check(shop.transform.Find("Small Perk Purchase") == null, "All temporary visuals are disposed.");
                 slots[0].SetOffer(offers[0], catalog.GetPrefab(offers[0].Id), false);
                 Check(slots[0].gameObject.activeSelf, "The same slot can reveal an offer in the next shop.");
-                File.WriteAllText(Output + "/Result.txt", "PASS: reproduced old visibility failure; purchase stays visible through break UI refresh. Verified queue, center position, 0.85 second intact landing hold, upright inward flip, enlarged landing, two/three separated ignition holes, slower burn and floating ash renders, completion, cancellation, cleanup and authored transform preservation.");
+                File.WriteAllText(Output + "/Result.txt", "PASS: reproduced old visibility failure; purchase stays visible through break UI refresh. Verified queue, center position, 0.85 second intact landing hold, upright inward flip, enlarged landing, diagonal energy masses, rigid charged card, held central light and full-screen release, completion, cancellation, cleanup and authored transform preservation.");
             }
             catch (Exception exception)
             {

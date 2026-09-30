@@ -65,7 +65,7 @@ namespace FoodIsekaiZ.Display
             // These messages also reach Player.log on the installation computer.
             Debug.Log($"[PerkShop] Open: version={Application.version}, tier={(big ? "Big" : "Small")}, offers={session.Offers.Count}, coins={gameManager.TotalBankedMoney}, players={playerSpawner?.SpawnedPlayers.Count ?? 0}.", this);
             if (session.Offers.Count == 0 && simulation)
-                Debug.Log("[PerkShop] Simulation: no eligible selected cards. Select perks on System/PerkManager; no random cards will be added.", this);
+                Debug.Log("[PerkShop] Simulation: no eligible offers for this break. An empty selection uses normal random offers; checked selections remain exclusive.", this);
             else if (session.Offers.Count == 0)
                 Debug.LogError("[PerkShop] No valid cards in the built catalog. Low money does not hide offers; check the catalog included in this build.", this);
             holds = new PerkSelectionHold[4];

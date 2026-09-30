@@ -40368,8 +40368,8 @@ MonoBehaviour:
   wallCanvas: {fileID: 1595694067}
   flightSeconds: 1.65
   landingHoldSeconds: 0.85
-  burnSeconds: 6
-  emberSeconds: 1.2
+  gatherSeconds: 2.6
+  chargeSeconds: 0.8
   powerSeconds: 1.4
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

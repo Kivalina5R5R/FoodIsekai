@@ -91,6 +91,7 @@ internal static class Program
         var pool = PerkDefinitions.All.Where(d => d.Id.StartsWith("Perk_Small_"))
             .Select(d => new PerkOffer(d.Id, 80)).ToArray();
         bool validRandomOffers = true;
+        bool matchingEmptySelections = true;
         for (int seed = 0; seed < 1000; seed++)
         {
             var shop = new PerkShopSession(new Wallet(1000), new Random(seed));
@@ -98,8 +99,12 @@ internal static class Program
             validRandomOffers &= shop.Offers.Count == 4 &&
                 shop.Offers.Select(o => o.Id).Distinct().Count() == 4 &&
                 shop.Offers.Count(o => foodIds.Contains(o.Id)) <= 2;
+            var emptySimulation = new PerkShopSession(new Wallet(1000), new Random(seed));
+            emptySimulation.Open(pool, false, 2, Array.Empty<string>());
+            matchingEmptySelections &= emptySimulation.Offers.Select(o => o.Id).SequenceEqual(shop.Offers.Select(o => o.Id));
         }
         Check(validRandomOffers, "Random shops offer four unique cards with at most two food-score perks across 1000 seeds.");
+        Check(matchingEmptySelections, "Empty Small simulation selections match normal random offers across 1000 seeds, including the two food-score limit.");
 
         var simulation = new PerkShopSession(new Wallet(1000), new Random(23));
         simulation.Open(pool, false, 2, pool.Select(o => o.Id));
