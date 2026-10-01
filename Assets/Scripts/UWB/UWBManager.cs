@@ -115,6 +115,9 @@ namespace Fortal.UWB
         [Tooltip("Meters added to the device position after axis conversion. Used to shift the tracker origin into the play area - e.g. with rawYTo=\"-z\", set Z to the field depth so a flipped axis mirrors back into 0..depth instead of going negative. Overridden by UWBConfig.json's UWBInputOffset.")]
         [SerializeField] private Vector3 inputOffset = Vector3.zero;
 
+        [Tooltip("Per-axis multiplier applied after the offset, so Unity 0,0 stays fixed while the walking distance on each axis is stretched or shrunk. Lower X if the player runs ahead of the tag further from the center. Overridden by UWBConfig.json's UWBInputAxisScale.")]
+        [SerializeField] private Vector3 inputAxisScale = Vector3.one;
+
         [Tooltip("Multiplier applied to calibrated UWB positions before they are reported to Players.")]
         [SerializeField, Min(0f)] private float metersToWorldScale = 1f;
 
@@ -228,6 +231,7 @@ namespace Fortal.UWB
                 }
 
                 inputOffset = config.UWBInputOffset;
+                inputAxisScale = config.UWBInputAxisScale;
                 metersToWorldScale = Mathf.Max(0f, config.metersToWorldScale);
                 ApplyTrackingSettingsFromConfig(config.tracking);
                 ApplyAnchorPositionsFromConfig(config);
@@ -1145,7 +1149,7 @@ namespace Fortal.UWB
         {
 
             Vector3 devicePosition =
-                (axisConversion.Apply(pose.PositionMeters) + inputOffset) * metersToWorldScale;
+                Vector3.Scale(axisConversion.Apply(pose.PositionMeters) + inputOffset, inputAxisScale) * metersToWorldScale;
             Vector3 position = devicePosition;
             bool fromSolver = false;
             if (!useDevicePositionFirst && TryTrilaterateFromSceneAnchors(pose, out Vector3 solved))

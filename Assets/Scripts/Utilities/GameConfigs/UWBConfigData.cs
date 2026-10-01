@@ -163,6 +163,9 @@ namespace FoodIsekaiZ.Configuration
         [Tooltip("Meters added to the device position after axis conversion.")]
         public Vector3 UWBInputOffset = Vector3.zero;
 
+        [Tooltip("Per-axis multiplier applied after the offset. Unity 0,0 stays fixed; values below 1 shorten the movement on that axis, above 1 lengthen it.")]
+        public Vector3 UWBInputAxisScale = Vector3.one;
+
         [Tooltip("Multiplier applied to raw UWB positions (real-world meters) to convert them into game-world units. 1 = 1 real meter maps to 1 Unity unit.")]
         public float metersToWorldScale = 1f;
 
