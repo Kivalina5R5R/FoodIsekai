@@ -1,3 +1,19 @@
 {
-    "resultRestartSeconds": 25
+    "resultRestartSeconds": 25,
+    "languageToggleKey": "T",
+    "bgmVolume": 0.6,
+    "introMusicVolume": 0.4,
+    "soundEffectsVolume": 1.0,
+    "lunarVoiceVolume": 1.0,
+    "lunarFootstepVolume": 0.3,
+    "soundEffectGainsDb": [
+        { "sound": "FoodPickup", "gainDb": -3 },
+        { "sound": "FoodServed", "gainDb": -3 },
+        { "sound": "WrongFood", "gainDb": -2 },
+        { "sound": "MoneyPaid", "gainDb": -1 },
+        { "sound": "MoneyCollected", "gainDb": -3 },
+        { "sound": "BankDeposit", "gainDb": -2 },
+        { "sound": "CurtainClose", "gainDb": -12 },
+        { "sound": "CurtainOpen", "gainDb": -12 }
+    ]
 }

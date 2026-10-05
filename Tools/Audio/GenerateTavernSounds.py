@@ -43,7 +43,7 @@ a=blank(.95);melody(a,[523.25,659.25,783.99],.09,.24,'bell',.6);tone(a,0,196,.2,
 a=blank(.42);melody(a,[277.18,233.08],.1,.32,'wood',.25);clips['WrongFood']=a
 a=blank(.22);rustle(a,.01,.11,.5);tone(a,0,380,.095,.045,'wood');clips['OrderArrived']=a
 a=blank(.6);melody(a,[1760,2349,1976,2637],.045,.16,'bell',.32);rustle(a,0,.18,.18);clips['MoneyPaid']=a
-a=blank(.65);melody(a,[1174.66,1568,2349],.05,.2,'bell',.42);rustle(a,0,.2,.17);clips['MoneyCollected']=a
+a=blank(.65);melody(a,[587.33,783.99,1174.66],.05,.2,'bell',.42);rustle(a,0,.2,.17);clips['MoneyCollected']=a
 a=blank(1.05);tone(a,0,130.81,.24,.25,'wood');rustle(a,0,.24,.24);melody(a,[1318.5,1568,2093,2637],.05,.16,'bell',.46,start=.03);melody(a,[392,523.25,659.25],.09,.24,'pluck',.7,start=.14);clips['BankDeposit']=a
 a=blank(.5);tone(a,0,523.25,.32,.23);tone(a,.12,392,.28,.22);tone(a,0,196,.1,.13,'wood');clips['CustomerExpired']=a
 a=blank(1.4);melody(a,[392,523.25,659.25,783.99],.15,.26,'pluck',.8);tone(a,.47,1046.5,.75,.18);clips['WaveStart']=a

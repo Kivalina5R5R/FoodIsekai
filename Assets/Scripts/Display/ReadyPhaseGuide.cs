@@ -14,15 +14,25 @@ namespace FoodIsekaiZ.Display
         [SerializeField, Range(0f, 1f)] private float standingWidthFraction = 0.55f;
         // The intro music fades out once Lunar has walked off.
         [SerializeField] private FoodIsekaiZBgmPlayer bgmPlayer;
+        // Where Lunar says "spot" (English) and "จุด" (Thai) in her intro voice line; the floor number
+        // spots appear at that word. Measured from Lunar_Eng_Intro and Lunar_Thai_Intro.
+        [SerializeField, Min(0f)] private float englishSpotSeconds = 6.6f;
+        [SerializeField, Min(0f)] private float thaiSpotSeconds = 7.2f;
         private NpcGuidePresentation instance;
         private bool spawned;
         private bool exitRequested;
         private bool coverRequested;
         private Vector2 exitPosition;
 
-        // The floor number spots stay hidden until Lunar has finished her voiced intro.
+        // The floor number spots appear when Lunar says "spot" / "จุด", or once she has finished speaking.
         public bool IsReadyForSelection => guidePrefab == null ||
-            (instance != null && instance.HasFinishedSpeaking);
+            (instance != null && (instance.HasFinishedSpeaking || HasReachedSpotWord()));
+
+        private bool HasReachedSpotWord()
+        {
+            float cue = FoodIsekaiZ.Localization.GameLanguage.IsThai ? thaiSpotSeconds : englishSpotSeconds;
+            return instance.VoiceSeconds >= cue;
+        }
 
         // Ready selection waits for this departure before releasing gameplay.
         public bool TryFinish()

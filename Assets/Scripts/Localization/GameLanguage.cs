@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 namespace FoodIsekaiZ.Localization
 {
@@ -11,7 +12,7 @@ namespace FoodIsekaiZ.Localization
     }
 
     // Holds the selected display language and remembers it between game launches.
-    // Pressing T anywhere in the game switches between English and Thai.
+    // Pressing the configured key (T by default) anywhere in the game switches between English and Thai.
     public static class GameLanguage
     {
         private const string PreferenceKey = "FoodIsekaiZ.Language";
@@ -80,12 +81,41 @@ namespace FoodIsekaiZ.Localization
         }
     }
 
+    // The key comes from StreamingAssets/GameFlowConfig.json and is read again on every scene load,
+    // so a changed key applies from the next round.
     public sealed class GameLanguageToggle : MonoBehaviour
     {
+        private Key toggleKey = Key.T;
+
+        private void Awake()
+        {
+            LoadKey();
+            SceneManager.sceneLoaded += SceneLoaded;
+        }
+
+        private void OnDestroy()
+        {
+            SceneManager.sceneLoaded -= SceneLoaded;
+        }
+
+        private void SceneLoaded(Scene scene, LoadSceneMode mode) => LoadKey();
+
+        private void LoadKey()
+        {
+            string name = FoodIsekaiZ.Configuration.GameFlowConfig.Load().languageToggleKey;
+            if (Enum.TryParse(name, true, out Key key) && key != Key.None)
+            {
+                toggleKey = key;
+                return;
+            }
+            toggleKey = Key.T;
+            Debug.LogWarning($"[GameLanguage] Unknown languageToggleKey '{name}' in GameFlowConfig; using T.", this);
+        }
+
         private void Update()
         {
             Keyboard keyboard = Keyboard.current;
-            if (keyboard != null && keyboard.tKey.wasPressedThisFrame) GameLanguage.Toggle();
+            if (keyboard != null && keyboard[toggleKey].wasPressedThisFrame) GameLanguage.Toggle();
         }
     }
 }

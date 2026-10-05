@@ -47,6 +47,25 @@ namespace FoodIsekaiZ.Audio
             new System.Collections.Generic.Dictionary<AudioSource, Coroutine>();
         private readonly System.Collections.Generic.Dictionary<AudioSource, float> voiceVolumes =
             new System.Collections.Generic.Dictionary<AudioSource, float>();
+        // Levels from StreamingAssets/GameFlowConfig.json; listed sounds replace the scene's gain.
+        private float configEffectsVolume = 1f;
+        private readonly System.Collections.Generic.Dictionary<GameSoundCue, float> configGainsDb =
+            new System.Collections.Generic.Dictionary<GameSoundCue, float>();
+
+        private void Awake()
+        {
+            var config = FoodIsekaiZ.Configuration.GameFlowConfig.Load();
+            configEffectsVolume = Mathf.Clamp01(config.soundEffectsVolume);
+            configGainsDb.Clear();
+            if (config.soundEffectGainsDb == null) return;
+            foreach (var entry in config.soundEffectGainsDb)
+            {
+                if (entry != null && System.Enum.TryParse(entry.sound, true, out GameSoundCue cue))
+                    configGainsDb[cue] = entry.gainDb;
+                else
+                    Debug.LogWarning($"[GameSound] GameFlowConfig lists an unknown sound '{entry?.sound}'. Use a GameSoundCue name such as MoneyCollected.", this);
+            }
+        }
 
         // Pitch lets a single authored clip step through a short rising sequence; other cues play at 1.
         public bool TryPlay(GameSoundCue cue, bool priority = false, float pitch = 1f)
@@ -82,7 +101,7 @@ namespace FoodIsekaiZ.Audio
             voice.Stop();
             voice.pitch = Mathf.Clamp(pitch, .5f, 2f);
             activeCues[voice] = cue;
-            voice.PlayOneShot(clips[index], Mathf.Clamp01(masterVolume) * Mathf.Pow(10f, GetGainDb(cue) / 20f));
+            voice.PlayOneShot(clips[index], Mathf.Clamp01(masterVolume) * configEffectsVolume * Mathf.Pow(10f, GetGainDb(cue) / 20f));
             return true;
         }
 
@@ -130,6 +149,7 @@ namespace FoodIsekaiZ.Audio
 
         private float GetGainDb(GameSoundCue cue)
         {
+            if (configGainsDb.TryGetValue(cue, out float configured)) return configured;
             switch (cue)
             {
                 case GameSoundCue.FoodPickup: return foodPickupGainDb;

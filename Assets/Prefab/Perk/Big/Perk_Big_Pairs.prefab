@@ -874,7 +874,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedText
   target: {fileID: 3768675892190057139}
   english: "Good Things \nCome in Pairs"
-  thai: "\u0e40\u0e23\u0e37\u0e48\u0e2d\u0e07\u200b\u0e14\u0e35 \u0e46 \u0e21\u0e32\u200b\u0e40\u0e1b\u0e47\u0e19\u200b\u0e04\u0e39\u0e48"
+  thai: "\u0e40\u0e23\u0e37\u0e48\u0e2d\u0e07\u200b\u0e14\u0e35\u0e46 \u0e21\u0e32\u200b\u0e40\u0e1b\u0e47\u0e19\u200b\u0e04\u0e39\u0e48"
   englishFont: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
   thaiFont: {fileID: 11400000, guid: be18c2e6e13ba8e4896d9ceabde6c14c, type: 2}
   thaiCharacterSpacing: 5

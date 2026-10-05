@@ -66,6 +66,10 @@ namespace FoodIsekaiZ.Audio
         {
             speakingVoices = 0;
             sceneTransition = false;
+            // StreamingAssets/GameFlowConfig.json sets both music levels for this round.
+            var config = FoodIsekaiZ.Configuration.GameFlowConfig.Load();
+            volume = Mathf.Clamp01(config.bgmVolume);
+            introVolume = Mathf.Clamp01(config.introMusicVolume);
             ResolveAudioSource();
             if (audioSource == null)
             {

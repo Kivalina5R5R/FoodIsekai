@@ -48,6 +48,8 @@ namespace FoodIsekaiZ.Display
         public bool HasOpenedDialogue { get; private set; }
         public bool HasFinishedSpeaking => HasOpenedDialogue &&
             (dialogueVoice == null || !dialogueVoice.isPlaying);
+        // Playback position of the current voice line, or -1 while no line is playing.
+        public float VoiceSeconds => dialogueVoice != null && dialogueVoice.isPlaying ? dialogueVoice.time : -1f;
 
         private void Awake()
         {
@@ -58,6 +60,16 @@ namespace FoodIsekaiZ.Display
             if (intro != null) dialogue = intro.gameObject;
             if (perkDialogue == null) perkDialogue = transform.Find("TextPerk")?.gameObject;
             introDialogue = dialogue;
+            // StreamingAssets/GameFlowConfig.json sets the footstep level and scales both spoken lines;
+            // fades keep using the scaled level.
+            var config = FoodIsekaiZ.Configuration.GameFlowConfig.Load();
+            footstepVolume = Mathf.Clamp01(config.lunarFootstepVolume);
+            float voiceVolume = Mathf.Clamp01(config.lunarVoiceVolume);
+            foreach (GameObject line in new[] { introDialogue, perkDialogue })
+            {
+                AudioSource voice = line != null ? line.GetComponent<AudioSource>() : null;
+                if (voice != null) voice.volume *= voiceVolume;
+            }
             dialogueRect = dialogue != null ? dialogue.transform as RectTransform : null;
             if (dialogueRect != null) dialogueScale = dialogueRect.localScale;
             if (dialogue != null) dialogue.SetActive(false);

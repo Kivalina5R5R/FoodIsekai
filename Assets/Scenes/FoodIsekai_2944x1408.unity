@@ -581,7 +581,7 @@ MonoBehaviour:
   playOnStart: 1
   waitForStartup: 1
   loop: 1
-  volume: 0.16
+  volume: 0.35
   audioSource: {fileID: 101588417}
   introClip: {fileID: 8300000, guid: 8a08dd2d8cd341fc88c543fcd32f7494, type: 3}
   introVolume: 0.18
@@ -16521,12 +16521,12 @@ MonoBehaviour:
   - 0.3
   - 0.3
   masterVolume: 1
-  foodPickupGainDb: 0
-  foodServedGainDb: 0
-  wrongFoodGainDb: 1
-  moneyPaidGainDb: 2
-  moneyCollectedGainDb: 1
-  bankDepositGainDb: 1
+  foodPickupGainDb: -3
+  foodServedGainDb: -3
+  wrongFoodGainDb: -2
+  moneyPaidGainDb: -1
+  moneyCollectedGainDb: -3
+  bankDepositGainDb: -2
   customerExpiredGainDb: 2
   waveStartGainDb: 4
   waveBreakGainDb: 4
@@ -16536,6 +16536,7 @@ MonoBehaviour:
   emojiBubbleGainDb: 0
   moneyReminderGainDb: 3
   successPopGainDb: 4
+  curtainGainDb: -12
 --- !u!114 &2026098025
 MonoBehaviour:
   m_ObjectHideFlags: 0
