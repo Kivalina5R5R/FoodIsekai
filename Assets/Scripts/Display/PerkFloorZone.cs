@@ -45,6 +45,32 @@ namespace FoodIsekaiZ.Display
             if (purchased && (presentation == null || presentation.IsHidden)) gameObject.SetActive(false);
         }
 
+        // Celebrates the purchase on the tile itself. The burst lives on the floor canvas, not under this
+        // tile, because the tile shrinks away and is deactivated while the burst is still playing.
+        public void PlayPurchaseBurst(bool rainbow)
+        {
+            if (selectionBounds == null || !gameObject.activeInHierarchy) return;
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas == null) return;
+            var canvasRect = (RectTransform)canvas.rootCanvas.transform;
+            var corners = new Vector3[4];
+            selectionBounds.GetWorldCorners(corners);
+            Vector2 minimum = canvasRect.InverseTransformPoint(corners[0]);
+            Vector2 maximum = canvasRect.InverseTransformPoint(corners[2]);
+            float radius = Mathf.Max(maximum.x - minimum.x, maximum.y - minimum.y) * .5f;
+            var root = (RectTransform)new GameObject("Perk Purchase Burst", typeof(RectTransform)).transform;
+            root.gameObject.layer = canvasRect.gameObject.layer;
+            root.SetParent(canvasRect, false);
+            root.anchorMin = root.anchorMax = root.pivot = Vector2.one * .5f;
+            root.sizeDelta = Vector2.one * radius * 6f;
+            root.anchoredPosition = (minimum + maximum) * .5f;
+            var overlay = root.gameObject.AddComponent<Canvas>();
+            overlay.overrideSorting = true;
+            overlay.sortingLayerID = canvas.rootCanvas.sortingLayerID;
+            overlay.sortingOrder = canvas.rootCanvas.sortingOrder + 25;
+            root.gameObject.AddComponent<PerkFloorPurchaseBurst>().Play(radius, rainbow, root.gameObject);
+        }
+
         public bool Contains(Vector3 worldPosition)
         {
             if (selectionBounds == null || !gameObject.activeInHierarchy) return false;

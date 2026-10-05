@@ -1,4 +1,5 @@
 using System.Collections;
+using FoodIsekaiZ.Audio;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,8 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private Color foldHighlight = new Color(0.52f, 0.265f, 0.22f, 1f);
         [SerializeField] private Color gold = new Color(0.76f, 0.58f, 0.34f, 1f);
         [SerializeField] private Color cream = new Color(0.96f, 0.875f, 0.71f, 1f);
+        // Fabric swoosh and ring cues timed to the close and open motions.
+        [SerializeField] private GameSoundPlayer soundPlayer;
         private float closure;
         private bool visible;
 
@@ -29,12 +32,14 @@ namespace FoodIsekaiZ.Display
         public IEnumerator Cover()
         {
             gameObject.SetActive(true);
+            soundPlayer?.TryPlay(GameSoundCue.CurtainClose, true);
             yield return Animate(1f, darkenDuration);
         }
 
         public IEnumerator Reveal()
         {
             if (closedHoldSeconds > 0f) yield return new WaitForSecondsRealtime(closedHoldSeconds);
+            soundPlayer?.TryPlay(GameSoundCue.CurtainOpen, true);
             yield return Animate(0f, revealDuration);
             Hide();
         }

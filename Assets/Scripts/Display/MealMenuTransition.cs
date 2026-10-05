@@ -1,4 +1,5 @@
 using System.Collections;
+using FoodIsekaiZ.Audio;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,8 +23,11 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private Color ribbon = new Color(0.46f, 0.195f, 0.17f, 1f);
         [SerializeField, Min(0.05f)] private float coverSeconds = 0.4f;
         [SerializeField, Min(0.05f)] private float revealSeconds = 0.5f;
-        [SerializeField, Min(0f)] private float titleHoldSeconds = 0.55f;
+        // How long the page rests at the center with its title before sliding away.
+        // Time spent changing the scene behind the page counts toward this hold.
+        [SerializeField, Min(0f)] private float titleHoldSeconds = 2f;
         private float offset = -1f;
+        private float coveredAt;
         private bool visible;
         private Vector2 headingRestPosition;
         private bool headingPositionCached;
@@ -61,6 +65,8 @@ namespace FoodIsekaiZ.Display
         public IEnumerator Cover(string title)
         {
             gameObject.SetActive(true);
+            // The music dips while the page covers the scene change, instead of carrying on at full level.
+            FoodIsekaiZBgmPlayer.SetSceneTransition(true);
             title = ResolveTitle(title);
             if (IsCovered)
             {
@@ -76,6 +82,7 @@ namespace FoodIsekaiZ.Display
             visible = true;
             MoveHeadingWithPage();
             yield return Slide(0f, coverSeconds);
+            coveredAt = Time.unscaledTime;
         }
 
         private string ResolveTitle(string title)
@@ -96,14 +103,18 @@ namespace FoodIsekaiZ.Display
         {
             RevealFoodImmediately = continueFromFloorSlide;
             RevealStarting?.Invoke();
-            if (!continueFromFloorSlide && titleHoldSeconds > 0f)
-                yield return new WaitForSecondsRealtime(titleHoldSeconds);
+            // The music rises back as the page lifts on the new scene.
+            FoodIsekaiZBgmPlayer.SetSceneTransition(false);
+            // The page stays centered until the title has been readable for the full hold,
+            // including a floor slide that already ran behind it.
+            while (Time.unscaledTime < coveredAt + titleHoldSeconds) yield return null;
             yield return Slide(1f, revealSeconds);
             Hide();
         }
 
         public void Hide()
         {
+            FoodIsekaiZBgmPlayer.SetSceneTransition(false);
             RevealFoodImmediately = false;
             visible = false;
             offset = -1f;

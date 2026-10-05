@@ -31,6 +31,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6343812134350470585}
+  - {fileID: 9100000000000000002}
   - {fileID: 7688501420452321745}
   - {fileID: 497904950888028594}
   - {fileID: 1449773744928140592}
@@ -191,6 +192,7 @@ GameObject:
   - component: {fileID: 497904950888028594}
   - component: {fileID: 4309294497124783655}
   - component: {fileID: 3768675892190057139}
+  - component: {fileID: 9200000000000000001}
   m_Layer: 0
   m_Name: Title
   m_TagString: Untagged
@@ -295,7 +297,7 @@ MonoBehaviour:
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
-  m_ActiveFontFeatures: 6e72656b
+  m_ActiveFontFeatures: 6e72656b6b72616d6b6d6b6d
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
@@ -344,15 +346,15 @@ RectTransform:
   m_GameObject: {fileID: 6090171311083505449}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.5905, y: 0.28642863, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3994084079726713046}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -136.2}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 0, y: -139}
+  m_SizeDelta: {x: 177, y: 36}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8232743193943331902
 CanvasRenderer:
@@ -375,7 +377,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.95294124, g: 0.8705883, b: 0.6784314, a: 1}
+  m_Color: {r: 0.9529412, g: 0.8392157, b: 0.7176471, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -403,6 +405,7 @@ GameObject:
   - component: {fileID: 1449773744928140592}
   - component: {fileID: 4400787094222906790}
   - component: {fileID: 6535938799147073406}
+  - component: {fileID: 9200000000000000002}
   m_Layer: 0
   m_Name: Text
   m_TagString: Untagged
@@ -507,7 +510,7 @@ MonoBehaviour:
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
-  m_ActiveFontFeatures: 6e72656b
+  m_ActiveFontFeatures: 6e72656b6b72616d6b6d6b6d
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
@@ -556,7 +559,7 @@ RectTransform:
   m_GameObject: {fileID: 8817958582618152518}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
+  m_LocalScale: {x: 0.2563, y: 0.2563, z: 0.2563}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 3994084079726713046}
@@ -564,7 +567,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 929, y: 1379}
+  m_SizeDelta: {x: 878, y: 1346}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8244356794830019382
 CanvasRenderer:
@@ -594,7 +597,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: a1592f78ad7cb6e488358fc8da49c249, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 834cf8d7ae6ccdf45a8eaf864e80ea80, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -631,7 +634,7 @@ RectTransform:
   m_GameObject: {fileID: 8978039990273024259}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
+  m_LocalScale: {x: 0.2534, y: 0.2534, z: 0.2534}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 3994084079726713046}
@@ -639,7 +642,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -0.3, y: -59.7}
-  m_SizeDelta: {x: 941, y: 549}
+  m_SizeDelta: {x: 778, y: 435}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5385248210810830682
 CanvasRenderer:
@@ -669,7 +672,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 333dd94b8eeb5554782b49401739fbcf, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ed074930a5195424aa8b56682966b201, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -714,7 +717,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -25.3, y: -135.7}
+  m_AnchoredPosition: {x: -25.3, y: -139}
   m_SizeDelta: {x: 1021, y: 783}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8732022767823325545
@@ -782,3 +785,117 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   source: {fileID: 900100000000000001}
   priceText: {fileID: 303541364010509270}
+--- !u!1 &9100000000000000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9100000000000000002}
+  - component: {fileID: 9100000000000000003}
+  - component: {fileID: 9100000000000000004}
+  m_Layer: 0
+  m_Name: Icon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &9100000000000000002
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9100000000000000001}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.2256, y: 0.2256, z: 0.2256}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 3994084079726713046}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 69}
+  m_SizeDelta: {x: 694, y: 798}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &9100000000000000003
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9100000000000000001}
+  m_CullTransparentMesh: 1
+--- !u!114 &9100000000000000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9100000000000000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 9119900abb148d94a91700d17561f51e, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &9200000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2910546633221880260}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155af145d4d458cbedbc8e1d22f265d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedText
+  target: {fileID: 3768675892190057139}
+  english: "Start with \nSomething Lovely"
+  thai: "\u0e40\u0e23\u0e34\u0e48\u0e21\u200b\u0e14\u0e49\u0e27\u0e22\u200b\u0e2d\u0e30\u0e44\u0e23\u200b\u0e14\u0e35 \u0e46"
+  englishFont: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
+  thaiFont: {fileID: 11400000, guid: be18c2e6e13ba8e4896d9ceabde6c14c, type: 2}
+  thaiCharacterSpacing: 5
+  thaiSizeScale: 1.5
+--- !u!114 &9200000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7282010441901530434}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155af145d4d458cbedbc8e1d22f265d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedText
+  target: {fileID: 6535938799147073406}
+  english: Earn double points from starter dishes.
+  thai: "\u0e44\u0e14\u0e49\u200b\u0e23\u0e31\u0e1a\u200b\u0e41\u0e15\u0e49\u0e21\u200b\u0e08\u0e32\u0e01\u200b\u0e40\u0e21\u0e19\u0e39\u200b\u0e2d\u0e32\u0e2b\u0e32\u0e23\u200b\u0e40\u0e23\u0e35\u0e22\u0e01\u200b\u0e19\u0e49\u0e33\u0e22\u0e48\u0e2d\u0e22\u200b\u0e40\u0e1b\u0e47\u0e19 2 \u0e40\u0e17\u0e48\u0e32"
+  englishFont: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
+  thaiFont: {fileID: 11400000, guid: be18c2e6e13ba8e4896d9ceabde6c14c, type: 2}
+  thaiSizeScale: 1.5
+  thaiCharacterSpacing: 4
+  thaiBold: 1

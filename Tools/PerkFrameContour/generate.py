@@ -5,8 +5,8 @@ import bisect
 
 # Bake the card images' opaque silhouettes; no runtime texture readback is needed.
 root = Path(__file__).resolve().parents[2]
-SMALL = root / 'Assets/Art/Perk/BG ui2.png'
-BIG = root / 'Assets/Art/Perk/BG_Card_Big.png'
+SMALL = root / 'Assets/Art/Perk/Skill Icon/BG1.png'
+BIG = root / 'Assets/Art/Perk/Skill Icon/BG2.png'
 
 
 def bake(source):
@@ -56,7 +56,7 @@ code = '''using UnityEngine;
 
 namespace FoodIsekaiZ.Display
 {
-    // Baked from the alpha contours of Assets/Art/Perk/BG ui2.png (Small) and BG_Card_Big.png (Big).
+    // Baked from the alpha contours of Assets/Art/Perk/Skill Icon/BG1.png (Small) and BG2.png (Big).
     // Regenerate with Tools/PerkFrameContour/generate.py when the frame artwork changes.
     internal static class PerkFrameContour
     {

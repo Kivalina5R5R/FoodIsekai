@@ -27,6 +27,8 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private SmallPerkPurchasePresentation smallPurchases;
         [SerializeField] private TMP_Text walletText;
         private TMP_Text countdownText;
+        // The floor coin panel animates in and out like the perk tiles, but appears with the wall cards.
+        private PerkCardAnimation coinPanel;
         [SerializeField, Min(0.1f)] private float holdSeconds = 1.5f;
         [SerializeField, HideInInspector] private int layoutRevision;
         private PerkShopSession session;
@@ -58,6 +60,7 @@ namespace FoodIsekaiZ.Display
                 return;
             }
             countdownText = guide.transform.Find("TextPerk/Time/TextTime")?.GetComponent<TMP_Text>();
+            coinPanel = walletText != null ? walletText.GetComponentInParent<PerkCardAnimation>(true) : null;
             if (session == null) session = new PerkShopSession(gameManager, new System.Random(), gameManager.Perks);
             bool big = gameManager.CurrentWaveNumber >= 2;
             bigShop = big;
@@ -78,7 +81,8 @@ namespace FoodIsekaiZ.Display
                 audibleCandidates[i] = 0;
                 PerkOffer offer = i < session.Offers.Count ? session.Offers[i] : null;
                 slots[i].SetOffer(offer, offer != null ? catalog.GetPrefab(offer.Id) : null, big);
-                zones[i].gameObject.SetActive(offer != null);
+                // Tiles stay off until the guide finishes speaking; the floor root itself opens earlier for the coin panel.
+                zones[i].gameObject.SetActive(false);
                 // Clear the previous shop's text before the floor reveals, so no stale "PURCHASED" flashes.
                 zones[i].ShowStatus(NotPurchasedText, 0f, false, false, false);
             }
@@ -111,6 +115,8 @@ namespace FoodIsekaiZ.Display
                 if (!guide.HasOpenedDialogue) return;
                 wallShown = true;
                 offersRoot.SetActive(true);
+                // The coin panel enters on the floor as the perk cards open on the wall.
+                floorRoot.SetActive(true);
                 if (session.Offers.Count > 0) soundPlayer?.TryPlay(GameSoundCue.SmallPerkReveal);
             }
             if (!floorShown)
@@ -120,7 +126,8 @@ namespace FoodIsekaiZ.Display
                 // The floor zones stay hidden until the guide finishes speaking, so players never see tiles they cannot use.
                 if (!guide.HasFinishedSpeaking) return;
                 floorShown = true;
-                floorRoot.SetActive(true);
+                for (int i = 0; i < zones.Length; i++)
+                    zones[i].gameObject.SetActive(i < session.Offers.Count);
                 Debug.Log($"[PerkShop] Reveal: wall={offersRoot.activeInHierarchy}, floor={floorRoot.activeInHierarchy}, offers={session.Offers.Count}.", this);
             }
             if (!selectionStarted)
@@ -172,6 +179,8 @@ namespace FoodIsekaiZ.Display
                     if (session.TryBuy(i, candidate))
                     {
                         soundPlayer?.TryPlay(GameSoundCue.SmallPerkPurchase, true);
+                        // The floor tile the player bought from bursts while the wall card takes flight.
+                        zones[i].PlayPurchaseBurst(bigShop);
                         // Both tiers share the purchase animation and sounds; Big plays it in rainbow.
                         if (smallPurchases != null) smallPurchases.Play(slots[i], bigShop);
                         // A Big shop allows one pick: the break ends, the other cards leave and the guide walks out
@@ -190,7 +199,8 @@ namespace FoodIsekaiZ.Display
 
         private void UpdateLabels()
         {
-            if (walletText != null) walletText.text = $"TEAM COINS  {gameManager.TotalBankedMoney}";
+            // The floor coin panel shows the team's coins as a number only.
+            if (walletText != null) walletText.text = gameManager.TotalBankedMoney.ToString();
             if (countdownText != null)
                 countdownText.text = $"{Mathf.Max(0, Mathf.CeilToInt(gameManager.MealPhaseRemainingSeconds)):00}";
         }
@@ -203,12 +213,14 @@ namespace FoodIsekaiZ.Display
                 session?.Close();
                 foreach (PerkCardSlot slot in slots) slot.Hide();
                 foreach (PerkFloorZone zone in zones) zone.Hide();
+                if (coinPanel != null) coinPanel.Hide();
                 if (countdownText != null) countdownText.text = "00";
             }
             foreach (PerkCardSlot slot in slots)
                 if (!slot.IsHidden) return false;
             foreach (PerkFloorZone zone in zones)
                 if (!zone.IsHidden) return false;
+            if (coinPanel != null && coinPanel.isActiveAndEnabled && !coinPanel.IsHidden) return false;
             if (smallPurchases != null && smallPurchases.IsPlaying) return false;
             if (!departureStarted)
             {

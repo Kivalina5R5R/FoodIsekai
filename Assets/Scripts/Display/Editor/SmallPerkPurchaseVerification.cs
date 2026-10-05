@@ -142,6 +142,10 @@ namespace FoodIsekaiZ.Display.Editor
                 float wallWidth = canvas.transform.TransformVector(Vector3.right * ((RectTransform)canvas.transform).rect.width).magnitude;
                 Check(Mathf.Abs(powerWidth - wallWidth) < .01f && !power.raycastTarget,
                     "The power effect covers the wall canvas without intercepting input.");
+                var floorCanvas = (Canvas)Get(presentation, "floorCanvas");
+                var floorBlast = (PerkFloorBlastGraphic)Get(presentation, "floorBlast");
+                Check(floorCanvas != null && floorBlast != null && floorBlast.canvas.rootCanvas == floorCanvas && !floorBlast.raycastTarget,
+                    "The release bursts through onto the floor canvas without intercepting input.");
                 Advance(presentation, .52f);
                 Check(artworkOpacity.alpha == 0f, "The card disappears with the explosion, not before it."); Render(camera, preview, "06b-Power-Expanding");
                 Advance(presentation, .28f);
@@ -149,6 +153,7 @@ namespace FoodIsekaiZ.Display.Editor
                 Check(presentation.IsPlaying, "The shop waits for the power confirmation to finish.");
                 for (int step = 0; step < 160 && presentation.IsPlaying; step++) Advance(presentation, .1f);
                 Check(!presentation.IsPlaying, "Multiple purchases drain the queue completely.");
+                Check(floorCanvas.transform.Find("Perk Floor Blast") == null, "The floor blast is removed after the release.");
                 Check(slots[0].transform.localPosition == sourcePosition && slots[0].transform.localScale == sourceScale &&
                     slots[0].transform.parent == sourceParent, "Authored card transform and hierarchy remain unchanged.");
                 Render(camera, preview, "07-Finished");

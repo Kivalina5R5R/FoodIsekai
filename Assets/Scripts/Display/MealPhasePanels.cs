@@ -65,8 +65,8 @@ namespace FoodIsekaiZ.Display
 
         private void HideOtherUi(GameObject panel)
         {
-            // Restore each floor object's prior visibility when leaving the break.
-            if (panel == breakPanel && hideDuringBreak != null)
+            // Restore each floor object's prior visibility when leaving the break or the final results.
+            if ((panel == breakPanel || panel == resultsPanel) && hideDuringBreak != null)
             {
                 foreach (GameObject target in hideDuringBreak)
                 {
@@ -313,7 +313,8 @@ namespace FoodIsekaiZ.Display
             topHudVisibility?.SetReportVisible(nextPanel != null);
             if (nextPanel != null)
             {
-                if (nextPanel == breakPanel) yield return SlideFloorOut();
+                // The final results clear the floor tables and food stations the same way the break does.
+                if (nextPanel == breakPanel || nextPanel == resultsPanel) yield return SlideFloorOut();
                 exclusivePanel = nextPanel;
                 HideOtherUi(nextPanel);
                 yield return FadePanel(nextPanel, true);

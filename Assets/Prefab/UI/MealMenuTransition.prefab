@@ -96,7 +96,7 @@ MonoBehaviour:
   ribbon: {r: 0.46, g: 0.195, b: 0.17, a: 1}
   coverSeconds: 0.4
   revealSeconds: 0.5
-  titleHoldSeconds: 0.55
+  titleHoldSeconds: 2
   breakfastTitle: BREAKFAST
   lunchTitle: LUNCH
   dinnerTitle: DINNER

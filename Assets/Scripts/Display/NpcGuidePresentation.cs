@@ -1,4 +1,5 @@
 using System.Collections;
+using FoodIsekaiZ.Audio;
 using UnityEngine;
 
 namespace FoodIsekaiZ.Display
@@ -15,6 +16,17 @@ namespace FoodIsekaiZ.Display
         [SerializeField, Min(0.05f)] private float arrivalStoppingSeconds = 0.28f;
         [SerializeField, Min(0f)] private float walkingBobHeight = 12f;
         [SerializeField, Min(0.1f)] private float walkingBobFrequency = 2.2f;
+        // Footsteps play each time the walking bob lands; the clips alternate between feet.
+        // The same source also plays the pop when the speech bubble opens.
+        [SerializeField] private AudioSource footstepSource;
+        [SerializeField] private AudioClip[] footstepClips;
+        [SerializeField, Range(0f, 1f)] private float footstepVolume = 0.6f;
+        // Steps far from her standing spot (off screen) play at this fraction of the full volume,
+        // so walking in grows louder and walking out fades away.
+        [SerializeField, Range(0f, 1f)] private float farFootstepVolume = 0.15f;
+        [SerializeField] private AudioClip bubbleClip;
+        [SerializeField, Range(0f, 1f)] private float bubbleVolume = 0.6f;
+        private int footstepIndex;
         private Coroutine entrance;
         private Vector2 groundedPosition;
         private float speed;
@@ -24,6 +36,13 @@ namespace FoodIsekaiZ.Display
         private Vector3 entranceScale;
         private Quaternion entranceRotation;
         private AudioSource dialogueVoice;
+        private bool duckingMusic;
+        private Coroutine voiceFade;
+        // Each voice line keeps its own authored level, so a fade always returns to that level rather than to full volume.
+        private readonly System.Collections.Generic.Dictionary<AudioSource, float> voiceVolumes =
+            new System.Collections.Generic.Dictionary<AudioSource, float>();
+        // A voice line that is cut short fades out over this time; it finishes before the bubble closes.
+        private const float VoiceFadeSeconds = 0.3f;
 
         public bool HasExited { get; private set; }
         public bool HasOpenedDialogue { get; private set; }
@@ -44,6 +63,25 @@ namespace FoodIsekaiZ.Display
             if (dialogue != null) dialogue.SetActive(false);
             if (breathing != null) breathing.Initialize(visualBody, 3.6f, 0.008f, 0.0025f, 0.45f, 0f, dialogueRect);
             if (poseBlend != null) poseBlend.ShowWalking();
+        }
+
+        // Dips the music while this guide's voice line is audible.
+        private void Update()
+        {
+            bool speaking = dialogueVoice != null && dialogueVoice.isPlaying;
+            if (speaking == duckingMusic) return;
+            duckingMusic = speaking;
+            FoodIsekaiZBgmPlayer.SetVoiceSpeaking(speaking);
+        }
+
+        private void OnDisable()
+        {
+            // Disabling stops the fade coroutine, so put the voice back at its authored level.
+            if (voiceFade != null && dialogueVoice != null) dialogueVoice.volume = AuthoredVolume(dialogueVoice);
+            voiceFade = null;
+            if (!duckingMusic) return;
+            duckingMusic = false;
+            FoodIsekaiZBgmPlayer.SetVoiceSpeaking(false);
         }
 
         private void OnEnable()
@@ -94,7 +132,7 @@ namespace FoodIsekaiZ.Display
 
         public void WalkOut(Vector2 destination)
         {
-            if (dialogueVoice != null) dialogueVoice.Stop();
+            FadeOutVoice();
             if (entrance != null) StopCoroutine(entrance);
             entrance = StartCoroutine(TurnAndExit(destination));
         }
@@ -156,6 +194,9 @@ namespace FoodIsekaiZ.Display
             float duration = cruiseSeconds + stopSeconds;
             float elapsed = 0f;
             rect.anchoredPosition = start;
+            int stride = Mathf.FloorToInt(-distance / speed * walkingBobFrequency);
+            // The standing spot is where she is closest; the off-screen end of the walk is farthest.
+            Vector2 standingSpot = exiting ? start : destination;
             while (elapsed < duration)
             {
                 elapsed = Mathf.Min(duration, elapsed + Time.unscaledDeltaTime);
@@ -180,6 +221,14 @@ namespace FoodIsekaiZ.Display
                     bob *= 1f - settle;
                 }
                 rect.anchoredPosition = groundedPosition + Vector2.up * bob;
+                // Each completed bob cycle is a foot touching the ground, including the final arrival step.
+                int landedStride = Mathf.FloorToInt(phase / (Mathf.PI * 2f));
+                if (landedStride > stride)
+                {
+                    stride = landedStride;
+                    float away = distance > 0f ? Vector2.Distance(groundedPosition, standingSpot) / distance : 0f;
+                    PlayFootstep(Mathf.Lerp(1f, farFootstepVolume, Mathf.SmoothStep(0f, 1f, away)));
+                }
                 yield return null;
             }
             rect.anchoredPosition = destination;
@@ -198,6 +247,61 @@ namespace FoodIsekaiZ.Display
             yield return AnimateDialogue(true);
             HasOpenedDialogue = true;
             entrance = null;
+        }
+
+        // Distance scales the authored footstep volume for this step.
+        private void PlayFootstep(float distanceVolume)
+        {
+            if (footstepSource == null || footstepClips == null || footstepClips.Length == 0) return;
+            AudioClip clip = footstepClips[footstepIndex % footstepClips.Length];
+            footstepIndex++;
+            if (clip != null) footstepSource.PlayOneShot(clip, footstepVolume * distanceVolume);
+        }
+
+        private void FadeOutVoice()
+        {
+            if (dialogueVoice == null || !dialogueVoice.isPlaying || voiceFade != null) return;
+            AuthoredVolume(dialogueVoice);
+            voiceFade = StartCoroutine(FadeVoice(dialogueVoice));
+        }
+
+        private IEnumerator FadeVoice(AudioSource voice)
+        {
+            float start = voice.volume;
+            float elapsed = 0f;
+            while (elapsed < VoiceFadeSeconds && voice != null && voice.isPlaying)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                voice.volume = start * (1f - Mathf.SmoothStep(0f, 1f, elapsed / VoiceFadeSeconds));
+                yield return null;
+            }
+            if (voice != null)
+            {
+                voice.Stop();
+                voice.volume = AuthoredVolume(voice);
+            }
+            voiceFade = null;
+        }
+
+        private float AuthoredVolume(AudioSource voice)
+        {
+            if (!voiceVolumes.TryGetValue(voice, out float volume))
+            {
+                volume = voice.volume;
+                voiceVolumes[voice] = volume;
+            }
+            return volume;
+        }
+
+        private void StopVoiceNow()
+        {
+            if (voiceFade != null)
+            {
+                StopCoroutine(voiceFade);
+                voiceFade = null;
+                if (dialogueVoice != null) dialogueVoice.volume = AuthoredVolume(dialogueVoice);
+            }
+            if (dialogueVoice != null) dialogueVoice.Stop();
         }
 
         // Waits briefly for the standing clip's first frame so the arrival fades straight into video.
@@ -235,11 +339,13 @@ namespace FoodIsekaiZ.Display
         {
             if (dialogueRect == null) yield break;
             if (!show && !dialogue.activeSelf) yield break;
-            if (dialogueVoice != null) dialogueVoice.Stop();
+            if (!show) FadeOutVoice();
             if (show)
             {
+                StopVoiceNow();
                 dialogueRect.localScale = dialogueScale * 0.05f;
                 dialogue.SetActive(true);
+                if (footstepSource != null && bubbleClip != null) footstepSource.PlayOneShot(bubbleClip, bubbleVolume);
                 // Play the bubble's authored voice exactly when its reveal begins.
                 dialogueVoice = dialogue.GetComponent<AudioSource>();
                 if (dialogueVoice != null && dialogueVoice.clip != null) dialogueVoice.Play();

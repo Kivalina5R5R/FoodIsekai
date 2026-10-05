@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using FoodIsekaiZ.Audio;
 using FoodIsekaiZ.Display;
 using UnityEngine;
 using UnityEngine.Events;
@@ -17,6 +19,7 @@ namespace FoodIsekaiZ.Players
         [SerializeField, Min(0.1f)] private float holdSeconds = 2f;
         [SerializeField] private UnityEvent onAllPlayersReady = new UnityEvent();
         [SerializeField] private ReadyPhaseGuide readyGuide;
+        [SerializeField] private GameSoundPlayer soundPlayer;
 
         private PlayerNumberSelection selection;
         private bool selectionRequested;
@@ -27,6 +30,13 @@ namespace FoodIsekaiZ.Players
         private readonly HashSet<int> observedTags = new HashSet<int>();
         private float rosterChangedAt;
         private PlayerReadyZone[] activeZones;
+        // Per-card feedback state so step, hold and contest sounds play once per change.
+        private readonly bool[] zoneOccupied = new bool[4];
+        private readonly bool[] zoneContested = new bool[4];
+        private readonly int[] zoneHoldStep = new int[4];
+        // Card ticks climb D, E, F#, G and hold ticks F#, A, B: notes of the B minor intro music.
+        private static readonly float[] CardAppearPitches = { 1f, 1.122f, 1.26f, 1.335f };
+        private static readonly float[] HoldTickPitches = { 1f, 1.189f, 1.335f };
 
         public bool IsSelecting => selection != null && !completed;
         public bool IsCompleted => completed;
@@ -78,6 +88,12 @@ namespace FoodIsekaiZ.Players
                 if (selection.TickNumber(zone.PlayerNumber, candidateTag, delta))
                 {
                     candidate.Configure(zone.PlayerNumber, candidate.TagId);
+                    soundPlayer?.TryPlay(GameSoundCue.ReadyConfirm, true);
+                    ResetZoneSound(z);
+                }
+                else
+                {
+                    PlayZoneSounds(z, occupants > 0, contested, selection.GetProgress(zone.PlayerNumber));
                 }
                 zone.ShowProgress(selection.GetProgress(zone.PlayerNumber),
                     selection.GetOwner(zone.PlayerNumber), contested, occupants > 0);
@@ -186,6 +202,41 @@ namespace FoodIsekaiZ.Players
                 activeZones[i].PlayEntrance(i);
                 activeZones[i].ShowProgress(0f, null, false);
             }
+            if (soundPlayer != null) StartCoroutine(PlayCardAppearSounds(activeZones.Length));
+        }
+
+        // Matches the cards' staggered entrance, which starts each card 0.09 seconds after the previous one.
+        private IEnumerator PlayCardAppearSounds(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                if (i > 0) yield return new WaitForSecondsRealtime(0.09f);
+                soundPlayer.TryPlay(GameSoundCue.ReadyCardAppear, false, CardAppearPitches[Mathf.Min(i, CardAppearPitches.Length - 1)]);
+            }
+        }
+
+        private void PlayZoneSounds(int index, bool occupied, bool contested, float progress)
+        {
+            if (index >= zoneOccupied.Length) return;
+            if (occupied != zoneOccupied[index])
+                soundPlayer?.TryPlay(occupied ? GameSoundCue.ReadyStepOn : GameSoundCue.ReadyStepOff);
+            if (contested && !zoneContested[index]) soundPlayer?.TryPlay(GameSoundCue.ReadyContested);
+            // One tick per quarter of the hold, each a step higher toward the confirmation.
+            int step = Mathf.FloorToInt(progress * 4f);
+            if (step > zoneHoldStep[index] && step > 0)
+                soundPlayer?.TryPlay(GameSoundCue.ReadyHoldTick, false,
+                    HoldTickPitches[Mathf.Min(step - 1, HoldTickPitches.Length - 1)]);
+            zoneOccupied[index] = occupied;
+            zoneContested[index] = contested;
+            zoneHoldStep[index] = step;
+        }
+
+        private void ResetZoneSound(int index)
+        {
+            if (index >= zoneOccupied.Length) return;
+            zoneOccupied[index] = false;
+            zoneContested[index] = false;
+            zoneHoldStep[index] = 0;
         }
 
         private void SetGameplayVisible(bool visible)

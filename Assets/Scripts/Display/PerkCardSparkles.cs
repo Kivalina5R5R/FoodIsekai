@@ -11,11 +11,14 @@ namespace FoodIsekaiZ.Display
         private float burstAge = 2f;
         private bool emitting;
         private bool rainbow;
+        private RectTransform cardFrame;
+        private readonly Vector3[] frameCorners = new Vector3[4];
 
         // The shop supplies the tier; changing offers also resets the previous tier's finish.
         public void SetTier(bool bigPerk)
         {
             rainbow = bigPerk;
+            cardFrame = null;
             SetVerticesDirty();
         }
 
@@ -40,10 +43,7 @@ namespace FoodIsekaiZ.Display
         protected override void OnPopulateMesh(VertexHelper mesh)
         {
             mesh.Clear();
-            Rect frame = rectTransform.rect;
-            // The rect is authored at the Small frame's aspect; the taller Big frame keeps the same center.
-            if (rainbow) frame = new Rect(frame.x, frame.center.y - frame.height * PerkFrameContour.BigHeightScale * .5f,
-                frame.width, frame.height * PerkFrameContour.BigHeightScale);
+            Rect frame = CardFrameRect();
             if (emitting)
             {
                 DrawSheen(mesh, frame);
@@ -65,6 +65,36 @@ namespace FoodIsekaiZ.Display
                 point += direction * (8f + 24f * t);
                 Star(mesh, point, (1f - t) * 12f, 1f - t, i + t);
             }
+        }
+
+        // Measures the shown card's own BG image, so the sheen and stars hug the artwork
+        // even when the card frame is resized or swapped.
+        private Rect CardFrameRect()
+        {
+            if (cardFrame == null || !cardFrame.gameObject.activeInHierarchy) cardFrame = FindCardFrame();
+            if (cardFrame != null)
+            {
+                cardFrame.GetWorldCorners(frameCorners);
+                Vector2 a = rectTransform.InverseTransformPoint(frameCorners[0]);
+                Vector2 b = rectTransform.InverseTransformPoint(frameCorners[2]);
+                // A flipping card can swap the corners, so order them before building the rect.
+                return Rect.MinMaxRect(Mathf.Min(a.x, b.x), Mathf.Min(a.y, b.y), Mathf.Max(a.x, b.x), Mathf.Max(a.y, b.y));
+            }
+            // Without a card, fall back to the authored rect at the Small frame's aspect.
+            Rect frame = rectTransform.rect;
+            if (rainbow) frame = new Rect(frame.x, frame.center.y - frame.height * PerkFrameContour.BigHeightScale * .5f,
+                frame.width, frame.height * PerkFrameContour.BigHeightScale);
+            return frame;
+        }
+
+        // Only active images count, so a replaced card that is still waiting for destruction is skipped.
+        private RectTransform FindCardFrame()
+        {
+            Transform slot = transform.parent;
+            if (slot == null) return null;
+            foreach (Image candidate in slot.GetComponentsInChildren<Image>(false))
+                if (candidate.name == "BG") return candidate.rectTransform;
+            return null;
         }
 
         private void DrawSheen(VertexHelper mesh, Rect frame)

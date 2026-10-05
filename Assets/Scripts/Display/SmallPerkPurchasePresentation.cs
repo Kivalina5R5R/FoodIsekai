@@ -10,6 +10,9 @@ namespace FoodIsekaiZ.Display
     public sealed class SmallPerkPurchasePresentation : MonoBehaviour
     {
         [SerializeField] private Canvas wallCanvas;
+        // The explosion also bursts through onto this floor canvas, entering from the edge that touches the wall.
+        [SerializeField] private Canvas floorCanvas;
+        [SerializeField] private Vector2 floorWallSide = Vector2.up;
         [SerializeField] private GameSoundPlayer soundPlayer;
         [SerializeField, Min(0.1f)] private float flightSeconds = 1.65f;
         [SerializeField, Min(0.1f)] private float landingHoldSeconds = .85f;
@@ -58,6 +61,7 @@ namespace FoodIsekaiZ.Display
         private PerkGatherGraphic gathering;
         private Image focusShade;
         private PerkReactionBackdropGraphic backdrop;
+        private PerkFloorBlastGraphic floorBlast;
         private bool impactPlayed;
 
         public bool IsPlaying => current != null || waiting.Count > 0;
@@ -170,6 +174,7 @@ namespace FoodIsekaiZ.Display
                     gathering.SetFrame(Rect.MinMaxRect(frameMinimum.x, frameMinimum.y, frameMaximum.x, frameMaximum.y));
                     gathering.SetRainbow(current.Rainbow);
                     gathering.SetEnergy(0f, 0f);
+                    CreateFloorBlast();
                     soundPlayer?.TryPlay(GameSoundCue.PerkGather, true);
                     phase = Phase.Gathering;
                     elapsed = 0f;
@@ -181,6 +186,7 @@ namespace FoodIsekaiZ.Display
                     gathering.SetEnergy(1f, elapsed / Mathf.Max(.1f, chargeSeconds));
                     backdrop.SetReaction(1f, gatherSeconds + elapsed, elapsed / Mathf.Max(.1f, chargeSeconds) * .35f);
                     AnimateChargedCard(1f, gatherSeconds + elapsed);
+                    floorBlast?.SetFlow((gatherSeconds + elapsed) / (gatherSeconds + chargeSeconds), 0f);
                     if (elapsed < chargeSeconds) break;
                     soundPlayer?.StopCue(GameSoundCue.PerkCharge);
                     soundPlayer?.TryPlay(GameSoundCue.PerkRelease, true);
@@ -201,12 +207,14 @@ namespace FoodIsekaiZ.Display
                     current.Absorption.localScale = Vector3.one * (1f + (1f - Mathf.Pow(1f - burst, 3f)) * 2.2f);
                     current.ChargedFrame.SetCharge(remaining, gatherSeconds + chargeSeconds + elapsed);
                     powerPulse.SetPower(elapsed / Mathf.Max(.1f, releaseSeconds));
+                    floorBlast?.SetFlow(1f, elapsed / Mathf.Max(.1f, releaseSeconds));
                     focusShade.color = new Color(0f, 0f, 0f, .58f * (1f - Mathf.Clamp01(elapsed / releaseSeconds)));
                     backdrop.SetReaction(1f - Mathf.Clamp01(elapsed / releaseSeconds), gatherSeconds + chargeSeconds + elapsed,
                         1f - Mathf.Clamp01(elapsed / .5f));
                     if (elapsed >= releaseSeconds)
                     {
                         DestroyVisual(current.Root);
+                        DestroyFloorBlast();
                         current = null;
                         powerPulse = null;
                         gathering = null;
@@ -269,6 +277,7 @@ namespace FoodIsekaiZ.Display
             current.Landing.SetImpact(1f);
             float amount = Mathf.Clamp01(elapsed / Mathf.Max(.1f, gatherSeconds));
             gathering.SetEnergy(amount, 0f);
+            floorBlast?.SetFlow(elapsed / (gatherSeconds + chargeSeconds), 0f);
             focusShade.color = new Color(0f, 0f, 0f, Mathf.SmoothStep(0f, .58f, amount * 2f));
             backdrop.SetReaction(Mathf.SmoothStep(0f, 1f, amount * 1.6f), elapsed);
             AnimateChargedCard(amount, elapsed);
@@ -291,6 +300,33 @@ namespace FoodIsekaiZ.Display
             powerPulse = CreateFullscreenRect("Perk Power Acquired").gameObject.AddComponent<PerkPowerGraphic>();
             powerPulse.SetRainbow(current.Rainbow);
             powerPulse.SetPower(0f);
+        }
+
+        // The floor link lives on the floor canvas, above its own gameplay effects.
+        private void CreateFloorBlast()
+        {
+            DestroyFloorBlast();
+            if (floorCanvas == null || !floorCanvas.isActiveAndEnabled)
+            {
+                Debug.LogWarning($"[PerkShop] Floor blast skipped: floor canvas {(floorCanvas == null ? "is not assigned" : "is inactive")}.", this);
+                return;
+            }
+            var canvasRect = (RectTransform)floorCanvas.transform;
+            RectTransform root = CreateRect("Perk Floor Blast", canvasRect, canvasRect.rect.size);
+            var overlay = root.gameObject.AddComponent<Canvas>();
+            overlay.overrideSorting = true;
+            overlay.sortingLayerID = floorCanvas.sortingLayerID;
+            overlay.sortingOrder = floorCanvas.sortingOrder + 30;
+            floorBlast = CreateRect("Floor Blast", root, canvasRect.rect.size).gameObject.AddComponent<PerkFloorBlastGraphic>();
+            floorBlast.SetRainbow(current.Rainbow);
+            floorBlast.SetWallSide(floorWallSide);
+            floorBlast.SetFlow(0f, 0f);
+        }
+
+        private void DestroyFloorBlast()
+        {
+            if (floorBlast != null) DestroyVisual((RectTransform)floorBlast.transform.parent);
+            floorBlast = null;
         }
 
         private RectTransform CreateFullscreenRect(string objectName)
@@ -322,6 +358,7 @@ namespace FoodIsekaiZ.Display
             soundPlayer?.StopCue(GameSoundCue.PerkCharge);
             soundPlayer?.StopCue(GameSoundCue.PerkRelease);
             if (current != null) DestroyVisual(current.Root);
+            DestroyFloorBlast();
             current = null;
             powerPulse = null;
             gathering = null;

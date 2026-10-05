@@ -143,6 +143,9 @@ namespace FoodIsekaiZ.Gameplay
         private bool startupReleased;
         private bool phasePresentationPaused;
         private bool phaseChangePending;
+        // Read from StreamingAssets/GameFlowConfig.json when the round starts.
+        private float resultRestartSeconds;
+        private float resultShownSeconds;
         public bool IsPhasePresentationPaused => phasePresentationPaused;
 
         // Holds gameplay timers and interactions while the authored phase transition covers the wall.
@@ -263,6 +266,7 @@ namespace FoodIsekaiZ.Gameplay
         private void Start()
         {
             simulationModeSource = FindAnyObjectByType<UWBManager>();
+            resultRestartSeconds = FoodIsekaiZ.Configuration.GameFlowConfig.Load().resultRestartSeconds;
             ValidateSlotLayout();
             if (!startCustomersOnPlay || IsWaitingForStartup)
             {
@@ -326,6 +330,7 @@ namespace FoodIsekaiZ.Gameplay
             HandleSimulationMoneyShortcut();
             if (IsWaitingForStartup) return;
             if (HandleSimulationShortcut()) return;
+            if (TickResultRestart()) return;
             if (phasePresentationPaused) return;
 
             if (useMealWaves && mealWaveFlowStarted)
@@ -384,15 +389,7 @@ namespace FoodIsekaiZ.Gameplay
 
             if (mealWavePhase == MealWavePhase.Completed)
             {
-                Scene restartScene = SceneManager.GetActiveScene();
-                // Include a System object persisted by an earlier script version in the scene unload.
-                if (gameObject.scene != restartScene)
-                {
-                    SceneManager.MoveGameObjectToScene(transform.root.gameObject, restartScene);
-                }
-
-                // Reload the whole round so scores, players, and the startup sequence reset together.
-                SceneManager.LoadScene(restartScene.path);
+                RestartRound();
                 return true;
             }
 
@@ -415,6 +412,31 @@ namespace FoodIsekaiZ.Gameplay
             currentWaveIndex++;
             BeginCurrentWave();
             return true;
+        }
+
+        // Counts only while the result screen is fully shown, after its transition has finished,
+        // then starts the next round on its own.
+        private bool TickResultRestart()
+        {
+            if (!useMealWaves || mealWavePhase != MealWavePhase.Completed || phasePresentationPaused ||
+                resultRestartSeconds <= 0f) return false;
+            resultShownSeconds += Time.unscaledDeltaTime;
+            if (resultShownSeconds < resultRestartSeconds) return false;
+            RestartRound();
+            return true;
+        }
+
+        private void RestartRound()
+        {
+            Scene restartScene = SceneManager.GetActiveScene();
+            // Include a System object persisted by an earlier script version in the scene unload.
+            if (gameObject.scene != restartScene)
+            {
+                SceneManager.MoveGameObjectToScene(transform.root.gameObject, restartScene);
+            }
+
+            // Reload the whole round so scores, players, and the startup sequence reset together.
+            SceneManager.LoadScene(restartScene.path);
         }
 
         [ContextMenu("Start / Restart 3 Meal Waves")]

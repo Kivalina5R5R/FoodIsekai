@@ -1,3 +1,4 @@
+using FoodIsekaiZ.Audio;
 using FoodIsekaiZ.Players;
 using UnityEngine;
 
@@ -11,20 +12,26 @@ namespace FoodIsekaiZ.Display
         [InspectorName("NPC Guide Player Prefab")]
         [SerializeField] private NpcGuidePresentation guidePrefab;
         [SerializeField, Range(0f, 1f)] private float standingWidthFraction = 0.55f;
+        // The intro music fades out once Lunar has walked off.
+        [SerializeField] private FoodIsekaiZBgmPlayer bgmPlayer;
         private NpcGuidePresentation instance;
         private bool spawned;
         private bool exitRequested;
         private bool coverRequested;
         private Vector2 exitPosition;
 
+        // The floor number spots stay hidden until Lunar has finished her voiced intro.
         public bool IsReadyForSelection => guidePrefab == null ||
-            (instance != null && instance.HasOpenedDialogue);
+            (instance != null && instance.HasFinishedSpeaking);
 
         // Ready selection waits for this departure before releasing gameplay.
         public bool TryFinish()
         {
             if (!exitRequested)
             {
+                // Let Lunar finish her voiced intro; walking out would cut the line off.
+                if (instance != null && instance.gameObject.activeInHierarchy && !instance.HasFinishedSpeaking)
+                    return false;
                 exitRequested = true;
                 if (instance != null) instance.WalkOut(exitPosition);
             }
@@ -33,6 +40,8 @@ namespace FoodIsekaiZ.Display
             if (!coverRequested)
             {
                 coverRequested = true;
+                // Lunar is fully off screen; the music fades while the menu page covers the wall.
+                if (bgmPlayer != null) bgmPlayer.EndIntroMusic();
                 if (menuTransition != null) StartCoroutine(menuTransition.Cover("BREAKFAST"));
             }
             return menuTransition == null || menuTransition.IsCovered;

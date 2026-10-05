@@ -79,14 +79,8 @@ namespace FoodIsekaiZ.Display
             videoPlayer.source = VideoSource.VideoClip;
             videoPlayer.clip = introClip;
             videoPlayer.timeUpdateMode = VideoTimeUpdateMode.UnscaledGameTime;
-            videoPlayer.audioOutputMode = VideoAudioOutputMode.Direct;
-            videoPlayer.controlledAudioTrackCount = introClip.audioTrackCount;
-            for (ushort track = 0; track < videoPlayer.controlledAudioTrackCount; track++)
-            {
-                videoPlayer.EnableAudioTrack(track, true);
-                videoPlayer.SetDirectAudioMute(track, false);
-                videoPlayer.SetDirectAudioVolume(track, 1f);
-            }
+            // The intro music on the BGM player replaces the video's own soundtrack.
+            videoPlayer.audioOutputMode = VideoAudioOutputMode.None;
             videoPlayer.loopPointReached += HandleVideoEnded;
             videoPlayer.errorReceived += HandleVideoError;
             PrepareFloorVideo();
