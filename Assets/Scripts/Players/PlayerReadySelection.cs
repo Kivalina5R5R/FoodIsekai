@@ -32,11 +32,11 @@ namespace FoodIsekaiZ.Players
         private float rosterChangedAt;
         private PlayerReadyZone[] activeZones;
         // Per-card feedback state so step, hold and contest sounds play once per change.
-        private readonly bool[] zoneOccupied = new bool[4];
-        private readonly bool[] zoneContested = new bool[4];
-        private readonly int[] zoneHoldStep = new int[4];
-        // Card ticks climb D, E, F#, G and hold ticks F#, A, B: notes of the B minor intro music.
-        private static readonly float[] CardAppearPitches = { 1f, 1.122f, 1.26f, 1.335f };
+        private readonly bool[] zoneOccupied = new bool[UWBPlayerSpawner.MaximumPlayers];
+        private readonly bool[] zoneContested = new bool[UWBPlayerSpawner.MaximumPlayers];
+        private readonly int[] zoneHoldStep = new int[UWBPlayerSpawner.MaximumPlayers];
+        // Card ticks climb D, E, F#, G, A, B and hold ticks F#, A, B: notes of the B minor intro music.
+        private static readonly float[] CardAppearPitches = { 1f, 1.122f, 1.26f, 1.335f, 1.498f, 1.682f };
         private static readonly float[] HoldTickPitches = { 1f, 1.189f, 1.335f };
 
         public bool IsSelecting => selection != null && !completed;
@@ -121,9 +121,9 @@ namespace FoodIsekaiZ.Players
         private bool TryInitialize()
         {
             if (playerSpawner == null || !playerSpawner.SelectsPlayerNumberBeforeGameplay ||
-                readyRoot == null || zones == null || zones.Length != 4)
+                readyRoot == null || zones == null || zones.Length < 1 || zones.Length > UWBPlayerSpawner.MaximumPlayers)
             {
-                FailConfiguration("Assign the selection spawner, ready root, and four numbered zones.");
+                FailConfiguration("Assign the selection spawner, ready root, and one numbered zone per player, up to six.");
                 return false;
             }
             var players = playerSpawner.SpawnedPlayers;
@@ -153,13 +153,13 @@ namespace FoodIsekaiZ.Players
                 FailConfiguration("More online participants than available ready cards.");
                 return false;
             }
-            var numbers = new bool[4];
+            var numbers = new bool[zones.Length];
             for (int i = 0; i < zones.Length; i++)
             {
-                if (zones[i] == null || !zones[i].IsConfirmationConfigured || zones[i].PlayerNumber < 1 || zones[i].PlayerNumber > 4 ||
-                    numbers[zones[i].PlayerNumber - 1])
+                if (zones[i] == null || !zones[i].IsConfirmationConfigured || zones[i].PlayerNumber < 1 ||
+                    zones[i].PlayerNumber > zones.Length || numbers[zones[i].PlayerNumber - 1])
                 {
-                    FailConfiguration("Ready zones must contain each number 1-4 exactly once.");
+                    FailConfiguration($"Ready zones must contain each number 1-{zones.Length} exactly once.");
                     return false;
                 }
                 numbers[zones[i].PlayerNumber - 1] = true;
@@ -178,7 +178,7 @@ namespace FoodIsekaiZ.Players
             var first = (RectTransform)zones[0].transform;
             var last = (RectTransform)zones[zones.Length - 1].transform;
             float center = (first.anchoredPosition.x + last.anchoredPosition.x) * .5f;
-            float spacing = (last.anchoredPosition.x - first.anchoredPosition.x) / (zones.Length - 1);
+            float spacing = (last.anchoredPosition.x - first.anchoredPosition.x) / Mathf.Max(1, zones.Length - 1);
             for (int i = 0; i < zones.Length; i++)
             {
                 bool included = i < activeZones.Length;

@@ -25,9 +25,10 @@ namespace FoodIsekaiZ.Display
         private ResultRevealSequence resultReveal;
         private bool resultRevealStarted;
         private readonly List<int> rowScores = new List<int>();
-        private readonly TMP_Text[] resultNames = new TMP_Text[4];
-        private readonly TMP_Text[] resultScores = new TMP_Text[4];
-        private readonly GameObject[] resultRows = new GameObject[4];
+        private readonly TMP_Text[] resultNames = new TMP_Text[UWBPlayerSpawner.MaximumPlayers];
+        private readonly TMP_Text[] resultScores = new TMP_Text[UWBPlayerSpawner.MaximumPlayers];
+        private readonly GameObject[] resultRows = new GameObject[UWBPlayerSpawner.MaximumPlayers];
+        private ResultRowLayout resultLayout;
         private readonly List<int> rankedPlayerIds = new List<int>();
 
         private readonly Dictionary<GameObject, bool> previousVisibility = new Dictionary<GameObject, bool>();
@@ -54,6 +55,7 @@ namespace FoodIsekaiZ.Display
             resultScoreText = resultContent.Find("TotalScore/Text_Score")?.GetComponent<TMP_Text>();
             resultBonusText = resultContent.Find("TotalScore/Text_Bonus")?.GetComponent<TMP_Text>();
             resultReveal = resultContent.GetComponent<ResultRevealSequence>();
+            resultLayout = resultContent.GetComponent<ResultRowLayout>();
             for (int i = 0; i < resultRows.Length; i++)
             {
                 Transform row = resultContent.Find($"Player{i + 1}");
@@ -353,6 +355,8 @@ namespace FoodIsekaiZ.Display
                 }
             }
             rankedPlayerIds.Sort(ComparePlayerScores);
+            // Arrange the rows for this many players before the reveal records their places.
+            resultLayout?.Apply(Mathf.Min(rankedPlayerIds.Count, resultRows.Length));
             rowScores.Clear();
             for (int i = 0; i < resultRows.Length; i++)
             {

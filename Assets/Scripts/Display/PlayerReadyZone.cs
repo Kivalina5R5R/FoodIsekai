@@ -5,7 +5,7 @@ namespace FoodIsekaiZ.Display
     // Reads an authored floor card's bounds and displays its current selection progress.
     public sealed class PlayerReadyZone : MonoBehaviour
     {
-        [SerializeField, Range(1, 4)] private int playerNumber = 1;
+        [SerializeField, Range(1, 6)] private int playerNumber = 1;
         [SerializeField] private RectTransform selectionBounds;
         [SerializeField] private ReadyConfirmationGauge confirmationGauge;
         [SerializeField] private ReadyCardConfirmation confirmation;

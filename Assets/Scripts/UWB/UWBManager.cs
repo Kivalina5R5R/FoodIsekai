@@ -96,7 +96,9 @@ namespace Fortal.UWB
             new SimulatedTagDefinition(6, new Vector2(1.2f, 2f), 0f),
             new SimulatedTagDefinition(7, new Vector2(2.4f, 2f), 1.5f),
             new SimulatedTagDefinition(8, new Vector2(3.6f, 2f), 3f),
-            new SimulatedTagDefinition(9, new Vector2(4.8f, 2f), 4.5f)
+            new SimulatedTagDefinition(9, new Vector2(4.8f, 2f), 4.5f),
+            new SimulatedTagDefinition(10, new Vector2(1.8f, 3f), 6f),
+            new SimulatedTagDefinition(11, new Vector2(4.2f, 3f), 7.5f)
         };
 
         [Header("Scene Anchors")]
@@ -899,7 +901,8 @@ namespace Fortal.UWB
             float maxX = Mathf.Max(simulationMinMeters.x, simulationMaxMeters.x);
             float minY = Mathf.Min(simulationMinMeters.y, simulationMaxMeters.y);
             float maxY = Mathf.Max(simulationMinMeters.y, simulationMaxMeters.y);
-            float x01 = ((Mathf.Abs(tagId) % 4) + 1f) / 5f;
+            // Spread up to six unlisted tags across the area without two landing on the same spot.
+            float x01 = ((Mathf.Abs(tagId) % 6) + 1f) / 7f;
             return new Vector2(Mathf.Lerp(minX, maxX, x01), Mathf.Lerp(minY, maxY, 0.5f));
         }
 
