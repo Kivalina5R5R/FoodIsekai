@@ -247,7 +247,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Don\u2019t Be Cross with Me"
+  m_text: "Don't Be Cross with Me"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
   m_sharedMaterial: {fileID: -7075264514926555091, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
@@ -460,7 +460,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Lose 5% fewer points when customers become angry.
+  m_text: "Angry customers cost no points."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
   m_sharedMaterial: {fileID: -7075264514926555091, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
@@ -873,7 +873,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedText
   target: {fileID: 3768675892190057139}
-  english: "Don\u2019t Be Cross with Me"
+  english: "Don't Be Cross with Me"
   thai: "\u0e2d\u0e22\u0e48\u0e32\u200b\u0e40\u0e1e\u0e34\u0e48\u0e07\u200b\u0e07\u0e2d\u0e19\u200b\u0e01\u0e31\u0e19\u200b\u0e40\u0e25\u0e22"
   englishFont: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
   thaiFont: {fileID: 11400000, guid: be18c2e6e13ba8e4896d9ceabde6c14c, type: 2}
@@ -892,8 +892,8 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedText
   target: {fileID: 6535938799147073406}
-  english: Lose 5% fewer points when customers become angry.
-  thai: "\u0e40\u0e2a\u0e35\u0e22\u200b\u0e04\u0e30\u0e41\u0e19\u0e19\u200b\u0e19\u0e49\u0e2d\u0e22\u200b\u0e25\u0e07 5% \u0e40\u0e21\u0e37\u0e48\u0e2d\u200b\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u200b\u0e42\u0e01\u0e23\u0e18"
+  english: "Angry customers cost no points."
+  thai: "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e42\u0e01\u0e23\u0e18\u0e44\u0e21\u0e48\u0e17\u0e33\u0e43\u0e2b\u0e49\u0e40\u0e2a\u0e35\u0e22\u0e04\u0e30\u0e41\u0e19\u0e19"
   englishFont: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
   thaiFont: {fileID: 11400000, guid: be18c2e6e13ba8e4896d9ceabde6c14c, type: 2}
   thaiSizeScale: 1.5

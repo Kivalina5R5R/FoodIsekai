@@ -21,28 +21,29 @@ namespace FoodIsekaiZ.Gameplay
         internal FoodType PickRandomFood(
             ArenaSlot2D[] customerSlots,
             int slotIndex,
-            FoodIsekaiZGameManager.FoodOption[] foodOptions, FoodType excludedFood = FoodType.None)
+            FoodIsekaiZGameManager.FoodOption[] foodOptions, FoodType excludedFood = FoodType.None,
+            IReadOnlyCollection<FoodType> excludedFoods = null)
         {
-            BuildFoodCandidates(customerSlots, slotIndex, foodOptions, true, true, excludedFood);
+            BuildFoodCandidates(customerSlots, slotIndex, foodOptions, true, true, excludedFood, excludedFoods);
             if (foodCandidates.Count == 0)
             {
-                BuildFoodCandidates(customerSlots, slotIndex, foodOptions, true, false, excludedFood);
+                BuildFoodCandidates(customerSlots, slotIndex, foodOptions, true, false, excludedFood, excludedFoods);
             }
 
             if (foodCandidates.Count == 0)
             {
-                BuildFoodCandidates(customerSlots, slotIndex, foodOptions, false, true, excludedFood);
+                BuildFoodCandidates(customerSlots, slotIndex, foodOptions, false, true, excludedFood, excludedFoods);
             }
 
             if (foodCandidates.Count == 0)
             {
-                BuildFoodCandidates(customerSlots, slotIndex, foodOptions, false, false, excludedFood);
+                BuildFoodCandidates(customerSlots, slotIndex, foodOptions, false, false, excludedFood, excludedFoods);
             }
 
             FoodType selectedFood = foodCandidates.Count > 0
                 ? foodCandidates[UnityEngine.Random.Range(0, foodCandidates.Count)]
-                : (FoodType)UnityEngine.Random.Range((int)FoodType.Food1, (int)FoodType.Food5 + 1);
-            RememberRequestedFood(selectedFood);
+                : FoodType.None;
+            if (selectedFood != FoodType.None) RememberRequestedFood(selectedFood);
             return selectedFood;
         }
 
@@ -51,7 +52,7 @@ namespace FoodIsekaiZ.Gameplay
             int slotIndex,
             FoodIsekaiZGameManager.FoodOption[] foodOptions,
             bool avoidAdjacentFood,
-            bool avoidConsecutiveFood, FoodType excludedFood)
+            bool avoidConsecutiveFood, FoodType excludedFood, IReadOnlyCollection<FoodType> excludedFoods)
         {
             foodCandidates.Clear();
             if (foodOptions == null)
@@ -62,7 +63,7 @@ namespace FoodIsekaiZ.Gameplay
             for (int i = 0; i < foodOptions.Length; i++)
             {
                 FoodIsekaiZGameManager.FoodOption option = foodOptions[i];
-                if (!IsOrderable(option) || option.food == excludedFood || foodCandidates.Contains(option.food))
+                if (!IsOrderable(option) || option.food == excludedFood || IsExcluded(option.food, excludedFoods) || foodCandidates.Contains(option.food))
                 {
                     continue;
                 }
@@ -81,6 +82,14 @@ namespace FoodIsekaiZ.Gameplay
 
                 foodCandidates.Add(option.food);
             }
+        }
+
+        private static bool IsExcluded(FoodType food, IReadOnlyCollection<FoodType> excludedFoods)
+        {
+            if (excludedFoods == null) return false;
+            foreach (FoodType excluded in excludedFoods)
+                if (food == excluded) return true;
+            return false;
         }
 
         private static bool HasAdjacentCustomerFood(

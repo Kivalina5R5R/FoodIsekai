@@ -125,9 +125,29 @@ internal static class PerkGameplayTests
             order.DisplayFood == FoodType.Food1 && order.TryServe(FoodType.Food1) && order.IsComplete,
             "Paired menus accept either sequence, reject wrong dishes, and finish only after both.");
         Check(!order.TryServe(FoodType.Food1), "A completed order cannot pay another delivery score.");
-        order.Configure(FoodType.Food2, FoodType.Food2);
-        Check(order.TryServe(FoodType.Food2) && !order.IsComplete && order.TryServe(FoodType.Food2) && order.IsComplete,
-            "Identical paired menus require two separate dishes.");
+        bool rejectedDuplicate = false;
+        try { order.Configure(FoodType.Food2, FoodType.Food2); }
+        catch (ArgumentException) { rejectedDuplicate = true; }
+        Check(rejectedDuplicate, "Multi-dish orders reject duplicate menus.");
+        FoodType[] triple = { FoodType.Food1, FoodType.Food3, FoodType.Food5 };
+        foreach (FoodType first in triple)
+        foreach (FoodType second in triple.Where(food => food != first))
+        {
+            order.Configure(triple[0], triple[1], third: triple[2]);
+            FoodType last = triple.Single(food => food != first && food != second);
+            Check(!order.TryServe(FoodType.Food2) && order.TryServe(first) && !order.IsComplete &&
+                !order.TryServe(first) && order.TryServe(second) && !order.IsComplete &&
+                order.DishCount == 3 && order.Remaining.Count == 1 && order.TryServe(last) && order.IsComplete &&
+                order.DishCount == 3, "Triple orders support every serving sequence and retain their original reward tier.");
+        }
+        for (int meal = 1; meal <= 3; meal++)
+        {
+            int[] counts = new int[4];
+            for (int roll = 0; roll < 1000; roll++) counts[MealOrderRules.GetDishCount(meal, roll / 1000d)]++;
+            Check(meal == 1 ? counts[1] == 1000 : meal == 2 ? counts[1] == 600 && counts[2] == 400 :
+                counts[1] == 400 && counts[2] == 400 && counts[3] == 200,
+                "Meal " + meal + " has the exact requested one/two/three-dish distribution.");
+        }
         foreach (FoodType food in Enum.GetValues<FoodType>().Where(f => f != FoodType.None))
         {
             order.Configure(FoodType.Food1, omakase: true);
@@ -137,6 +157,11 @@ internal static class PerkGameplayTests
         Check(true, "Omakase accepts all five menus, including drinks, and retains the actual served menu.");
 
         var effects = new PerkManager(PerkDefinitions.All);
+        Check(effects.GetAmount(PerkEffect.Patience, 0) == 0 && effects.GetAmount(PerkEffect.Payment, 0) == 0 &&
+            effects.GetAmount(PerkEffect.AngerPenalty) == 1 && effects.GetAmount(PerkEffect.EatingSpeed) == 1,
+            "Unowned utility perks add no seconds or coins and leave penalties and eating speed unchanged.");
+        Check(effects.GetOrderRewardMultiplier(1) == 1 && effects.GetOrderRewardMultiplier(2) == 1 &&
+            effects.GetOrderRewardMultiplier(3) == 1, "Multi-dish orders do not double rewards without the perk.");
         foreach (PerkDefinition definition in PerkDefinitions.All)
         {
             if (definition.Id == PerkDefinitions.Happiness) continue;
@@ -144,10 +169,12 @@ internal static class PerkGameplayTests
         }
         Check(effects.GetAmount(PerkEffect.FoodScore, food: FoodType.Food1) == 2 &&
             effects.GetAmount(PerkEffect.FoodScore, food: FoodType.Food5) == 2 &&
-            effects.GetAmount(PerkEffect.Patience) == 1.02 && effects.GetAmount(PerkEffect.Payment) == 1.05 &&
-            effects.GetAmount(PerkEffect.AngerPenalty) == .95 && effects.GetAmount(PerkEffect.EatingSpeed) == 1.05 &&
-            effects.GetAmount(PerkEffect.PairedOrders) == .5 && effects.GetAmount(PerkEffect.Omakase) == .6 &&
+            effects.GetAmount(PerkEffect.Patience, 0) == 5 && effects.GetAmount(PerkEffect.Payment, 0) == 5 &&
+            effects.GetAmount(PerkEffect.AngerPenalty) == 0 && effects.GetAmount(PerkEffect.EatingSpeed) == 2 &&
+            effects.GetAmount(PerkEffect.PairedOrders) == 2 && effects.GetAmount(PerkEffect.Omakase) == .6 &&
             effects.GetAmount(PerkEffect.SpecialMenu) == .3,
             "Independent definitions carry every configured multiplier and probability.");
+        Check(effects.GetOrderRewardMultiplier(1) == 1 && effects.GetOrderRewardMultiplier(2) == 2 &&
+            effects.GetOrderRewardMultiplier(3) == 2, "Pairs doubles both multi-dish tiers but never a single-dish order.");
     }
 }

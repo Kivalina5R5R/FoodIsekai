@@ -33,6 +33,10 @@ namespace FoodIsekaiZ.Display
         private readonly Image[] customerStatusImages = new Image[CustomerPanelCapacity];
         private readonly Image[] pairedFirstImages = new Image[CustomerPanelCapacity];
         private readonly Image[] pairedSecondImages = new Image[CustomerPanelCapacity];
+        // A three-dish order shows three small menu cards, each with its own dish and timer.
+        private readonly Image[,] tripleBackgrounds = new Image[CustomerPanelCapacity, 3];
+        private readonly Image[,] tripleImages = new Image[CustomerPanelCapacity, 3];
+        private readonly TavernTimerGraphic[,] tripleTimers = new TavernTimerGraphic[CustomerPanelCapacity, 3];
         private readonly Image[] pairedFirstBackgrounds = new Image[CustomerPanelCapacity];
         private readonly Image[] pairedSecondBackgrounds = new Image[CustomerPanelCapacity];
         private readonly PairedOrderPresentation[] pairedPresentations = new PairedOrderPresentation[CustomerPanelCapacity];
@@ -191,8 +195,9 @@ namespace FoodIsekaiZ.Display
                     case CustomerSlotState.Eating:
                         if (timerSlider != null)
                         {
-                            bool paired = HasPairedCards(i) && slot.CustomerState == CustomerSlotState.WaitingForFood &&
-                                !slot.IsOmakase && slot.RemainingFoods.Count > 1;
+                            bool paired = slot.CustomerState == CustomerSlotState.WaitingForFood &&
+                                ((HasPairedCards(i) && slot.RemainingFoods.Count == 2) ||
+                                 (HasTripleCard(i) && slot.RemainingFoods.Count == 3));
                             timerSlider.gameObject.SetActive(!paired &&
                                 (!slot.IsSpecialOrder || slot.CustomerState == CustomerSlotState.Eating));
                             timerSlider.SetValueWithoutNotify(slot.StateTimeNormalized);
@@ -300,29 +305,52 @@ namespace FoodIsekaiZ.Display
             pairedPresentations[index]?.Synchronize(slot);
             bool waiting = slot != null && slot.CustomerState == CustomerSlotState.WaitingForFood;
             bool omakase = waiting && slot.IsOmakase;
-            bool paired = HasPairedCards(index) && waiting && !omakase && slot.RemainingFoods.Count > 1;
+            bool paired = HasPairedCards(index) && waiting && slot.RemainingFoods.Count == 2;
+            bool triple = HasTripleCard(index) && waiting && slot.RemainingFoods.Count == 3;
             bool showPair = paired || (pairedPresentations[index] != null && pairedPresentations[index].IsTransitioning);
-            if (customerPanelBackgrounds[index] != null) customerPanelBackgrounds[index].enabled = !paired;
+            // The three-dish cards stay up while they hand over to the pair cards.
+            bool showTriple = triple || (HasTripleCard(index) && waiting && pairedPresentations[index] != null &&
+                pairedPresentations[index].IsTripleTransitioning);
+            if (customerPanelBackgrounds[index] != null) customerPanelBackgrounds[index].enabled = !paired && !triple;
+            for (int dish = 0; dish < 3; dish++)
+            {
+                SetPairedCardVisible(tripleBackgrounds[index, dish], showTriple);
+                UpdatePairedTimer(tripleTimers[index, dish], slot, showTriple);
+                Image icon = tripleImages[index, dish];
+                if (icon == null) continue;
+                icon.enabled = showTriple;
+                if (triple) icon.sprite = GetOrderSprite(index, slot, dish);
+            }
             SetPairedCardVisible(pairedFirstBackgrounds[index], showPair);
             SetPairedCardVisible(pairedSecondBackgrounds[index], showPair);
             UpdatePairedTimer(pairedFirstTimers[index], slot, showPair);
             UpdatePairedTimer(pairedSecondTimers[index], slot, showPair);
-            if (omakaseImages[index] != null) omakaseImages[index].enabled = omakase;
+            if (omakaseImages[index] != null) omakaseImages[index].enabled = omakase && !paired && !triple;
             Image first = pairedFirstImages[index];
             Image second = pairedSecondImages[index];
             if (first != null)
             {
                 first.enabled = showPair;
-                if (paired) first.sprite = GetFoodSprite(slot.RemainingFoods[0]);
+                if (paired) first.sprite = GetOrderSprite(index, slot, 0);
             }
             if (second != null)
             {
                 second.enabled = showPair;
-                if (paired) second.sprite = GetFoodSprite(slot.RemainingFoods[1]);
+                if (paired) second.sprite = GetOrderSprite(index, slot, 1);
             }
             if (customerStatusImages[index] != null)
-                customerStatusImages[index].enabled = slot != null && slot.HasCustomer && !omakase && !paired &&
+                customerStatusImages[index].enabled = slot != null && slot.HasCustomer && !omakase && !paired && !triple &&
                     customerStatusImages[index].sprite != null;
+        }
+
+        private Sprite GetOrderSprite(int index, ArenaSlot2D slot, int dish) => slot.IsOmakase
+            ? omakaseImages[index]?.sprite : GetFoodSprite(slot.RemainingFoods[dish]);
+
+        private bool HasTripleCard(int index)
+        {
+            for (int dish = 0; dish < 3; dish++)
+                if (tripleBackgrounds[index, dish] == null || tripleImages[index, dish] == null) return false;
+            return true;
         }
 
         private bool HasPairedCards(int index) => pairedFirstBackgrounds[index] != null &&
@@ -654,6 +682,13 @@ namespace FoodIsekaiZ.Display
                 pairedSecondBackgrounds[i] = GetManualComponent<Image>(panel, "BG Order Pair Second");
                 pairedFirstTimers[i] = GetManualComponent<TavernTimerGraphic>(panel, "OrderTimer Pair First");
                 pairedSecondTimers[i] = GetManualComponent<TavernTimerGraphic>(panel, "OrderTimer Pair Second");
+                for (int dish = 0; dish < 3; dish++)
+                {
+                    string card = $"BG Order Triple {dish + 1}";
+                    tripleBackgrounds[i, dish] = GetManualComponent<Image>(panel, card);
+                    tripleImages[i, dish] = GetManualComponent<Image>(panel, $"{card}/Status Triple {dish + 1}");
+                    tripleTimers[i, dish] = GetManualComponent<TavernTimerGraphic>(panel, $"{card}/OrderTimer Triple {dish + 1}");
+                }
                 if (!HasPairedCards(i))
                     Debug.LogWarning($"CustomerPanel{i + 1} is missing its paired menu cards. Reload the updated FoodIsekai scene after preserving any unsaved edits.", this);
                 omakaseImages[i] = GetManualComponent<OmakaseOrderGraphic>(panel, "Status Omakase");

@@ -178,6 +178,8 @@ namespace FoodIsekaiZ.Display
                 {
                     if (session.TryBuy(i, candidate))
                     {
+                        PlayerSessionLog.RecordPerkPurchase(session.Offers[i].Id, session.Offers[i].Price, candidate,
+                            gameManager.NextWaveName, bigShop, gameManager.TotalBankedMoney);
                         soundPlayer?.TryPlay(GameSoundCue.SmallPerkPurchase, true);
                         // The floor tile the player bought from bursts while the wall card takes flight.
                         zones[i].PlayPurchaseBurst(bigShop);

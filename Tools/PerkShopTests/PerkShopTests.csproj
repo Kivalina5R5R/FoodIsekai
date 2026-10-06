@@ -23,6 +23,7 @@
     <Compile Include="../../Assets/Scripts/Gameplay/PerkManager.cs" />
     <Compile Include="../../Assets/Scripts/Gameplay/FoodInventory.cs" />
     <Compile Include="../../Assets/Scripts/Gameplay/CustomerOrder.cs" />
+    <Compile Include="../../Assets/Scripts/Gameplay/MealOrderRules.cs" />
     <Compile Include="PerkGameplayTests.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>

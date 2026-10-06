@@ -67,7 +67,7 @@ namespace FoodIsekaiZ.Display
         [Tooltip("Distance from an inner T slot where the NPC steps forward, capped at 6% of the canvas width to keep it behind the preceding customer while passing. Blends during the stopping step and finishes before arrival.")]
         [SerializeField, Range(0.01f, 0.06f)] private float foregroundApproachDistanceCanvasMultiplier = 0.06f;
         [Tooltip("Vertical offset of the rear walking lane, in canvas pixels. Blends to zero as T2-T5 step forward without changing their final size or position.")]
-        [SerializeField, Min(0f)] private float foregroundApproachRearOffsetPixels = 18f;
+        [SerializeField, Min(0f)] private float foregroundApproachRearOffsetPixels = 0f;
         [Tooltip("Minimum horizontal gap in canvas widths between NPCs entering together from the same side. The nearer slot leads.")]
         [SerializeField, Min(0f)] private float pairedEntranceSpacingCanvasMultiplier = 0.14f;
         [Tooltip("Time in seconds an NPC remains at its assigned T slot before the food UI and timer are shown.")]
@@ -76,16 +76,16 @@ namespace FoodIsekaiZ.Display
         [Header("NPC Walking Motion")]
         [Tooltip("Vertical lift in canvas pixels per walking step. The entrance stride ends on a grounded step at the destination.")]
         [SerializeField, Min(0f)] private float walkingBobHeight = 12f;
-        [Tooltip("Number of up-and-down walking cycles per second.")]
+        [Tooltip("Walking cycles per second, matching Lunar's guide presentation.")]
         [SerializeField, Min(0.1f)] private float walkingBobFrequency = 2.2f;
 
         [Header("NPC Idle Breathing")]
         [Tooltip("Seconds for one gentle inhale and exhale while the NPC stands at its slot.")]
-        [SerializeField, Min(0.2f)] private float idleBreathingCycleSeconds = 3.6f;
+        [SerializeField, Min(0.2f)] private float idleBreathingCycleSeconds = 3.8f;
         [Tooltip("Height expansion of the NPC image during an inhale; its lower edge stays grounded.")]
-        [SerializeField, Range(0f, 0.03f)] private float idleBreathingHeight = 0.008f;
+        [SerializeField, Range(0f, 0.03f)] private float idleBreathingHeight = 0.012f;
         [Tooltip("Subtle width expansion of the NPC image during an inhale.")]
-        [SerializeField, Range(0f, 0.02f)] private float idleBreathingWidth = 0.0025f;
+        [SerializeField, Range(0f, 0.02f)] private float idleBreathingWidth = 0.004f;
         [Tooltip("Seconds to blend breathing in after arrival and out when leaving.")]
         [SerializeField, Min(0.01f)] private float idleBreathingBlendSeconds = 0.45f;
 
@@ -164,6 +164,7 @@ namespace FoodIsekaiZ.Display
         private readonly Vector2[] npcExitTargetPositions = new Vector2[DisplaySlotCount];
         private readonly float[] npcWalkingSpeedCanvasMultipliers = new float[DisplaySlotCount];
         private readonly float[] npcWalkPhases = new float[DisplaySlotCount];
+        private readonly float[] npcWalkingElapsedSeconds = new float[DisplaySlotCount];
         private readonly float[] npcExitTurnStartTimes = new float[DisplaySlotCount];
         private readonly Vector3[] npcExitTurnStartScales = new Vector3[DisplaySlotCount];
         private readonly Quaternion[] npcExitTurnStartRotations = new Quaternion[DisplaySlotCount];
@@ -500,7 +501,10 @@ namespace FoodIsekaiZ.Display
             spawnedNpcs[slotIndex] = instance;
             spawnedNpcPrefabs[slotIndex] = prefab;
             BeginNpcForegroundApproach(slotIndex, instance.transform as RectTransform, visualBody, finalLayer);
-            npcCustomerGenerations[slotIndex] = gameManager.GetCustomerSlot(slotIndex)?.CustomerGeneration ?? 0;
+            ArenaSlot2D customerSlot = gameManager.GetCustomerSlot(slotIndex);
+            npcCustomerGenerations[slotIndex] = customerSlot?.CustomerGeneration ?? 0;
+            PlayerSessionLog.RecordCustomer(gameManager.CurrentWaveName,
+                customerSlot != null ? customerSlot.SlotId : $"C{slotIndex + 1}", prefabName, customerSlot);
             IncreaseNpcPrefabPower(prefab);
             SortNpcLayerChildren(movementLayer);
             return true;
@@ -596,6 +600,10 @@ namespace FoodIsekaiZ.Display
             RectTransform npcRect = spawnedNpcs[slotIndex].GetComponent<RectTransform>();
             if (npcRect != null)
             {
+                // The turn starts upright, rather than retaining the lean of an interrupted step.
+                npcRect.localRotation = Quaternion.identity;
+                npcWalkPhases[slotIndex] = 0f;
+                npcWalkingElapsedSeconds[slotIndex] = 0f;
                 npcExitTurnStartTimes[slotIndex] = presentationTime;
                 npcExitTurnStartScales[slotIndex] = npcRect.localScale;
                 npcExitTurnStartRotations[slotIndex] = npcRect.localRotation;
@@ -672,6 +680,7 @@ namespace FoodIsekaiZ.Display
             }
 
             Vector2 previousPosition = npcMovementPositions[slotIndex];
+            npcWalkingElapsedSeconds[slotIndex] += Time.deltaTime;
             Vector2 exitPosition = Vector2.MoveTowards(
                 previousPosition,
                 npcExitTargetPositions[slotIndex],
@@ -684,7 +693,7 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
-            ApplyNpcWalkingPose(slotIndex, npcRect, previousPosition, movementSpeed, 1f);
+            ApplyNpcWalkingPose(slotIndex, npcRect, movementSpeed);
         }
 
         private void AnimateNpcArrivals()
@@ -751,12 +760,7 @@ namespace FoodIsekaiZ.Display
                 return;
             }
 
-            Vector2 previousPosition = npcMovementPositions[slotIndex];
-            // Count stride distance backwards from the destination's grounded pose.
-            // Every entrance then finishes its actual down-step at the target,
-            // rather than fading an arbitrary airborne pose down to the floor.
-            npcWalkPhases[slotIndex] = -Vector2.Distance(previousPosition, npcTargetPositions[slotIndex]) /
-                movementSpeed * walkingBobFrequency * Mathf.PI * 2f;
+            npcWalkingElapsedSeconds[slotIndex] += deltaSeconds;
             float nearTargetDistance = 0.5f * movementSpeed * stoppingDuration;
             float remainingFrameSeconds = Mathf.Max(0f, deltaSeconds);
             if (!npcApproachingAtSlots[slotIndex])
@@ -797,17 +801,24 @@ namespace FoodIsekaiZ.Display
             }
 
             UpdateNpcForegroundApproach(slotIndex, nearTargetDistance);
-            ApplyNpcWalkingPose(slotIndex, npcRect, previousPosition, movementSpeed, 1f);
+            ApplyNpcWalkingPose(slotIndex, npcRect, movementSpeed);
         }
 
-        private void ApplyNpcWalkingPose(int slotIndex, RectTransform npcRect,
-            Vector2 previousPosition, float movementSpeed, float bobWeight)
+        private void ApplyNpcWalkingPose(int slotIndex, RectTransform npcRect, float movementSpeed)
         {
-            // Use the same distance-driven, grounded gait in both directions,
-            // including the partial stopping step on arrival.
-            float distanceMoved = Vector2.Distance(previousPosition, npcMovementPositions[slotIndex]);
-            npcWalkPhases[slotIndex] += distanceMoved / movementSpeed * walkingBobFrequency * Mathf.PI * 2f;
-            float walkingBobOffset = (0.5f - 0.5f * Mathf.Cos(npcWalkPhases[slotIndex])) * walkingBobHeight * bobWeight;
+            // Match Lunar: constant cadence, a soft first step, and a smooth landing at the stop.
+            Vector2 destination = npcExitingAtSlots[slotIndex]
+                ? npcExitTargetPositions[slotIndex] : npcTargetPositions[slotIndex];
+            float remainingDistance = Vector2.Distance(npcMovementPositions[slotIndex], destination);
+            float phase = -remainingDistance / Mathf.Max(1f, movementSpeed) * walkingBobFrequency * Mathf.PI * 2f;
+            npcWalkPhases[slotIndex] = phase;
+            float walkingBobOffset = (0.5f - 0.5f * Mathf.Cos(phase)) * walkingBobHeight;
+            walkingBobOffset *= Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(npcWalkingElapsedSeconds[slotIndex] / 0.2f));
+            if (!npcExitingAtSlots[slotIndex] && npcApproachingAtSlots[slotIndex])
+            {
+                float progress = npcApproachElapsedSeconds[slotIndex] / Mathf.Max(0.0001f, npcApproachDurations[slotIndex]);
+                walkingBobOffset *= 1f - Mathf.SmoothStep(0f, 1f, progress);
+            }
             NpcForegroundBlend foregroundBlend = npcForegroundBlends[slotIndex];
             float laneOffset = foregroundBlend != null ? foregroundBlend.RearLaneOffset : 0f;
             npcRect.anchoredPosition = npcMovementPositions[slotIndex] + Vector2.up * (walkingBobOffset + laneOffset);
@@ -899,6 +910,10 @@ namespace FoodIsekaiZ.Display
             npcExitingAtSlots[slotIndex] = false;
             npcMovementPositions[slotIndex] = npcTargetPositions[slotIndex];
             npcWalkPhases[slotIndex] = 0f;
+            if (spawnedNpcs[slotIndex] != null)
+            {
+                spawnedNpcs[slotIndex].transform.localRotation = Quaternion.identity;
+            }
             MoveNpcToFinalLayer(slotIndex);
             ClearNpcForegroundApproach(slotIndex);
             npcIdleBreathing[slotIndex]?.BeginIdle();
@@ -1376,6 +1391,7 @@ namespace FoodIsekaiZ.Display
             npcMovementPositions[slotIndex] = instanceRect.anchoredPosition;
             npcWalkingSpeedCanvasMultipliers[slotIndex] = SampleNpcWalkingSpeed();
             npcWalkPhases[slotIndex] = UnityEngine.Random.Range(0f, Mathf.PI * 2f);
+            npcWalkingElapsedSeconds[slotIndex] = 0f;
             npcApproachingAtSlots[slotIndex] = false;
             npcArrivedAtSlots[slotIndex] = false;
             npcExitingAtSlots[slotIndex] = false;

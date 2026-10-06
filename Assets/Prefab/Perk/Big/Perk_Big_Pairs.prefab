@@ -460,7 +460,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Customers can order up to 2 dishes at once. Earn double points and money.
+  m_text: "Orders with 2 or more dishes earn double points and coins."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
   m_sharedMaterial: {fileID: -7075264514926555091, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
@@ -892,8 +892,8 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedText
   target: {fileID: 6535938799147073406}
-  english: Customers can order up to 2 dishes at once. Earn double points and money.
-  thai: "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u200b\u0e2a\u0e31\u0e48\u0e07\u200b\u0e2d\u0e32\u0e2b\u0e32\u0e23\u200b\u0e44\u0e14\u0e49\u200b\u0e1e\u0e23\u0e49\u0e2d\u0e21\u200b\u0e01\u0e31\u0e19\u200b\u0e2a\u0e39\u0e07\u0e2a\u0e38\u0e14 2 \u0e40\u0e21\u0e19\u0e39 \u0e41\u0e25\u0e30\u200b\u0e44\u0e14\u0e49\u200b\u0e23\u0e31\u0e1a\u200b\u0e41\u0e15\u0e49\u0e21\u200b\u0e01\u0e31\u0e1a\u200b\u0e40\u0e07\u0e34\u0e19\u200b\u0e40\u0e1b\u0e47\u0e19 2 \u0e40\u0e17\u0e48\u0e32"
+  english: "Orders with 2 or more dishes earn double points and coins."
+  thai: "\u0e2d\u0e2d\u0e40\u0e14\u0e2d\u0e23\u0e4c\u0e17\u0e35\u0e48\u0e21\u0e35 2 \u0e08\u0e32\u0e19\u0e02\u0e36\u0e49\u0e19\u0e44\u0e1b \u0e44\u0e14\u0e49\u0e04\u0e30\u0e41\u0e19\u0e19\u0e41\u0e25\u0e30\u0e40\u0e2b\u0e23\u0e35\u0e22\u0e0d\u0e40\u0e1b\u0e47\u0e19 2 \u0e40\u0e17\u0e48\u0e32"
   englishFont: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
   thaiFont: {fileID: 11400000, guid: be18c2e6e13ba8e4896d9ceabde6c14c, type: 2}
   thaiSizeScale: 1.5

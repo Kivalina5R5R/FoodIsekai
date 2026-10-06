@@ -85,6 +85,7 @@ namespace FoodIsekaiZ.Gameplay
             (isMoneyPresentationComplete == null || isMoneyPresentationComplete());
         public FoodType RequestedFood => order.DishCount > 0 ? order.DisplayFood : requestedFood;
         public IReadOnlyList<FoodType> RemainingFoods => order.Remaining;
+        public int OrderDishCount => order.DishCount;
         public FoodType LastServedFood => order.LastServedFood;
         public bool IsOmakase => order.IsOmakase;
         public bool IsSpecialOrder { get; private set; }
@@ -96,6 +97,8 @@ namespace FoodIsekaiZ.Gameplay
             ? Mathf.Clamp01(stateRemainingSeconds / stateDurationSeconds)
             : 0f;
         public float OrderDurationSeconds => orderDurationSeconds;
+        // Real seconds this customer has waited since its order was revealed, unaffected by dish time bonuses.
+        public float WaitedSeconds { get; private set; }
         public float OrderTimeNormalized => orderDurationSeconds > 0f
             ? Mathf.Clamp01(stateRemainingSeconds / orderDurationSeconds)
             : 0f;
@@ -158,7 +161,9 @@ namespace FoodIsekaiZ.Gameplay
             }
 
             int playerInstanceId = player.GetInstanceID();
-            bool inRange = slotType == ArenaSlotType.FoodStation
+            // The bank uses the food stations' touch range, so a player only needs to reach its edge to deposit.
+            bool usesTouchRange = slotType == ArenaSlotType.FoodStation || slotType == ArenaSlotType.MoneyDeposit;
+            bool inRange = usesTouchRange
                 ? HasFoodPickupOverlap(player.transform.position, other)
                 : ContainsPlayerCenter(player.transform.position);
             if (!inRange)
@@ -168,7 +173,7 @@ namespace FoodIsekaiZ.Gameplay
                 return;
             }
 
-            if (slotType == ArenaSlotType.FoodStation)
+            if (usesTouchRange)
             {
                 if (!foodOverlapStartedAt.TryGetValue(playerInstanceId, out float enteredAt))
                 {
@@ -263,11 +268,13 @@ namespace FoodIsekaiZ.Gameplay
         }
 
         public void ConfigureCustomer(FoodType food, float orderTimeSeconds, int reward,
-            FoodType secondFood = FoodType.None, bool omakase = false, bool special = false)
+            FoodType secondFood = FoodType.None, bool omakase = false, bool special = false,
+            FoodType thirdFood = FoodType.None)
         {
             IsAutomaticCollectionPending = false;
             isAutomaticCollectionPresentationComplete = null;
-            order.Configure(food, secondFood, omakase);
+            order.Configure(food, secondFood, omakase, thirdFood);
+            WaitedSeconds = 0f;
             IsSpecialOrder = special;
             isMoneyPresentationComplete = null;
             customerGeneration = customerGeneration == int.MaxValue ? 1 : customerGeneration + 1;
@@ -304,7 +311,8 @@ namespace FoodIsekaiZ.Gameplay
 
         public bool TryBeginEating(float eatingDurationSeconds)
         {
-            if (slotType != ArenaSlotType.Customer || customerState != CustomerSlotState.WaitingForFood)
+            if (slotType != ArenaSlotType.Customer || customerState != CustomerSlotState.WaitingForFood ||
+                !order.IsComplete)
             {
                 return false;
             }
@@ -321,10 +329,15 @@ namespace FoodIsekaiZ.Gameplay
             return true;
         }
 
-        // Partial deliveries keep the original waiting timer; only the final dish starts eating.
+        // Each accepted dish adds five seconds; only the final dish starts the eating timer.
         public bool TryServeFood(FoodType food, float eatingDurationSeconds)
         {
             if (!IsOrderRevealed || !order.TryServe(food)) return false;
+            // Each delivered dish gives the rest of the order five more seconds. The timer bar keeps its full
+            // length so the bonus visibly refills it; the length only grows when the bonus would overflow it.
+            stateRemainingSeconds += 5f;
+            orderDurationSeconds = Mathf.Max(orderDurationSeconds, stateRemainingSeconds);
+            stateDurationSeconds = orderDurationSeconds;
             requestedFood = order.DisplayFood;
             if (order.IsComplete) TryBeginEating(eatingDurationSeconds);
             return true;
@@ -343,6 +356,8 @@ namespace FoodIsekaiZ.Gameplay
                 return false;
             }
 
+            if (customerState == CustomerSlotState.WaitingForFood)
+                WaitedSeconds += Mathf.Min(Mathf.Max(0f, deltaTime), stateRemainingSeconds);
             stateRemainingSeconds = Mathf.Max(0f, stateRemainingSeconds - Mathf.Max(0f, deltaTime));
             RefreshVisuals();
             return stateRemainingSeconds <= 0f;

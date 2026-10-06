@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace FoodIsekaiZ.Gameplay
 {
-    // Tracks each outstanding dish, including repeated menus in a paired order.
+    // Tracks outstanding, distinct menus and accepts deliveries in any order.
     public sealed class CustomerOrder
     {
-        private readonly List<FoodType> remaining = new List<FoodType>(2);
+        private readonly List<FoodType> remaining = new List<FoodType>(3);
         public IReadOnlyList<FoodType> Remaining { get; }
         public int DishCount { get; private set; }
         public FoodType LastServedFood { get; private set; }
@@ -16,14 +16,20 @@ namespace FoodIsekaiZ.Gameplay
 
         public CustomerOrder() => Remaining = remaining.AsReadOnly();
 
-        public void Configure(FoodType first, FoodType second = FoodType.None, bool omakase = false)
+        public void Configure(FoodType first, FoodType second = FoodType.None, bool omakase = false,
+            FoodType third = FoodType.None)
         {
             if (first < FoodType.Food1 || first > FoodType.Food5) throw new ArgumentOutOfRangeException(nameof(first));
             if (second < FoodType.None || second > FoodType.Food5) throw new ArgumentOutOfRangeException(nameof(second));
+            if (third < FoodType.None || third > FoodType.Food5) throw new ArgumentOutOfRangeException(nameof(third));
+            if ((second != FoodType.None && second == first) ||
+                (third != FoodType.None && (third == first || third == second)))
+                throw new ArgumentException("An order cannot contain duplicate menus.");
             Clear();
             IsOmakase = omakase;
             remaining.Add(first);
             if (second != FoodType.None) remaining.Add(second);
+            if (third != FoodType.None) remaining.Add(third);
             DishCount = remaining.Count;
         }
 

@@ -58,6 +58,10 @@ namespace FoodIsekaiZ.Gameplay
 
         public int FoodCapacity => (int)GetAmount(PerkEffect.FoodCapacity);
 
+        // Use the original order size so the final dish keeps the same reward multiplier.
+        public double GetOrderRewardMultiplier(int originalDishCount) =>
+            originalDishCount >= 2 ? GetAmount(PerkEffect.PairedOrders) : 1;
+
         // Explicit new-game reset; closing a shop or beginning a meal never calls this.
         public void Reset()
         {

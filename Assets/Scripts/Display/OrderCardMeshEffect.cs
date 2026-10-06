@@ -8,7 +8,8 @@ namespace FoodIsekaiZ.Display
     public sealed class OrderCardMeshEffect : BaseMeshEffect
     {
         [SerializeField] private PairedOrderPresentation presentation;
-        [SerializeField, Range(0, 2)] private int card;
+        // 0 and 1 are the pair cards, 2 the single card, and 3 to 5 the three-dish cards.
+        [SerializeField, Range(0, 5)] private int card;
 
         public void Refresh()
         {

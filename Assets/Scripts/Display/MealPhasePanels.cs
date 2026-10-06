@@ -21,6 +21,10 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private TopHudVisibility topHudVisibility;
         [SerializeField] private MealMenuTransition menuTransition;
         private TMP_Text resultScoreText;
+        private TMP_Text resultBonusText;
+        private ResultRevealSequence resultReveal;
+        private bool resultRevealStarted;
+        private readonly List<int> rowScores = new List<int>();
         private readonly TMP_Text[] resultNames = new TMP_Text[4];
         private readonly TMP_Text[] resultScores = new TMP_Text[4];
         private readonly GameObject[] resultRows = new GameObject[4];
@@ -48,6 +52,8 @@ namespace FoodIsekaiZ.Display
 
             Transform resultContent = resultsPanel.transform.Find("Content") ?? resultsPanel.transform;
             resultScoreText = resultContent.Find("TotalScore/Text_Score")?.GetComponent<TMP_Text>();
+            resultBonusText = resultContent.Find("TotalScore/Text_Bonus")?.GetComponent<TMP_Text>();
+            resultReveal = resultContent.GetComponent<ResultRevealSequence>();
             for (int i = 0; i < resultRows.Length; i++)
             {
                 Transform row = resultContent.Find($"Player{i + 1}");
@@ -288,6 +294,7 @@ namespace FoodIsekaiZ.Display
             GameObject nextExclusivePanel = complete ? resultsPanel : intermission ? breakPanel : null;
             if (exclusivePanel != null) HideOtherUi(exclusivePanel);
             if (complete) RefreshResults();
+            else resultRevealStarted = false;
             if (requestedPanel == nextExclusivePanel && !showMenu) return;
             requestedPanel = nextExclusivePanel;
             if (transition != null) StopCoroutine(transition);
@@ -334,7 +341,6 @@ namespace FoodIsekaiZ.Display
 
         private void RefreshResults()
         {
-            if (resultScoreText != null) resultScoreText.text = gameManager.TeamScore.ToString();
             rankedPlayerIds.Clear();
             if (playerSpawner != null)
             {
@@ -347,16 +353,32 @@ namespace FoodIsekaiZ.Display
                 }
             }
             rankedPlayerIds.Sort(ComparePlayerScores);
+            rowScores.Clear();
             for (int i = 0; i < resultRows.Length; i++)
             {
                 bool hasPlayer = i < rankedPlayerIds.Count;
                 if (resultRows[i] != null) resultRows[i].SetActive(hasPlayer);
+                int score = hasPlayer ? gameManager.GetPlayerScore(rankedPlayerIds[i]) : 0;
+                rowScores.Add(score);
                 if (!hasPlayer) continue;
-                int playerId = rankedPlayerIds[i];
-                if (resultNames[i] != null) resultNames[i].text = $"Player{playerId}";
-                if (resultScores[i] != null)
-                    resultScores[i].text = gameManager.GetPlayerScore(playerId).ToString();
+                if (resultNames[i] != null) resultNames[i].text = $"Player{rankedPlayerIds[i]}";
+                if (resultReveal == null && resultScores[i] != null) resultScores[i].text = score.ToString();
             }
+
+            // With the reveal sequence, the scores count up from zero in order; it starts once per result screen.
+            if (resultReveal != null)
+            {
+                if (resultRevealStarted) return;
+                resultRevealStarted = true;
+                resultReveal.Play(gameManager.FinalScoreBeforeBonus, gameManager.FinalLeftoverBonus,
+                    gameManager.TeamScore, rowScores);
+                return;
+            }
+
+            if (resultScoreText != null) resultScoreText.text = gameManager.TeamScore.ToString();
+            // Shows how the total above was reached: service score plus the leftover-coin bonus, such as 1200+60.
+            if (resultBonusText != null)
+                resultBonusText.text = $"{gameManager.FinalScoreBeforeBonus}+{gameManager.FinalLeftoverBonus}";
         }
 
         private int ComparePlayerScores(int firstPlayerId, int secondPlayerId)

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using FoodIsekaiZ.Audio;
 using FoodIsekaiZ.Display;
+using FoodIsekaiZ.Gameplay;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -113,6 +114,7 @@ namespace FoodIsekaiZ.Players
             if (readyRoot != null) readyRoot.SetActive(false);
             for (int p = 0; p < players.Count; p++) players[p].EnterGameplay();
             SetGameplayVisible(true);
+            PlayerSessionLog.BeginSession(players.Count);
             onAllPlayersReady.Invoke();
         }
 
