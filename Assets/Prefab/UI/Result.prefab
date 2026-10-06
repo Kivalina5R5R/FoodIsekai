@@ -3724,11 +3724,23 @@ MonoBehaviour:
   - {fileID: 4743633451300453849}
   mvpBadge: {fileID: 5332772966709460807}
   centerX: 6
-  topY: -3.3
-  rowSpacing: 26
-  columnSpacing: 132
+  loneRowCenterX: -4
+  singleRowPosition: {x: -16, y: -3.3}
+  singleRowScale: 0.15
+  singleBadgeOverlap: 8
+  bandTop: 9
+  bandBottom: -84
+  rowScaleByCount:
+  - 0.24
+  - 0.18
+  - 0.18
+  - 0.18
+  - 0.16
+  - 0.16
   wideWidth: 1005
   narrowWidth: 650
   nameOffset: 0.47
   scoreOffset: 0.56
-  badgeOverlap: 8
+  maximumBadgeScale: 0.17
+  badgeOverlap: 12
+  badgeClearance: 6

@@ -20,6 +20,10 @@ namespace FoodIsekaiZ.Configuration
             public float gainDb;
         }
 
+        // 0 keeps the result screen open; 1 allows automatic restart after resultRestartSeconds.
+        [SerializeField] private int resultRestartEnabled = 1;
+        public bool IsResultRestartEnabled => resultRestartEnabled == 1;
+
         // Seconds the result screen stays up before the game restarts for the next group.
         // Zero or a negative value turns the automatic restart off.
         public float resultRestartSeconds = 25f;

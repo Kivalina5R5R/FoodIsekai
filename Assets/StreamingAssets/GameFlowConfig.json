@@ -1,4 +1,5 @@
 {
+    "resultRestartEnabled": 1,
     "resultRestartSeconds": 25,
     "languageToggleKey": "T",
     "bgmVolume": 0.6,

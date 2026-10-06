@@ -153,6 +153,7 @@ namespace FoodIsekaiZ.Gameplay
         private bool phaseChangePending;
         // Read from StreamingAssets/GameFlowConfig.json when the round starts.
         private float resultRestartSeconds;
+        private bool resultRestartEnabled;
         private float resultShownSeconds;
         public bool IsPhasePresentationPaused => phasePresentationPaused;
 
@@ -284,7 +285,9 @@ namespace FoodIsekaiZ.Gameplay
         {
             simulationModeSource = FindAnyObjectByType<UWBManager>();
             PlayerSessionLog.RecordingEnabled = !IsSimulationMode || writePlayerLogInSimulation;
-            resultRestartSeconds = FoodIsekaiZ.Configuration.GameFlowConfig.Load().resultRestartSeconds;
+            var flowConfig = FoodIsekaiZ.Configuration.GameFlowConfig.Load();
+            resultRestartSeconds = flowConfig.resultRestartSeconds;
+            resultRestartEnabled = flowConfig.IsResultRestartEnabled;
             ValidateSlotLayout();
             if (!startCustomersOnPlay || IsWaitingForStartup)
             {
@@ -451,7 +454,7 @@ namespace FoodIsekaiZ.Gameplay
         private bool TickResultRestart()
         {
             if (!useMealWaves || mealWavePhase != MealWavePhase.Completed || phasePresentationPaused ||
-                resultRestartSeconds <= 0f) return false;
+                !resultRestartEnabled || resultRestartSeconds <= 0f) return false;
             resultShownSeconds += Time.unscaledDeltaTime;
             if (resultShownSeconds < resultRestartSeconds) return false;
             RestartRound();

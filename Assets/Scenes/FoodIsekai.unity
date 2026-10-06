@@ -29079,7 +29079,7 @@ MonoBehaviour:
   spawnOnStart: 1
   selectPlayerNumberBeforeGameplay: 1
   playerScale: 0.462
-  simulationPlayerCount: 3
+  simulationPlayerCount: 1
   players:
   - enabled: 1
     playerId: 1
