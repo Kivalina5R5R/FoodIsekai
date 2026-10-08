@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 namespace FoodIsekaiZ.Display
 {
-    // Reveals the result screen in order once the panel is shown: the service score counts up from zero,
-    // then "+bonus" counts up beside it, then the big team total counts up, and finally each player row
+    // Reveals player earnings, then the team penalty, then the coin bonus and the big team total.
+    // Finally each player row
     // fades in from slightly below while its own score counts up. The MVP badge arrives with the first row.
     // Rows return to their authored positions and full opacity when the panel is disabled.
     [AddComponentMenu("Food Isekai Z/Display/Result Reveal Sequence")]
@@ -32,6 +32,8 @@ namespace FoodIsekaiZ.Display
         [SerializeField, Min(0f)] private float rowRise = 6f;
 
         private int serviceScore;
+        private int penaltyScore;
+        private int teamBonusScore;
         private int bonusScore;
         private int totalScore;
         private readonly List<int> playerScores = new List<int>();
@@ -44,24 +46,29 @@ namespace FoodIsekaiZ.Display
         private Graphic[] badgeGraphics = new Graphic[0];
 
         // Starts the sequence; the counting begins once this panel is active, so it can be called behind the cover.
-        public void Play(int service, int bonus, int total, IReadOnlyList<int> scoresByRow)
+        public void Play(int service, int bonus, int total, IReadOnlyList<int> scoresByRow,
+            int penalty = 0, int teamBonus = 0)
         {
-            SetScoreTargets(service, bonus, total, scoresByRow);
+            SetScoreTargets(service, bonus, total, scoresByRow, penalty, teamBonus);
             elapsed = 0f;
             playing = true;
             if (isActiveAndEnabled) Apply();
         }
 
         // Refresh scores and their row order without restarting an in-progress or finished reveal.
-        public void RefreshScores(int service, int bonus, int total, IReadOnlyList<int> scoresByRow)
+        public void RefreshScores(int service, int bonus, int total, IReadOnlyList<int> scoresByRow,
+            int penalty = 0, int teamBonus = 0)
         {
-            SetScoreTargets(service, bonus, total, scoresByRow);
+            SetScoreTargets(service, bonus, total, scoresByRow, penalty, teamBonus);
             if (isActiveAndEnabled) Apply();
         }
 
-        private void SetScoreTargets(int service, int bonus, int total, IReadOnlyList<int> scoresByRow)
+        private void SetScoreTargets(int service, int bonus, int total, IReadOnlyList<int> scoresByRow,
+            int penalty, int teamBonus)
         {
             serviceScore = Mathf.Max(0, service);
+            penaltyScore = Mathf.Max(0, penalty);
+            teamBonusScore = Mathf.Max(0, teamBonus);
             bonusScore = Mathf.Max(0, bonus);
             totalScore = Mathf.Max(0, total);
             playerScores.Clear();
@@ -92,15 +99,18 @@ namespace FoodIsekaiZ.Display
         {
             CaptureOrigins();
             float time = elapsed - startDelay;
-            float bonusStart = serviceSeconds + stepPause;
+            float penaltyStart = serviceSeconds + stepPause;
+            float bonusStart = penaltyStart + (penaltyScore > 0 ? bonusSeconds + stepPause : 0f);
             float totalStart = bonusStart + bonusSeconds + stepPause;
             float rowsStart = totalStart + totalSeconds + stepPause;
 
             if (serviceText != null)
             {
-                serviceText.text = time < bonusStart
-                    ? Count(serviceScore, time / serviceSeconds).ToString()
-                    : $"{serviceScore}+{Count(bonusScore, (time - bonusStart) / bonusSeconds)}";
+                serviceText.text = ResultScoreText.Format(
+                    Count(serviceScore, time / serviceSeconds),
+                    Count(penaltyScore, (time - penaltyStart) / bonusSeconds),
+                    Count(bonusScore, (time - bonusStart) / bonusSeconds),
+                    Count(teamBonusScore, time / serviceSeconds));
             }
             if (totalText != null) totalText.text = Count(totalScore, (time - totalStart) / totalSeconds).ToString();
 

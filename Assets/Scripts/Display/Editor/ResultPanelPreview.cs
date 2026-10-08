@@ -9,25 +9,24 @@ using UnityEngine.UI;
 
 namespace FoodIsekaiZ.Display.Editor
 {
-    // Renders the Result prefab with sample numbers to Temp/ResultPanelPreview.png at the wall canvas size,
+    // Renders normal and automatic-team-bonus results, including detail crops, at the wall canvas size,
     // inside an isolated preview scene so the open scene is never touched.
     [InitializeOnLoad]
     public static class ResultPanelPreview
     {
         private const string RequestPath = "Temp/ResultPanelPreview.request";
         private const string OutputPath = "Temp/ResultPanelPreview.png";
-        // Frames taken through the reveal sequence; the last one is the finished screen.
-        private static readonly float[] AnimationSeconds = { 0.9f, 1.9f, 2.7f, 3.75f, 6f };
         private const string ResultPrefabPath = "Assets/Prefab/UI/Result.prefab";
         private const string BackgroundPath = "Assets/Art/BG/BGFoodDay.png";
         private const int Width = 1536;
         private const int Height = 435;
 
-        static ResultPanelPreview() => EditorApplication.delayCall += RunRequested;
+        static ResultPanelPreview() => EditorApplication.update += RunRequested;
 
         private static void RunRequested()
         {
-            if (!File.Exists(RequestPath) || EditorApplication.isPlayingOrWillChangePlaymode) return;
+            if (!File.Exists(RequestPath) || EditorApplication.isCompiling || EditorApplication.isUpdating ||
+                EditorApplication.isPlayingOrWillChangePlaymode) return;
             File.Delete(RequestPath);
             Render();
         }
@@ -78,10 +77,15 @@ namespace FoodIsekaiZ.Display.Editor
                 GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(ResultPrefabPath);
                 int[] allScores = { 420, 360, 270, 184, 150, 96 };
 
-                // One finished screen per player count (Temp/ResultPanelPreview_1p.png to _6p.png); the four-player
-                // screen also keeps the frames through the reveal sequence.
-                for (int players = 1; players <= 6; players++)
+                // Both samples use the same four players so the optional team bonus is easy to compare.
+                for (int variant = 0; variant < 2; variant++)
                 {
+                    const int players = 4;
+                    int playerTotal = 0;
+                    for (int i = 0; i < players; i++) playerTotal += allScores[i];
+                    int teamBonus = variant == 0 ? 0 : 40;
+                    const int penalty = 25;
+                    const int coins = 60;
                     GameObject result = Object.Instantiate(prefab, menu.transform, false);
                     result.name = "Result";
                     ((RectTransform)result.transform).anchoredPosition = new Vector2(0f, -44f);
@@ -104,9 +108,10 @@ namespace FoodIsekaiZ.Display.Editor
                     var graphics = result.GetComponentsInChildren<MaskableGraphic>(true);
                     foreach (MaskableGraphic graphic in graphics)
                         if (IsAnimated(graphic)) Call(graphic, "OnEnable");
-                    if (reveal != null) reveal.Play(1200, 60, 1260, scores);
+                    if (reveal != null) reveal.Play(playerTotal, coins, playerTotal + teamBonus - penalty + coins,
+                        scores, penalty, teamBonus);
 
-                    float[] frames = players == 4 ? AnimationSeconds : new[] { AnimationSeconds[AnimationSeconds.Length - 1] };
+                    float[] frames = { 8f };
                     for (int i = 0; i < frames.Length; i++)
                     {
                         if (reveal != null)
@@ -123,11 +128,8 @@ namespace FoodIsekaiZ.Display.Editor
                             if (graphic is ResultMvpEffect) Call(graphic, "Update");
                             graphic.SetVerticesDirty();
                         }
-                        bool finished = i == frames.Length - 1;
-                        string path = finished ? OutputPath.Replace(".png", $"_{players}p.png")
-                            : OutputPath.Replace(".png", $"_t{frames[i]:0.0}.png");
+                        string path = OutputPath.Replace(".png", variant == 0 ? "_Normal.png" : "_Team.png");
                         Capture(camera, target, result, path);
-                        if (finished && players == 4) Capture(camera, target, result, OutputPath);
                     }
                     if (reveal != null) Call(reveal, "OnDisable");
                     Object.DestroyImmediate(result);
@@ -161,6 +163,31 @@ namespace FoodIsekaiZ.Display.Editor
             RenderTexture.active = previous;
             File.WriteAllBytes(path, image.EncodeToPNG());
             Object.DestroyImmediate(image);
+            var total = (RectTransform)result.transform.Find("Content/TotalScore");
+            var corners = new Vector3[4];
+            total.GetWorldCorners(corners);
+            Vector3 center = camera.WorldToScreenPoint(total.position);
+            float scale = (camera.WorldToScreenPoint(corners[2]).x - camera.WorldToScreenPoint(corners[0]).x) / total.rect.width;
+            int left = Mathf.Max(0, Mathf.FloorToInt(center.x - 115f * scale));
+            int bottom = Mathf.Max(0, Mathf.FloorToInt(center.y - 65f * scale));
+            int width = Mathf.Min(target.width - left, Mathf.CeilToInt(280f * scale));
+            int height = Mathf.Min(target.height - bottom, Mathf.CeilToInt(90f * scale));
+            RenderTexture.active = target;
+            var detail = new Texture2D(width, height, TextureFormat.RGBA32, false);
+            detail.ReadPixels(new Rect(left, bottom, width, height), 0, 0);
+            detail.Apply();
+            RenderTexture.active = previous;
+            File.WriteAllBytes(path.Replace(".png", "_Detail.png"), detail.EncodeToPNG());
+            Object.DestroyImmediate(detail);
+            TMP_Text heading = total.GetComponent<TMP_Text>();
+            TMP_Text breakdown = total.Find("Text_Bonus").GetComponent<TMP_Text>();
+            float headingLeft = camera.WorldToScreenPoint(heading.transform.TransformPoint(
+                heading.textInfo.characterInfo[0].bottomLeft)).x;
+            float breakdownLeft = camera.WorldToScreenPoint(breakdown.transform.TransformPoint(
+                breakdown.textInfo.characterInfo[0].bottomLeft)).x;
+            File.WriteAllText(path.Replace(".png", ".txt"),
+                $"Heading left: {headingLeft}\nBreakdown left: {breakdownLeft}\nPixels per unit: {scale}\n" +
+                $"Font size: {breakdown.fontSize}\nLines: {breakdown.textInfo.lineCount}\nText: {breakdown.text}");
             Debug.Log("[ResultPanelPreview] Saved " + Path.GetFullPath(path));
         }
 

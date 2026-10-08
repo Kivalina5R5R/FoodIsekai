@@ -22,6 +22,13 @@ namespace FoodIsekaiZ.Display
         private bool scaleCaptured;
         private bool occupied;
         private Coroutine feedback;
+        private RectTransform replacement;
+
+        public void RefreshLayoutPosition()
+        {
+            if (replacement != null)
+                replacement.anchoredPosition3D = ((RectTransform)transform).anchoredPosition3D;
+        }
 
         public bool IsEntering { get; private set; }
 
@@ -99,7 +106,7 @@ namespace FoodIsekaiZ.Display
             yield return ScaleCard(card, authoredScale, from, popScale, expandSeconds);
             yield return ScaleCard(card, authoredScale, popScale, 0f, shrinkSeconds);
 
-            var replacement = Instantiate(readyPrefab, card.parent, false);
+            replacement = Instantiate(readyPrefab, card.parent, false);
             replacement.anchoredPosition3D = card.anchoredPosition3D;
             replacement.localRotation = card.localRotation;
             // Uniform fitting keeps the Ready sprite and its authored text proportions intact.

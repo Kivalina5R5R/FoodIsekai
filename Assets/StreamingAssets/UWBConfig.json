@@ -1,5 +1,5 @@
 {
-    "UWBSerialPort": "COM5",
+    "UWBSerialPort": "COM3",
     "UWBBaudRate": 921600,
     "axisConversion": {
         "rawXTo": "x",

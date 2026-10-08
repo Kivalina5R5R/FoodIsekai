@@ -23,6 +23,7 @@ namespace FoodIsekaiZ.Display
         private bool exitRequested;
         private bool coverRequested;
         private Vector2 exitPosition;
+        public bool HasStartedExit => exitRequested;
 
         // The floor number spots appear when Lunar says "spot" / "จุด", or once she has finished speaking.
         public bool IsReadyForSelection => guidePrefab == null ||

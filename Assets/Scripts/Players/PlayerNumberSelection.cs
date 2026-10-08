@@ -8,9 +8,9 @@ namespace FoodIsekaiZ.Players
     {
         private readonly HashSet<int> participants;
         private readonly Dictionary<int, int> assignedNumbers = new Dictionary<int, int>();
-        private readonly int?[] owners;
-        private readonly int?[] candidates;
-        private readonly float[] elapsed;
+        private int?[] owners;
+        private int?[] candidates;
+        private float[] elapsed;
         private readonly float holdSeconds;
 
         public bool IsComplete => assignedNumbers.Count == participants.Count;
@@ -33,6 +33,23 @@ namespace FoodIsekaiZ.Players
         }
 
         public bool HasAssignedNumber(int tagId) => assignedNumbers.ContainsKey(tagId);
+        // Adds a late arrival without changing confirmed numbers; moving cards resets unfinished holds.
+        public bool TryAddParticipant(int tagId)
+        {
+            if (tagId < 0 || !participants.Add(tagId)) return false;
+            int count = Math.Max(owners.Length, participants.Count);
+            Array.Resize(ref owners, count);
+            Array.Resize(ref candidates, count);
+            Array.Resize(ref elapsed, count);
+            for (int i = 0; i < owners.Length; i++)
+            {
+                if (owners[i].HasValue) continue;
+                candidates[i] = null;
+                elapsed[i] = 0f;
+            }
+            return true;
+        }
+
         public int? GetOwner(int playerNumber) => owners[GetIndex(playerNumber)];
         public float GetProgress(int playerNumber) => elapsed[GetIndex(playerNumber)] / holdSeconds;
 

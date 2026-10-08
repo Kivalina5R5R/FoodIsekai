@@ -93,7 +93,20 @@ namespace FoodIsekaiZ.Display
         {
             get
             {
-                foreach (GameObject npc in spawnedNpcs) if (npc != null) return true;
+                RectTransform canvasRect = sideCanvas != null ? sideCanvas.GetComponent<RectTransform>() : null;
+                foreach (GameObject npc in spawnedNpcs)
+                {
+                    if (npc == null || !npc.activeInHierarchy) continue;
+                    if (canvasRect == null) return true;
+                    RectTransform body = FindNestedTransform(npc.transform, "Image") as RectTransform;
+                    if (body == null) body = npc.transform as RectTransform;
+                    if (body == null) return true;
+                    if (!body.gameObject.activeInHierarchy) continue;
+                    Bounds bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(canvasRect, body);
+                    Rect visibleArea = canvasRect.rect;
+                    if (bounds.max.x > visibleArea.xMin && bounds.min.x < visibleArea.xMax &&
+                        bounds.max.y > visibleArea.yMin && bounds.min.y < visibleArea.yMax) return true;
+                }
                 return false;
             }
         }

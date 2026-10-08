@@ -74,8 +74,16 @@ namespace FoodIsekaiZ.Display.Editor
                 Invoke(panels, "RefreshResults");
                 for (int i = 0; i < scores.Length; i++)
                     Invoke(game, "AddPlayerAndTeamScore", i + 1, scores[i] - 200);
+                Invoke(game, "ApplyEscapedCustomerPenalty");
+                Invoke(game, "AddTeamOnlyScore", 10);
                 Set(game, "totalBankedMoney", 125);
                 Invoke(game, "ConvertRemainingMoneyToScore");
+                Check(game.PlayerScoreTotal == 930 && game.TeamPenalty == 5 && game.TeamOnlyScore == 10 &&
+                    game.FinalScoreBeforeBonus == 935 && game.FinalLeftoverBonus == 60 && game.TeamScore == 995,
+                    "Player earnings + team-only earnings - one team penalty + coins reconcile exactly.", report);
+                Invoke(game, "ConvertRemainingMoneyToScore");
+                Check(game.TeamScore == 995 && game.FinalLeftoverBonus == 60,
+                    "Repeated final settlement does not add or erase the coin bonus.", report);
                 Invoke(panels, "RefreshResults");
                 Transform content = instance.transform.Find("Content");
                 var reveal = content.GetComponent<ResultRevealSequence>();
@@ -92,8 +100,8 @@ namespace FoodIsekaiZ.Display.Editor
                 Check(content.Find("TotalScore/Text_Score").GetComponent<TMP_Text>().text == game.TeamScore.ToString(),
                     "Result total matches the game manager including leftover bonus.", report);
                 Check(content.Find("TotalScore/Text_Bonus").GetComponent<TMP_Text>().text ==
-                    $"{game.FinalScoreBeforeBonus}+{game.FinalLeftoverBonus}",
-                    "Result breakdown preserves service score and team-only bonus.", report);
+                    "PLAYERS 930   +10 TEAM   -5 PENALTY   +60 COINS",
+                    "Compact result breakdown shows the player sum, shared earnings, penalty and coin bonus.", report);
 
                 // A later score event can reorder rows after the first snapshot was captured.
                 Invoke(game, "AddPlayerAndTeamScore", 3, 700);
@@ -114,6 +122,44 @@ namespace FoodIsekaiZ.Display.Editor
                 Check(leader.Find("Playr1_Score").GetComponent<TMP_Text>().text == "725" &&
                     content.Find("TotalScore/Text_Score").GetComponent<TMP_Text>().text == game.TeamScore.ToString(),
                     "A disabled reveal still displays current player and team scores.", report);
+                Check(content.Find("TotalScore/Text_Bonus").GetComponent<TMP_Text>().text ==
+                    "PLAYERS 1,655   +10 TEAM   -5 PENALTY   +60 COINS",
+                    "Disabled animation uses the same updated breakdown.", report);
+
+                var penaltyGame = host.AddComponent<FoodIsekaiZGameManager>();
+                Invoke(penaltyGame, "ApplyEscapedCustomerPenalty");
+                Invoke(penaltyGame, "ApplyEscapedCustomerPenalty");
+                Check(penaltyGame.TeamScore == 0 && penaltyGame.TeamPenalty == 10,
+                    "Penalties at zero remain recorded while the live display stays nonnegative.", report);
+                Invoke(penaltyGame, "AddPlayerAndTeamScore", 1, 5);
+                Set(penaltyGame, "totalBankedMoney", 20);
+                Invoke(penaltyGame, "ConvertRemainingMoneyToScore");
+                Check(penaltyGame.GetPlayerScore(1) == 5 && penaltyGame.FinalScoreBeforeBonus == -5 &&
+                    penaltyGame.FinalLeftoverBonus == 10 && penaltyGame.TeamScore == 5,
+                    "Early penalties reduce the final coin bonus without changing personal earnings.", report);
+
+                var emptyGame = host.AddComponent<FoodIsekaiZGameManager>();
+                Invoke(emptyGame, "ApplyEscapedCustomerPenalty");
+                Invoke(emptyGame, "ConvertRemainingMoneyToScore");
+                Check(emptyGame.FinalScoreBeforeBonus == -5 && emptyGame.TeamScore == 0,
+                    "Final totals below zero display zero even with no coins.", report);
+
+                TMP_Text breakdown = content.Find("TotalScore/Text_Bonus").GetComponent<TMP_Text>();
+                foreach (string sample in new[] {
+                    ResultScoreText.Format(0, 0, 0),
+                    ResultScoreText.Format(1000, 25, 60),
+                    ResultScoreText.Format(99999, 9999, 9999, 9999) })
+                {
+                    breakdown.text = sample;
+                    breakdown.ForceMeshUpdate(true, true);
+                    // Preferred height reserves line spacing; visible glyph bounds determine overlap here.
+                    Bounds ink = breakdown.textBounds;
+                    Rect area = breakdown.rectTransform.rect;
+                    Check(ink.min.x >= area.xMin - 0.1f && ink.max.x <= area.xMax + 0.1f &&
+                        ink.min.y >= area.yMin - 0.1f && ink.max.y <= area.yMax + 0.1f &&
+                        breakdown.textInfo.lineCount <= 1,
+                        $"Breakdown fits its authored single-line rectangle: {sample}", report);
+                }
             }
             catch (Exception error)
             {

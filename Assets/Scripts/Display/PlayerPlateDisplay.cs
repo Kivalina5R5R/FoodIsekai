@@ -29,6 +29,7 @@ namespace FoodIsekaiZ.Display
         private int displayedPlayerId = -1;
         private FoodType displayedFood = (FoodType)(-1);
         private int displayedMoney = -1;
+        private int displayedMoneyCapacity = -1;
         private int displayedMeal = -1;
         private FloorAnimatedSprite pendingPickup;
         private int pendingPlaybackVersion;
@@ -100,12 +101,14 @@ namespace FoodIsekaiZ.Display
                 RefreshMultipleFood(waitingForPickup);
             }
 
-            if (displayedMoney != playerState.CarriedMoney)
+            if (displayedMoney != playerState.CarriedMoney ||
+                displayedMoneyCapacity != playerState.MaximumCarriedMoney)
             {
                 bool receivedMoney = playerState.CarriedMoney > displayedMoney && playerState.CarriedMoney > 0;
                 displayedMoney = playerState.CarriedMoney;
+                displayedMoneyCapacity = playerState.MaximumCarriedMoney;
                 moneyVisual.SetActive(displayedMoney > 0);
-                moneyMeter?.SetAmount(displayedMoney, playerState.MaximumCarriedMoney);
+                moneyMeter?.SetAmount(displayedMoney, displayedMoneyCapacity);
                 if (receivedMoney)
                 {
                     moneyAppearEffect?.Play();

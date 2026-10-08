@@ -375,20 +375,21 @@ namespace FoodIsekaiZ.Display
             {
                 if (resultRevealStarted)
                 {
-                    resultReveal.RefreshScores(gameManager.FinalScoreBeforeBonus, gameManager.FinalLeftoverBonus,
-                        gameManager.TeamScore, rowScores);
+                    resultReveal.RefreshScores(gameManager.PlayerScoreTotal, gameManager.FinalLeftoverBonus,
+                        gameManager.TeamScore, rowScores, gameManager.TeamPenalty, gameManager.TeamOnlyScore);
                     return;
                 }
                 resultRevealStarted = true;
-                resultReveal.Play(gameManager.FinalScoreBeforeBonus, gameManager.FinalLeftoverBonus,
-                    gameManager.TeamScore, rowScores);
+                resultReveal.Play(gameManager.PlayerScoreTotal, gameManager.FinalLeftoverBonus,
+                    gameManager.TeamScore, rowScores, gameManager.TeamPenalty, gameManager.TeamOnlyScore);
                 return;
             }
 
             if (resultScoreText != null) resultScoreText.text = gameManager.TeamScore.ToString();
-            // Shows how the total above was reached: service score plus the leftover-coin bonus, such as 1200+60.
+            // Keep the same breakdown when the reveal component is disabled.
             if (resultBonusText != null)
-                resultBonusText.text = $"{gameManager.FinalScoreBeforeBonus}+{gameManager.FinalLeftoverBonus}";
+                resultBonusText.text = ResultScoreText.Format(gameManager.PlayerScoreTotal, gameManager.TeamPenalty,
+                    gameManager.FinalLeftoverBonus, gameManager.TeamOnlyScore);
         }
 
         private int ComparePlayerScores(int firstPlayerId, int secondPlayerId)

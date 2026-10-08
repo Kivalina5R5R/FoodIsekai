@@ -102,6 +102,7 @@ namespace FoodIsekaiZ.Players
         private void Start()
         {
             uwbManager = standaloneSimulationMode ? null : FindAnyObjectByType<UWBManager>();
+            if (uwbManager != null) uwbManager.TagDetected += ConnectDetectedTag;
             if (spawnOnStart)
             {
                 SpawnPlayers();
@@ -115,6 +116,7 @@ namespace FoodIsekaiZ.Players
 
         private void OnDestroy()
         {
+            if (uwbManager != null) uwbManager.TagDetected -= ConnectDetectedTag;
             if (standaloneSimulationMode || uwbManager == null)
             {
                 return;
@@ -249,6 +251,27 @@ namespace FoodIsekaiZ.Players
             spawnedPlayers.Clear();
         }
 
+        private void ConnectDetectedTag(int tagId)
+        {
+            if (standaloneSimulationMode || !selectPlayerNumberBeforeGameplay || roundTagIds != null ||
+                playerPrefab == null) return;
+            int onlineCount = 0;
+            foreach (UWBPlayerController player in spawnedPlayers)
+            {
+                if (player == null) continue;
+                if (player.TagId == tagId) return;
+                if (player.PlayerId > 0 || uwbManager.IsTagOnline(player.TagId)) onlineCount++;
+            }
+            if (onlineCount >= MaximumPlayers) return;
+            UWBPlayerController controller = CreatePlayer(playerParent != null ? playerParent : transform);
+            controller.SetUwbTrackingEnabled(true);
+            controller.ConfigureUnassignedTag(tagId);
+            controller.SetPlayerScale(playerScale);
+            uwbManager.RegisterTag(tagId);
+            spawnedPlayers.Add(controller);
+            controller.gameObject.SetActive(true);
+        }
+
         private void RefreshSerialPlayerPresence()
         {
             if (standaloneSimulationMode)
@@ -259,6 +282,7 @@ namespace FoodIsekaiZ.Players
             if (uwbManager == null)
             {
                 uwbManager = FindAnyObjectByType<UWBManager>();
+                if (uwbManager != null) uwbManager.TagDetected += ConnectDetectedTag;
             }
 
             if (uwbManager == null || !disableOfflinePlayersInSerial || !uwbManager.IsSerialMode)

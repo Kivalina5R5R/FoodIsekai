@@ -43,7 +43,7 @@ namespace FoodIsekaiZ.Display
                 for (int column = 0; column <= columns; column++)
                 {
                     float x = column / (float)columns;
-                    float offset = (x + y) * 0.5f - sweep;
+                    float offset = x - sweep;
                     float distance = offset / 0.062f;
                     float core = Mathf.Exp(-0.5f * distance * distance);
                     Color tint = Color.Lerp(new Color(0.67f, 0.72f, 0.79f), new Color(0.98f, 0.99f, 1f), core);

@@ -168,6 +168,9 @@ namespace FoodIsekaiZ.Gameplay
         private int totalBankedMoney;
         private readonly PerkManager perks = new PerkManager(PerkDefinitions.All);
         private double teamScoreRemainder;
+        private int teamPenalty;
+        private int teamOnlyScore;
+        private bool finalMoneyConverted;
         public PerkManager Perks => perks;
         public FoodType SpecialMenuFood { get; private set; }
         private int specialMenuWave = int.MinValue;
@@ -205,7 +208,20 @@ namespace FoodIsekaiZ.Gameplay
             mealPhaseRemainingSeconds = 0f;
             NotifyMealWaveDisplayIfNeeded(true);
         }
-        public int TeamScore => teamScore;
+        public int TeamScore => Mathf.Max(0, teamScore);
+        public int TeamPenalty => teamPenalty;
+        public int TeamOnlyScore => teamOnlyScore;
+        public int PlayerScoreTotal
+        {
+            get
+            {
+                int total = 0;
+                if (playerScores != null)
+                    foreach (PlayerScoreRecord record in playerScores)
+                        if (record != null) total += record.score;
+                return total;
+            }
+        }
         // Coins left in the team wallet when the game ended and the score they were converted into.
         public int FinalLeftoverCoins { get; private set; }
         public int FinalLeftoverBonus { get; private set; }
@@ -483,6 +499,9 @@ namespace FoodIsekaiZ.Gameplay
             PlayerSessionLog.EnsureSession(CountSessionPlayers());
             perks.Reset();
             teamScoreRemainder = 0;
+            teamPenalty = 0;
+            teamOnlyScore = 0;
+            finalMoneyConverted = false;
             specialMenuWave = int.MinValue;
             SpecialMenuFood = FoodType.None;
             mealWaveFlowStarted = true;
@@ -587,6 +606,8 @@ namespace FoodIsekaiZ.Gameplay
                 slot.SlotType != ArenaSlotType.MoneyDeposit &&
                 slot.CustomerState != CustomerSlotState.MoneyAvailable) return false;
 
+            player.SetMoneyCapacityForMeal(useMealWaves ? CurrentWaveNumber : 1);
+
             switch (slot.SlotType)
             {
                 case ArenaSlotType.FoodStation:
@@ -656,6 +677,9 @@ namespace FoodIsekaiZ.Gameplay
                 loggedWaveServedAtStart = servedOrderCount;
                 loggedWaveExpiredAtStart = expiredOrderCount;
                 mealWavePhase = MealWavePhase.Active;
+                foreach (FoodIsekaiZPlayerState player in FindObjectsByType<FoodIsekaiZPlayerState>(
+                    FindObjectsInactive.Include, FindObjectsSortMode.None))
+                    player.SetMoneyCapacityForMeal(CurrentWaveNumber);
                 mealPhaseRemainingSeconds = Mathf.Max(1f, waveDurationSeconds);
                 lastNotifiedMealSecond = int.MinValue;
                 StartCustomerFlow();
@@ -692,11 +716,15 @@ namespace FoodIsekaiZ.Gameplay
         {
             TickCustomerStates(deltaTime);
             TickCompletedCustomerMoney();
-            if (customerSlots != null)
+            // Visible NPCs own the clearance gate; offscreen coin animations must not hold the transition.
+            if (departureStatus != null)
+            {
+                if (departureStatus.HasNpcsInRestaurant) return;
+            }
+            else if (customerSlots != null)
                 foreach (ArenaSlot2D slot in customerSlots)
                     if (slot != null && (slot.CustomerState == CustomerSlotState.Eating ||
                         slot.CustomerState == CustomerSlotState.Completing || slot.IsAutomaticCollectionPending)) return;
-            if (departureStatus != null && departureStatus.HasNpcsInRestaurant) return;
 
             if (currentWaveIndex >= TotalWaveCount - 1)
             {
@@ -706,6 +734,7 @@ namespace FoodIsekaiZ.Gameplay
 
             if (intermissionDurationSeconds <= 0f)
             {
+                SettleOutstandingMoney();
                 currentWaveIndex++;
                 BeginCurrentWave();
                 return;
@@ -771,10 +800,9 @@ namespace FoodIsekaiZ.Gameplay
                 SettleOutstandingMoney();
                 CloseWaveLog();
                 int endMoney = totalBankedMoney;
-                int scoreBeforeBonus = teamScore;
                 ConvertRemainingMoneyToScore();
                 RecordPlayerScoresInLog();
-                PlayerSessionLog.RecordGameEnd(endMoney, scoreBeforeBonus, teamScore - scoreBeforeBonus, teamScore,
+                PlayerSessionLog.RecordGameEnd(endMoney, FinalScoreBeforeBonus, FinalLeftoverBonus, TeamScore,
                     TryGetMvp(out int mvpPlayerId, out _) ? mvpPlayerId : 0);
                 StopCustomerFlowAndClearSlots();
                 mealWavePhase = MealWavePhase.Completed;
@@ -788,6 +816,8 @@ namespace FoodIsekaiZ.Gameplay
         // and a partial group is rounded down. The wallet empties into the result either way.
         private void ConvertRemainingMoneyToScore()
         {
+            if (finalMoneyConverted) return;
+            finalMoneyConverted = true;
             FinalLeftoverCoins = Mathf.Max(0, totalBankedMoney);
             FinalLeftoverBonus = FinalLeftoverCoins / Mathf.Max(1, leftoverCoinsPerBonus) * leftoverBonusScore;
             FinalScoreBeforeBonus = teamScore;
@@ -1027,7 +1057,7 @@ namespace FoodIsekaiZ.Gameplay
             {
                 float waited = slot.WaitedSeconds;
                 if (!slot.TryServeFood(FoodType.Food5, EffectiveEatingSeconds)) break;
-                AddTeamScore(GetServeScore(FoodType.Food5, slot));
+                AddTeamOnlyScore(GetServeScore(FoodType.Food5, slot));
                 PlayerSessionLog.RecordDishServed(0, FoodType.Food5);
                 if (slot.CustomerState == CustomerSlotState.Eating)
                 {
@@ -1043,8 +1073,9 @@ namespace FoodIsekaiZ.Gameplay
             if (perks.GetAmount(PerkEffect.AngerPenalty) == 0) return;
             double exact = -escapedCustomerPenalty * perks.GetAmount(PerkEffect.AngerPenalty) + teamScoreRemainder;
             int rounded = (int)Math.Round(exact, MidpointRounding.AwayFromZero);
+            teamPenalty -= rounded;
             AddTeamScore(rounded);
-            teamScoreRemainder = teamScore > 0 ? exact - rounded : 0;
+            teamScoreRemainder = exact - rounded;
         }
 
         private bool TryInteractWithCustomer(FoodIsekaiZPlayerState player, ArenaSlot2D slot)
@@ -1130,6 +1161,17 @@ namespace FoodIsekaiZ.Gameplay
             if (customerSlots == null) return;
             foreach (ArenaSlot2D slot in customerSlots)
             {
+                // Served orders can outlive their offscreen NPC while presentation callbacks are pending.
+                if (slot != null && (slot.CustomerState == CustomerSlotState.Eating ||
+                    slot.CustomerState == CustomerSlotState.Completing))
+                {
+                    if (slot.CustomerState == CustomerSlotState.Eating) completedOrderCount++;
+                    int reward = slot.OrderReward;
+                    PlayerSessionLog.RecordCustomerPayment(reward);
+                    slot.ClearCustomer();
+                    CreditMoneyDeposit(0, reward);
+                    continue;
+                }
                 if (slot == null || slot.CustomerState != CustomerSlotState.MoneyAvailable) continue;
                 CreditMoneyDeposit(0, slot.CollectMoney());
             }
@@ -1149,7 +1191,7 @@ namespace FoodIsekaiZ.Gameplay
             }
             else
             {
-                AddTeamScore(bankDepositScore);
+                AddTeamOnlyScore(bankDepositScore);
             }
             return true;
         }
@@ -1201,6 +1243,12 @@ namespace FoodIsekaiZ.Gameplay
             return null;
         }
 
+        private void AddTeamOnlyScore(int amount)
+        {
+            teamOnlyScore += amount;
+            AddTeamScore(amount);
+        }
+
         private void AddTeamScore(int amount)
         {
             if (amount == 0)
@@ -1208,8 +1256,9 @@ namespace FoodIsekaiZ.Gameplay
                 return;
             }
 
-            teamScore = Mathf.Max(0, teamScore + amount);
-            TeamScoreChanged?.Invoke(teamScore);
+            // Keep the signed balance so penalties at zero still count against later earnings and the final bonus.
+            teamScore += amount;
+            TeamScoreChanged?.Invoke(TeamScore);
         }
 
         private void SpawnReadyCustomers()

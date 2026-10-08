@@ -12,6 +12,7 @@ namespace FoodIsekaiZ.Display
         private Matrix4x4 selectionWorldToLocal;
         private Rect authoredBounds;
         private bool boundsCaptured;
+        private Vector3 capturedWorldPosition;
 
         public int PlayerNumber => playerNumber;
         public bool IsConfirmationFinished => confirmation != null && confirmation.IsFinished;
@@ -20,14 +21,27 @@ namespace FoodIsekaiZ.Display
 
         public void PlayEntrance(int order)
         {
+            RefreshSelectionBounds();
+            if (confirmation != null) confirmation.PlayEntrance(order);
+        }
+
+        // Refresh the interaction footprint after the existing card layout expands.
+        public void RefreshSelectionBounds()
+        {
+            confirmation?.RefreshLayoutPosition();
             if (selectionBounds != null)
             {
                 // The interaction footprint stays fixed while the card visually bounces.
-                selectionWorldToLocal = selectionBounds.worldToLocalMatrix;
-                authoredBounds = selectionBounds.rect;
+                if (boundsCaptured)
+                    selectionWorldToLocal *= Matrix4x4.Translate(capturedWorldPosition - selectionBounds.position);
+                else
+                {
+                    selectionWorldToLocal = selectionBounds.worldToLocalMatrix;
+                    authoredBounds = selectionBounds.rect;
+                }
+                capturedWorldPosition = selectionBounds.position;
                 boundsCaptured = true;
             }
-            if (confirmation != null) confirmation.PlayEntrance(order);
         }
 
         private void Awake()

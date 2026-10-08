@@ -38,6 +38,8 @@ namespace FoodIsekaiZ.Display
         private AudioSource dialogueVoice;
         private bool duckingMusic;
         private Coroutine voiceFade;
+        private RectTransform visibleCanvas;
+        private readonly Vector3[] bodyCorners = new Vector3[4];
         // Each voice line keeps its own authored level, so a fade always returns to that level rather than to full volume.
         private readonly System.Collections.Generic.Dictionary<AudioSource, float> voiceVolumes =
             new System.Collections.Generic.Dictionary<AudioSource, float>();
@@ -122,6 +124,8 @@ namespace FoodIsekaiZ.Display
 
         public void WalkIn(Vector2 start, Vector2 destination, float canvasWidth)
         {
+            Canvas canvas = GetComponentInParent<Canvas>();
+            visibleCanvas = canvas != null ? canvas.rootCanvas.transform as RectTransform : null;
             if (entrance != null) StopCoroutine(entrance);
             // A reused shop guide must undo the previous exit turn before walking in again.
             transform.localScale = entranceScale;
@@ -233,6 +237,11 @@ namespace FoodIsekaiZ.Display
                     bob *= 1f - settle;
                 }
                 rect.anchoredPosition = groundedPosition + Vector2.up * bob;
+                if (exiting && HasClearedCanvas())
+                {
+                    FinishExit();
+                    yield break;
+                }
                 // Each completed bob cycle is a foot touching the ground, including the final arrival step.
                 int landedStride = Mathf.FloorToInt(phase / (Mathf.PI * 2f));
                 if (landedStride > stride)
@@ -247,8 +256,7 @@ namespace FoodIsekaiZ.Display
             groundedPosition = destination;
             if (exiting)
             {
-                HasExited = true;
-                gameObject.SetActive(false);
+                FinishExit();
                 yield break;
             }
             yield return WaitForStandingVideo();
@@ -259,6 +267,33 @@ namespace FoodIsekaiZ.Display
             yield return AnimateDialogue(true);
             HasOpenedDialogue = true;
             entrance = null;
+        }
+
+        // Both intro and perk transitions use HasExited as soon as the entire walking body clears the canvas.
+        private bool HasClearedCanvas()
+        {
+            RectTransform body = poseBlend != null && poseBlend.WalkingRect != null
+                ? poseBlend.WalkingRect : visualBody;
+            if (visibleCanvas == null || body == null) return false;
+            body.GetWorldCorners(bodyCorners);
+            Vector2 minimum = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
+            Vector2 maximum = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+            foreach (Vector3 corner in bodyCorners)
+            {
+                Vector2 point = visibleCanvas.InverseTransformPoint(corner);
+                minimum = Vector2.Min(minimum, point);
+                maximum = Vector2.Max(maximum, point);
+            }
+            Rect area = visibleCanvas.rect;
+            return maximum.x <= area.xMin || minimum.x >= area.xMax ||
+                maximum.y <= area.yMin || minimum.y >= area.yMax;
+        }
+
+        private void FinishExit()
+        {
+            HasExited = true;
+            entrance = null;
+            gameObject.SetActive(false);
         }
 
         // Distance scales the authored footstep volume for this step.

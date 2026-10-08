@@ -31,6 +31,9 @@ namespace FoodIsekaiZ.Players
         private readonly HashSet<int> observedTags = new HashSet<int>();
         private float rosterChangedAt;
         private PlayerReadyZone[] activeZones;
+        private float zoneCenter;
+        private float zoneSpacing;
+        private bool rosterLocked;
         // Per-card feedback state so step, hold and contest sounds play once per change.
         private readonly bool[] zoneOccupied = new bool[UWBPlayerSpawner.MaximumPlayers];
         private readonly bool[] zoneContested = new bool[UWBPlayerSpawner.MaximumPlayers];
@@ -59,6 +62,7 @@ namespace FoodIsekaiZ.Players
         {
             if (!selectionRequested || completed || configurationFailed) return;
             if (selection == null && !TryInitialize()) return;
+            AddNewParticipants();
 
             if (!readyShown)
             {
@@ -109,7 +113,13 @@ namespace FoodIsekaiZ.Players
             {
                 if (players[p] == null || !players[p].IsAvailableForSelection) return;
             }
-            if (readyGuide != null && !readyGuide.TryFinish()) return;
+            bool guideFinished = readyGuide == null || readyGuide.TryFinish();
+            if (!rosterLocked && (guideFinished || readyGuide.HasStartedExit))
+            {
+                playerSpawner.LockRoundParticipants(roundPlayers);
+                rosterLocked = true;
+            }
+            if (!guideFinished) return;
             completed = true;
             if (readyRoot != null) readyRoot.SetActive(false);
             for (int p = 0; p < players.Count; p++) players[p].EnterGameplay();
@@ -173,26 +183,54 @@ namespace FoodIsekaiZ.Players
                 FailConfiguration(error.Message);
                 return false;
             }
-            activeZones = new PlayerReadyZone[tags.Length];
             Array.Sort(zones, (left, right) => left.PlayerNumber.CompareTo(right.PlayerNumber));
             var first = (RectTransform)zones[0].transform;
             var last = (RectTransform)zones[zones.Length - 1].transform;
-            float center = (first.anchoredPosition.x + last.anchoredPosition.x) * .5f;
-            float spacing = (last.anchoredPosition.x - first.anchoredPosition.x) / Mathf.Max(1, zones.Length - 1);
+            zoneCenter = (first.anchoredPosition.x + last.anchoredPosition.x) * .5f;
+            zoneSpacing = (last.anchoredPosition.x - first.anchoredPosition.x) / Mathf.Max(1, zones.Length - 1);
+            ResizeReadyZones();
+            for (int i = 0; i < roundPlayers.Count; i++) roundPlayers[i].ShowSelectionMarker(true);
+            return true;
+        }
+
+        private void AddNewParticipants()
+        {
+            if (rosterLocked || (readyGuide != null && readyGuide.HasStartedExit)) return;
+            int previousCount = roundPlayers.Count;
+            foreach (UWBPlayerController player in playerSpawner.SpawnedPlayers)
+            {
+                if (roundPlayers.Count >= zones.Length) break;
+                if (player == null || !player.IsAvailableForSelection || roundPlayers.Contains(player)) continue;
+                if (!selection.TryAddParticipant(player.TagId)) continue;
+                roundPlayers.Add(player);
+                player.ShowSelectionMarker(true);
+            }
+            if (roundPlayers.Count == previousCount) return;
+            ResizeReadyZones();
+            if (!readyShown) return;
+            for (int i = previousCount; i < activeZones.Length; i++)
+                activeZones[i].PlayEntrance(i - previousCount);
+        }
+
+        private void ResizeReadyZones()
+        {
+            activeZones = new PlayerReadyZone[roundPlayers.Count];
             for (int i = 0; i < zones.Length; i++)
             {
                 bool included = i < activeZones.Length;
-                zones[i].gameObject.SetActive(included);
+                if (!included) zones[i].gameObject.SetActive(false);
+                else if (!selection.GetOwner(zones[i].PlayerNumber).HasValue) zones[i].gameObject.SetActive(true);
                 if (!included) continue;
                 activeZones[i] = zones[i];
                 var rect = (RectTransform)zones[i].transform;
                 Vector2 position = rect.anchoredPosition;
-                position.x = center + (i - (activeZones.Length - 1) * .5f) * spacing;
+                position.x = zoneCenter + (i - (activeZones.Length - 1) * .5f) * zoneSpacing;
                 rect.anchoredPosition = position;
+                zones[i].RefreshSelectionBounds();
+                ResetZoneSound(i);
+                if (readyShown) zones[i].ShowProgress(selection.GetProgress(zones[i].PlayerNumber),
+                    selection.GetOwner(zones[i].PlayerNumber), false);
             }
-            playerSpawner.LockRoundParticipants(roundPlayers);
-            for (int i = 0; i < roundPlayers.Count; i++) roundPlayers[i].ShowSelectionMarker(true);
-            return true;
         }
 
         private void ShowReady()

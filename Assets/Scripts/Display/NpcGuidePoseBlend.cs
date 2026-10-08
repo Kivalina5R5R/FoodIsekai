@@ -18,6 +18,7 @@ namespace FoodIsekaiZ.Display
         private RenderTexture standingVideoTexture;
         public float FadeSeconds => Mathf.Max(0.01f, fadeSeconds);
         public float WalkingWeight { get; private set; }
+        public RectTransform WalkingRect => walkingImage != null ? walkingImage.rectTransform : null;
         // True when there is no standing clip, or the clip is playing with a frame ready to show.
         public bool IsStandingVideoReady => standingVideo == null ||
             (standingVideo.isPlaying && standingVideo.frame >= 0);

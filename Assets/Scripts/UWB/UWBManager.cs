@@ -992,8 +992,16 @@ namespace Fortal.UWB
             return false;
         }
 
+        // Emitted on the main thread before tracking iteration, allowing a consumer to register a new tag.
+        public event Action<int> TagDetected;
+
         private void ApplyPoseToRegisteredTags(NoopLoopPose framePose)
         {
+            if (framePose.Role == NoopLoopRoleTag && framePose.FrameType != "AnchorFrame0-NoTag")
+                TagDetected?.Invoke(framePose.Id);
+            if (framePose.NodeIds != null && framePose.NodeRoles != null)
+                for (int i = 0; i < framePose.NodeIds.Length && i < framePose.NodeRoles.Length; i++)
+                    if (framePose.NodeRoles[i] == NoopLoopRoleTag) TagDetected?.Invoke(framePose.NodeIds[i]);
             foreach (KeyValuePair<int, TrackedTag> pair in tags)
             {
                 if (TryGetPoseForTag(framePose, pair.Key, out NoopLoopPose tagPose))
