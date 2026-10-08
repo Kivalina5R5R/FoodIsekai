@@ -43,7 +43,7 @@ FoodIsekaiZScene
 │   └── FoodIsekaiZGameManager
 ├── Display1_Floor
 │   ├── FloorCamera (Orthographic, อยู่เหนือสนามและมองลงระนาบ XZ)
-│   ├── FloorCanvas (Target Display 1)
+│   ├── FloorCanvas (Target Display 3)
     ├── Map (FoodIsekaiZArenaLayout)
     │   └── Arena
     │       ├── Background + Grid + Boundary
@@ -54,9 +54,12 @@ FoodIsekaiZScene
     ├── SideCamera
     └── SideDisplayLayout (FoodIsekaiZSideDisplayLayout)
         └── SideDisplay (Canvas, Target Display 2)
+└── KioskDisplay
+    ├── KioskCamera (Target Display 1, ไม่ render object ใน scene)
+    └── KioskCanvas (Target Display 1, รูปพื้นหลัง 1080x1920 + ปุ่ม ExitButton)
 ```
 
-`FoodIsekaiZArenaLayout` ไม่สร้างหรือลบ hierarchy และไม่จัดวาง geometry เองแล้ว แต่สร้าง mesh/material สีของ visual บน object ที่มีอยู่ใน `Map/Arena` แล้ว bind `ArenaSlot2D` เข้ากับ GameManager ตอนเริ่มเกม โดยไม่แตะตำแหน่งหรือสร้าง object ใหม่ เลือก `Game View > Display 1` เพื่อดูภาพจาก Floor Camera
+`FoodIsekaiZArenaLayout` ไม่สร้างหรือลบ hierarchy และไม่จัดวาง geometry เองแล้ว แต่สร้าง mesh/material สีของ visual บน object ที่มีอยู่ใน `Map/Arena` แล้ว bind `ArenaSlot2D` เข้ากับ GameManager ตอนเริ่มเกม โดยไม่แตะตำแหน่งหรือสร้าง object ใหม่ เลือก `Game View > Display 3` เพื่อดูภาพจาก Floor Camera
 
 ### Player array / prefab
 
@@ -125,10 +128,12 @@ floorXZ    = Lerp(arenaMin, arenaMax, normalized)
 - Side Wall ถูกวางตั้งตรงตลอดขอบหลังของ Floor เพื่อให้ Scene preview เป็นรูปตัว L ตามการติดตั้งจริง (`Wall Matches Floor Width`)
 - Side Canvas ใช้พื้นที่จัดวางและ reference resolution `1536x435` เป็นหน่วยของ UI ที่จัดวางไว้ ส่วนความละเอียดภาพขาออกของจอผนังคือ `8192x2160`; ไม่ต้องเปลี่ยนขนาด RectTransform ตามจำนวนพิกเซลของจอ
 - Side Canvas ใน `FoodIsekai.unity` ใช้ Dynamic Pixels Per Unit `16` เพื่อเพิ่มความละเอียดฟอนต์แบบ dynamic เมื่อขยายขึ้นจอผนัง โดยคงขนาดตัวอักษรและตำแหน่ง UI ที่จัดวางไว้
-- ต่อจอ Side และ Floor ให้ Windows เห็นเป็น Extended Desktop ก่อนเปิดเกม
-- `FloorCamera.targetDisplay = 0` และ Floor Canvas `targetDisplay = 0` (Unity Display 1 / FloorDisplay)
+- ต่อจอตู้สัมผัส จอ Side และจอ Floor ให้ Windows เห็นเป็น Extended Desktop และตั้งจอตู้สัมผัส (แนวตั้ง) เป็น main display ก่อนเปิดเกม
+- `KioskCamera.targetDisplay = 0` และ Kiosk Canvas `targetDisplay = 0` (Unity Display 1 / หน้าต่างหลักบนจอตู้)
 - `SideCamera.targetDisplay = 1` และ Side Canvas `targetDisplay = 1` (Unity Display 2 / WallDisplay)
-- `DisplayManager` ใช้ Standalone primary output เป็นพื้น `2816x1280` และเรียก Display 2 เป็นกำแพงด้วย `8192x2160`; ค่าเริ่มต้นในสคริปต์และค่าที่ serialize ใน `FoodIsekai.unity` กับ `Test.unity` ต้องตรงกัน
+- `FloorCamera.targetDisplay = 2` และ Floor Canvas `targetDisplay = 2` (Unity Display 3 / FloorDisplay)
+- ลำดับ role อยู่ใน `DisplayOutput`; `KioskDisplaySetup` (Editor) ปรับ target display ที่ serialize ใน scene ที่เปิดอยู่ให้ตรงลำดับนี้ และเมนู `Food Isekai > Apply Display Order` เรียกซ้ำได้
+- ใน Build `DisplayManager` ย้ายหน้าต่างหลักกลับมาที่จอตู้ (Windows main display) ทุกครั้ง ตั้งเป็น `1080x1920` แล้วเลือกจอพื้น (`2944x1408`) และจอกำแพง (`8192x2160`) จากสัดส่วนจอ จากนั้นตั้งหน้าต่างเกมทุกบานให้อยู่บนสุดเพื่อทับแอพเลือกเกม ผลการเลือกจอดูได้จากบรรทัด `[DisplayManager]` ใน `Player.log`
 - ใส่ `FoodIsekaiZSideDisplayLayout` บน `Map` และลาก Canvas `SideDisplay` เข้า `Wall Canvas`; สคริปต์จะอัปเดตเฉพาะค่าคะแนน/สถานะตอน Play และไม่สร้าง UI ใน Edit Mode
 - Camera ของ Floor ใช้ Orthographic อยู่ด้านบนแกน Y และมองลงพื้น XZ; แยก Culling Mask เช่น `SideView`/`FloorView` เพื่อไม่ให้ object ข้ามจอ
 - Multi-display ทำงานถูกต้องใน Standalone Player มากกว่า Game View ปกติ ให้ทดสอบด้วย Windows build และเลือก resolution ของแต่ละจอให้ตรง hardware
@@ -143,9 +148,9 @@ floorXZ    = Lerp(arenaMin, arenaMax, normalized)
 - [ ] Player มี Rigidbody + SphereCollider + FoodIsekaiZPlayerState
 - [ ] Customer 6 ช่องเป็น trigger และอยู่ด้านบน
 - [ ] Food Station 5 ช่องกำหนด Food1..Food5 และ Deposit 1 ช่องอยู่ด้านล่าง
-- [ ] Camera/Canvas ของ Side/Wall ใช้ display 1 (Display 2 / WallDisplay), Floor ใช้ display 0 (Display 1 / FloorDisplay)
+- [ ] Camera/Canvas ของ Kiosk ใช้ display 0 (Display 1), Side/Wall ใช้ display 1 (Display 2 / WallDisplay), Floor ใช้ display 2 (Display 3 / FloorDisplay)
 - [ ] `Map/Arena` และ `Map/SideDisplay` เป็น object ที่วางมือและแก้ได้จาก Inspector โดยไม่มี auto-generate
-- [ ] Build Windows ทดสอบทั้ง serial permission, tag disconnect/reconnect และสองจอจริง
+- [ ] Build Windows ทดสอบทั้ง serial permission, tag disconnect/reconnect และสามจอจริง (ตู้สัมผัส ผนัง พื้น) รวมถึงปุ่มออกจากเกมบนจอตู้
 - [ ] ทดสอบ noise ตอนยืนนิ่ง แล้วปรับ manager dead zone ก่อนปรับ player `smoothTime`
 
 ## 7. การต่อ UI คะแนน

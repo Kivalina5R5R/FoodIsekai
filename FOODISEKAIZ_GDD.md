@@ -1,255 +1,306 @@
 # FoodIsekai — Game Design Document
 
-Project: FoodIsekaiZ (Unity 6000.3.8f1, product name `FoodIsekai`, version 0.1.0)
-Status: playable prototype, as of 2026-09-29
-This document describes the game as it is currently built. Systems still in development are listed in section 12, open questions in section 13.
+โปรเจกต์: FoodIsekaiZ (Unity 6000.3.8f1, product name `FoodIsekai`, version 0.1.0)
+สถานะ: Playable prototype — อัปเดตตามโค้ดและซีน ณ วันที่ 2026-10-06
+เอกสารนี้อธิบายเกม "ตามที่สร้างอยู่จริงในปัจจุบัน" ค่าตัวเลขทั้งหมดอ้างอิงจากซีนและสคริปต์ คำถามที่ยังเปิดอยู่อยู่ในหัวข้อ 13
 
 ---
 
-## 1. Overview
+## 1. ภาพรวม (Overview)
 
-**FoodIsekai** is a cooperative, location-based party game for 1–4 players. Players physically walk around a floor display while wearing UWB (ultra-wideband) tracking tags. Their positions drive on-screen avatars in a fantasy tavern. Together the team serves food to fantasy-race customers across three meal services (Breakfast, Lunch, Dinner), earning score and coins, and spends coins on perks during service breaks.
+**FoodIsekai** เป็นเกมปาร์ตี้แบบร่วมมือ (co-op) ที่เล่นด้วยการเดินจริงบนพื้น ผู้เล่นสวมแท็ก UWB (Ultra-Wideband) แล้วเดินไปมาบนจอพื้น ตำแหน่งของแต่ละคนจะขยับตัวละครบนจอในร้านอาหารแฟนตาซี ทั้งทีมช่วยกันเสิร์ฟอาหารให้ลูกค้าต่างเผ่าพันธุ์ใน 3 มื้อ (Breakfast, Lunch, Dinner) เก็บคะแนนและเหรียญ แล้วใช้เหรียญซื้อ Perk ระหว่างช่วงพัก
 
-| Item | Value |
+| หัวข้อ | รายละเอียด |
 |---|---|
-| Genre | Co-op physical party / restaurant service |
-| Players | 1–4, simultaneous, one team |
-| Session length | About 6 minutes (3 × 90 s service + 2 × 30 s break + intro and results) |
-| Input | UWB tags (NoopLoop), one per player; keyboard in simulation mode |
-| Output | Two displays: floor (2816×1280, players walk on it) and wall (8192×2160) |
-| Perspective | Floor: top-down orthographic; Wall: 2D side-view tavern |
-| Setting | Isekai fantasy guild tavern run by head chef Lunar |
+| แนวเกม | Co-op physical party / restaurant service |
+| จำนวนผู้เล่น | 1–6 คน เล่นพร้อมกันเป็นทีมเดียว (ซีนหลักมีการ์ด Ready 6 ใบ, ซีนแยกตามความละเอียดมี 4 ใบ) |
+| ความยาวต่อรอบ | ประมาณ 6–7 นาที (บริการ 3 × 90 วิ + พัก 2 × 30 วิ + Intro + Results) |
+| อินพุต | แท็ก UWB (NoopLoop) คนละ 1 อัน; คีย์บอร์ดในโหมด Simulation |
+| เอาต์พุต | 2 จอ: จอพื้น (ผู้เล่นเดินบนนี้) และจอผนัง (ร้านอาหารมุมมองด้านข้าง) |
+| มุมมอง | จอพื้น: Top-down orthographic / จอผนัง: 2D side-view |
+| ภาษา | อังกฤษ และ ไทย (สลับได้ระหว่างเล่น) |
+| ฉาก | โรงเตี๊ยมกิลด์ในโลกแฟนตาซีต่างโลก มีหัวหน้าเชฟชื่อ **Lunar** |
 
-## 2. Player experience goals
+## 2. เป้าหมายประสบการณ์ผู้เล่น (Player Experience Goals)
 
-- Physical, shouting-and-running co-op: players move their bodies to play. No buttons.
-- Simple rules that can be taught by the in-game guide in under a minute.
-- Shared success: one team score, one shared coin wallet, one MVP for bragging rights.
-- Clear feedback on two screens: the floor tells you where to go, the wall tells you how the customers feel.
+- ต้องขยับร่างกายจริง วิ่ง ตะโกนบอกกันในทีม ไม่มีปุ่มกด
+- กติกาง่าย Lunar สอนจบในเวลาไม่ถึง 1 นาที
+- ความสำเร็จร่วมกัน: คะแนนทีมเดียว กระเป๋าเหรียญร่วม แต่ยังมี MVP ให้แข่งกันเล็ก ๆ
+- Feedback ชัดเจนบน 2 จอ: **จอพื้นบอกว่าต้องไปไหน จอผนังบอกว่าลูกค้ารู้สึกอย่างไร**
+- ความยากเพิ่มขึ้นตามมื้อ (จำนวนจานต่อออเดอร์มากขึ้น) และทีมมีทางเลือกเชิงกลยุทธ์ว่าจะใช้เหรียญซื้อ Perk หรือเก็บไว้เป็นโบนัสตอนจบ
 
-## 3. Game flow
+## 3. ลำดับการเล่น (Game Flow)
 
-1. **Intro** — The wall plays an intro video behind a tavern curtain. When it finishes, the curtain closes and the Ready phase is built behind it.
-2. **Ready / number selection** — Four numbered floor cards (1–4) appear on the floor, centered for the number of online tags. Each participant stands alone on a card for 2 seconds to claim that player number. A card that is empty, contested by two players, or whose tag drops offline resets its hold. Lunar, the head chef, greets players on the wall and explains the rules. Play starts once every participant has a number and Lunar has walked off.
-3. **Service 1: BREAKFAST** — 90 seconds of serving customers.
-4. **Service Break 1** — 30 seconds. Lunar walks in and opens the perk shop with four small perks (80 coins each).
-5. **Service 2: LUNCH** — 90 seconds.
-6. **Service Break 2** — 30 seconds. Perk shop with four big perks (150 coins each, one purchase only).
-7. **Service 3: DINNER** — 90 seconds.
-8. **Service Results** — "TIME'S UP" panel with total score, per-player standings, and the MVP.
+1. **Intro** — จอผนังเล่นวิดีโอเปิดหลังม่านโรงเตี๊ยม เมื่อจบ ม่านจะปิดและเตรียมเฟส Ready ไว้ด้านหลัง (เพลง Intro เล่นตั้งแต่เปิดซีนจนกว่า Lunar จะแนะนำตัวเสร็จ)
+2. **Ready / เลือกหมายเลขผู้เล่น** — การ์ดหมายเลขปรากฏบนพื้นตามจำนวนแท็กที่ออนไลน์ ผู้เล่นแต่ละคนยืนบนการ์ดคนเดียว **2 วินาที** เพื่อรับหมายเลขนั้น ถ้าการ์ดว่าง มีคนยืนซ้อนสองคน หรือแท็กหลุดออฟไลน์ เกจจะรีเซ็ต ระหว่างนี้ Lunar ทักทายและอธิบายกติกาบนจอผนัง เกมเริ่มเมื่อทุกคนได้หมายเลขครบและ Lunar เดินออกไปแล้ว
+3. **Service 1: BREAKFAST** — เสิร์ฟ 90 วินาที
+4. **Service Break 1** — 30 วินาที ร้าน Perk ขนาดเล็ก (Small Perks)
+5. **Service 2: LUNCH** — 90 วินาที
+6. **Service Break 2** — 30 วินาที ร้าน Perk ขนาดใหญ่ (Big Perks)
+7. **Service 3: DINNER** — 90 วินาที
+8. **Service Results** — หน้า "TIME'S UP" แสดงคะแนนรวม โบนัสเหรียญที่เหลือ อันดับผู้เล่น และ MVP
+9. **Restart อัตโนมัติ** — หลังหน้า Results แสดงครบ 25 วินาที (ปรับได้ใน `GameFlowConfig.json`) เกมจะโหลดซีนใหม่ทั้งหมดสำหรับกลุ่มถัดไป
 
-A parchment "meal menu" page sweeps over the wall between phases so state changes happen behind cover. The wall background shifts between morning, day, and night per meal, and food artwork changes per meal (morning, lunch, and dinner variants of each dish).
+ระหว่างเปลี่ยนเฟส จะมีหน้ากระดาษ "เมนูมื้ออาหาร" กวาดผ่านจอผนังเพื่อบังการเปลี่ยนสถานะ พื้นหลังผนังเปลี่ยนเป็นเช้า/กลางวัน/กลางคืนตามมื้อ และภาพอาหารเปลี่ยนเป็นเวอร์ชันของแต่ละมื้อ
 
-### Wave end and clearing
+### 3.1 ท้ายมื้อและการเคลียร์ร้าน
 
-When the 90-second timer hits zero, new customers stop arriving. Customers still waiting for food leave immediately (angry, no penalty). Customers already eating finish their meal and pay. Players can still collect and bank money during this clearing period, but can no longer pick up or deliver food. The break begins once all NPCs have left the restaurant.
+- **Last Call**: ใน 7.5 วินาทีสุดท้ายของมื้อ จะไม่มีลูกค้าใหม่เดินเข้าร้าน
+- เมื่อเวลาเป็น 0 ลูกค้าที่ยังรออาหาร (และเห็นออเดอร์แล้ว) ถือว่า **หมดเวลา** — โดนหักคะแนนเหมือนลูกค้าโกรธ แล้วเดินออกจากร้าน (ยกเว้นลูกค้าเมนูพิเศษจาก Perk "The Sky Is Clear Today")
+- ลูกค้าที่กำลังกินอยู่จะกินจนเสร็จและจ่ายเงิน
+- ผู้เล่นยังเก็บเงินและฝากธนาคารได้ แต่หยิบหรือเสิร์ฟอาหารไม่ได้แล้ว
+- ช่วงพักเริ่มเมื่อ NPC ออกจากร้านหมด
 
-## 4. Play space (floor display)
+## 4. พื้นที่เล่น (จอพื้น)
 
-The floor is an 11 × 5 world-unit arena mapped 1:1 to the physical tracked area.
-
-```
- Top row      [T1] [T2] [T3] [T4] [T5] [T6]        6 customer tables (C1–C6)
-
-                    (players walk here)
-
- Bottom row  [F1 MEAT] [F2 SEAFOOD] [F3 STARTERS] [F4 DESSERT] [F5 DRINKS] [GUILD BANK]
-```
-
-- **Customer tables (6)** — A customer's order icon and a countdown appear here. Walk in to deliver food or collect money.
-- **Food stations (5)** — Meat, Seafood, Starters (hors d'oeuvre), Dessert, Drinks. Walk onto a station for a short hold (0.12 s) to pick up that dish.
-- **Guild Bank (1)** — Walk in to deposit all carried coins.
-
-Each player is represented by a numbered plate that shows the held dish, a crescent money meter (carried coins out of 50), and a ribbon arrow that always points to the nearest valid destination for what the player is holding.
-
-## 5. Core loop
+พื้นที่เป็นสนาม 11 × 5 world unit จับคู่ 1:1 กับพื้นที่จริงที่แท็กติดตามได้
 
 ```
-Pick up dish  →  Deliver matching order  →  Customer eats (3 s)  →  Money pile appears
-     ↑                                                                     │
-     └──────────  Deposit at Guild Bank  ←  Collect money at the table  ←──┘
+ แถวบน     [T1] [T2] [T3] [T4] [T5] [T6]        โต๊ะลูกค้า 6 โต๊ะ (C1–C6)
+
+                  (ผู้เล่นเดินบริเวณนี้)
+
+ แถวล่าง  [F1 MEAT] [F2 SEAFOOD] [F3 STARTERS] [F4 DESSERT] [F5 DRINKS] [GUILD BANK]
 ```
 
-### 5.1 Carrying rules
+- **โต๊ะลูกค้า (6)** — แสดงไอคอนออเดอร์และตัวนับเวลา เดินเข้าไปเพื่อเสิร์ฟอาหารหรือเก็บเงิน
+- **สถานีอาหาร (5)** — Meat, Seafood, Starters, Dessert, Drinks เดินเหยียบค้างสั้น ๆ (0.12 วิ) เพื่อหยิบอาหารนั้น
+- **Guild Bank (1)** — เดินเข้าไปเพื่อฝากเหรียญทั้งหมดที่ถืออยู่
 
-- A player carries either **one dish** or **coins**, never both.
-- Walking onto a different food station swaps the held dish (the old one is discarded). Walking onto the station of the dish already held does nothing.
-- A player carrying coins cannot pick up food until they bank.
-- Collecting a money pile replaces any held food.
-- Wallet cap is **50 coins**. If a pile does not fit entirely, collection is blocked, the pile stays for another player, and a reminder cue plays.
+ผู้เล่นแต่ละคนแสดงเป็น **จานหมายเลข (Player Plate)** ที่บอกอาหารที่ถือ มิเตอร์เหรียญรูปเสี้ยวจันทร์ (ถือได้สูงสุด 50) และลูกศรริบบิ้นชี้ไปยังเป้าหมายที่ใกล้ที่สุดที่ส่งของในมือได้
 
-### 5.2 Delivery rules
+## 5. Core Loop
 
-- Delivering the **correct** dish: the customer starts eating, the player and team gain score, a success burst plays.
-- Delivering the **wrong** dish: the dish is thrown away, the customer shows the "wrong food" emoji, no score change. The player must fetch a new dish.
-- Arriving at a table with nothing in hand does nothing.
-- Delivery only counts once the order is revealed on the wall (after the NPC has walked in and sat down).
+```
+หยิบอาหาร → เสิร์ฟให้ตรงออเดอร์ → ลูกค้ากิน (3 วิ) → กองเหรียญปรากฏบนโต๊ะ
+    ↑                                                        │
+    └──────── ฝากที่ Guild Bank ← เก็บเหรียญที่โต๊ะ ←─────────┘
+```
 
-### 5.3 Customer lifecycle
+### 5.1 กติกาการถือของ
 
-| State | What happens |
+- ผู้เล่นถือได้ **อาหาร หรือ เหรียญ** อย่างใดอย่างหนึ่ง ไม่ถือพร้อมกัน
+- ปกติถืออาหารได้ **1 จาน** เดินไปสถานีอื่นจะเปลี่ยนจานในมือ (จานเดิมทิ้ง) เดินไปสถานีของจานที่ถืออยู่แล้วไม่มีผล
+- เมื่อมี Perk เพิ่มความจุ (2 หรือ 3 จาน) จะถือเมนูที่ **ไม่ซ้ำกัน** สะสมได้ ถ้าเต็มแล้วหยิบใหม่ จานที่หยิบเก่าที่สุดจะถูกทิ้ง
+- ถือเหรียญอยู่จะหยิบอาหารไม่ได้จนกว่าจะฝากธนาคาร
+- การเก็บกองเหรียญจะทิ้งอาหารในมือ
+- กระเป๋าถือได้สูงสุด **50 เหรียญ** ถ้ากองเหรียญใส่ไม่พอทั้งกอง จะเก็บไม่ได้ กองเหรียญยังอยู่ให้คนอื่นเก็บ และมีเสียงเตือน
+
+### 5.2 กติกาการเสิร์ฟ
+
+- ลูกค้าหนึ่งคนสั่งได้ **1–3 เมนูที่ไม่ซ้ำกัน** เสิร์ฟลำดับไหนก็ได้ ลูกค้าจะเริ่มกินเมื่อได้ครบทุกจาน
+- เสิร์ฟ **ถูก**: ได้คะแนนทุกจานที่ส่ง ถ้าถือหลายจาน ระบบจะส่งทุกจานที่ลูกค้าต้องการในครั้งเดียว
+- เสิร์ฟ **ผิด** (ไม่มีจานไหนในมือตรงกับออเดอร์): จานแรกในมือถูกทิ้ง ลูกค้าแสดงอีโมจิ "ผิดเมนู" ไม่หักคะแนน
+- เดินเข้าโต๊ะมือเปล่าไม่มีผล
+- เสิร์ฟได้เฉพาะเมื่อออเดอร์ปรากฏบนจอผนังแล้ว (NPC เดินเข้ามานั่งเรียบร้อย)
+
+### 5.3 จำนวนจานต่อออเดอร์ตามมื้อ (ความยาก)
+
+| มื้อ | 1 จาน | 2 จาน | 3 จาน |
+|---|---|---|---|
+| Breakfast | 100% | — | — |
+| Lunch | 60% | 40% | — |
+| Dinner | 40% | 40% | 20% |
+
+### 5.4 วงจรชีวิตลูกค้า
+
+| สถานะ | สิ่งที่เกิดขึ้น |
 |---|---|
-| Arriving | NPC walks in from the side of the wall to its table (1–2 per batch, random delay). |
-| Waiting for food | Order icon and 20 s timer shown. The floor tile blinks in the last 25 %. A time-warning sound plays at 10 s and 5 s. |
-| Eating | 3 s after a correct delivery. Timer palette changes. |
-| Completing | Success particles on the wall. |
-| Money available | A coin pile (10–20 coins, random) sits on the table until a player collects it. A rattle reminder plays periodically. |
-| Expired | Timer ran out. Customer turns angry, leaves, team loses score. |
+| Arriving | NPC เดินเข้ามาจากข้างจอผนังไปยังโต๊ะ (ครั้งละ 1–2 ตัว หน่วงเวลาสุ่ม) |
+| Waiting for food | แสดงไอคอนออเดอร์และเวลา 20 วิ ช่องบนพื้นกะพริบใน 25% สุดท้าย มีเสียงเตือนที่ 10 และ 5 วิ |
+| Eating | กิน 3 วิหลังได้อาหารครบ ตัวนับเวลาเปลี่ยนสี |
+| Completing | เอฟเฟกต์ความสำเร็จบนจอผนัง |
+| Money available | กองเหรียญวางบนโต๊ะจนกว่าจะมีคนเก็บ มีเสียงกรุ๊งกริ๊งเตือนเป็นระยะ |
+| Expired | หมดเวลา ลูกค้าโกรธ เดินออก ทีมโดนหักคะแนน |
 
-After a table empties, a new customer is scheduled after a random 2–5 s delay. Up to 6 customers can be active; all 6 tables start occupied at the beginning of each service.
+เมื่อโต๊ะว่าง ลูกค้าใหม่จะมาภายใน 2–5 วิ (สุ่ม) ลูกค้าพร้อมกันสูงสุด 6 คน ทุกมื้อเริ่มด้วยโต๊ะเต็มทั้ง 6
 
-**Order generation** avoids assigning the same dish to two adjacent tables and never assigns the same dish more than twice in a row, falling back only when no other option exists.
+**การสุ่มออเดอร์**: หลีกเลี่ยงการให้โต๊ะติดกันสั่งเมนูเดียวกัน และไม่ให้เมนูเดียวกันออกติดกันเกิน 2 ครั้ง (ยกเว้นไม่มีทางเลือกอื่น)
 
-**NPC roster** — 14 fantasy customers, each with a normal and an angry pose: Dragon, Rabbit, Kwang (deer), Lama, Maow (cat), Mhee (bear), Raven, White Tiger, Wolf, Elf, Fairy, Fox, Orc, Lizardman. Within one service each prefab is drawn without replacement; across services lower-"Power" NPCs are picked first. Each NPC shows a mood bubble (Normal, Smile, or Fun by default; Love on success; Angry on expiry; a special face on wrong delivery), idle breathing, and heart particles when pleased.
+**รายชื่อ NPC** — ลูกค้าแฟนตาซี 14 ตัว แต่ละตัวมีท่าปกติและท่าโกรธ: Dragon, Rabbit, Kwang (กวาง), Lama, Maow (แมว), Mhee (หมี), Raven, White Tiger, Wolf, Elf, Fairy, Fox, Orc, Lizardman ในหนึ่งมื้อจะสุ่มแบบไม่ซ้ำ ข้ามมื้อจะเลือก NPC ที่ค่า "Power" ต่ำกว่าก่อน NPC แต่ละตัวมีฟองอารมณ์ (Normal / Smile / Fun, Love เมื่อสำเร็จ, Angry เมื่อหมดเวลา, หน้าพิเศษเมื่อได้ผิดเมนู) มีอนิเมชันหายใจ และอนุภาคหัวใจเมื่อพอใจ
 
-## 6. Scoring and economy
+## 6. คะแนนและเศรษฐกิจ
 
-Two separate resources exist:
+มีทรัพยากร 2 อย่างแยกกัน:
 
-| Resource | Earned by | Used for |
+| ทรัพยากร | ได้จาก | ใช้สำหรับ |
 |---|---|---|
-| **Score** (team + per-player) | Serving and banking | Winning, MVP, results screen |
-| **Coins** (shared team wallet) | Money piles banked at the Guild Bank | Buying perks during breaks |
+| **Score** (ทีม + รายคน) | เสิร์ฟ, ฝากเงิน, โบนัสท้ายเกม | ผลลัพธ์, MVP |
+| **Coins** (กระเป๋าทีมร่วมกัน) | กองเหรียญที่ฝากเข้า Guild Bank | ซื้อ Perk, แปลงเป็นโบนัสตอนจบ |
 
-### Score values
+### 6.1 ค่าคะแนน
 
-| Event | Player score | Team score |
+| เหตุการณ์ | คะแนนผู้เล่น | คะแนนทีม |
 |---|---|---|
-| Correct delivery | +10 | +10 |
-| Bank deposit (any amount > 0) | +5 | +5 |
-| Customer leaves angry (timeout) | — | −5 |
+| เสิร์ฟถูก (ต่อจาน) | +10 | +10 |
+| ฝากเงิน (จำนวนใดก็ได้ > 0) | +5 | +5 |
+| ลูกค้าโกรธออกจากร้าน (หมดเวลา) | — | −5 |
+| เหรียญเหลือตอนจบเกม (ทุก 10 เหรียญ) | — | +5 |
 
-Team score never goes below 0.
+คะแนนทีมไม่ติดลบ (ต่ำสุด 0)
 
-### Coins
+### 6.2 เหรียญ
 
-- Each completed order pays 10–20 coins into a pile at the table.
-- Coins only count once banked. Carried coins are shown on the player's plate meter.
-- At the start of every break, all carried coins are auto-deposited (credited to the carrying player, with the +5 bank bonus) and uncollected piles are swept into the team wallet (team gets the +5 bonus, no player credit). Any held food is discarded.
-- The wallet is shown on the wall as **TEAM COINS** and on the Guild Bank as a purse that swells with balance.
+- ลูกค้าจ่าย 10–20 เหรียญ **ต่อจาน** (สุ่มแยกแต่ละจาน) รวมเป็นกองเดียวเมื่อกินเสร็จ
+- เหรียญนับเข้าทีมเมื่อฝากธนาคารแล้วเท่านั้น เหรียญที่ถืออยู่แสดงบนมิเตอร์ของจานผู้เล่น
+- ตอนเริ่มช่วงพักทุกครั้ง: เหรียญที่ผู้เล่นถืออยู่จะฝากอัตโนมัติ (นับเป็นของคนนั้น พร้อมโบนัส +5) กองเหรียญที่ไม่มีใครเก็บจะเข้ากระเป๋าทีม (ทีมได้ +5 แต่ไม่มีใครได้คะแนนส่วนตัว) อาหารในมือทุกคนถูกทิ้ง
+- กระเป๋าทีมแสดงบนจอผนังเป็น **TEAM COINS** และบน Guild Bank เป็นถุงเงินที่พองขึ้นตามยอด
 
-### MVP
+### 6.3 โบนัสเหรียญเหลือตอนจบ
 
-The MVP is the player with the highest individual score. Ties go to the lower player number. The MVP is shown live on the wall HUD and on the break and results panels.
+เมื่อจบ Dinner เหรียญทั้งหมดในกระเป๋าทีมจะถูกแปลงเป็นคะแนน: **ทุก 10 เหรียญ = +5 คะแนน** เศษปัดทิ้ง กระเป๋าจะว่างหลังแปลง หน้า Results แสดงคะแนนก่อนโบนัส จำนวนเหรียญที่เหลือ และโบนัสแยกกัน
 
-## 7. Perk shop (service breaks)
+นี่ทำให้การซื้อ Perk เป็นการตัดสินใจเชิงกลยุทธ์: ใช้เหรียญตอนนี้เพื่อเล่นได้ดีขึ้น หรือเก็บไว้เป็นคะแนนตอนจบ (Lunar บอกใบ้ในบทสอน)
 
-During each 30-second break Lunar walks onto the wall, delivers a voiced line (English and Thai voice clips exist), and four perk cards flip open on the wall with four matching zones on the floor. The break countdown does not start until Lunar finishes speaking.
+### 6.4 MVP
 
-- To buy: a numbered player stands **alone** in a floor zone for **1.5 s**. A gauge fills; contested zones (two players) or a wallet too small to afford the card reset the gauge.
-- Zones show **PURCHASED** / **NOT PURCHASED**.
-- **Break 1 (after Breakfast): Small perks**, 80 coins each, four random cards from the pool of 10. Multiple different cards can be bought if coins allow.
-- **Break 2 (after Lunch): Big perks**, 150 coins each, four random cards from the pool of 6. The shop **locks after one purchase**.
-- Coins spent never affect score.
+MVP คือผู้เล่นที่มีคะแนนส่วนตัวสูงสุด ถ้าเสมอ หมายเลขน้อยกว่าชนะ แสดงสดบน HUD ของจอผนัง และในหน้าพักกับหน้า Results
 
-### Small perks (80 coins)
+## 7. ร้าน Perk (ช่วงพัก)
 
-| Card | Effect (as written on the card) |
-|---|---|
-| Don't Be Cross with Me | Lose 5 % fewer points when customers become angry. |
-| A Little Sweeter Today | ×2 multiplier on desserts. |
-| Have a Sip Before You Go | ×2 multiplier on drinks. |
-| So Glad You Came | Customers pay 5 % more. |
-| Stay a Little Longer | Customers wait 2 % longer for their food. |
-| All Your Favorites Today | Double points from meat dishes. |
-| The Sea Is Feeling Generous | Double points from seafood dishes. |
-| Too Good to Put the Spoon Down | Customers eat 5 % faster. |
-| Start with Something Lovely | Double points from starter dishes. |
-| Bringing You Something Tasty | Carry up to 2 food items at a time. |
+ในช่วงพัก 30 วินาที Lunar เดินเข้ามาบนจอผนัง พูดบทพากย์ (มีเสียงทั้งอังกฤษและไทย) จากนั้นการ์ด Perk 4 ใบพลิกเปิดบนจอผนัง พร้อมโซนคู่กัน 4 โซนบนพื้น **เวลาพักเริ่มนับเมื่อ Lunar พูดจบ**
 
-### Big perks (150 coins)
+- **วิธีซื้อ**: ผู้เล่นที่มีหมายเลขยืน **คนเดียว** ในโซนบนพื้น **1.5 วินาที** เกจจะเต็ม ถ้ามีคนยืนซ้อนหรือเหรียญไม่พอ เกจจะรีเซ็ต
+- โซนแสดงสถานะ **PURCHASED** / **NOT PURCHASED**
+- **Break 1 (หลัง Breakfast)**: Small Perks ราคา **80 เหรียญ** สุ่ม 4 ใบจาก 10 ใบ ซื้อได้หลายใบถ้าเหรียญพอ
+- **Break 2 (หลัง Lunch)**: Big Perks ราคา **150 เหรียญ** สุ่ม 4 ใบจาก 6 ใบ **ร้านล็อกหลังซื้อ 1 ใบ**
+- ในหนึ่งร้านจะมีการ์ดประเภท "คะแนน x2 ตามเมนู" ไม่เกิน 2 ใบ
+- Perk ที่ซื้อแล้วจะไม่ถูกเสนอซ้ำ และมีผลกับทั้งทีมไปจนจบเกม
+- การใช้เหรียญไม่ลดคะแนน (แต่ลดโบนัสเหรียญเหลือตอนจบ)
 
-| Card | Effect (as written on the card) |
-|---|---|
-| I'll Take Care of the Rest | Bank automatically collects money when customers pay. |
-| An Armful of Happiness | Serve up to 3 dishes at once. |
-| Make Yourself at Home | Customers collect their own drinks. |
-| Let Me Pick for You Today | Customers may order Omakase; any dish satisfies them. |
-| Good Things Come in Pairs | Customers can order up to 2 dishes at once; double points and money. |
-| The Sky Is Clear Today | Unlock a special menu item whose customers wait indefinitely. |
+### 7.1 Small Perks (80 เหรียญ)
 
-See section 12.2: perk effects are in development. Purchases are recorded but not yet applied to gameplay.
+| ID | ชื่อการ์ด | ผลในเกม |
+|---|---|---|
+| Perk_Small_Meat | All Your Favorites Today | คะแนน x2 จากเมนู Meat |
+| Perk_Small_Seafood | The Sea Is Feeling Generous | คะแนน x2 จากเมนู Seafood |
+| Perk_Small_Starter | Start with Something Lovely | คะแนน x2 จากเมนู Starters |
+| Perk_Small_Dessert | A Little Sweeter Today | คะแนน x2 จากเมนู Dessert |
+| Perk_Small_Drink | Have a Sip Before You Go | คะแนน x2 จากเมนู Drinks |
+| Perk_Small_Cross | Don't Be Cross with Me | ลูกค้าโกรธไม่หักคะแนน |
+| Perk_Small_Glad | So Glad You Came | ลูกค้าจ่าย +5 เหรียญต่อออเดอร์ (บวกก่อนตัวคูณอื่น) |
+| Perk_Small_Longer | Stay a Little Longer | ลูกค้ารอนานขึ้น +5 วินาที |
+| Perk_Small_Spoon | Too Good to Put the Spoon Down | ลูกค้ากินเร็วขึ้น 2 เท่า |
+| Perk_Small_Tasty | Bringing You Something Tasty | ผู้เล่นถืออาหารได้ 2 จาน |
+
+### 7.2 Big Perks (150 เหรียญ)
+
+| ID | ชื่อการ์ด | ผลในเกม |
+|---|---|---|
+| Perk_Big_Bank | I'll Take Care of the Rest | เมื่อลูกค้าจ่ายเงิน เหรียญเข้าธนาคารอัตโนมัติ (ทีมได้ +5 จากการฝาก) |
+| Perk_Big_Happiness | An Armful of Happiness | ผู้เล่นถืออาหารได้ 3 จาน — **ต้องมี Tasty ก่อน** และถ้าซื้อ Tasty ใน Break 1 การ์ดนี้จะ **การันตีว่าโผล่** ใน Break 2 |
+| Perk_Big_Home | Make Yourself at Home | ลูกค้าที่สั่ง Drinks ได้เครื่องดื่มเองอัตโนมัติ (ทีมได้คะแนน) |
+| Perk_Big_Omakase | Let Me Pick for You Today | ออเดอร์มีโอกาส 60% เป็น Omakase — เสิร์ฟเมนูอะไรก็ได้ |
+| Perk_Big_Pairs | Good Things Come in Pairs | ออเดอร์ 2 จานขึ้นไป ได้คะแนนและเหรียญ x2 |
+| Perk_Big_Sky | The Sky Is Clear Today | สุ่มเมนูพิเศษ 1 อย่างต่อมื้อ ลูกค้าใหม่ 30% สั่งเมนูนี้ รอได้ไม่จำกัดเวลา ได้คะแนนและเหรียญ x2 และไม่โดนหักคะแนนตอนหมดมื้อ (ลูกค้าปกติจะไม่สั่งเมนูพิเศษนั้น) |
+
+**การรวมตัวคูณคะแนนต่อจาน**: `10 × (x2 ถ้ามี Perk เมนูนั้น) × (x2 ถ้าเป็นเมนูพิเศษ) × (x2 ถ้ามี Pairs และออเดอร์ ≥ 2 จาน)`
+
+**การรวมเหรียญต่อออเดอร์**: `(ผลรวม 10–20 ต่อจาน + 5 ถ้ามี Glad) × (x2 ถ้า Pairs) × (x2 ถ้าเมนูพิเศษ)` ปัดเศษ
 
 ## 8. Presentation
 
-### Wall display (side view)
-- Tavern interior with time-of-day backgrounds (morning, day, night) and ambient light.
-- Six customer panels above the tables: NPC body, mood bubble, order icon on a parchment "BG Order", engraved brass patience/eating timer.
-- Top HUD: **Score**, **Time** (mm:ss), **MVP**.
-- Guild Bank purse and **TEAM COINS** readout.
-- Lunar (NPC00) as guide with dialogue box for the tutorial and perk shop.
-- Transitions: tavern curtain (intro), parchment meal menu (between phases) with titles BREAKFAST / LUNCH / DINNER / SERVICE BREAK / SERVICE RESULTS.
-- Break panel: INTERMISSION, current score, MVP, "NEXT LUNCH/DINNER".
-- Results panel: TIME'S UP, TOTAL SCORE, up to four player rows, MVP icon.
+### 8.1 จอผนัง (Side view)
 
-### Floor display (top-down)
-- Grass/wood arena, six NPC tables (T1–T6), five food tables with dish names, Guild Bank.
-- Ready cards with numbers 1–4 and a fill gauge.
-- Player plate: number, held dish, coin meter, delivery arrow, pickup "flight" animation from station to plate.
-- Feedback: floor bursts on pickup/delivery, coin bursts on payment/collection/deposit, table and decor fades during transitions, blinking tile for near-timeout orders, ambient sparkles.
+- ภายในโรงเตี๊ยม พื้นหลังเปลี่ยนตามเวลา (เช้า กลางวัน กลางคืน) พร้อมแสงบรรยากาศ
+- Customer Panel 6 ช่องเหนือโต๊ะ: ตัว NPC, ฟองอารมณ์, ไอคอนออเดอร์บนกระดาษ "BG Order", ตัวจับเวลาทองเหลืองแกะสลัก ออเดอร์หลายจานแสดงแบบคู่ ออเดอร์ Omakase และเมนูพิเศษมีกรอบเฉพาะ
+- HUD ด้านบน: **Score** (ตัวเลขอย่างเดียว), **Time** (mm:ss), **MVP**
+- ถุงเงิน Guild Bank และตัวเลข **TEAM COINS**
+- Lunar (NPC00) เป็นไกด์ มีกล่องข้อความสำหรับบทสอนและร้าน Perk
+- ทรานสิชัน: ม่านโรงเตี๊ยม (Intro), หน้ากระดาษเมนูมื้อ (ระหว่างเฟส) พร้อมอนุภาคและเส้นแสง ชื่อเฟส BREAKFAST / LUNCH / DINNER / SERVICE BREAK / SERVICE RESULTS
+- หน้าพัก: INTERMISSION, คะแนนปัจจุบัน, MVP, "NEXT LUNCH/DINNER"
+- ร้าน Perk: การ์ดพลิก, กรอบเรืองแสงเมื่อมีคนยืนในโซน, เอฟเฟกต์ชาร์จ/รวมพลัง/ระเบิดเมื่อซื้อ (แยกชุดเอฟเฟกต์ Small และ Big)
+- หน้า Results: TIME'S UP, TOTAL SCORE, โบนัสเหรียญเหลือ, แถวผู้เล่นเผยทีละแถวพร้อมประกายแสง, เอฟเฟกต์ MVP
 
-### Audio
-- Original synthesized SFX set (17 cues): food pickup, food served, wrong food, order arrived/dismissed, emoji bubble, success pop, money paid/collected, bank deposit, money reminder, customer expired, time warning, wave start, wave break, service complete.
-- One looping BGM track.
-- Lunar voice lines for the perk shop (English and Thai).
+### 8.2 จอพื้น (Top-down)
 
-## 9. Tuning values (current scene)
+- สนามหญ้า/ไม้ โต๊ะ NPC 6 โต๊ะ (T1–T6), โต๊ะอาหาร 5 โต๊ะพร้อมชื่อเมนู, Guild Bank
+- การ์ด Ready หมายเลข พร้อมเกจและวงกลมแท็ก
+- จานผู้เล่น: หมายเลข อาหารในมือ (แสดงหลายจานเมื่อมี Perk) มิเตอร์เหรียญ ลูกศรนำทาง อนิเมชันอาหารบินจากสถานีมาที่จาน
+- Feedback: เอฟเฟกต์ตอนหยิบ/เสิร์ฟ เหรียญกระจายตอนจ่าย/เก็บ/ฝาก โต๊ะและของตกแต่งค่อย ๆ เฟดตอนเปลี่ยนเฟส ช่องกะพริบเมื่อใกล้หมดเวลา ประกายบรรยากาศ
+- โซน Perk 4 โซนพร้อมเกจและเอฟเฟกต์ตอนซื้อสำเร็จ
 
-| Parameter | Value |
+### 8.3 เสียง
+
+- ชุดเสียงประกอบ 40 cue ครอบคลุม: เล่นเกม (หยิบ เสิร์ฟ ผิดเมนู ออเดอร์มา เงิน ฝาก หมดเวลา เตือนเวลา อีโมจิ), เฟส (เริ่มมื้อ พัก จบเกม), ร้าน Perk (Big และ Small แยกกัน), Ready (การ์ดโผล่ เหยียบ/ออก ค้าง ชน ยืนยัน), ม่านเปิด/ปิด
+- BGM ระหว่างบริการ และเพลง Intro แยก
+- เสียงพากย์ Lunar อังกฤษและไทย พร้อมเสียงเท้าแบบมีระยะ
+- ระดับเสียงทั้งหมดปรับได้จาก `GameFlowConfig.json` (หัวข้อ 10.3)
+
+## 9. ค่าปรับสมดุล (Tuning — ค่าปัจจุบันในซีน)
+
+| พารามิเตอร์ | ค่า |
 |---|---|
-| Services | 3 (BREAKFAST, LUNCH, DINNER) |
-| Service duration | 90 s |
-| Break duration | 30 s |
-| Customer tables / max active | 6 / 6 |
-| Initial customers per service | 6 |
-| Order time limit | 20 s |
-| New customer delay | 2–5 s (random) |
-| Eating time | 3 s |
-| Reward per order | 10–20 coins |
-| Correct serve score | +10 |
-| Bank deposit score | +5 |
-| Angry customer penalty | −5 (team) |
-| Wallet cap | 50 coins |
-| Food pickup hold | 0.12 s |
-| Ready card hold | 2 s |
-| Perk zone hold | 1.5 s |
-| Small perk price / Big perk price | 80 / 150 coins |
+| จำนวนมื้อ | 3 (BREAKFAST, LUNCH, DINNER) |
+| เวลาต่อมื้อ | 90 วิ |
+| Last Call ก่อนจบมื้อ | 7.5 วิ |
+| เวลาพัก | 30 วิ (เริ่มนับหลัง Lunar พูดจบ) |
+| โต๊ะลูกค้า / ลูกค้าพร้อมกันสูงสุด | 6 / 6 |
+| ลูกค้าเริ่มต้นต่อมื้อ | 6 |
+| เวลารออาหาร | 20 วิ |
+| ลูกค้าใหม่มาหลัง | 2–5 วิ (สุ่ม) |
+| เวลากิน | 3 วิ |
+| เหรียญต่อจาน | 10–20 |
+| คะแนนเสิร์ฟถูก (ต่อจาน) | +10 |
+| คะแนนฝากเงิน | +5 |
+| หักคะแนนลูกค้าโกรธ | −5 (ทีม) |
+| โบนัสเหรียญเหลือ | +5 ต่อ 10 เหรียญ |
+| เหรียญถือได้สูงสุด | 50 |
+| เวลาเหยียบหยิบอาหาร | 0.12 วิ |
+| เวลายืนการ์ด Ready | 2 วิ |
+| เวลายืนโซน Perk | 1.5 วิ |
+| ราคา Small / Big Perk | 80 / 150 เหรียญ |
+| Restart อัตโนมัติหลัง Results | 25 วิ |
 
-## 10. Controls and input
+## 10. การควบคุมและอินพุต
 
-- **Live play**: one NoopLoop UWB tag per player. Tag positions arrive over serial (COM, 921600 baud) or UDP, are filtered and calibrated in `UWBConfig.json`, and mapped onto the 11 × 5 floor. Players interact purely by walking into trigger zones.
-- **Player identity**: tags have no player number until the Ready phase assigns 1–4. Offline tags are hidden; the roster locks when selection starts.
-- **Simulation mode** (no hardware): players spawn on the center line; tag 6 can be moved with the keyboard, others auto-drift. Debug keys: `B` adds 1000 test coins, `M` skips to the break, `N` advances to the next meal or restarts after results.
+### 10.1 การเล่นจริง
 
-## 11. Technical summary
+- ผู้เล่น 1 คนต่อแท็ก UWB NoopLoop 1 อัน ตำแหน่งแท็กส่งมาทาง Serial (COM, 921600 baud) หรือ UDP ผ่านการกรองและคาลิเบรตใน `UWBConfig.json` แล้วแมปลงพื้น 11 × 5
+- ผู้เล่นโต้ตอบด้วยการเดินเข้าโซนเท่านั้น
+- แท็กยังไม่มีหมายเลขผู้เล่นจนกว่าจะผ่านเฟส Ready แท็กที่ออฟไลน์จะถูกซ่อน และรายชื่อผู้เล่นล็อกเมื่อเริ่มเลือกหมายเลข
 
-- Unity 6 (6000.3.8f1), C#, TextMesh Pro, Input System, Video Player.
-- Dual-display standalone Windows build: Display 1 = floor (2816×1280), Display 2 = wall (8192×2160, UI authored at 1536×435 reference).
-- Gameplay core (`FoodIsekaiZGameManager`, `ArenaSlot2D`, `FoodIsekaiZPlayerState`, `FoodOrderGenerator`, perk session classes) is event-driven and independent of presentation. Presentation scripts subscribe to events and only write live values (text, timers, sprites, visibility); layout and styling are authored in the scene.
-- See `FOODISEKAIZ_ARCHITECTURE.md` for UWB calibration and scene setup.
+### 10.2 โหมด Simulation (ไม่มีฮาร์ดแวร์)
 
-## 12. Systems in development
+- ผู้เล่นเกิดบนเส้นกลาง แท็ก 6 ขยับด้วยคีย์บอร์ด ตัวอื่นลอยเอง
+- ปุ่มดีบัก: `B` เพิ่มเหรียญทดสอบ 1000, `M` ข้ามไปช่วงพัก, `N` ไปมื้อถัดไป / จบช่วงพัก / Restart หลัง Results
 
-The following systems are designed and partially built. They are actively being worked on and are not yet complete in the current build.
+### 10.3 ไฟล์ตั้งค่าสำหรับผู้ดูแลหน้างาน
 
-### 12.1 End-of-game coin bonus
-- **Design intent**: Lunar's tutorial tells players to "save a few [coins] for bonus points at the end!" Coins left in the team wallet after Dinner are meant to convert into bonus score on the Service Results screen, so spending on perks is a trade-off against the final score.
-- **Current state**: The dialogue is authored and the shared wallet persists through all three services, but no conversion happens at results. Total score currently equals earned service score only.
-- **Remaining work**: Define the coin-to-score rate, apply it when the results phase begins, and show the bonus as its own line on the results panel.
+`StreamingAssets/GameFlowConfig.json` อ่านใหม่ทุกรอบ แก้ได้โดยไม่ต้อง Build ใหม่:
 
-### 12.2 Perk effects
-- **Design intent**: Each purchased perk changes gameplay for the following services, as described on its card (multi-dish carrying, double orders, Omakase, special menu item, auto-bank, self-serve drinks, score/coin multipliers, timer modifiers).
-- **Current state**: The shop UI, floor selection, pricing, catalog, tiering, and purchase recording are complete. Purchases are stored in the shop session with the perk ID, buyer, and the wave they apply from, but no gameplay system reads them yet. Buying a perk currently only spends coins.
-- **Remaining work**: Add a perk-effect layer that reads the purchase list at the start of each service and applies modifiers to the game manager (scoring, rewards, timers) and player state (carry capacity). Some cards need new customer behavior (double orders, Omakase, special menu item, self-serve drinks).
+| ฟิลด์ | ค่าปัจจุบัน | ความหมาย |
+|---|---|---|
+| `resultRestartEnabled` | 1 | 1 = Restart อัตโนมัติ, 0 = ค้างหน้า Results |
+| `resultRestartSeconds` | 25 | วินาทีที่ค้างหน้า Results ก่อน Restart |
+| `languageToggleKey` | `T` | ปุ่มสลับ อังกฤษ/ไทย |
+| `bgmVolume` / `introMusicVolume` | 0.6 / 0.4 | ระดับเพลง |
+| `soundEffectsVolume` / `lunarVoiceVolume` | 1.0 / 1.0 | ตัวคูณเสียงประกอบ / เสียงพากย์ |
+| `lunarFootstepVolume` | 0.3 | เสียงเท้า Lunar |
+| `soundEffectGainsDb` | ดูไฟล์ | ปรับ dB รายเสียง |
 
-### 12.3 Penalty for unserved customers at service end
-- **Design intent**: Customers still waiting for food when the service timer ends should count as failed orders and apply the angry-customer penalty, consistent with orders that time out during play.
-- **Current state**: When a service ends, waiting customers are cleared and their NPCs leave angry on the wall, but no score penalty is applied and they are not counted as expired orders.
-- **Remaining work**: Route service-end clearing through the same expiry path as timeouts (count the order, subtract the penalty, fire the expiry event) or define a distinct end-of-service penalty.
+### 10.4 ภาษา
 
-## 13. Open design questions
+กดปุ่ม `T` (ค่าเริ่มต้น) ได้ทุกเวลาเพื่อสลับอังกฤษ ↔ ไทย ระบบจำภาษาที่เลือกไว้ข้ามรอบ ข้อความ UI การ์ด Perk และเสียงพากย์ Lunar มีทั้งสองภาษา ถ้าข้อความไทยว่างจะใช้ภาษาอังกฤษแทน
 
-- Perk shop uses the wave number to pick the tier, so with the default three services Break 1 is always small and Break 2 always big. Adding services would need a tier rule.
-- Guide dialogue for the Ready phase is partially authored ("Hi! I'm Lunar, the head chef. I'll show you how to play! When the game starts, stand…").
-- No difficulty ramp between Breakfast, Lunch, and Dinner; all three use identical timings.
-- Product settings still use `DefaultCompany`.
+## 11. ข้อมูลเชิงเทคนิค (สรุป)
+
+- Unity 6 (6000.3.8f1), C#, TextMesh Pro, Input System, Video Player
+- Build Windows แบบ 3 จอ: Display 1 = จอตู้สัมผัส (1080×1920 แนวตั้ง, รูปพื้นหลัง + ปุ่มออกจากเกม), Display 2 = จอผนัง (8192×2160, UI อ้างอิงที่ 1536×435), Display 3 = จอพื้น (2944×1408)
+- ซีนใน Build: `FoodIsekai.unity` (หลัก, การ์ด Ready 6 ใบ), `FoodIsekai_2944x1408.unity` และ `FoodIsekai_2816x1280.unity` (แยกตามความละเอียดจอพื้น, การ์ด Ready 4 ใบ)
+- Gameplay core (`FoodIsekaiZGameManager`, `ArenaSlot2D`, `FoodIsekaiZPlayerState`, `CustomerOrder`, `FoodInventory`, `MealOrderRules`, `PerkManager`, `PerkShopSession`) ทำงานแบบ event-driven แยกจากส่วนแสดงผล สคริปต์ Presentation รับ event แล้วเขียนเฉพาะค่าสด (ข้อความ เวลา สไปรต์สถานะ การแสดง/ซ่อน) ส่วน Layout และสไตล์กำหนดในซีน
+- ข้อมูล Perk แยกเป็น `PerkDefinitions` (ผลในเกม) และ `PerkCatalog` + Prefab การ์ด (ราคา ข้อความ ภาพ)
+- **Player Log**: ทุกรอบที่เล่นจริงจะบันทึกไฟล์ Markdown ลง `StreamingAssets/PlayerLog/` (ชื่อไฟล์ตามวันเวลา) เก็บสถิติรายมื้อ ลูกค้า การจ่ายเงิน คะแนนผู้เล่น และผลจบเกม (โหมด Simulation เปิดได้ใน Inspector)
+- ดู `FOODISEKAIZ_ARCHITECTURE.md` สำหรับการคาลิเบรต UWB และการตั้งค่าซีน
+
+## 12. ระบบที่ยังพัฒนาต่อได้
+
+- **Tier ของร้าน Perk** ผูกกับเลขมื้อ (มื้อที่ 1 จบ = Small, มื้อที่ 2 ขึ้นไป = Big) ถ้าเพิ่มจำนวนมื้อต้องกำหนดกติกาใหม่
+- **ความยากระหว่างมื้อ** ปัจจุบันเพิ่มเฉพาะจำนวนจานต่อออเดอร์ ส่วนเวลารอ เวลากิน และความถี่ลูกค้าเท่ากันทุกมื้อ
+
+## 13. คำถามด้านดีไซน์ที่ยังเปิดอยู่
+
+- ซีนหลักรองรับ 6 คน แต่ซีนแยกความละเอียดยังมีการ์ด Ready 4 ใบ — ต้องการให้ทุกซีนรองรับ 6 คนหรือไม่
+- อัตราโบนัสเหรียญเหลือ (10 เหรียญ = 5 คะแนน) เทียบกับราคา Perk (80 / 150) สมดุลหรือยัง — Small Perk 1 ใบเท่ากับเสียโบนัส 40 คะแนน
+- Big Perk ซื้อได้แค่ 1 ใบ ควรให้ Happiness ที่การันตีโผล่กินที่ 1 ใน 4 ช่องหรือไม่
+- Product settings ยังใช้ `DefaultCompany`
