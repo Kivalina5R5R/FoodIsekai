@@ -46,14 +46,26 @@ namespace FoodIsekaiZ.Display
         // Starts the sequence; the counting begins once this panel is active, so it can be called behind the cover.
         public void Play(int service, int bonus, int total, IReadOnlyList<int> scoresByRow)
         {
+            SetScoreTargets(service, bonus, total, scoresByRow);
+            elapsed = 0f;
+            playing = true;
+            if (isActiveAndEnabled) Apply();
+        }
+
+        // Refresh scores and their row order without restarting an in-progress or finished reveal.
+        public void RefreshScores(int service, int bonus, int total, IReadOnlyList<int> scoresByRow)
+        {
+            SetScoreTargets(service, bonus, total, scoresByRow);
+            if (isActiveAndEnabled) Apply();
+        }
+
+        private void SetScoreTargets(int service, int bonus, int total, IReadOnlyList<int> scoresByRow)
+        {
             serviceScore = Mathf.Max(0, service);
             bonusScore = Mathf.Max(0, bonus);
             totalScore = Mathf.Max(0, total);
             playerScores.Clear();
             if (scoresByRow != null) playerScores.AddRange(scoresByRow);
-            elapsed = 0f;
-            playing = true;
-            if (isActiveAndEnabled) Apply();
         }
 
         private void OnDisable()

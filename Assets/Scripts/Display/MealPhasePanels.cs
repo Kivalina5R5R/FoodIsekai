@@ -343,6 +343,7 @@ namespace FoodIsekaiZ.Display
 
         private void RefreshResults()
         {
+            bool animateScores = resultReveal != null && resultReveal.enabled;
             rankedPlayerIds.Clear();
             if (playerSpawner != null)
             {
@@ -366,13 +367,18 @@ namespace FoodIsekaiZ.Display
                 rowScores.Add(score);
                 if (!hasPlayer) continue;
                 if (resultNames[i] != null) resultNames[i].text = $"Player{rankedPlayerIds[i]}";
-                if (resultReveal == null && resultScores[i] != null) resultScores[i].text = score.ToString();
+                if (!animateScores && resultScores[i] != null) resultScores[i].text = score.ToString();
             }
 
             // With the reveal sequence, the scores count up from zero in order; it starts once per result screen.
-            if (resultReveal != null)
+            if (animateScores)
             {
-                if (resultRevealStarted) return;
+                if (resultRevealStarted)
+                {
+                    resultReveal.RefreshScores(gameManager.FinalScoreBeforeBonus, gameManager.FinalLeftoverBonus,
+                        gameManager.TeamScore, rowScores);
+                    return;
+                }
                 resultRevealStarted = true;
                 resultReveal.Play(gameManager.FinalScoreBeforeBonus, gameManager.FinalLeftoverBonus,
                     gameManager.TeamScore, rowScores);
