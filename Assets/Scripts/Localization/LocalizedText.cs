@@ -49,6 +49,14 @@ namespace FoodIsekaiZ.Localization
             authoredPosition = target.rectTransform.anchoredPosition - (copiedInThai ? thaiOffset : Vector2.zero);
         }
 
+        // Replaces both wordings, for a runtime copy that says something new (Lunar's minigame line).
+        public void SetWords(string englishWords, string thaiWords)
+        {
+            english = englishWords;
+            thai = thaiWords;
+            if (isActiveAndEnabled) Apply(GameLanguage.Current);
+        }
+
         private void OnEnable()
         {
             GameLanguage.Changed += Apply;

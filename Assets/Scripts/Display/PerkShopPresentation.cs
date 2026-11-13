@@ -41,10 +41,24 @@ namespace FoodIsekaiZ.Display
         private bool departureStarted;
         private bool bigShop;
         private readonly int[] audibleCandidates = new int[4];
+        // The player each card's hold belongs to. Any number of players may share a card; the hold keeps
+        // counting while its player stays on, and passes to another player on the card if they step off.
+        private readonly int[] holdBuyers = new int[4];
         private const string PurchasedText = "PURCHASED";
         private const string NotPurchasedText = "NOT PURCHASED";
 
         public int LayoutRevision => layoutRevision;
+        // The shop's guide, stage and floor tiles, also used by the minigame choice after each meal
+        // (the shop itself is switched off then).
+        public NpcGuidePresentation Guide => guide;
+        public RectTransform GuideStart => guideStart;
+        public RectTransform GuideDestination => guideDestination;
+        public RectTransform GuideStage => guideStage;
+        public MealMenuTransition MenuTransition => menuTransition;
+        public GameObject FloorRoot => floorRoot;
+        public IReadOnlyList<PerkFloorZone> Zones => zones;
+        // The team coin panel in the middle of the floor, or null.
+        public GameObject CoinPanel => walletText != null ? walletText.GetComponentInParent<PerkCardAnimation>(true)?.gameObject : null;
         public bool CanCountDown => selectionStarted && !closing && guide != null && guide.HasFinishedSpeaking;
         public IReadOnlyList<PerkPurchase> Purchases => session != null
             ? session.Purchases : Array.Empty<PerkPurchase>();
@@ -79,6 +93,7 @@ namespace FoodIsekaiZ.Display
             {
                 holds[i] = new PerkSelectionHold(Mathf.Max(0.1f, holdSeconds));
                 audibleCandidates[i] = 0;
+                holdBuyers[i] = 0;
                 PerkOffer offer = i < session.Offers.Count ? session.Offers[i] : null;
                 slots[i].SetOffer(offer, offer != null ? catalog.GetPrefab(offer.Id) : null, big);
                 // Tiles stay off until the guide finishes speaking; the floor root itself opens earlier for the coin panel.
@@ -146,7 +161,8 @@ namespace FoodIsekaiZ.Display
             for (int i = 0; i < zones.Length; i++)
             {
                 int occupants = 0;
-                int candidate = 0;
+                int firstOnCard = 0;
+                bool buyerStillOn = false;
                 if (playerSpawner != null)
                 {
                     foreach (UWBPlayerController player in playerSpawner.SpawnedPlayers)
@@ -154,11 +170,14 @@ namespace FoodIsekaiZ.Display
                         if (player == null || player.PlayerId <= 0 || !player.IsAvailableForSelection ||
                             !player.gameObject.activeInHierarchy || !zones[i].Contains(player.transform.position)) continue;
                         occupants++;
-                        candidate = player.PlayerId;
+                        if (firstOnCard == 0) firstOnCard = player.PlayerId;
+                        if (player.PlayerId == holdBuyers[i]) buyerStillOn = true;
                     }
                 }
+                int candidate = buyerStillOn ? holdBuyers[i] : firstOnCard;
+                holdBuyers[i] = candidate;
                 bool canBuy = CanCountDown && session.CanBuy(i);
-                int audibleCandidate = CanCountDown && occupants == 1 && !session.IsPurchased(i) ? candidate : 0;
+                int audibleCandidate = CanCountDown && occupants > 0 && !session.IsPurchased(i) ? candidate : 0;
                 if (audibleCandidate > 0 && audibleCandidate != audibleCandidates[i])
                 {
                     soundPlayer?.TryPlay(canBuy ? GameSoundCue.SmallPerkFocus : GameSoundCue.SmallPerkUnavailable);
@@ -167,7 +186,7 @@ namespace FoodIsekaiZ.Display
                 }
                 audibleCandidates[i] = audibleCandidate;
                 float previousProgress = holds[i].Progress;
-                bool confirmed = holds[i].Tick(canBuy && occupants == 1 ? (int?)candidate : null, Time.unscaledDeltaTime);
+                bool confirmed = holds[i].Tick(canBuy && occupants > 0 ? (int?)candidate : null, Time.unscaledDeltaTime);
                 int holdStep = Mathf.FloorToInt(holds[i].Progress * 3f);
                 // Ticks climb a major third per step so the hold builds toward the purchase chord.
                 if (!confirmed && holdStep > Mathf.FloorToInt(previousProgress * 3f))
@@ -192,10 +211,10 @@ namespace FoodIsekaiZ.Display
                     holds[i].Reset();
                 }
                 bool bought = session.IsPurchased(i);
-                zones[i].SetOccupied(canBuy && occupants == 1 && !bought);
+                zones[i].SetOccupied(canBuy && occupants > 0 && !bought);
                 string status = bought ? PurchasedText : NotPurchasedText;
                 bool showGauge = occupants > 0 && CanCountDown && session.CanBuy(i);
-                zones[i].ShowStatus(status, holds[i].Progress, bought, occupants > 1, showGauge);
+                zones[i].ShowStatus(status, holds[i].Progress, bought, false, showGauge);
             }
         }
 

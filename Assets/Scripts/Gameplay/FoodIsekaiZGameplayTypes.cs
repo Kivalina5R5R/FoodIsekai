@@ -34,6 +34,8 @@ namespace FoodIsekaiZ.Gameplay
         Intermission,
         Completed,
         // Service has closed; eating customers and NPC departures still finish.
-        Clearing
+        Clearing,
+        // A round of minigames between a meal and its perk break (or the results after the last meal).
+        Minigame
     }
 }

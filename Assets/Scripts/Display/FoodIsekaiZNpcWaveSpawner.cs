@@ -89,6 +89,19 @@ namespace FoodIsekaiZ.Display
         [Tooltip("Seconds to blend breathing in after arrival and out when leaving.")]
         [SerializeField, Min(0.01f)] private float idleBreathingBlendSeconds = 0.45f;
 
+        public bool HasNpcsAtSlots
+        {
+            get
+            {
+                for (int slotIndex = 0; slotIndex < spawnedNpcs.Length; slotIndex++)
+                {
+                    GameObject npc = spawnedNpcs[slotIndex];
+                    if (npc != null && npc.activeInHierarchy && !npcExitingAtSlots[slotIndex]) return true;
+                }
+                return false;
+            }
+        }
+
         public bool HasNpcsInRestaurant
         {
             get

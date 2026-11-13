@@ -24,6 +24,7 @@ namespace FoodIsekaiZ.Display
 
         private bool IsBreakOrResults => gameManager != null && gameManager.UsesMealWaves &&
             (gameManager.CurrentMealWavePhase == MealWavePhase.Intermission ||
+             gameManager.CurrentMealWavePhase == MealWavePhase.Minigame ||
              gameManager.CurrentMealWavePhase == MealWavePhase.Completed);
 
         public int MealIndex => gameManager != null && gameManager.UsesMealWaves

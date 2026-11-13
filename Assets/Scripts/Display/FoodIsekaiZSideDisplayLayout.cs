@@ -131,6 +131,7 @@ namespace FoodIsekaiZ.Display
 
                 if (gameManager != null &&
                     (gameManager.CurrentMealWavePhase == MealWavePhase.Intermission ||
+                     gameManager.CurrentMealWavePhase == MealWavePhase.Minigame ||
                      gameManager.CurrentMealWavePhase == MealWavePhase.Completed))
                 {
                     SetCustomerFoodImage(i, FoodType.None);

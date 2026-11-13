@@ -156,6 +156,15 @@ namespace FoodIsekaiZ.Players
 
             Transform targetParent = playerParent != null ? playerParent : transform;
             bool useUwbTracking = !standaloneSimulationMode;
+
+            // With live UWB and the ready phase choosing numbers, no tag table is needed: every tag
+            // that connects joins by itself (ConnectDetectedTag), first come first served, up to six.
+            if (useUwbTracking && selectPlayerNumberBeforeGameplay)
+            {
+                Debug.Log("[UWBPlayerSpawner] Auto-detecting UWB tags: each tag that connects joins the ready phase", this);
+                return;
+            }
+
             for (int i = 0; i < players.Length; i++)
             {
                 if (standaloneSimulationMode && spawnedPlayers.Count >= Mathf.Clamp(simulationPlayerCount, 1, MaximumPlayers))

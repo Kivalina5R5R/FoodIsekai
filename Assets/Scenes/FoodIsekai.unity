@@ -533,7 +533,7 @@ MonoBehaviour:
   - {fileID: 457706413}
   - {fileID: 132541454}
   useMealWaves: 1
-  waveDurationSeconds: 90
+  waveDurationSeconds: 140
   intermissionDurationSeconds: 30
   lastCallBeforeBreakSeconds: 7.5
   mealWaves:
@@ -2932,6 +2932,7 @@ MonoBehaviour:
   kioskCanvases:
   - {fileID: 59327168}
   kioskDisplayResolution: {x: 1080, y: 1920}
+  kioskMonitorName: 
   sideCamera: {fileID: 875458886}
   sideCanvases: []
   floorCamera: {fileID: 564735573}
@@ -2939,7 +2940,7 @@ MonoBehaviour:
   activateSecondDisplayOnAwake: 1
   applyPaperArenaResolutionsInStandalone: 1
   placeOutputsOnMatchingMonitors: 1
-  kioskMonitorName: 
+  floorMonitorName: 
   sideDisplayResolution: {x: 8192, y: 2160}
   floorDisplayResolution: {x: 2944, y: 1408}
   refreshRate: 60
@@ -3099,7 +3100,7 @@ Camera:
     m_Bits: 4294967295
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
-  m_TargetDisplay: 2
+  m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
   m_AllowMSAA: 1
@@ -54113,9 +54114,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5895120125043787686, guid: 00c802b663363ea4ab1c7efcd4db27f5, type: 3}
+      propertyPath: m_TargetDisplay
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6330906010346652110, guid: 00c802b663363ea4ab1c7efcd4db27f5, type: 3}
       propertyPath: m_Name
       value: ChaosDisplay
+      objectReference: {fileID: 0}
+    - target: {fileID: 6330906010346652110, guid: 00c802b663363ea4ab1c7efcd4db27f5, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -54126,10 +54135,10 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1275446546}
+  - {fileID: 2026098017}
   - {fileID: 385200953}
   - {fileID: 101588414}
   - {fileID: 278790267}
   - {fileID: 536440275}
   - {fileID: 2144607759}
-  - {fileID: 2026098017}
-  - {fileID: 1275446546}

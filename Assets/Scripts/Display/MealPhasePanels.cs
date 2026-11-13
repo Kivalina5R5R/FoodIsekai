@@ -36,6 +36,10 @@ namespace FoodIsekaiZ.Display
         private GameObject exclusivePanel;
         private GameObject requestedPanel;
         private Coroutine transition;
+        // The floor tables put away early, as soon as the last customer of a finished meal leaves their slot.
+        private Coroutine earlyFloorSlide;
+        private bool earlySliding;
+        private bool floorSlidOut;
         private Coroutine pendingCover;
         private Action coveredPhaseChange;
         private MealWavePhase previousPhase = MealWavePhase.NotStarted;
@@ -69,6 +73,23 @@ namespace FoodIsekaiZ.Display
         private void LateUpdate()
         {
             if (exclusivePanel != null) HideOtherUi(exclusivePanel);
+            // The customer and serving tables leave the floor as soon as the last customer of the
+            // finished meal steps away from their slot, without waiting for them to walk off the wall,
+            // or when the meal is skipped straight to its minigames.
+            bool floorFree = gameManager != null && (gameManager.AreCustomerSlotsVacated ||
+                gameManager.CurrentMealWavePhase == MealWavePhase.Minigame);
+            if (!floorSlidOut && !earlySliding && floorFree)
+            {
+                earlySliding = true;
+                earlyFloorSlide = StartCoroutine(SlideFloorOutEarly());
+            }
+        }
+
+        private IEnumerator SlideFloorOutEarly()
+        {
+            yield return SlideFloorOut();
+            earlySliding = false;
+            earlyFloorSlide = null;
         }
 
         private void HideOtherUi(GameObject panel)
@@ -120,10 +141,18 @@ namespace FoodIsekaiZ.Display
                 if (entry.Key != null) entry.Key.SetActive(entry.Value);
             }
             previousVisibility.Clear();
+            floorSlidOut = false;
         }
 
         private IEnumerator SlideFloorOut()
         {
+            // Already put away (or going) since the last customer left: the break only waits for it.
+            if (floorSlidOut)
+            {
+                while (earlySliding) yield return null;
+                yield break;
+            }
+            floorSlidOut = true;
             if (hideDuringBreak == null) yield break;
             foreach (GameObject target in hideDuringBreak)
             {
@@ -154,6 +183,10 @@ namespace FoodIsekaiZ.Display
                 }
                 yield return null;
             }
+
+            // Off the floor means switched off too; SlideFloorIn and RestoreOtherUi switch them back on.
+            foreach (Transform target in floorSlideOrigins.Keys)
+                if (target != null) target.gameObject.SetActive(false);
         }
 
         private IEnumerator SlideFloorIn()
@@ -234,6 +267,9 @@ namespace FoodIsekaiZ.Display
         {
             if (pendingCover != null) StopCoroutine(pendingCover);
             pendingCover = null;
+            if (earlyFloorSlide != null) StopCoroutine(earlyFloorSlide);
+            earlyFloorSlide = null;
+            earlySliding = false;
             if (transition != null) StopCoroutine(transition);
             transition = null;
             menuTransition?.Hide();
@@ -285,9 +321,10 @@ namespace FoodIsekaiZ.Display
             bool intermission = enabledWaves && gameManager.CurrentMealWavePhase == MealWavePhase.Intermission;
             bool complete = enabledWaves && gameManager.CurrentMealWavePhase == MealWavePhase.Completed;
             bool active = enabledWaves && gameManager.CurrentMealWavePhase == MealWavePhase.Active;
+            bool minigame = enabledWaves && gameManager.CurrentMealWavePhase == MealWavePhase.Minigame;
             bool phaseChanged = enabledWaves && (previousPhase != gameManager.CurrentMealWavePhase ||
                 previousWave != gameManager.CurrentWaveNumber);
-            bool showMenu = menuTransition != null && phaseChanged && (active || intermission || complete);
+            bool showMenu = menuTransition != null && phaseChanged && (active || intermission || complete || minigame);
             if (enabledWaves)
             {
                 previousPhase = gameManager.CurrentMealWavePhase;
@@ -300,7 +337,7 @@ namespace FoodIsekaiZ.Display
             if (requestedPanel == nextExclusivePanel && !showMenu) return;
             requestedPanel = nextExclusivePanel;
             if (transition != null) StopCoroutine(transition);
-            string heading = complete ? "SERVICE RESULTS" : intermission ? "SERVICE BREAK" :
+            string heading = complete ? "SERVICE RESULTS" : intermission ? "SERVICE BREAK" : minigame ? "MINI GAMES" :
                 gameManager != null ? gameManager.CurrentWaveName : string.Empty;
             transition = StartCoroutine(TransitionTo(nextExclusivePanel, showMenu, heading));
         }
@@ -311,7 +348,8 @@ namespace FoodIsekaiZ.Display
                 gameManager.CurrentMealWavePhase == MealWavePhase.Active && floorSlideOrigins.Count > 0;
             gameManager?.SetPhasePresentationPaused(showMenu || returnFloor);
             if (showMenu) yield return menuTransition.Cover(heading);
-            if (exclusivePanel != nextPanel && previousVisibility.Count > 0)
+            // Tables put away early during clearing have no panel yet and must not snap back for the break.
+            if (exclusivePanel != nextPanel && previousVisibility.Count > 0 && (exclusivePanel != null || returnFloor))
             {
                 if (exclusivePanel != null) yield return FadePanel(exclusivePanel, false);
                 exclusivePanel = null;

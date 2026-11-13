@@ -176,6 +176,9 @@ namespace FoodIsekaiZ.Gameplay
         private int specialMenuWave = int.MinValue;
         private IWaveDepartureStatus departureStatus;
         private IMealIntermissionGate intermissionGate;
+        private IMinigameRoundHost minigameHost;
+        // The meal whose minigame round has started, so each meal plays one round.
+        private int minigameRoundWave = -1;
         // Order counters at the start of the meal being logged; the log stores each meal's difference.
         private int loggedWaveIndex = -1;
         private int loggedWaveServedAtStart;
@@ -195,6 +198,24 @@ namespace FoodIsekaiZ.Gameplay
         }
 
         public void RegisterIntermissionGate(IMealIntermissionGate gate) => intermissionGate = gate;
+
+        // A registered host plays a minigame round after every meal; without one the game goes
+        // straight from a meal to its break as before.
+        public void RegisterMinigameHost(IMinigameRoundHost host) => minigameHost = host;
+
+        public void ReleaseMinigameHost(IMinigameRoundHost host)
+        {
+            if (ReferenceEquals(minigameHost, host)) minigameHost = null;
+        }
+
+        // Minigame rewards go into the team wallet like deposited money; coins still there when the
+        // game ends become bonus score.
+        public void AwardTeamCoins(int amount)
+        {
+            if (amount <= 0) return;
+            totalBankedMoney = (int)Math.Min(int.MaxValue, (long)totalBankedMoney + amount);
+            BankedMoneyChanged?.Invoke(totalBankedMoney);
+        }
 
         public void ReleaseIntermissionGate(IMealIntermissionGate gate)
         {
@@ -232,11 +253,39 @@ namespace FoodIsekaiZ.Gameplay
         public int CompletedOrderCount => completedOrderCount;
         public int ExpiredOrderCount => expiredOrderCount;
         public IReadOnlyList<ArenaSlot2D> CustomerSlots => customerSlots;
+
+        // True once a meal's time is up and the last customer has left their slot, even while
+        // they are still walking off the wall; the floor tables may be put away from then on.
+        public bool AreCustomerSlotsVacated
+        {
+            get
+            {
+                if (!useMealWaves || mealWavePhase != MealWavePhase.Clearing) return false;
+                if (departureStatus != null) return !departureStatus.HasNpcsAtSlots;
+                if (customerSlots == null) return true;
+                foreach (ArenaSlot2D slot in customerSlots)
+                    if (slot != null && (slot.CustomerState == CustomerSlotState.Eating ||
+                        slot.CustomerState == CustomerSlotState.Completing)) return false;
+                return true;
+            }
+        }
         public bool UsesMealWaves => useMealWaves;
         public MealWavePhase CurrentMealWavePhase => mealWavePhase;
         public int CurrentWaveNumber => currentWaveIndex >= 0 ? currentWaveIndex + 1 : 0;
         public int TotalWaveCount => mealWaves != null ? mealWaves.Length : 0;
         public float MealPhaseRemainingSeconds => mealPhaseRemainingSeconds;
+        // True while a minigame is counting down on the meal clock (see ShowMinigameSeconds).
+        public bool IsMinigameClockRunning =>
+            useMealWaves && mealWavePhase == MealWavePhase.Minigame && mealPhaseRemainingSeconds > 0f;
+
+        // The minigame runner shows its own countdown (the choice, then the game) on the meal clock;
+        // zero hides the clock again. Ignored outside the minigame phase.
+        public void ShowMinigameSeconds(float seconds)
+        {
+            if (!useMealWaves || mealWavePhase != MealWavePhase.Minigame) return;
+            mealPhaseRemainingSeconds = Mathf.Max(0f, seconds);
+            NotifyMealWaveDisplayIfNeeded();
+        }
         // True during the final seconds of an active wave, when no new customer may enter a slot.
         public bool IsNewCustomerEntryClosed =>
             useMealWaves &&
@@ -368,6 +417,7 @@ namespace FoodIsekaiZ.Gameplay
             if (HandleResultQuit()) return;
             if (IsWaitingForStartup) return;
             if (HandleSimulationShortcut()) return;
+            if (HandleMinigameShortcut()) return;
             if (TickResultRestart()) return;
             if (phasePresentationPaused) return;
 
@@ -445,6 +495,9 @@ namespace FoodIsekaiZ.Gameplay
             }
 
             if (!mealWaveFlowStarted) return false;
+
+            // The minigame round has its own skip key.
+            if (mealWavePhase == MealWavePhase.Minigame) return false;
 
             if (mealWavePhase == MealWavePhase.Intermission && intermissionGate != null)
             {
@@ -726,6 +779,18 @@ namespace FoodIsekaiZ.Gameplay
                     if (slot != null && (slot.CustomerState == CustomerSlotState.Eating ||
                         slot.CustomerState == CustomerSlotState.Completing || slot.IsAutomaticCollectionPending)) return;
 
+            if (minigameHost != null && minigameRoundWave != currentWaveIndex)
+            {
+                BeginMinigameRound();
+                return;
+            }
+
+            LeaveFinishedMeal();
+        }
+
+        // After a meal (and its minigames): the results after the last meal, otherwise the break.
+        private void LeaveFinishedMeal()
+        {
             if (currentWaveIndex >= TotalWaveCount - 1)
             {
                 CompleteMealWaves();
@@ -740,6 +805,42 @@ namespace FoodIsekaiZ.Gameplay
                 return;
             }
             BeginIntermission();
+        }
+
+        // Comma jumps from the meal being served straight to its minigame round (for testing).
+        private bool HandleMinigameShortcut()
+        {
+            if (minigameHost == null || !useMealWaves || !mealWaveFlowStarted || phasePresentationPaused ||
+                phaseChangePending || Keyboard.current == null || !Keyboard.current.commaKey.wasPressedThisFrame) return false;
+            if (mealWavePhase != MealWavePhase.Active && mealWavePhase != MealWavePhase.Clearing) return false;
+            if (minigameRoundWave == currentWaveIndex) return false;
+
+            Debug.Log($"[FoodIsekaiZGameManager] Comma: jumping to the minigames after {CurrentWaveName}", this);
+            BeginMinigameRound();
+            return true;
+        }
+
+        private void BeginMinigameRound()
+        {
+            minigameRoundWave = currentWaveIndex;
+            int round = currentWaveIndex;
+            ChangeMealBehindCover("MINI GAMES", () =>
+            {
+                SettleOutstandingMoney();
+                DiscardPlayerFood();
+                StopCustomerFlowAndClearSlots();
+                mealWavePhase = MealWavePhase.Minigame;
+                mealPhaseRemainingSeconds = 0f;
+                lastNotifiedMealSecond = int.MinValue;
+                NotifyMealWaveDisplayIfNeeded(true);
+                minigameHost.BeginRound(round, TotalWaveCount, FinishMinigameRound);
+            });
+        }
+
+        private void FinishMinigameRound()
+        {
+            if (mealWavePhase != MealWavePhase.Minigame) return;
+            LeaveFinishedMeal();
         }
 
         // Both normal clearance and the simulation shortcut use the same break transition.

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd40d7ad1f2e8484db69de85992523af, type: 3}
+  m_Name: MinigameViews
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Minigames.MinigameViewLibrary
+  views:
+  - {fileID: 8208530193119825266, guid: 1a7a8ebd06eddce4fa65861c1aeb50d4, type: 3}
+  - {fileID: 1536572857009411874, guid: da6d6763252c0fd4581a73ed95749761, type: 3}
+  - {fileID: 4973950458450272941, guid: b338ce9cc0160c441b18c04cea2ebfcb, type: 3}
+  - {fileID: 3091656448198603096, guid: 9a68f1258d4d91f458e5a4f3436f33b6, type: 3}
+  - {fileID: 8809230749182657416, guid: 26557df5247489343b51be1a95a40ec0, type: 3}
+  - {fileID: 9195172924996667404, guid: c32faefe35eabf048ae1d45032e50e17, type: 3}
+  - {fileID: 5790792492965159091, guid: aa0fe5406bb3e1347875c5159d8f56ba, type: 3}
+  - {fileID: 4858985271608103816, guid: 0e218483217d70441b6f6d44ecf5bab4, type: 3}
+  - {fileID: 616406022598912136, guid: 448a73aa69c1cf549ae9efd01b9246ee, type: 3}
+  - {fileID: 7456652893472948466, guid: d18e6e24ed304a94a80a1035435e9845, type: 3}
+  - {fileID: 5300497392252107963, guid: fb20e7d4620b4af42a52e4b6c10cfe10, type: 3}

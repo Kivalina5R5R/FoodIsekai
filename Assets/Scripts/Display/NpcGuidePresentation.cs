@@ -109,6 +109,13 @@ namespace FoodIsekaiZ.Display
         // Select authored dialogue before starting the matching guide entrance.
         public void UsePerkDialogue(bool usePerk)
         {
+            UseDialogue(usePerk ? perkDialogue : introDialogue);
+        }
+
+        // Select any speech bubble made like the authored ones (a runtime copy, for example) before the
+        // entrance; its AudioSource, if it has a clip, is the voice line.
+        public void UseDialogue(GameObject line)
+        {
             if (dialogue != null)
             {
                 dialogue.SetActive(false);
@@ -116,7 +123,7 @@ namespace FoodIsekaiZ.Display
             }
             if (introDialogue != null) introDialogue.SetActive(false);
             if (perkDialogue != null) perkDialogue.SetActive(false);
-            dialogue = usePerk ? perkDialogue : introDialogue;
+            dialogue = line;
             dialogueRect = dialogue != null ? dialogue.transform as RectTransform : null;
             if (dialogueRect != null) dialogueScale = dialogueRect.localScale;
             if (breathing != null) breathing.SetVerticalFollower(dialogueRect);

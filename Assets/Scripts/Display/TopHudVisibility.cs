@@ -33,10 +33,16 @@ namespace FoodIsekaiZ.Display
 
         private void Update()
         {
+            // The meal clock has nothing to count while service clears, nor between minigame countdowns;
+            // the minigame choice and each minigame count down on it.
             bool clearing = gameManager != null && gameManager.UsesMealWaves &&
-                gameManager.CurrentMealWavePhase == MealWavePhase.Clearing;
-            Fade(scoreFrame, !reportVisible, ref scoreProgress);
-            Fade(mvpFrame, !reportVisible, ref mvpProgress);
+                (gameManager.CurrentMealWavePhase == MealWavePhase.Clearing ||
+                 gameManager.CurrentMealWavePhase == MealWavePhase.Minigame && !gameManager.IsMinigameClockRunning);
+            // Minigames keep the wall clean like the perk shop: no score or MVP.
+            bool minigame = gameManager != null && gameManager.UsesMealWaves &&
+                gameManager.CurrentMealWavePhase == MealWavePhase.Minigame;
+            Fade(scoreFrame, !reportVisible && !minigame, ref scoreProgress);
+            Fade(mvpFrame, !reportVisible && !minigame, ref mvpProgress);
             Fade(timeFrame, !reportVisible && !clearing, ref timeProgress);
         }
 
