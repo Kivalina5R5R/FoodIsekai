@@ -14,7 +14,8 @@ namespace FoodIsekaiZ.Minigames
     //   choice (MinigameChoice): the offers pop up as four cards in the middle of the wall and on
     //   the perk shop's floor tiles, and standing on a tile picks it; if nobody picks in time one
     //   is drawn at random, then everything animates away.
-    //   then the chosen game: command word 2 s, play up to 20 s, result ResultSeconds.
+    //   then the chosen game: command word 2 s, a 3, 2, 1 count-in on the wall (1 s each), play until the game finishes by itself (no clock
+    //   is shown), result ResultSeconds.
     // When the result is over the game manager moves on, through its transition, to the perk shop
     // (or the results after the last meal). Runs on unscaled time.
     // Coins: a cleared minigame puts ClearCoins in the team wallet and a perfect one PerfectCoins more;
@@ -25,12 +26,17 @@ namespace FoodIsekaiZ.Minigames
     public sealed class MinigameRunner : MonoBehaviour, IMinigameRoundHost
     {
         private const float CommandSeconds = 2f;
-        private const float PlayCapSeconds = 20f;
+        // After the command card every game counts in 3, 2, 1 on the wall, one number per step.
+        private const int CountInFrom = 3;
+        private const float CountInStepSeconds = 1f;
+        // Games play with no clock and end themselves; this only rescues the round if a game
+        // somehow never finishes, and is never shown.
+        private const float PlaySafetySeconds = 120f;
         private const float ResultSeconds = 4f;
         private const int ClearCoins = 10;
         private const int PerfectCoins = 5;
 
-        private enum Step { Idle, Choice, Command, Play, Result }
+        private enum Step { Idle, Choice, Command, CountIn, Play, Result }
 
         private static MinigameRunner current;
 
@@ -53,6 +59,7 @@ namespace FoodIsekaiZ.Minigames
         private int roundIndex;
         private int roundCount;
         private Minigame game;
+        private int countInNumber;
         private string gameId;
         private Action finished;
 
@@ -203,7 +210,12 @@ namespace FoodIsekaiZ.Minigames
                     TickChoice(deltaTime, skip);
                     break;
                 case Step.Command:
-                    if (clock >= stepEnds) StartPlay();
+                    if (clock >= stepEnds) ShowCountIn(CountInFrom);
+                    break;
+                case Step.CountIn:
+                    if (clock < stepEnds) break;
+                    if (countInNumber > 1) ShowCountIn(countInNumber - 1);
+                    else StartPlay();
                     break;
                 case Step.Play:
                     TickPlay(deltaTime, skip);
@@ -244,18 +256,31 @@ namespace FoodIsekaiZ.Minigames
             stepEnds = clock + CommandSeconds;
         }
 
+        // Shows number on the wall over the game's layout, which is already drawn, so the players see
+        // where to stand before it starts.
+        private void ShowCountIn(int number)
+        {
+            if (step != Step.CountIn) overlay.SetBackdrop(game.ShadesWall);
+            countInNumber = number;
+            overlay.ShowCountIn(number, CountInStepSeconds);
+            sounds?.TryPlay(GameSoundCue.SmallPerkHoldTick, true);
+            step = Step.CountIn;
+            stepEnds = clock + CountInStepSeconds;
+        }
+
         private void StartPlay()
         {
             overlay.ShowPlaying(game);
+            overlay.SetBackdrop(game.ShadesWall);
             step = Step.Play;
-            stepEnds = clock + PlayCapSeconds;
+            stepEnds = clock + PlaySafetySeconds;
+            // No countdown while a game plays: the meal clock is hidden and the game ends itself.
+            gameManager.ShowMinigameSeconds(0f);
         }
 
         private void TickPlay(float deltaTime, bool skip)
         {
             game.Tick(deltaTime);
-            // The time left shows on the meal clock, like the meals' own time.
-            gameManager.ShowMinigameSeconds(stepEnds - clock);
             if (!game.IsDone && (clock >= stepEnds || skip)) game.TimeUp();
             if (game.IsDone) ShowResult();
         }

@@ -58,6 +58,10 @@ namespace FoodIsekaiZ.Display
             foreach (Canvas canvas in FindObjectsByType<Canvas>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             {
                 if (!canvas.isRootCanvas || canvas.worldCamera != wallCamera) continue;
+                // Overlays nested inside the wall (such as the intro overlay, which sorts on its own and
+                // is slightly wider) are not the wall itself; anything drawn into them hides with them.
+                Transform parent = canvas.transform.parent;
+                if (parent != null && parent.GetComponentInParent<Canvas>(true) != null) continue;
                 var rect = (RectTransform)canvas.transform;
                 float area = rect.rect.width * rect.rect.height;
                 if (area <= bestArea) continue;

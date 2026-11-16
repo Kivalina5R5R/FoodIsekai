@@ -11,7 +11,9 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private CustomerPanelSuccessParticles vanishParticles;
         private Vector3 restingScale;
         private const float ShakeSeconds = .45f;
-        private Vector3 restingPosition;
+        // Only the motion offset is owned here; the slot's position belongs to its layout, which minigames
+        // may move after Awake, so the offset is removed and re-added instead of restoring a cached position.
+        private Vector3 appliedOffset;
         private float idleTime;
         private float shakeAge = ShakeSeconds;
         private bool occupied;
@@ -27,7 +29,6 @@ namespace FoodIsekaiZ.Display
         private void Awake()
         {
             restingScale = transform.localScale;
-            restingPosition = transform.localPosition;
         }
 
         private void OnEnable()
@@ -102,8 +103,9 @@ namespace FoodIsekaiZ.Display
                 offset.x = Mathf.Sin(shakeAge * 55f) * 10f * decay * decay;
             }
             swell = OccupiedSwell(Time.unscaledDeltaTime);
-            // The offset and swell always resolve back to the authored resting position and scale.
-            transform.localPosition = restingPosition + offset;
+            // The offset and swell always resolve back to the layout's current position and authored scale.
+            transform.localPosition += offset - appliedOffset;
+            appliedOffset = offset;
             transform.localScale = restingScale * swell;
         }
 
@@ -173,7 +175,8 @@ namespace FoodIsekaiZ.Display
             swell = 1f;
             leaveAge = 1f;
             transform.localScale = restingScale;
-            transform.localPosition = restingPosition;
+            transform.localPosition -= appliedOffset;
+            appliedOffset = Vector3.zero;
             IsHidden = true;
             HasRevealed = false;
         }

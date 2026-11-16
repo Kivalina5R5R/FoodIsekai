@@ -1,83 +1,119 @@
 using FoodIsekaiZ.Display;
-using TMPro;
+using FoodIsekaiZ.Localization;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Serialization;
 
 namespace FoodIsekaiZ.Minigames.Views
 {
     // Chef Says on the wall and floor (prefab Assets/Prefab/Minigame/ChefSays).
-    // Wall: an arrow on each side with its word, the chef with a small arrow on her board, and the
-    // countdown gauge (the same gilded gauge the players fill when they get ready), which stays where
-    // the prefab puts it. The called arrow shows at its authored colour, the other fades to
-    // ghostAlpha and loses its word.
+    // Wall: each call first floats the called direction up on that side, then the wolfgirl chef pops up
+    // there from behind that side's countdown gauge, and ducks away between calls.
+    // The gauges, words and both portraits keep their authored prefab layout.
     // Floor: one ChefSaysFloorMark per player, cloned from the template: its moving chevrons during a
-    // call, then that player's own right or wrong mark after it.
+    // call with a faint ingredient at their end, then that player's own right or wrong mark after it.
+    // Wall bottom middle: the basket every collected ingredient flies into (ChefSaysBasket).
     public sealed class ChefSaysView : MinigameView
     {
-        [SerializeField] private Image leftArrow;
-        [SerializeField] private Image rightArrow;
-        [SerializeField] private TMP_Text leftWord;
-        [SerializeField] private TMP_Text rightWord;
-        [SerializeField] private Image signArrow;
-        [SerializeField] private ReadyConfirmationGauge callGauge;
+        [SerializeField] private ChefSaysPopup leftChef;
+        [SerializeField] private ChefSaysPopup rightChef;
+        [SerializeField, FormerlySerializedAs("callGauge")] private ReadyConfirmationGauge leftGauge;
+        [SerializeField] private ReadyConfirmationGauge rightGauge;
+        [SerializeField] private ChefSaysCallWord leftWord;
+        [SerializeField] private ChefSaysCallWord rightWord;
+        // How long the called word floats on its own before the chef pops out under it.
+        [SerializeField, Min(0f)] private float chefDelay = 0.25f;
         [SerializeField] private ChefSaysFloorMark markTemplate;
-        [SerializeField, Range(0f, 1f)] private float ghostAlpha = 0.1f;
+        // Fantasy ingredients waiting at the end of the arrows, and the basket on the wall they go into.
+        [SerializeField] private Sprite[] ingredients = new Sprite[0];
+        [SerializeField] private ChefSaysBasket basket;
 
-        private Color leftColour;
-        private Color rightColour;
+        public int IngredientCount => ingredients.Length;
+
+        private ReadyConfirmationGauge activeGauge;
+
+        // Seconds from a call appearing until the chef has popped out and looked both ways; the
+        // game times each call to this so the gauge runs out as she finishes.
+        public float CallSeconds => chefDelay + Mathf.Max(leftChef.AppearanceSeconds, rightChef.AppearanceSeconds);
 
         protected override void OnBound()
         {
-            leftColour = leftArrow.color;
-            rightColour = rightArrow.color;
-            Quiet();
+            leftChef.HideImmediately();
+            rightChef.HideImmediately();
+            ShowGauge(null);
+            if (leftWord != null) leftWord.HideImmediately();
+            if (rightWord != null) rightWord.HideImmediately();
         }
 
-        public void SetWords(string left, string right)
-        {
-            leftWord.text = left;
-            rightWord.text = right;
-        }
-
-        // Lights the called side, flips the chef's arrow to match and shows the full gauge.
+        // Only the called side enters, including when the same side is called twice.
         public void ShowCall(bool right)
         {
-            Light(!right, right);
-            Vector3 scale = signArrow.rectTransform.localScale;
-            scale.x = Mathf.Abs(scale.x) * (right ? 1f : -1f);
-            signArrow.rectTransform.localScale = scale;
-            signArrow.enabled = true;
-            callGauge.gameObject.SetActive(true);
+            (right ? leftChef : rightChef).HideImmediately();
+            ChefSaysCallWord word = right ? rightWord : leftWord;
+            if (word != null) word.Play(right ? GameLanguage.Pick("RIGHT!", "ขวา!") : GameLanguage.Pick("LEFT!", "ซ้าย!"));
+            (right ? rightChef : leftChef).Show(chefDelay);
+            ShowGauge(right ? rightGauge : leftGauge);
             SetBar(1f);
         }
 
-        // Between calls: both arrows faded, no gauge, nothing on the chef's board.
+        // The visible chef leaves while the players return to the middle.
         public void Quiet()
         {
-            Light(false, false);
-            callGauge.gameObject.SetActive(false);
-            signArrow.enabled = false;
+            leftChef.Hide();
+            rightChef.Hide();
+            ShowGauge(null);
         }
 
         // share runs 1 -> 0 as the call runs out.
         public void SetBar(float share)
         {
-            callGauge.ShowProgress(share, false, false);
+            if (activeGauge != null) activeGauge.ShowProgress(share, false, false);
         }
 
-        // A floor mark for one player, with chevrons made for up to maxReach metres.
-        public ChefSaysFloorMark AddMark(float maxReach)
+        // Shows only the given side's gauge; null hides both.
+        private void ShowGauge(ReadyConfirmationGauge gauge)
+        {
+            activeGauge = gauge;
+            if (leftGauge != null) leftGauge.gameObject.SetActive(gauge == leftGauge);
+            if (rightGauge != null) rightGauge.gameObject.SetActive(gauge == rightGauge);
+        }
+
+        // A floor mark for one player, with chevrons in that player's colour made for up to
+        // maxReach metres.
+        public ChefSaysFloorMark AddMark(float maxReach, Color playerColour)
         {
             ChefSaysFloorMark mark = Spawn(markTemplate);
-            mark.Setup(maxReach * MinigameStage.UnitsPerMetre);
+            mark.Setup(maxReach * MinigameStage.UnitsPerMetre, playerColour);
             return mark;
         }
 
         // Moves mark to arena point here and points its chevrons the called way for reach metres.
-        public void PointMark(ChefSaysFloorMark mark, Vector2 here, bool right, float reach)
+        // Returns, in metres, how far out the last shown chevron reaches (at least one always shows).
+        public float PointMark(ChefSaysFloorMark mark, Vector2 here, bool right, float reach)
         {
             PlaceOnFloor((RectTransform)mark.transform, here);
-            mark.Point(right, reach * MinigameStage.UnitsPerMetre);
+            return mark.Point(right, reach * MinigameStage.UnitsPerMetre) / MinigameStage.UnitsPerMetre;
+        }
+
+        // Shows ingredient number index faintly centre metres out on the called side of mark.
+        public void ShowIngredient(ChefSaysFloorMark mark, int index, bool right, float centre)
+        {
+            mark.ShowIngredient(Ingredient(index), right, centre * MinigameStage.UnitsPerMetre);
+        }
+
+        public void CollectIngredient(ChefSaysFloorMark mark)
+        {
+            mark.CollectIngredient();
+        }
+
+        // Ingredient number index flies into the wall basket from the bottom edge on the given side.
+        public void SendToBasket(int index, bool fromRight)
+        {
+            if (basket != null) basket.Add(Ingredient(index), fromRight);
+        }
+
+        private Sprite Ingredient(int index)
+        {
+            return index >= 0 && index < ingredients.Length ? ingredients[index] : null;
         }
 
         // Moves mark to where the player stands now (arena point here) and shows their result there.
@@ -85,20 +121,6 @@ namespace FoodIsekaiZ.Minigames.Views
         {
             PlaceOnFloor((RectTransform)mark.transform, here);
             mark.ShowResult(correct);
-        }
-
-        private void Light(bool left, bool right)
-        {
-            SetLit(leftArrow, leftWord, leftColour, left);
-            SetLit(rightArrow, rightWord, rightColour, right);
-        }
-
-        private void SetLit(Image arrow, TMP_Text word, Color authored, bool lit)
-        {
-            Color colour = authored;
-            if (!lit) colour.a *= ghostAlpha;
-            arrow.color = colour;
-            word.enabled = lit;
         }
     }
 }

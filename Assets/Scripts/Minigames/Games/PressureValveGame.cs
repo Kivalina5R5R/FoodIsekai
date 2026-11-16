@@ -18,7 +18,7 @@ namespace FoodIsekaiZ.Minigames.Games
         private const float HoldSeconds = 0.45f;
         private const float RevealSeconds = 0.6f;
         private const float BoomSeconds = 1.2f;
-        // Turns must fit the 20 s cap at speed 1, with room for the pauses between them.
+        // All turns together, pauses included, last about 20 s at speed 1, keeping the game short.
         private const float TurnBudgetSeconds = 18.5f;
 
         private static readonly Vector2 PotCentre = new Vector2(5.5f, 2.6f);

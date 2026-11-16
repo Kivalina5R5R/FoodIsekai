@@ -50,6 +50,18 @@ namespace FoodIsekaiZ.Minigames
             stage.Label("Rule", card, Pick(game.EnglishRule, game.ThaiRule), 36f, MinigameArt.Cream, new Vector2(0f, -140f), new Vector2(1300f, 60f));
         }
 
+        // One step of the 3, 2, 1 count-in between the command card and play: a big number dropping
+        // into the middle of the wall over seconds, with the game's own drawings visible behind it.
+        public void ShowCountIn(int number, float seconds)
+        {
+            Clear();
+            TMP_Text label = stage.Label("Count In", card, number.ToString(), 260f, MinigameArt.Cream, Vector2.zero, new Vector2(420f, 340f));
+            label.enableAutoSizing = false;
+            label.outlineColor = MinigameArt.Brown;
+            label.outlineWidth = 0.22f;
+            label.gameObject.AddComponent<MinigameCountIn>().Play(label, seconds);
+        }
+
         // The game's own HUD shows its name and rule while it plays, so the card is left empty.
         public void ShowPlaying(Minigame game)
         {

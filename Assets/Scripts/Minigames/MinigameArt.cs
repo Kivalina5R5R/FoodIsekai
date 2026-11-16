@@ -17,6 +17,8 @@ namespace FoodIsekaiZ.Minigames
         private static Sprite hexagon;
         private static Sprite pill;
         private static Sprite chevron;
+        private static Sprite glow;
+        private static Sprite star;
         private static readonly Dictionary<string, Sprite> pictures = new Dictionary<string, Sprite>();
         private static MinigameArtLibrary library;
 
@@ -88,6 +90,21 @@ namespace FoodIsekaiZ.Minigames
             float bend = x + 0.9f * Mathf.Abs(y);
             float inside = Mathf.Min(Mathf.Min(bend + 0.3f, 0.3f - bend), 0.9f - Mathf.Abs(y));
             return Edge(inside, 128);
+        });
+
+        // A soft round glow: full in the middle, fading smoothly to nothing at the rim.
+        public static Sprite Glow => glow != null ? glow : glow = Make(128, (x, y) =>
+        {
+            float fade = Mathf.Clamp01(1f - Mathf.Sqrt(x * x + y * y));
+            return fade * fade;
+        });
+
+        // A four-pointed sparkle star with curved, pinched sides and a soft halo at its heart.
+        public static Sprite Star => star != null ? star : star = Make(128, (x, y) =>
+        {
+            float inside = 1f - (Mathf.Sqrt(Mathf.Abs(x)) + Mathf.Sqrt(Mathf.Abs(y)));
+            float halo = Mathf.Clamp01(1f - Mathf.Sqrt(x * x + y * y) * 2.4f);
+            return Mathf.Max(Edge(inside, 128), halo * halo);
         });
 
         // The minigame picture called name (its file name in Assets/Art/Minigame), or null when it has

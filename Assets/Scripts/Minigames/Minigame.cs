@@ -21,9 +21,10 @@ namespace FoodIsekaiZ.Minigames
         public string Thai { get; }
     }
 
-    // One minigame, played by MinigameRunner in a fixed 25 s slot: Begin (its floor zones and wall
-    // pictures appear while the command word shows), then Tick every frame until it calls Finish or
-    // the runner calls TimeUp at the 20 s cap, then End takes its drawings away.
+    // One minigame, played by MinigameRunner: Begin (its floor zones and wall pictures appear while
+    // the command word shows), then Tick every frame until it calls Finish, then End takes its
+    // drawings away. There is no time limit, so every game must finish by itself; the runner only
+    // calls TimeUp for the simulation skip key or a long hidden safety stop.
     // A subclass builds its look in Build, plays in Step, and must call Finish from Step or OnTimeUp.
     // Everything runs on unscaled time. Speed is the round's speed-up k (1, 1.25 or 1.5).
     public abstract class Minigame
@@ -51,6 +52,9 @@ namespace FoodIsekaiZ.Minigames
         public abstract string ThaiTitle { get; }
         public abstract string EnglishRule { get; }
         public abstract string ThaiRule { get; }
+        // Whether the wall is darkened behind the game while it plays. A game whose wall art
+        // should sit straight on the tavern scene turns this off.
+        public virtual bool ShadesWall => true;
 
         public bool IsDone { get; private set; }
         public bool Passed { get; private set; }
@@ -79,7 +83,7 @@ namespace FoodIsekaiZ.Minigames
             Step(deltaTime);
         }
 
-        // The 20 s cap has passed: the minigame decides its result now.
+        // The game is being cut short (simulation skip or the safety stop): it decides its result now.
         public void TimeUp()
         {
             if (IsDone) return;
