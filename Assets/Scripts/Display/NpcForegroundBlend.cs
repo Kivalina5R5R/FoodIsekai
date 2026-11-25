@@ -11,6 +11,9 @@ namespace FoodIsekaiZ.Display
         private RectTransform sourceVisual;
         private Image sourceImage;
         private Image foregroundImage;
+        private RawImage sourceFrame;
+        private RawImage foregroundFrame;
+        private Graphic rearImage;
         private Material originalMaterial;
         private Material rearBlendMaterial;
         private RectTransform foregroundRoot;
@@ -33,14 +36,18 @@ namespace FoodIsekaiZ.Display
         public float Weight => weight;
 
         // Creates a visual-only foreground copy using the live NPC's authored geometry.
+        // An NPC with video animation passes its frame RawImage, a child of the body, which is mirrored too.
         public void Initialize(RectTransform npcRoot, Image npcImage, Transform frontLayer,
-            float startDistance, float laneOffset)
+            float startDistance, float laneOffset, RawImage frameImage = null)
         {
             Clear();
             sourceRoot = npcRoot;
             sourceVisual = npcImage.rectTransform;
             sourceImage = npcImage;
-            originalMaterial = npcImage.material;
+            sourceFrame = frameImage;
+            // The rear blend belongs on whichever image is actually drawn.
+            rearImage = frameImage != null && !npcImage.enabled ? (Graphic)frameImage : npcImage;
+            originalMaterial = rearImage.material;
             approachStartDistance = startDistance;
             rearLaneOffset = laneOffset;
 
@@ -77,6 +84,22 @@ namespace FoodIsekaiZ.Display
             foregroundImage.useSpriteMesh = npcImage.useSpriteMesh;
             foregroundImage.maskable = npcImage.maskable;
             foregroundImage.raycastTarget = false;
+            foregroundImage.enabled = npcImage.enabled;
+
+            if (sourceFrame != null)
+            {
+                var frameObject = new GameObject(sourceFrame.name,
+                    typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+                frameObject.layer = sourceFrame.gameObject.layer;
+                frameObject.transform.SetParent(foregroundVisual, false);
+                CopyRect(sourceFrame.rectTransform, (RectTransform)frameObject.transform);
+                // Both images show the same render texture, so the copy follows the video by itself.
+                foregroundFrame = frameObject.GetComponent<RawImage>();
+                foregroundFrame.texture = sourceFrame.texture;
+                foregroundFrame.material = sourceFrame.material;
+                foregroundFrame.color = sourceFrame.color;
+                foregroundFrame.raycastTarget = false;
+            }
 
             Shader rearShader = Resources.Load<Shader>("Shaders/NpcRearBlend");
             if (rearShader != null)
@@ -86,7 +109,7 @@ namespace FoodIsekaiZ.Display
                 rearBlendMaterial = new Material(rearShader) { hideFlags = HideFlags.HideAndDontSave };
                 rearBlendMaterial.CopyPropertiesFromMaterial(originalMaterial);
                 rearBlendMaterial.SetFloat(ForegroundWeightId, 0f);
-                sourceImage.material = rearBlendMaterial;
+                rearImage.material = rearBlendMaterial;
             }
         }
 
@@ -103,7 +126,7 @@ namespace FoodIsekaiZ.Display
             {
                 rearBlendMaterial.SetFloat(ForegroundWeightId, weight);
                 // A UI mask may use a stencil material derived from our material.
-                sourceImage.materialForRendering.SetFloat(ForegroundWeightId, weight);
+                rearImage.materialForRendering.SetFloat(ForegroundWeightId, weight);
             }
         }
 
@@ -119,14 +142,18 @@ namespace FoodIsekaiZ.Display
             CopyPose(sourceVisual, foregroundVisual);
             foregroundImage.sprite = sourceImage.sprite;
             foregroundImage.overrideSprite = sourceImage.overrideSprite;
+            if (foregroundFrame != null && sourceFrame != null)
+            {
+                foregroundFrame.texture = sourceFrame.texture;
+            }
         }
 
         // Immediately hides and releases the temporary foreground image.
         public void Clear()
         {
-            if (sourceImage != null && rearBlendMaterial != null)
+            if (rearImage != null && rearBlendMaterial != null)
             {
-                sourceImage.material = originalMaterial;
+                rearImage.material = originalMaterial;
             }
 
             if (rearBlendMaterial != null)
@@ -143,6 +170,9 @@ namespace FoodIsekaiZ.Display
             foregroundRoot = null;
             foregroundVisual = null;
             foregroundImage = null;
+            foregroundFrame = null;
+            sourceFrame = null;
+            rearImage = null;
             foregroundOpacity = null;
             sourceRoot = null;
             sourceVisual = null;

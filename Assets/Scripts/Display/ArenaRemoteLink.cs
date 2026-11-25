@@ -86,13 +86,18 @@ namespace FoodIsekaiZ.Display
             FortalArenaRemote.CanOpenTutorial = CanOpen;
             FortalArenaRemote.OpenTutorial = OpenBoard;
             FortalArenaRemote.CloseTutorial = CloseBoard;
+            // The launcher's BACK / NEXT turn the board's pages (kit 3.1).
+            FortalArenaRemote.GetTutorialPage = () => board != null ? board.PageNumber : 1;
+            FortalArenaRemote.GetTutorialPageCount = () => board != null ? board.PageCount : 0;
+            FortalArenaRemote.ShowTutorialPage = page => { if (board != null) board.GoToPage(page); };
             Debug.Log("[ArenaRemoteLink] The launcher can open the tutorial during the ready phase", this);
         }
 
-        // Only while players are still picking their numbers (or before the ready phase starts).
+        // Only while the players pick their numbers: from the end of the intro until the game starts.
+        // It never opens by itself.
         private bool CanOpen()
         {
-            return board != null && (readySelection == null || !readySelection.IsCompleted);
+            return board != null && (readySelection == null || readySelection.HasBegun);
         }
 
         private void OpenBoard()
@@ -102,7 +107,8 @@ namespace FoodIsekaiZ.Display
 
         private void CloseBoard()
         {
-            if (board != null) board.Close();
+            if (board == null) return;
+            board.Close();
         }
 
         private void Update()
@@ -127,6 +133,9 @@ namespace FoodIsekaiZ.Display
             FortalArenaRemote.CanOpenTutorial = null;
             FortalArenaRemote.OpenTutorial = null;
             FortalArenaRemote.CloseTutorial = null;
+            FortalArenaRemote.GetTutorialPage = null;
+            FortalArenaRemote.GetTutorialPageCount = null;
+            FortalArenaRemote.ShowTutorialPage = null;
         }
 
         // A font asset the scene has already loaded, by name; null when it is not loaded.

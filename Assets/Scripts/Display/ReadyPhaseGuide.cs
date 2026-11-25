@@ -66,7 +66,9 @@ namespace FoodIsekaiZ.Display
                 if (instance != null && instance.gameObject.activeSelf) instance.gameObject.SetActive(false);
                 return;
             }
-            if (spawned || !selection.IsSelecting || guidePrefab == null) return;
+            // Lunar walks out and speaks as soon as the intro ends, before any player is on the floor;
+            // the number cards wait for her and for the launcher's START (PlayerReadySelection).
+            if (spawned || !selection.HasBegun || guidePrefab == null) return;
             spawned = true;
             instance = Instantiate(guidePrefab, transform, false);
             Rect area = ((RectTransform)transform).rect;

@@ -34,6 +34,9 @@ namespace FoodIsekaiZ.Players
         private float zoneCenter;
         private float zoneSpacing;
         private bool rosterLocked;
+        // At the arena the game waits for the launcher's START (the players have paid) before it starts.
+        private bool waitForStartPress;
+        private bool startPressed;
         // Per-card feedback state so step, hold and contest sounds play once per change.
         private readonly bool[] zoneOccupied = new bool[UWBPlayerSpawner.MaximumPlayers];
         private readonly bool[] zoneContested = new bool[UWBPlayerSpawner.MaximumPlayers];
@@ -44,6 +47,17 @@ namespace FoodIsekaiZ.Players
 
         public bool IsSelecting => selection != null && !completed;
         public bool IsCompleted => completed;
+        // True from the intro's end (BeginSelection) until the game starts.
+        public bool HasBegun => selectionRequested && !completed;
+        // True while the game has not started and START has not been pressed yet.
+        public bool IsWaitingForStart => !completed && !startPressed;
+
+        // From now on the number cards come up, and so the game starts, only once StartPressed has
+        // been called.
+        public void WaitForStartPress() => waitForStartPress = true;
+
+        // START was pressed: the number cards come up once Lunar reaches them in her line.
+        public void StartPressed() => startPressed = true;
 
         private void Awake()
         {
@@ -67,6 +81,8 @@ namespace FoodIsekaiZ.Players
             if (!readyShown)
             {
                 if (readyGuide != null && readyGuide.isActiveAndEnabled && !readyGuide.IsReadyForSelection) return;
+                // The number cards come up only once the launcher's START has taken the players' credit.
+                if (waitForStartPress && !startPressed) return;
                 ShowReady();
             }
 
@@ -113,6 +129,7 @@ namespace FoodIsekaiZ.Players
             {
                 if (players[p] == null || !players[p].IsAvailableForSelection) return;
             }
+            if (waitForStartPress && !startPressed) return;
             bool guideFinished = readyGuide == null || readyGuide.TryFinish();
             if (!rosterLocked && (guideFinished || readyGuide.HasStartedExit))
             {

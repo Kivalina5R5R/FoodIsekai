@@ -13,6 +13,7 @@ namespace FoodIsekaiZ.Display
 
         [SerializeField] private Sprite angryBodySprite;
         private Image bodyImage;
+        private NpcVideoAnimation spriteAnimation;
         private Sprite normalBodySprite;
         private NpcAngerEffect angerEffect;
         private bool bodyIsAngry;
@@ -56,6 +57,7 @@ namespace FoodIsekaiZ.Display
         {
             Hide();
             bodyImage = visualBody;
+            spriteAnimation = GetComponent<NpcVideoAnimation>();
             normalBodySprite = bodyImage != null ? bodyImage.sprite : null;
             if (burst != null)
             {
@@ -237,6 +239,13 @@ namespace FoodIsekaiZ.Display
                 {
                     angerEffect?.Stop();
                 }
+            }
+
+            // Animated NPCs play their angry loop instead of swapping the body sprite.
+            if (spriteAnimation != null && spriteAnimation.HasAngryClip)
+            {
+                spriteAnimation.SetAngry(angry);
+                return;
             }
 
             if (bodyImage == null)

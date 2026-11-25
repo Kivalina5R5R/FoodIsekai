@@ -1,5 +1,6 @@
 using System.Collections;
 using FoodIsekaiZ.Audio;
+using Fortal.Arena;
 using UnityEngine;
 
 namespace FoodIsekaiZ.Display
@@ -174,7 +175,12 @@ namespace FoodIsekaiZ.Display
             float turnSeconds = Mathf.Max(0.3f, poseBlend != null ? poseBlend.FadeSeconds + 0.15f : 0.3f);
             // Cross-dissolve from the inward standing pose to a walking pose that already faces the exit,
             // with a light squash and lean, so no frame shows a hard mirror flip.
-            if (poseBlend != null) poseBlend.MirrorWalkingImage(true);
+            if (poseBlend != null)
+            {
+                poseBlend.MirrorWalkingImage(true);
+                // Fade in the frame the exit walk starts on, so the first step does not jump to another pose.
+                poseBlend.SetWalkSteps(-Vector2.Distance(groundedPosition, destination) / Mathf.Max(1f, speed) * walkingBobFrequency);
+            }
             else rect.localScale = exitScale;
             while (elapsed < turnSeconds)
             {
@@ -217,7 +223,11 @@ namespace FoodIsekaiZ.Display
             float duration = cruiseSeconds + stopSeconds;
             float elapsed = 0f;
             rect.anchoredPosition = start;
-            int stride = Mathf.FloorToInt(-distance / speed * walkingBobFrequency);
+            // The entrance comes to rest on the walk frame closest to the standing pose, so the fade
+            // into the standing pose does not start from a wide stride. Bob, frames and footsteps all
+            // share this phase, so each foot still lands with its footstep.
+            float arrivalSteps = !exiting && poseBlend != null ? poseBlend.ArrivalSteps : 0f;
+            int stride = Mathf.FloorToInt(arrivalSteps - distance / speed * walkingBobFrequency);
             // The standing spot is where she is closest; the off-screen end of the walk is farthest.
             Vector2 standingSpot = exiting ? start : destination;
             while (elapsed < duration)
@@ -233,7 +243,7 @@ namespace FoodIsekaiZ.Display
                 }
                 groundedPosition = Vector2.Lerp(start, destination, distance > 0f ? travelled / distance : 1f);
                 // Match customer stride: remaining distance grounds the final step at the destination.
-                float phase = -(distance - travelled) / speed * walkingBobFrequency * Mathf.PI * 2f;
+                float phase = (arrivalSteps - (distance - travelled) / speed * walkingBobFrequency) * Mathf.PI * 2f;
                 float bob = (.5f - .5f * Mathf.Cos(phase)) * walkingBobHeight;
                 // Ease into the first stride instead of jumping up immediately after the turn.
                 bob *= Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / 0.2f));
@@ -244,6 +254,8 @@ namespace FoodIsekaiZ.Display
                     bob *= 1f - settle;
                 }
                 rect.anchoredPosition = groundedPosition + Vector2.up * bob;
+                // The walk frames follow the same steps as the bob, so each foot lands with its footstep.
+                if (poseBlend != null) poseBlend.SetWalkSteps(phase / (Mathf.PI * 2f));
                 if (exiting && HasClearedCanvas())
                 {
                     FinishExit();
@@ -309,7 +321,7 @@ namespace FoodIsekaiZ.Display
             if (footstepSource == null || footstepClips == null || footstepClips.Length == 0) return;
             AudioClip clip = footstepClips[footstepIndex % footstepClips.Length];
             footstepIndex++;
-            if (clip != null) footstepSource.PlayOneShot(clip, footstepVolume * distanceVolume);
+            if (clip != null) footstepSource.PlayOneShot(clip, footstepVolume * distanceVolume * FortalArenaSettings.Sfx);
         }
 
         private void FadeOutVoice()
@@ -399,10 +411,16 @@ namespace FoodIsekaiZ.Display
                 StopVoiceNow();
                 dialogueRect.localScale = dialogueScale * 0.05f;
                 dialogue.SetActive(true);
-                if (footstepSource != null && bubbleClip != null) footstepSource.PlayOneShot(bubbleClip, bubbleVolume);
-                // Play the bubble's authored voice exactly when its reveal begins.
+                if (footstepSource != null && bubbleClip != null)
+                    footstepSource.PlayOneShot(bubbleClip, bubbleVolume * FortalArenaSettings.Sfx);
+                // Play the bubble's authored voice exactly when its reveal begins, at its authored level
+                // scaled by the launcher's effects level (fades and stops restore the authored level).
                 dialogueVoice = dialogue.GetComponent<AudioSource>();
-                if (dialogueVoice != null && dialogueVoice.clip != null) dialogueVoice.Play();
+                if (dialogueVoice != null && dialogueVoice.clip != null)
+                {
+                    dialogueVoice.volume = AuthoredVolume(dialogueVoice) * FortalArenaSettings.Sfx;
+                    dialogueVoice.Play();
+                }
             }
             Vector3 from = dialogueRect.localScale;
             Vector3 peak = dialogueScale * 1.12f;

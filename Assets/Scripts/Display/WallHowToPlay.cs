@@ -57,7 +57,7 @@ namespace FoodIsekaiZ.Display
                 "Bring each customer the dish on their order before they get angry and leave. Omakase eats anything!",
                 "นำ​อาหาร​ที่​ลูกค้า​สั่ง​ไป​ส่ง​ก่อน​ลูกค้า​โกรธ​แล้ว​เดิน​ออก Omakase กิน​อะไร​ก็ได้!"),
             new Page("Step4Coins", "", "BANK THE COINS", "เก็บ​เหรียญ​เข้า​ธนาคาร",
-                "Pick up the coins a happy customer leaves, then carry them to the Guild Bank.",
+                "Pick up the coins a happy customer leaves, then carry them to the Cashier.",
                 "เก็บ​เหรียญ​ที่​ลูกค้า​จ่าย แล้ว​นำ​ไป​ฝาก​ที่​ธนาคาร​กิลด์"),
             new Page("Step5Perk", "", "BUY PERKS ON BREAKS", "ซื้อ​เพิร์ค​ตอน​พัก",
                 "Between meals, stand on a perk card to buy it with team coins. Coins left at the end become bonus score.",
@@ -108,12 +108,41 @@ namespace FoodIsekaiZ.Display
         // From 0 (none) to 1 (full): how far the picture has popped in; it bobs once it is full.
         private float pop;
         private bool open;
+        // True while the board springs up, before its first page has come in.
+        private bool poppingUp;
+        // Set once the launcher turns a page itself: the pages then stop turning by themselves.
+        private bool heldByLauncher;
 
         // Raised when the board finishes dropping away, whether closed or run out of pages.
         public event Action Closed;
 
         // True from Open until the board starts to drop away.
         public bool IsOpen => open;
+
+        // The page on show, counted from 1.
+        public int PageNumber => current + 1;
+
+        public int PageCount => Pages.Length;
+
+        // Turns to this page (counted from 1) from the launcher's BACK / NEXT, and from then on the
+        // pages wait for it instead of turning by themselves. Ignored while closed or out of range.
+        public void GoToPage(int number)
+        {
+            int index = number - 1;
+            if (!open || index < 0 || index >= Pages.Length) return;
+
+            heldByLauncher = true;
+            if (index == current) return;
+            if (poppingUp)
+            {
+                // The page comes in as the board finishes springing up.
+                current = index;
+                ShowPage(current);
+                return;
+            }
+
+            Play(TurnTo(index));
+        }
 
         // Builds the board (hidden) on the wall canvas. The fonts may be null; TMP's default is used then.
         public void Initialise(RectTransform wallCanvas, TMP_FontAsset english, TMP_FontAsset thai)
@@ -138,6 +167,7 @@ namespace FoodIsekaiZ.Display
             open = true;
             gameObject.SetActive(true);
             current = 0;
+            heldByLauncher = false;
             ShowPage(current);
             Play(PopUp());
             Debug.Log("[WallHowToPlay] Opened", this);
@@ -147,6 +177,7 @@ namespace FoodIsekaiZ.Display
         {
             if (!open) return;
             open = false;
+            poppingUp = false;
             Play(DropAway());
             Debug.Log("[WallHowToPlay] Closed", this);
         }
@@ -164,7 +195,7 @@ namespace FoodIsekaiZ.Display
             pictureRect.anchoredPosition = MedallionCentre + new Vector2(0f, Mathf.Sin(time * BobSpeed) * BobHeight * bob);
             pictureRect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(time * BobSpeed * 0.5f) * 3f * bob);
 
-            if (!open || showing != null) return;
+            if (!open || showing != null || heldByLauncher) return;
 
             pageTime += Time.unscaledDeltaTime;
             if (pageTime < PageSeconds) return;
@@ -220,6 +251,7 @@ namespace FoodIsekaiZ.Display
 
         private IEnumerator PopUp()
         {
+            poppingUp = true;
             PlacePicture(0f);
             pageGroup.alpha = 0f;
             for (float t = 0f; t < OpenSeconds; t += Time.unscaledDeltaTime)
@@ -233,6 +265,7 @@ namespace FoodIsekaiZ.Display
 
             group.alpha = 1f;
             PlaceBoard(1f, 0f, 0f);
+            poppingUp = false;
             yield return PageIn();
         }
 

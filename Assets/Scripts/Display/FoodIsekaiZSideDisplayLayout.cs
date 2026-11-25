@@ -1,5 +1,6 @@
 using FoodIsekaiZ.Gameplay;
 using FoodIsekaiZ.Players;
+using Fortal.Arena;
 using Fortal.UWB;
 using TMPro;
 using UnityEngine;
@@ -31,6 +32,11 @@ namespace FoodIsekaiZ.Display
         private Text intermissionCountdownText;
         private Text uwbStatusText;
         private readonly Image[] customerStatusImages = new Image[CustomerPanelCapacity];
+        // The food type name ("Food Name" in each panel) shown under the single-dish order picture.
+        private readonly TMP_Text[] customerFoodNames = new TMP_Text[CustomerPanelCapacity];
+        // The same food type name at the bottom of each two-dish and three-dish card.
+        private readonly TMP_Text[,] pairedFoodNames = new TMP_Text[CustomerPanelCapacity, 2];
+        private readonly TMP_Text[,] tripleFoodNames = new TMP_Text[CustomerPanelCapacity, 3];
         private readonly Image[] pairedFirstImages = new Image[CustomerPanelCapacity];
         private readonly Image[] pairedSecondImages = new Image[CustomerPanelCapacity];
         // A three-dish order shows three small menu cards, each with its own dish and timer.
@@ -83,9 +89,23 @@ namespace FoodIsekaiZ.Display
             FlushMealWaveDisplayUpdate();
         }
 
+        // The MVP label names the customer, so it is redrawn when the launcher's list or the seating changes.
+        private void OnEnable()
+        {
+            FortalArenaPlayers.Changed += MarkMvpDisplayDirty;
+            FortalArenaPlayers.SeatsChanged += MarkMvpDisplayDirty;
+        }
+
         private void OnDisable()
         {
+            FortalArenaPlayers.Changed -= MarkMvpDisplayDirty;
+            FortalArenaPlayers.SeatsChanged -= MarkMvpDisplayDirty;
             UnsubscribeFromGameEvents();
+        }
+
+        private void MarkMvpDisplayDirty()
+        {
+            mvpDisplayDirty = true;
         }
 
         private void Update()
@@ -342,7 +362,27 @@ namespace FoodIsekaiZ.Display
             if (customerStatusImages[index] != null)
                 customerStatusImages[index].enabled = slot != null && slot.HasCustomer && !omakase && !paired && !triple &&
                     customerStatusImages[index].sprite != null;
+            // The names are text, which the cards' mesh motion cannot carry, so they wait out a card change.
+            bool moving = pairedPresentations[index] != null && pairedPresentations[index].IsTransitioning;
+            for (int dish = 0; dish < 3; dish++)
+                SetFoodName(tripleFoodNames[index, dish], showTriple && !moving, triple ? GetOrderFoodName(slot, dish) : null);
+            for (int dish = 0; dish < 2; dish++)
+                SetFoodName(pairedFoodNames[index, dish], showPair && !moving, paired ? GetOrderFoodName(slot, dish) : null);
+            if (customerFoodNames[index] != null)
+                customerFoodNames[index].enabled = !moving && customerStatusImages[index] != null &&
+                    customerStatusImages[index].enabled;
         }
+
+        // Shows or hides one card's food name; text, when given, replaces the name shown.
+        private static void SetFoodName(TMP_Text label, bool visible, string text)
+        {
+            if (label == null) return;
+            if (text != null) label.text = text;
+            label.enabled = visible && label.text.Length > 0;
+        }
+
+        private string GetOrderFoodName(ArenaSlot2D slot, int dish) => slot.IsOmakase || gameManager == null
+            ? "" : gameManager.GetFoodDisplayName(slot.RemainingFoods[dish]);
 
         private Sprite GetOrderSprite(int index, ArenaSlot2D slot, int dish) => slot.IsOmakase
             ? omakaseImages[index]?.sprite : GetFoodSprite(slot.RemainingFoods[dish]);
@@ -433,7 +473,7 @@ namespace FoodIsekaiZ.Display
                 {
                     if (gameManager != null && gameManager.TryGetMvp(out int playerId, out int playerScore))
                     {
-                        mvpText.text = $"P{playerId}  {playerScore.ToString()}";
+                        mvpText.text = $"{CustomerNames.FirstNameForPlayer(playerId, $"P{playerId}", 8)}  {playerScore.ToString()}";
                     }
                     else
                     {
@@ -532,6 +572,10 @@ namespace FoodIsekaiZ.Display
             statusImage.sprite = GetFoodSprite(food);
             if (mealFoodDisplay == null) ApplyFoodBottomAlignment(index, statusImage);
             statusImage.enabled = statusImage.sprite != null;
+            TMP_Text foodName = customerFoodNames[index];
+            if (foodName == null) return;
+            foodName.text = food == FoodType.None || gameManager == null ? "" : gameManager.GetFoodDisplayName(food);
+            foodName.enabled = statusImage.enabled;
         }
 
         private Sprite GetFoodSprite(FoodType food)
@@ -677,6 +721,9 @@ namespace FoodIsekaiZ.Display
                 customerPanelPresentations[i] = panel.GetComponent<CustomerPanelPresentation>();
                 pairedPresentations[i] = panel.GetComponent<PairedOrderPresentation>();
                 customerStatusImages[i] = GetManualComponent<Image>(panel, "Status");
+                customerFoodNames[i] = GetManualComponent<TMP_Text>(panel, "BG Order/Food Name");
+                pairedFoodNames[i, 0] = GetManualComponent<TMP_Text>(panel, "BG Order Pair First/Food Name");
+                pairedFoodNames[i, 1] = GetManualComponent<TMP_Text>(panel, "BG Order Pair Second/Food Name");
                 pairedFirstImages[i] = GetManualComponent<Image>(panel, "Status Pair First");
                 pairedSecondImages[i] = GetManualComponent<Image>(panel, "Status Pair Second");
                 pairedFirstBackgrounds[i] = GetManualComponent<Image>(panel, "BG Order Pair First");
@@ -688,6 +735,7 @@ namespace FoodIsekaiZ.Display
                     string card = $"BG Order Triple {dish + 1}";
                     tripleBackgrounds[i, dish] = GetManualComponent<Image>(panel, card);
                     tripleImages[i, dish] = GetManualComponent<Image>(panel, $"{card}/Status Triple {dish + 1}");
+                    tripleFoodNames[i, dish] = GetManualComponent<TMP_Text>(panel, $"{card}/Food Name");
                     tripleTimers[i, dish] = GetManualComponent<TavernTimerGraphic>(panel, $"{card}/OrderTimer Triple {dish + 1}");
                 }
                 if (!HasPairedCards(i))

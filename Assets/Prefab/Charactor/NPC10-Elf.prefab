@@ -160,6 +160,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6734917332082796392}
   - component: {fileID: 900000000000000001}
+  - component: {fileID: 8713178684760505715}
   m_Layer: 0
   m_Name: NPC10-Elf
   m_TagString: Untagged
@@ -201,6 +202,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.NpcEmojiPresentation
   angryBodySprite: {fileID: 21300000, guid: 47fc346277d90df448cb16187334ece0, type: 3}
+--- !u!114 &8713178684760505715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3883234354083900449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fda63790914f0fe41ac8031e81ddc9ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.NpcSpriteAnimation
+  frameImage: {fileID: 4195875238210711219}
+  walkClip: {fileID: 32900000, guid: c807fbe3940306143bcb53cd127f2735, type: 3}
+  idleClip: {fileID: 32900000, guid: 3230e9fbab8ca094e9838692420ecd98, type: 3}
+  angryClip: {fileID: 32900000, guid: b77f916c45658244d80f46a9973b82fb, type: 3}
+  angryWalkClip: {fileID: 32900000, guid: 3067928675be5634eb71d6b4f78a3151, type: 3}
+  arriveClip: {fileID: 0}
+  idleLift: []
+  idleRestMinSeconds: 4
+  idleRestMaxSeconds: 8
 --- !u!1 &3953314388760430716
 GameObject:
   m_ObjectHideFlags: 0
@@ -358,6 +380,78 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &4417078905809145486
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1623046590531261376}
+  - component: {fileID: 287534596660936126}
+  - component: {fileID: 4195875238210711219}
+  m_Layer: 0
+  m_Name: AnimatedBody
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1623046590531261376
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4417078905809145486}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1214966675845863765}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.14583333, y: -0.008333334}
+  m_AnchorMax: {x: 0.8541667, y: 0.9166667}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &287534596660936126
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4417078905809145486}
+  m_CullTransparentMesh: 1
+--- !u!114 &4195875238210711219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4417078905809145486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RawImage
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Texture: {fileID: 0}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!1 &7348902802616973433
 GameObject:
   m_ObjectHideFlags: 0
@@ -612,7 +706,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.281556, y: 0.281556, z: 0.281556}
   m_ConstrainProportionsScale: 1
-  m_Children: []
+  m_Children:
+  - {fileID: 1623046590531261376}
   m_Father: {fileID: 6734917332082796392}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -635,7 +730,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8589475696027560641}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 

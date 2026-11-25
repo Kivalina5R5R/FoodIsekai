@@ -1,0 +1,705 @@
+fileFormatVersion: 2
+guid: 550951896da25764b87a1b8bf0d7f30f
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -3886174655970206101
+    second: LunarWalk_12
+  - first:
+      213: -2816523037718334515
+    second: LunarWalk_13
+  - first:
+      213: 3169488191202670579
+    second: LunarWalk_14
+  - first:
+      213: 5488927761052704368
+    second: LunarWalk_15
+  - first:
+      213: -1202848929917081624
+    second: LunarWalk_16
+  - first:
+      213: -1781529668839322857
+    second: LunarWalk_17
+  - first:
+      213: -6876574099605875582
+    second: LunarWalk_18
+  - first:
+      213: 2942655370481743114
+    second: LunarWalk_19
+  - first:
+      213: -8581727344036327195
+    second: LunarWalk_20
+  - first:
+      213: 8326797288483884202
+    second: LunarWalk_21
+  - first:
+      213: 6690167878601697796
+    second: LunarWalk_22
+  - first:
+      213: -6715100474833990534
+    second: LunarWalk_23
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: LunarWalk_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 3072
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b14626e0990dc9810800000000000000
+      internalID: 1773521709067035675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_01
+      rect:
+        serializedVersion: 2
+        x: 653
+        y: 3072
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ac0024105302d220800000000000000
+      internalID: 2509071584868699301
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_02
+      rect:
+        serializedVersion: 2
+        x: 1306
+        y: 3072
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e49bd91db8e1a7080800000000000000
+      internalID: -9188998503830013618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_03
+      rect:
+        serializedVersion: 2
+        x: 1959
+        y: 3072
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70e934507a69f45f0800000000000000
+      internalID: -770231367165043193
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_04
+      rect:
+        serializedVersion: 2
+        x: 2612
+        y: 3072
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20d6ac65cd4b63010800000000000000
+      internalID: 1168320011791133954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_05
+      rect:
+        serializedVersion: 2
+        x: 3265
+        y: 3072
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69080d0f5660e06b0800000000000000
+      internalID: -5328314274231058282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_06
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2048
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8221bb5c0706c7ff0800000000000000
+      internalID: -37048659455831512
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_07
+      rect:
+        serializedVersion: 2
+        x: 653
+        y: 2048
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 071063d9a5ddc3bb0800000000000000
+      internalID: -4954842108760030864
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_08
+      rect:
+        serializedVersion: 2
+        x: 1306
+        y: 2048
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 539bb3b176d2315d0800000000000000
+      internalID: -3093078598211618507
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_09
+      rect:
+        serializedVersion: 2
+        x: 1959
+        y: 2048
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c74cd012fb683f4b0800000000000000
+      internalID: -5407830572090407812
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_10
+      rect:
+        serializedVersion: 2
+        x: 2612
+        y: 2048
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 12bb2005a2084f470800000000000000
+      internalID: 8427501721936378657
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_11
+      rect:
+        serializedVersion: 2
+        x: 3265
+        y: 2048
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 921c8c5f0e0f3bc90800000000000000
+      internalID: -7155110533974671063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1024
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6e15cf7db8811ac0800000000000000
+      internalID: -3886174655970206101
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_13
+      rect:
+        serializedVersion: 2
+        x: 653
+        y: 1024
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc338134833b9e8d0800000000000000
+      internalID: -2816523037718334515
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_14
+      rect:
+        serializedVersion: 2
+        x: 1306
+        y: 1024
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f73e6c97b84cfb20800000000000000
+      internalID: 3169488191202670579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_15
+      rect:
+        serializedVersion: 2
+        x: 1959
+        y: 1024
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07e935397b69c2c40800000000000000
+      internalID: 5488927761052704368
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_16
+      rect:
+        serializedVersion: 2
+        x: 2612
+        y: 1024
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e765dd654f9e4fe0800000000000000
+      internalID: -1202848929917081624
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_17
+      rect:
+        serializedVersion: 2
+        x: 3265
+        y: 1024
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71b4304843cb647e0800000000000000
+      internalID: -1781529668839322857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_18
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 28417514a408190a0800000000000000
+      internalID: -6876574099605875582
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_19
+      rect:
+        serializedVersion: 2
+        x: 653
+        y: 0
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a05b5f5f77966d820800000000000000
+      internalID: 2942655370481743114
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_20
+      rect:
+        serializedVersion: 2
+        x: 1306
+        y: 0
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e05573d27497e880800000000000000
+      internalID: -8581727344036327195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_21
+      rect:
+        serializedVersion: 2
+        x: 1959
+        y: 0
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aac84c0440abe8370800000000000000
+      internalID: 8326797288483884202
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_22
+      rect:
+        serializedVersion: 2
+        x: 2612
+        y: 0
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40a68c35d3048dc50800000000000000
+      internalID: 6690167878601697796
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LunarWalk_23
+      rect:
+        serializedVersion: 2
+        x: 3265
+        y: 0
+        width: 653
+        height: 1024
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7c867e32bb2fc2a0800000000000000
+      internalID: -6715100474833990534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      LunarWalk_00: 1773521709067035675
+      LunarWalk_01: 2509071584868699301
+      LunarWalk_02: -9188998503830013618
+      LunarWalk_03: -770231367165043193
+      LunarWalk_04: 1168320011791133954
+      LunarWalk_05: -5328314274231058282
+      LunarWalk_06: -37048659455831512
+      LunarWalk_07: -4954842108760030864
+      LunarWalk_08: -3093078598211618507
+      LunarWalk_09: -5407830572090407812
+      LunarWalk_10: 8427501721936378657
+      LunarWalk_11: -7155110533974671063
+      LunarWalk_12: -3886174655970206101
+      LunarWalk_13: -2816523037718334515
+      LunarWalk_14: 3169488191202670579
+      LunarWalk_15: 5488927761052704368
+      LunarWalk_16: -1202848929917081624
+      LunarWalk_17: -1781529668839322857
+      LunarWalk_18: -6876574099605875582
+      LunarWalk_19: 2942655370481743114
+      LunarWalk_20: -8581727344036327195
+      LunarWalk_21: 8326797288483884202
+      LunarWalk_22: 6690167878601697796
+      LunarWalk_23: -6715100474833990534
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

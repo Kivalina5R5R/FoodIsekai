@@ -404,7 +404,7 @@ namespace FoodIsekaiZ.Display
                 int score = hasPlayer ? gameManager.GetPlayerScore(rankedPlayerIds[i]) : 0;
                 rowScores.Add(score);
                 if (!hasPlayer) continue;
-                if (resultNames[i] != null) resultNames[i].text = $"Player{rankedPlayerIds[i]}";
+                if (resultNames[i] != null) resultNames[i].text = CustomerNames.ForPlayer(rankedPlayerIds[i], $"Player{rankedPlayerIds[i]}", 12);
                 if (!animateScores && resultScores[i] != null) resultScores[i].text = score.ToString();
             }
 

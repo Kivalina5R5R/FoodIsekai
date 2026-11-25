@@ -1,4 +1,5 @@
 using FoodIsekaiZ.Gameplay;
+using FoodIsekaiZ.Players;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,6 +7,8 @@ using UnityEngine.UI;
 namespace FoodIsekaiZ.Display
 {
     // Displays inventory state on the authored player plate without changing its layout.
+    // The name reads "PLAYER N", or the customer's name when the Fortal launcher knows who carries
+    // this player's tag (SetCustomerName, from ArenaPlayerNames).
     public sealed class PlayerPlateDisplay : MonoBehaviour
     {
         [SerializeField] private FoodIsekaiZPlayerState playerState;
@@ -26,6 +29,12 @@ namespace FoodIsekaiZ.Display
         [SerializeField] private InventoryAppearEffect drinkAppearEffect;
         [SerializeField] private InventoryAppearEffect moneyAppearEffect;
 
+        [Header("Customer name")]
+        // Draws a customer name with Thai letters; anything else keeps the name's own font.
+        [SerializeField] private TMP_FontAsset thaiNameFont;
+        // A longer name is cut to this many letters and ends in "…".
+        [SerializeField, Min(2)] private int longestName = 12;
+
         private int displayedPlayerId = -1;
         private FoodType displayedFood = (FoodType)(-1);
         private int displayedMoney = -1;
@@ -36,6 +45,53 @@ namespace FoodIsekaiZ.Display
         private FoodType pendingFood;
         private int displayedInventoryRevision = -1;
         private bool displayedWaitingForPickup;
+        private string customerName = "";
+        private TMP_FontAsset nameFont;
+        private Material nameMaterial;
+
+        private void Awake()
+        {
+            if (playerName == null) return;
+            nameFont = playerName.font;
+            nameMaterial = playerName.fontSharedMaterial;
+        }
+
+        // Shows the customer's name instead of "PLAYER N"; empty or null brings the number back.
+        public void SetCustomerName(string name)
+        {
+            string shown = CustomerNames.Shorten(name, longestName);
+            if (shown == customerName) return;
+
+            customerName = shown;
+            if (displayedPlayerId > 0) ShowName();
+        }
+
+        private void ShowName()
+        {
+            if (playerName == null) return;
+
+            playerName.text = customerName.Length > 0 ? customerName : $"PLAYER {displayedPlayerId}";
+            bool thai = thaiNameFont != null && HasThai(customerName);
+            if (thai)
+            {
+                playerName.font = thaiNameFont;
+                return;
+            }
+
+            if (nameFont == null || playerName.font == nameFont) return;
+            playerName.font = nameFont;
+            if (nameMaterial != null) playerName.fontSharedMaterial = nameMaterial;
+        }
+
+        private static bool HasThai(string text)
+        {
+            foreach (char letter in text)
+            {
+                if (letter >= '\u0E00' && letter <= '\u0E7F') return true;
+            }
+
+            return false;
+        }
 
         // The spawner supplies the scene meal display to each prefab instance.
         public void BindMealDisplay(MealFoodDisplay display)
@@ -81,7 +137,7 @@ namespace FoodIsekaiZ.Display
                 {
                     playerPlates[i].SetActive(i == plateIndex);
                 }
-                playerName.text = $"PLAYER {displayedPlayerId}";
+                ShowName();
             }
 
             bool waitingForPickup = pendingPickup != null && pendingPickup.isActiveAndEnabled &&

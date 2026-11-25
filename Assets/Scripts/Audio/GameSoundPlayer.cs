@@ -1,4 +1,5 @@
 using System.Collections;
+using Fortal.Arena;
 using UnityEngine;
 
 namespace FoodIsekaiZ.Audio
@@ -101,7 +102,9 @@ namespace FoodIsekaiZ.Audio
             voice.Stop();
             voice.pitch = Mathf.Clamp(pitch, .5f, 2f);
             activeCues[voice] = cue;
-            voice.PlayOneShot(clips[index], Mathf.Clamp01(masterVolume) * configEffectsVolume * Mathf.Pow(10f, GetGainDb(cue) / 20f));
+            // The launcher's effects level (Fortal Arena settings) scales the authored mix of each cue.
+            float level = Mathf.Clamp01(masterVolume) * configEffectsVolume * Mathf.Pow(10f, GetGainDb(cue) / 20f);
+            voice.PlayOneShot(clips[index], level * FortalArenaSettings.Sfx);
             return true;
         }
 

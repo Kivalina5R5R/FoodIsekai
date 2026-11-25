@@ -289,6 +289,27 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &9200000000000000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2204257105625370492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155af145d4d458cbedbc8e1d22f265d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedText
+  target: {fileID: 3134293556275023879}
+  english: "but save a few\n for bonus points \nat the end!"
+  thai: "\u0E40\u0E01\u0E47\u0E1A\u0E44\u0E27\u0E49\u0E40\u0E1B\u0E47\u0E19\u0E04\u0E30\u0E41\u0E19\u0E19\u0E42\u0E1A\u0E19\u0E31\u0E2A\n\u0E15\u0E2D\u0E19\u0E08\u0E1A\u0E44\u0E14\u0E49\u0E19\u0E30!"
+  englishFont: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
+  thaiFont: {fileID: 11400000, guid: be18c2e6e13ba8e4896d9ceabde6c14c, type: 2}
+  thaiSizeScale: 1.15
+  thaiCharacterSpacing: 6
+  thaiBold: 0
+  thaiOffset: {x: 0, y: 0}
 --- !u!1 &2420752895107431731
 GameObject:
   m_ObjectHideFlags: 0
@@ -541,6 +562,21 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &9200000000000000006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2734710177084329327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62a6b01ce42244a3b10de88d8d81c7d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedVoice
+  target: {fileID: 900000000000000020}
+  english: {fileID: 8300000, guid: 0592c960c08fdd54a92d02830b55ee6a, type: 3}
+  thai: {fileID: 8300000, guid: 84a6490fecb96be42a2937443dc1f10d, type: 3}
 --- !u!1 &3002309511391580101
 GameObject:
   m_ObjectHideFlags: 0
@@ -685,6 +721,33 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &9200000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3002309511391580101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155af145d4d458cbedbc8e1d22f265d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedText
+  target: {fileID: 6564519002386325022}
+  english: 'Before we open,
+
+    Pick some perks to help
+
+    out in the kitchen!
+
+'
+  thai: "\u0E01\u0E48\u0E2D\u0E19\u0E40\u0E1B\u0E34\u0E14\u0E23\u0E49\u0E32\u0E19\n\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E04\u0E27\u0E32\u0E21\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E1E\u0E34\u0E40\u0E28\u0E29\n\u0E43\u0E2B\u0E49\u0E07\u0E32\u0E19\u0E43\u0E19\u0E04\u0E23\u0E31\u0E27\u0E07\u0E48\u0E32\u0E22\u0E02\u0E36\u0E49\u0E19\u0E2A\u0E31\u0E01\u0E2B\u0E19\u0E48\u0E2D\u0E22!"
+  englishFont: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
+  thaiFont: {fileID: 11400000, guid: be18c2e6e13ba8e4896d9ceabde6c14c, type: 2}
+  thaiSizeScale: 1.15
+  thaiCharacterSpacing: 6
+  thaiBold: 0
+  thaiOffset: {x: 0, y: 0}
 --- !u!1 &3215290763822658360
 GameObject:
   m_ObjectHideFlags: 0
@@ -1016,8 +1079,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 62, y: -29}
-  m_SizeDelta: {x: 2400, y: 2400}
+  m_AnchoredPosition: {x: 83.065186, y: -32.255447}
+  m_SizeDelta: {x: 1520.4371, y: 2384.269}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7339326198568225707
 CanvasRenderer:
@@ -1047,7 +1110,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c8f3863af8176a647bf58c330c7b409e, type: 3}
+  m_Sprite: {fileID: 1773521709067035675, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1325,6 +1388,154 @@ MonoBehaviour:
   standingVideoImage: {fileID: 4128812600000000004}
   standingVideoClip: {fileID: 32900000, guid: e5e88e0bd8b605343a81a127c8bbb6dd, type: 3}
   fadeSeconds: 0.35
+  walkingFrames:
+  - {fileID: 1773521709067035675, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: 2509071584868699301, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -9188998503830013618, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -770231367165043193, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: 1168320011791133954, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -5328314274231058282, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -37048659455831512, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -4954842108760030864, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -3093078598211618507, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -5407830572090407812, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: 8427501721936378657, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -7155110533974671063, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -3886174655970206101, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -2816523037718334515, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: 3169488191202670579, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: 5488927761052704368, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -1202848929917081624, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -1781529668839322857, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -6876574099605875582, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: 2942655370481743114, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -8581727344036327195, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: 8326797288483884202, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: 6690167878601697796, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  - {fileID: -6715100474833990534, guid: 550951896da25764b87a1b8bf0d7f30f, type: 3}
+  walkingFrameWeights:
+  - 3.656
+  - 6.121
+  - 12.57
+  - 6.276
+  - 7.048
+  - 9.341
+  - 7.057
+  - 8.416
+  - 8.156
+  - 8.389
+  - 10.415
+  - 3.4
+  - 2.756
+  - 7.601
+  - 14.961
+  - 7.338
+  - 7.993
+  - 9.121
+  - 20.524
+  - 9.293
+  - 7.166
+  - 7.258
+  - 11.28
+  - 5.541
+  arrivalFrame: 7
+--- !u!82 &900000000000000023
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6073996257957425641}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 32
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 1
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &6604252711282290402
 GameObject:
   m_ObjectHideFlags: 0
@@ -1463,6 +1674,27 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &9200000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6604252711282290402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155af145d4d458cbedbc8e1d22f265d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedText
+  target: {fileID: 2870779587759297917}
+  english: "Hi! I\u2019m Lunar,"
+  thai: "\u0E2A\u0E27\u0E31\u0E2A\u0E14\u0E35! \u0E09\u0E31\u0E19\u0E25\u0E39\u0E19\u0E48\u0E32"
+  englishFont: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
+  thaiFont: {fileID: 11400000, guid: be18c2e6e13ba8e4896d9ceabde6c14c, type: 2}
+  thaiSizeScale: 1.15
+  thaiCharacterSpacing: 6
+  thaiBold: 0
+  thaiOffset: {x: 0, y: 0}
 --- !u!1 &7166787454614072137
 GameObject:
   m_ObjectHideFlags: 0
@@ -1815,6 +2047,30 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &9200000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8756688441373461387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155af145d4d458cbedbc8e1d22f265d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedText
+  target: {fileID: 2393140535618404833}
+  english: "the head chef here.\nI\u2019ll show you how to\nserve the food!\n\nFirst,
+    stand on the\nnumbered spot,\nthen just run!"
+  thai: "\u0E40\u0E1B\u0E47\u0E19\u0E2B\u0E31\u0E27\u0E2B\u0E19\u0E49\u0E32\u0E40\u0E0A\u0E1F\u0E17\u0E35\u0E48\u0E19\u0E35\u0E48
+    \u0E40\u0E14\u0E35\u0E4B\u0E22\u0E27\u0E09\u0E31\u0E19\u0E08\u0E30\n\u0E1A\u0E2D\u0E01\u0E27\u0E34\u0E18\u0E35\u0E40\u0E2A\u0E34\u0E23\u0E4C\u0E1F\u0E2D\u0E32\u0E2B\u0E32\u0E23\u0E43\u0E2B\u0E49\u0E40\u0E2D\u0E07!\n\n\u0E43\u0E2B\u0E49\u0E04\u0E38\u0E13\u0E44\u0E1B\u0E22\u0E37\u0E19\u0E15\u0E23\u0E07\u0E08\u0E38\u0E14\u0E17\u0E35\u0E48\u0E21\u0E35\u0E15\u0E31\u0E27\u0E40\u0E25\u0E02\n\u0E01\u0E33\u0E01\u0E31\u0E1A\u0E40\u0E2D\u0E32\u0E44\u0E27\u0E49
+    \u0E08\u0E32\u0E01\u0E19\u0E31\u0E49\u0E19\u0E01\u0E47\u0E27\u0E34\u0E48\u0E07\u0E44\u0E14\u0E49\u0E40\u0E25\u0E22!"
+  englishFont: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
+  thaiFont: {fileID: 11400000, guid: be18c2e6e13ba8e4896d9ceabde6c14c, type: 2}
+  thaiSizeScale: 1.15
+  thaiCharacterSpacing: 6
+  thaiBold: 0
+  thaiOffset: {x: 0, y: 0}
 --- !u!1 &9062672850807631483
 GameObject:
   m_ObjectHideFlags: 0
@@ -1885,88 +2141,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 343670eb60b064f4993aa1df1a04bf02, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!1 &9152435886489037694
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4272590084434456617}
-  - component: {fileID: 949918684666313794}
-  - component: {fileID: 2625789873530704485}
-  m_Layer: 0
-  m_Name: Emoji
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!224 &4272590084434456617
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9152435886489037694}
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: 2.52}
-  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
-  m_ConstrainProportionsScale: 1
-  m_Children:
-  - {fileID: 2026091600701}
-  - {fileID: 1215419429801078604}
-  - {fileID: 4263599457740467157}
-  - {fileID: 6861623057858267678}
-  - {fileID: 5382422292124194464}
-  - {fileID: 9030495008085774012}
-  - {fileID: 4906605576255853223}
-  m_Father: {fileID: 1948055538632293883}
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -65, y: 292}
-  m_SizeDelta: {x: 275, y: 296}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &949918684666313794
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9152435886489037694}
-  m_CullTransparentMesh: 1
---- !u!114 &2625789873530704485
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9152435886489037694}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: cc0125ca34ada324fa690c0a3c0763ac, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2073,186 +2247,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!82 &900000000000000023
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6073996257957425641}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
-  m_PlayOnAwake: 0
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 32
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 1
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
---- !u!114 &9200000000000000001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6604252711282290402}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e155af145d4d458cbedbc8e1d22f265d, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedText
-  target: {fileID: 2870779587759297917}
-  english: "Hi! I\u2019m Lunar,"
-  thai: "\u0e2a\u0e27\u0e31\u0e2a\u0e14\u0e35! \u0e09\u0e31\u0e19\u0e25\u0e39\u0e19\u0e48\u0e32"
-  englishFont: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
-  thaiFont: {fileID: 11400000, guid: be18c2e6e13ba8e4896d9ceabde6c14c, type: 2}
-  thaiSizeScale: 1.15
-  thaiCharacterSpacing: 6
---- !u!114 &9200000000000000002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8756688441373461387}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e155af145d4d458cbedbc8e1d22f265d, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedText
-  target: {fileID: 2393140535618404833}
-  english: "the head chef here.\nI\u2019ll show you how to\nserve the food!\n\nFirst,
-    stand on the\nnumbered spot,\nthen just run!"
-  thai: "\u0e40\u0e1b\u0e47\u0e19\u0e2b\u0e31\u0e27\u0e2b\u0e19\u0e49\u0e32\u0e40\u0e0a\u0e1f\u0e17\u0e35\u0e48\u0e19\u0e35\u0e48 \u0e40\u0e14\u0e35\u0e4b\u0e22\u0e27\u0e09\u0e31\u0e19\u0e08\u0e30\n\u0e1a\u0e2d\u0e01\u0e27\u0e34\u0e18\u0e35\u0e40\u0e2a\u0e34\u0e23\u0e4c\u0e1f\u0e2d\u0e32\u0e2b\u0e32\u0e23\u0e43\u0e2b\u0e49\u0e40\u0e2d\u0e07!\n\n\u0e43\u0e2b\u0e49\u0e04\u0e38\u0e13\u0e44\u0e1b\u0e22\u0e37\u0e19\u0e15\u0e23\u0e07\u0e08\u0e38\u0e14\u0e17\u0e35\u0e48\u0e21\u0e35\u0e15\u0e31\u0e27\u0e40\u0e25\u0e02\n\u0e01\u0e33\u0e01\u0e31\u0e1a\u0e40\u0e2d\u0e32\u0e44\u0e27\u0e49 \u0e08\u0e32\u0e01\u0e19\u0e31\u0e49\u0e19\u0e01\u0e47\u0e27\u0e34\u0e48\u0e07\u0e44\u0e14\u0e49\u0e40\u0e25\u0e22!"
-  englishFont: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
-  thaiFont: {fileID: 11400000, guid: be18c2e6e13ba8e4896d9ceabde6c14c, type: 2}
-  thaiSizeScale: 1.15
-  thaiCharacterSpacing: 6
---- !u!114 &9200000000000000003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3002309511391580101}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e155af145d4d458cbedbc8e1d22f265d, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedText
-  target: {fileID: 6564519002386325022}
-  english: 'Before we open,
-
-    Pick some perks to help
-
-    out in the kitchen!
-
-'
-  thai: "\u0e01\u0e48\u0e2d\u0e19\u0e40\u0e1b\u0e34\u0e14\u0e23\u0e49\u0e32\u0e19\n\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e04\u0e27\u0e32\u0e21\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e1e\u0e34\u0e40\u0e28\u0e29\n\u0e43\u0e2b\u0e49\u0e07\u0e32\u0e19\u0e43\u0e19\u0e04\u0e23\u0e31\u0e27\u0e07\u0e48\u0e32\u0e22\u0e02\u0e36\u0e49\u0e19\u0e2a\u0e31\u0e01\u0e2b\u0e19\u0e48\u0e2d\u0e22!"
-  englishFont: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
-  thaiFont: {fileID: 11400000, guid: be18c2e6e13ba8e4896d9ceabde6c14c, type: 2}
-  thaiSizeScale: 1.15
-  thaiCharacterSpacing: 6
---- !u!114 &9200000000000000004
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2204257105625370492}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e155af145d4d458cbedbc8e1d22f265d, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedText
-  target: {fileID: 3134293556275023879}
-  english: "but save a few\n for bonus points \nat the end!"
-  thai: "\u0e40\u0e01\u0e47\u0e1a\u0e44\u0e27\u0e49\u0e40\u0e1b\u0e47\u0e19\u0e04\u0e30\u0e41\u0e19\u0e19\u0e42\u0e1a\u0e19\u0e31\u0e2a\n\u0e15\u0e2d\u0e19\u0e08\u0e1a\u0e44\u0e14\u0e49\u0e19\u0e30!"
-  englishFont: {fileID: 11400000, guid: bec11c478a7a648418d96345a87bf8b0, type: 2}
-  thaiFont: {fileID: 11400000, guid: be18c2e6e13ba8e4896d9ceabde6c14c, type: 2}
-  thaiSizeScale: 1.15
-  thaiCharacterSpacing: 6
 --- !u!114 &9200000000000000005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2263,23 +2257,90 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62a6b01ce42244a3b10de88d8d81c7d7, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedVoice
   target: {fileID: 900000000000000022}
   english: {fileID: 8300000, guid: 73ed3134d646b45428d9511e22c16a74, type: 3}
   thai: {fileID: 8300000, guid: 11ef585e1f3cf444caeaf3954ec26be1, type: 3}
---- !u!114 &9200000000000000006
+--- !u!1 &9152435886489037694
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4272590084434456617}
+  - component: {fileID: 949918684666313794}
+  - component: {fileID: 2625789873530704485}
+  m_Layer: 0
+  m_Name: Emoji
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &4272590084434456617
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9152435886489037694}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 2.52}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 2026091600701}
+  - {fileID: 1215419429801078604}
+  - {fileID: 4263599457740467157}
+  - {fileID: 6861623057858267678}
+  - {fileID: 5382422292124194464}
+  - {fileID: 9030495008085774012}
+  - {fileID: 4906605576255853223}
+  m_Father: {fileID: 1948055538632293883}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -65, y: 292}
+  m_SizeDelta: {x: 275, y: 296}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &949918684666313794
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9152435886489037694}
+  m_CullTransparentMesh: 1
+--- !u!114 &2625789873530704485
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2734710177084329327}
+  m_GameObject: {fileID: 9152435886489037694}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62a6b01ce42244a3b10de88d8d81c7d7, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Localization.LocalizedVoice
-  target: {fileID: 900000000000000020}
-  english: {fileID: 8300000, guid: 0592c960c08fdd54a92d02830b55ee6a, type: 3}
-  thai: {fileID: 8300000, guid: 84a6490fecb96be42a2937443dc1f10d, type: 3}
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: cc0125ca34ada324fa690c0a3c0763ac, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1

@@ -25,6 +25,11 @@ namespace Fortal.Arena
         public static Func<bool> CanOpenTutorial;    // may it open right now? (normally: only at the menu)
         public static Action OpenTutorial;
         public static Action CloseTutorial;
+        // Optional (kit 3.1): a tutorial with pages. With these three set, the Launcher shows BACK / NEXT and turns the
+        // pages itself; without them the game turns its own pages, as before. Pages are numbered from 1.
+        public static Func<int> GetTutorialPage;       // the page showing now, 1..count
+        public static Func<int> GetTutorialPageCount;  // how many pages
+        public static Action<int> ShowTutorialPage;    // show this page (1..count) and stop turning pages by a timer
         // Optional, for a game with Thai and English. Leave them null if the game has one language.
         public static Func<string> GetLanguage;      // "th" or "en"
         public static Action<string> SetLanguage;    // "th" or "en"
@@ -40,8 +45,11 @@ namespace Fortal.Arena
         string lastReport;
 
         struct KeyValuePair { public string action, payload; }
-        [Serializable] class TutorialMessage { public bool open; }
+        [Serializable] class TutorialMessage { public bool open; public int page; }   // page: 1-based, 0 = not given
         [Serializable] class LanguageMessage { public string lang; }
+        [Serializable] class PressMessage { public string id, key, label; }
+        string pressId = "";
+        bool pressOk;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetStatics()
@@ -66,6 +74,18 @@ namespace Fortal.Arena
         }
 
         // For a game that already listens on 19790: pass it what arrives there ("tutorial" + {"open":true}, ...). Main thread.
+        /// <summary>Send the report now instead of at the next 2 s tick (FortalArenaPlayers calls it after seats / scores).</summary>
+        public static void ReportNow() { if (instance != null) instance.lastReport = null; }
+
+        /// <summary>The arena's flow (kit 3.2): the game opens, its intro plays, then the tutorial comes up by itself and the
+        /// menu waits for START. Call this when the intro ends. Nothing happens if the tutorial may not open or is open.</summary>
+        public static void OpenTutorialAfterIntro()
+        {
+            if (Ask(IsTutorialOpen) || !Ask(CanOpenTutorial) || OpenTutorial == null) return;
+            try { OpenTutorial(); } catch (Exception e) { Debug.LogException(e); }
+            ReportNow();
+        }
+
         public static void HandleMessage(string action, string payload)
         {
             if (instance != null) instance.Handle(action, payload);
@@ -138,6 +158,7 @@ namespace Fortal.Arena
         {
             KeyValuePair message;
             while (inbox.TryDequeue(out message)) Handle(message.action, message.payload);
+            CheckWiring();
             reportIn -= Time.unscaledDeltaTime;
             checkIn -= Time.unscaledDeltaTime;
             if (checkIn > 0f && lastReport != null && reportIn > 0f) return;
@@ -154,15 +175,34 @@ namespace Fortal.Arena
                 switch (action)
                 {
                     case "tutorial":
-                        bool open = JsonUtility.FromJson<TutorialMessage>(payload).open;
+                        var tutorial = JsonUtility.FromJson<TutorialMessage>(payload);
+                        bool open = tutorial.open;
                         bool isOpen = IsTutorialOpen != null && IsTutorialOpen();
-                        if (open == isOpen) break;
-                        if (!open) { if (CloseTutorial != null) CloseTutorial(); }
-                        else if (CanOpenTutorial != null && CanOpenTutorial() && OpenTutorial != null) OpenTutorial();
+                        if (open != isOpen)
+                        {
+                            if (!open) { if (CloseTutorial != null) CloseTutorial(); }
+                            else if (CanOpenTutorial != null && CanOpenTutorial() && OpenTutorial != null) OpenTutorial();
+                        }
+                        // BACK / NEXT from the Launcher (kit 3.1): the page is a state too, a resend changes nothing
+                        if (open && tutorial.page > 0 && ShowTutorialPage != null && IsTutorialOpen != null && IsTutorialOpen()
+                            && (GetTutorialPage == null || GetTutorialPage() != tutorial.page)) ShowTutorialPage(tutorial.page);
+                        break;
+                    case "press":   // a game button pressed on the Launcher (FortalArenaButtons, kit 3.2)
+                        var press = JsonUtility.FromJson<PressMessage>(payload);
+                        if (press == null || string.IsNullOrEmpty(press.id) || string.IsNullOrEmpty(press.key)) break;
+                        if (press.id == pressId) break;   // a resend of a press already done
+                        pressId = press.id;
+                        pressOk = FortalArenaButtons.Press(press.key, press.label);
+                        break;
+                    case "arena_players":   // who paid and which UWB tag each carries (FortalArenaPlayers, kit 3.1)
+                        FortalArenaPlayers.Set(JsonUtility.FromJson<FortalArenaPlayers.Message>(payload));
                         break;
                     case "language":
                         var lang = JsonUtility.FromJson<LanguageMessage>(payload).lang;
                         if (SetLanguage != null && (lang == "th" || lang == "en")) SetLanguage(lang);
+                        break;
+                    case "settings":   // sound / brightness / quality (FortalArenaSettings, kit 3.0)
+                        FortalArenaSettings.Set(JsonUtility.FromJson<FortalArenaSettings.Message>(payload));
                         break;
                     case "arena_status":
                         break;
@@ -180,6 +220,17 @@ namespace Fortal.Arena
             catch (Exception e) { Debug.LogException(e); return false; }
         }
 
+        // Nothing connected = the launcher can never open the tutorial, and nothing else in the game would show it. So it is said loudly,
+        // once, in the Console and the log, and the report tells the launcher page.
+        static bool Wired() { return IsTutorialOpen != null && CanOpenTutorial != null && OpenTutorial != null && CloseTutorial != null; }
+        bool wiringChecked;
+        void CheckWiring()
+        {
+            if (wiringChecked || Time.unscaledTime < 5f) return;
+            wiringChecked = true;
+            if (!Wired()) Debug.LogError("[FortalArenaRemote] The tutorial is NOT connected: the launcher's TUTORIAL button cannot work. Add FortalArenaRemoteBridge to an active object in the scene and set it up (README_TH.md), or set the Func / Action fields from your own script.");
+        }
+
         string Report()
         {
             bool tutorial = Ask(IsTutorialOpen);
@@ -187,13 +238,24 @@ namespace Fortal.Arena
             var sb = new StringBuilder("{\"type\":\"arena\",\"data\":{\"scene\":\"");
             sb.Append(SceneManager.GetActiveScene().name.Replace("\"", ""));
             sb.Append("\",\"tutorial\":").Append(tutorial ? "true" : "false");
+            if (tutorial && GetTutorialPage != null && GetTutorialPageCount != null && ShowTutorialPage != null)
+            {
+                int page = 0, count = 0;
+                try { page = GetTutorialPage(); count = GetTutorialPageCount(); } catch (Exception e) { Debug.LogException(e); }
+                if (count > 0) sb.Append(",\"tutorialPage\":").Append(Mathf.Clamp(page, 1, count)).Append(",\"tutorialPages\":").Append(count);
+            }
             sb.Append(",\"tutorialAllowed\":").Append(allowed ? "true" : "false");
+            sb.Append(",\"tutorialWired\":").Append(Wired() ? "true" : "false");
             if (GetLanguage != null)
             {
                 string lang = null;
                 try { lang = GetLanguage(); } catch (Exception e) { Debug.LogException(e); }
                 if (lang == "th" || lang == "en") sb.Append(",\"lang\":\"").Append(lang).Append('"');
             }
+            sb.Append(",\"settings\":").Append(FortalArenaSettings.ReportJson());
+            sb.Append(",\"players\":").Append(FortalArenaPlayers.ReportJson());
+            sb.Append(",\"buttons\":").Append(FortalArenaButtons.ReportJson());
+            if (pressId.Length > 0) sb.Append(",\"press\":{\"id\":\"").Append(FortalArenaButtons.Escape(pressId)).Append("\",\"ok\":").Append(pressOk ? "true" : "false").Append('}');
             return sb.Append("}}").ToString();
         }
 

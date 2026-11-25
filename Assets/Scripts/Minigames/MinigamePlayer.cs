@@ -30,8 +30,8 @@ namespace FoodIsekaiZ.Minigames
 
         public Color Colour { get; }
 
-        // "P1", "P2", ...
-        public string Name => $"P{PlayerId}";
+        // The customer's name from the Fortal launcher, or "P1", "P2", ... when there is none.
+        public string Name => CustomerNames.ForPlayer(PlayerId, $"P{PlayerId}", 10);
 
         // False while the player's tag is offline (their marker is hidden).
         public bool IsPresent => controller != null && controller.gameObject.activeInHierarchy;

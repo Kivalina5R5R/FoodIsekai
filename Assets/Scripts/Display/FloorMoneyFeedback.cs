@@ -46,9 +46,14 @@ namespace FoodIsekaiZ.Display
                 coinBurst?.Play(false, transform.position);
         }
 
+        // Auto Bank money flies from the customer's table into the Cashier's purse. Only the Cashier's
+        // feedback (the one holding the purse) plays it; the table itself shows no burst.
         private void HandleAutomaticCollection(ArenaSlot2D source, int amount)
         {
-            if (source == slot && amount > 0) coinBurst?.Play(false, transform.position);
+            if (source == null || bankPurse == null || amount <= 0) return;
+            bankPurse.SetBalance(gameManager.TotalBankedMoney);
+            bankPurse.Pulse();
+            coinBurst?.PlayTransfer(source.transform.position, bankPurse.transform.position);
         }
 
         private void HandleCollection(FoodIsekaiZPlayerState player, ArenaSlot2D source, int amount)

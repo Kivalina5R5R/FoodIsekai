@@ -12,6 +12,7 @@ namespace FoodIsekaiZ.Display
 
         private RectTransform body;
         private RectTransform verticalFollower;
+        private NpcVideoAnimation liftSource;
         private Vector3 authoredFollowerPosition;
         private float authoredFollowerLocalY;
         private Vector3 followerBodyAnchor;
@@ -65,6 +66,12 @@ namespace FoodIsekaiZ.Display
             authoredFollowerPosition = follower.anchoredPosition3D;
             authoredFollowerLocalY = follower.localPosition.y;
             followerBodyAnchor = body.InverseTransformPoint(follower.position);
+        }
+
+        // Lets the vertical follower also rise with an animated idle, such as a fairy floating up.
+        public void SetLiftSource(NpcVideoAnimation source)
+        {
+            liftSource = source;
         }
 
         public void BeginIdle()
@@ -144,7 +151,12 @@ namespace FoodIsekaiZ.Display
 
             // Follow the same point on the breathing body without stretching the emoji.
             // Rebuild from the authored position so offsets never accumulate between frames.
-            Vector3 anchorPosition = body.TransformPoint(followerBodyAnchor);
+            Vector3 bodyAnchor = followerBodyAnchor;
+            if (liftSource != null)
+            {
+                bodyAnchor.y += liftSource.CurrentLift;
+            }
+            Vector3 anchorPosition = body.TransformPoint(bodyAnchor);
             if (verticalFollower.parent != null)
             {
                 anchorPosition = verticalFollower.parent.InverseTransformPoint(anchorPosition);

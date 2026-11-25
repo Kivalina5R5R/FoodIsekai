@@ -318,6 +318,8 @@ namespace FoodIsekaiZ.Gameplay
         public event Action<ArenaSlot2D, int> CustomerMoneyAutomaticallyCollected;
         public event Action<ArenaSlot2D> CustomerOrderExpired;
         public event Action MealWaveDisplayChanged;
+        // Raised once when the last meal wave ends and every player's score is final.
+        public event Action GameCompleted;
         // The presentation calls the completion action once the previous screen is fully covered.
         public event Action<string, Action> MealTransitionRequested;
 
@@ -910,6 +912,7 @@ namespace FoodIsekaiZ.Gameplay
                 mealPhaseRemainingSeconds = 0f;
                 lastNotifiedMealSecond = int.MinValue;
                 NotifyMealWaveDisplayIfNeeded(true);
+                GameCompleted?.Invoke();
             });
         }
 

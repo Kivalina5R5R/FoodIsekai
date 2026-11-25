@@ -109,6 +109,7 @@ namespace FoodIsekaiZ.Display
             departureStarted = false;
             offersRoot.SetActive(false);
             floorRoot.SetActive(false);
+            SetCoinPanelActive(false);
             guide.gameObject.SetActive(false);
             gameManager.RegisterIntermissionGate(this);
             UpdateLabels();
@@ -130,8 +131,9 @@ namespace FoodIsekaiZ.Display
                 if (!guide.HasOpenedDialogue) return;
                 wallShown = true;
                 offersRoot.SetActive(true);
-                // The coin panel enters on the floor as the perk cards open on the wall.
+                // The coin panel enters on the wall with the perk cards; the floor opens early for its tiles.
                 floorRoot.SetActive(true);
+                SetCoinPanelActive(true);
                 if (session.Offers.Count > 0) soundPlayer?.TryPlay(GameSoundCue.SmallPerkReveal);
             }
             if (!floorShown)
@@ -248,6 +250,7 @@ namespace FoodIsekaiZ.Display
                 departureStarted = true;
                 offersRoot.SetActive(false);
                 floorRoot.SetActive(false);
+                SetCoinPanelActive(false);
                 if (entranceStarted && guide != null) guide.WalkOut(guideStart.anchoredPosition);
             }
             return !entranceStarted || guide == null || guide.HasExited || !guide.gameObject.activeInHierarchy;
@@ -258,7 +261,15 @@ namespace FoodIsekaiZ.Display
             session?.Close();
             gameManager?.ReleaseIntermissionGate(this);
             if (floorRoot != null) floorRoot.SetActive(false);
+            SetCoinPanelActive(false);
             if (guide != null) guide.gameObject.SetActive(false);
+        }
+
+        // The coin panel sits on the wall in front of the guide, outside the offers root, so it is
+        // shown and hidden here together with the wall cards.
+        private void SetCoinPanelActive(bool active)
+        {
+            if (coinPanel != null) coinPanel.gameObject.SetActive(active);
         }
     }
 }

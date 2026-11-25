@@ -411,7 +411,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.227441, y: 0.227441, z: 0.227441}
   m_ConstrainProportionsScale: 1
-  m_Children: []
+  m_Children:
+  - {fileID: 3440873347709579811}
   m_Father: {fileID: 5828204296192877420}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -434,7 +435,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5037238027659496458}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -532,6 +533,78 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &6085478151713769399
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3440873347709579811}
+  - component: {fileID: 927624993994021207}
+  - component: {fileID: 3347102540439285161}
+  m_Layer: 0
+  m_Name: AnimatedBody
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3440873347709579811
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6085478151713769399}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7530639285957548791}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.083333336, y: -0.008333334}
+  m_AnchorMax: {x: 0.9166667, y: 0.9583333}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &927624993994021207
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6085478151713769399}
+  m_CullTransparentMesh: 1
+--- !u!114 &3347102540439285161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6085478151713769399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RawImage
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Texture: {fileID: 0}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!1 &7353146988878017879
 GameObject:
   m_ObjectHideFlags: 0
@@ -617,6 +690,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5828204296192877420}
   - component: {fileID: 900000000000000001}
+  - component: {fileID: 6471370985570404854}
   m_Layer: 0
   m_Name: NPC12-Fox
   m_TagString: Untagged
@@ -658,6 +732,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.NpcEmojiPresentation
   angryBodySprite: {fileID: 21300000, guid: 127db463c86b2184c95834603bf28914, type: 3}
+--- !u!114 &6471370985570404854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8386321999106957261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fda63790914f0fe41ac8031e81ddc9ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodIsekaiZ.Display.NpcSpriteAnimation
+  frameImage: {fileID: 3347102540439285161}
+  walkClip: {fileID: 32900000, guid: b0c94db13af3d3f4286177b33993ebd9, type: 3}
+  idleClip: {fileID: 32900000, guid: 783848f8e8efcc24eb2092a42cfd6480, type: 3}
+  angryClip: {fileID: 32900000, guid: 2dfbb563e05e2834182f77fccdb6531d, type: 3}
+  angryWalkClip: {fileID: 32900000, guid: 58f090b269659b04591c212f7b3b4f2a, type: 3}
+  arriveClip: {fileID: 0}
+  idleLift: []
+  idleRestMinSeconds: 0
+  idleRestMaxSeconds: 0
 --- !u!1 &8871191571486545815
 GameObject:
   m_ObjectHideFlags: 0

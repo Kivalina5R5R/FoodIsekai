@@ -1,4 +1,5 @@
 using System.Collections;
+using Fortal.Arena;
 using UnityEngine;
 
 namespace FoodIsekaiZ.Audio
@@ -125,7 +126,10 @@ namespace FoodIsekaiZ.Audio
             ApplyVolume();
         }
 
-        private void ApplyVolume() => audioSource.volume = baseVolume * fade * duck * transitionDip;
+        // The launcher's music level (Fortal Arena settings) scales the authored mix; it is read every
+        // frame, so a change from the launcher reaches the music without listening for it.
+        private void ApplyVolume() =>
+            audioSource.volume = baseVolume * fade * duck * transitionDip * FortalArenaSettings.Music;
 
         // Fades the intro music out; the game BGM still waits for ReleaseStartup.
         public void EndIntroMusic()
@@ -204,7 +208,7 @@ namespace FoodIsekaiZ.Audio
             audioSource.playOnAwake = false;
             audioSource.loop = loop;
             baseVolume = Mathf.Clamp01(volume);
-            audioSource.volume = baseVolume * fade * duck * transitionDip;
+            ApplyVolume();
             audioSource.spatialBlend = 0f;
         }
     }

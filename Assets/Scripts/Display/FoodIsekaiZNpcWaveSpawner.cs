@@ -46,6 +46,9 @@ namespace FoodIsekaiZ.Display
         }
 
         [Header("NPC Prefab Pool")]
+        [Tooltip("How every NPC is drawn: Animated plays their video clips, Still Image shows their original body sprites.")]
+        [InspectorName("NPC Look")]
+        [SerializeField] private NpcLook npcLook = NpcLook.Animated;
         [Tooltip("NPC prefabs are drawn without replacement during one Wave. Across Waves, prefabs with lower Power are selected first. Configure each Prefab and its entry orientation in the same list.")]
         [InspectorName("NPC Prefabs")]
         [SerializeField] private NpcPrefabSetting[] npcPrefabSettings = Array.Empty<NpcPrefabSetting>();
@@ -180,6 +183,7 @@ namespace FoodIsekaiZ.Display
         private readonly float[] npcApproachDurations = new float[DisplaySlotCount];
         private readonly bool[] npcApproachingAtSlots = new bool[DisplaySlotCount];
         private readonly NpcIdleBreathing[] npcIdleBreathing = new NpcIdleBreathing[DisplaySlotCount];
+        private readonly NpcVideoAnimation[] npcAnimations = new NpcVideoAnimation[DisplaySlotCount];
         private readonly NpcForegroundBlend[] npcForegroundBlends = new NpcForegroundBlend[DisplaySlotCount];
         private readonly NpcEmojiPresentation[] npcEmojiPresentations = new NpcEmojiPresentation[DisplaySlotCount];
         private readonly float[] npcEmojiReadyTimes = new float[DisplaySlotCount];
@@ -524,6 +528,16 @@ namespace FoodIsekaiZ.Display
                 npcIdleBreathing[slotIndex] = breathing;
             }
 
+            // Prefabs with video animation walk in; others keep their single body sprite.
+            NpcVideoAnimation spriteAnimation = instance.GetComponent<NpcVideoAnimation>();
+            npcAnimations[slotIndex] = spriteAnimation;
+            if (spriteAnimation != null)
+            {
+                spriteAnimation.SetLook(npcLook);
+                spriteAnimation.SetWalking(true);
+                npcIdleBreathing[slotIndex]?.SetLiftSource(spriteAnimation);
+            }
+
             spawnedNpcs[slotIndex] = instance;
             spawnedNpcPrefabs[slotIndex] = prefab;
             BeginNpcForegroundApproach(slotIndex, instance.transform as RectTransform, visualBody, finalLayer);
@@ -616,6 +630,10 @@ namespace FoodIsekaiZ.Display
             npcArrivedAtSlots[slotIndex] = false;
             npcApproachingAtSlots[slotIndex] = false;
             npcIdleBreathing[slotIndex]?.EndIdle();
+            if (npcAnimations[slotIndex] != null)
+            {
+                npcAnimations[slotIndex].SetWalking(true);
+            }
             if (!npcOrdersExpired[slotIndex])
             {
                 npcEmojiPresentations[slotIndex]?.Hide();
@@ -818,6 +836,11 @@ namespace FoodIsekaiZ.Display
                 float easedProgress = 1f - remaining * remaining;
                 npcMovementPositions[slotIndex] = Vector2.Lerp(
                     npcApproachStartPositions[slotIndex], npcTargetPositions[slotIndex], easedProgress);
+                // The speed falls in step with the remaining share, so the walk clip slows with it.
+                if (npcAnimations[slotIndex] != null)
+                {
+                    npcAnimations[slotIndex].SetWalkPace(remaining);
+                }
                 if (progress >= 1f)
                 {
                     npcRect.anchoredPosition = npcTargetPositions[slotIndex];
@@ -874,8 +897,10 @@ namespace FoodIsekaiZ.Display
             // 0.18 setting. A faster walking pace must not widen this zone into the preceding slot.
             float startDistance = canvasWidth * Mathf.Clamp(foregroundApproachDistanceCanvasMultiplier, 0.01f, 0.06f);
             NpcForegroundBlend blend = npcRect.gameObject.AddComponent<NpcForegroundBlend>();
+            NpcVideoAnimation spriteAnimation = npcAnimations[slotIndex];
             blend.Initialize(npcRect, npcImage, finalLayer, startDistance,
-                Mathf.Max(0f, foregroundApproachRearOffsetPixels));
+                Mathf.Max(0f, foregroundApproachRearOffsetPixels),
+                spriteAnimation != null ? spriteAnimation.FrameImage : null);
             npcForegroundBlends[slotIndex] = blend;
             npcRect.anchoredPosition += Vector2.up * blend.RearLaneOffset;
             blend.SynchronizePose();
@@ -943,6 +968,10 @@ namespace FoodIsekaiZ.Display
             MoveNpcToFinalLayer(slotIndex);
             ClearNpcForegroundApproach(slotIndex);
             npcIdleBreathing[slotIndex]?.BeginIdle();
+            if (npcAnimations[slotIndex] != null)
+            {
+                npcAnimations[slotIndex].SetWalking(false);
+            }
             npcUiShownAtSlots[slotIndex] = false;
             npcUiReadyTimes[slotIndex] = presentationTime + Mathf.Max(0f, arrivalHoldDurationSeconds);
             SetCustomerPanelVisible(slotIndex, false);
@@ -1206,6 +1235,7 @@ namespace FoodIsekaiZ.Display
             GameObject instance = spawnedNpcs[slotIndex];
             spawnedNpcPrefabs[slotIndex] = null;
             npcIdleBreathing[slotIndex] = null;
+            npcAnimations[slotIndex] = null;
             npcApproachingAtSlots[slotIndex] = false;
             npcMovementPositions[slotIndex] = Vector2.zero;
             npcExitTargetPositions[slotIndex] = Vector2.zero;
@@ -1795,7 +1825,10 @@ namespace FoodIsekaiZ.Display
                     continue;
                 }
 
-                if (string.Equals(child.name, "Menu", StringComparison.OrdinalIgnoreCase) ||
+                // NPC layers sit before the first UI branch so the HUD (Text), the menu and
+                // customer panels all draw in front of every character.
+                if (string.Equals(child.name, "Text", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(child.name, "Menu", StringComparison.OrdinalIgnoreCase) ||
                     child.name.StartsWith("CustomerPanel", StringComparison.OrdinalIgnoreCase))
                 {
                     return contentIndex;

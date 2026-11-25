@@ -21,7 +21,7 @@ namespace FoodIsekaiZ.Minigames
     // Coins: a cleared minigame puts ClearCoins in the team wallet and a perfect one PerfectCoins more;
     // after the last meal they end up as bonus score. In Simulation mode N skips the current step
     // (on the choice it draws a random game).
-    // It adds itself, under the scene's Map, every time a scene loads and registers with the game
+    // It adds itself, under System's MinigameManager, every time a scene loads and registers with the game
     // manager, so no scene set-up is needed. Console lines start with [Minigames].
     public sealed class MinigameRunner : MonoBehaviour, IMinigameRoundHost
     {
@@ -96,8 +96,17 @@ namespace FoodIsekaiZ.Minigames
                 return;
             }
 
+            var settings = FindFirstObjectByType<MinigameManager>(FindObjectsInactive.Include);
+            if (settings != null && !settings.PlayMinigames)
+            {
+                Debug.Log("[Minigames] Play Minigames is off on MinigameManager: no minigames this game");
+                return;
+            }
+
             var host = new GameObject("Minigame Runner");
             current = host.AddComponent<MinigameRunner>();
+            Transform parent = settings != null ? settings.transform : manager.transform.root;
+            host.transform.SetParent(parent, false);
             current.Connect(manager, displays, arena, wall);
         }
 
@@ -106,9 +115,9 @@ namespace FoodIsekaiZ.Minigames
             gameManager = manager;
             spawner = FindFirstObjectByType<UWBPlayerSpawner>(FindObjectsInactive.Include);
             sounds = FindFirstObjectByType<GameSoundPlayer>(FindObjectsInactive.Include);
-            // The runner and its floor canvas live under the scene's Map, next to the arena.
+            // The runner sits under MinigameManager (System); its floor canvas stays under the
+            // scene's Map, next to the arena.
             Transform map = arena.transform.root;
-            transform.SetParent(map, false);
             shop = FindFirstObjectByType<PerkShopPresentation>(FindObjectsInactive.Include);
             if (shop == null || shop.Zones == null) Debug.LogWarning("[Minigames] No perk shop to borrow the floor tiles from: minigames are drawn at random", this);
             stage = new MinigameStage(wall, displays.FloorCamera, arena.ArenaBounds, arena.gameObject.layer,

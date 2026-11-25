@@ -8,6 +8,10 @@ namespace FoodIsekaiZ.Display
     {
         [SerializeField] private PerkCardSparkles sparkles;
         [SerializeField] private bool idleMotion = true;
+        // How far the idle drift moves up and down, in pixels.
+        [SerializeField, Min(0f)] private float idleBobPixels = 3.5f;
+        // Added to the sibling-based phase so a card can drift slightly out of step with its neighbours.
+        [SerializeField] private float idlePhaseOffset;
         [SerializeField] private CustomerPanelSuccessParticles vanishParticles;
         private Vector3 restingScale;
         private const float ShakeSeconds = .45f;
@@ -92,9 +96,9 @@ namespace FoodIsekaiZ.Display
             {
                 idleTime += Time.unscaledDeltaTime;
                 float fade = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(idleTime / .6f));
-                float phase = transform.GetSiblingIndex() * .85f;
+                float phase = transform.GetSiblingIndex() * .85f + idlePhaseOffset;
                 // A small vertical drift keeps text size stable and neighboring cards out of sync.
-                offset.y = Mathf.Sin(idleTime * 1.35f + phase) * 3.5f * fade;
+                offset.y = Mathf.Sin(idleTime * 1.35f + phase) * idleBobPixels * fade;
             }
             if (shaking)
             {
